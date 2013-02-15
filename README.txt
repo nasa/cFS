@@ -1,0 +1,298 @@
+Version 4.0.0 release notes
+   January 16, 2013
+   - This release contains no new API functionality. This release focuses on
+      on improving documentation and fixing bugs.
+   - This release removes support for OS X and Cygwin as OSAL targets. 
+      Support for OS X and Cygwin was out of date and incomplete. 
+      Due to limited resources and the ease of deploying linux virtual
+      machines on OS X and Windows, it was decided to focus on 
+      Linux. 
+   - Documentation fixes: cleaned up call restrictions, return codes, and
+     and flags that were documented but not in the code.
+   - The "apps" directory has been removed and replaced with "examples" and 
+     "tests". New tests have been added to test the semaphores. 
+      Expect additional tests in future releases.
+   - Overhaul of the binary and counting semaphores on all 3 ports. 
+      The posix port now uses pthread condition variables and mutexes for
+      a more robust implementation. The vxworks and rtems ports use the 
+      native binary and counting semaphores and no longer try to maintain 
+      counters in the OSAL. The result is a faster and more robust 
+      implementation.
+   - Fixed incorrect comments in vxWorks OS_TaskCreate function header
+   - Removed unused variable in RTEMS port
+   - Fixed define in OS_API_Init in posix port
+   - Fixed timer structure initialization in posix port
+   - Fixed use of size_copied parameter in RTEMS OS_QueueGet
+   - Fixed use of access and mode parameters for OS_open and OS_creat in all ports
+   - Fixed mutex protection in OS_TaskCreate
+   - Fixed OS_FDGetinfo to use correct return codes
+   - Removed second "close" call in OS_close functions
+   - Close file descriptor in vxworks OS_unmount to remove memory/fd leak
+   - Use posix statfs on vxworks OS_fsBytesFree instead of FIONFREE64 ioctl
+   - Fixed OS_mv in rtems and vxworks to work across volumes and be consistant
+
+Version 3.5.0 release notes
+   April 18, 2012
+   - Incorporated suggestions from RTEMS port code walkthrough. Mostly Cosmetic changes, but there
+     were a few semaphore fixes.
+   - Inhibit output from OS_printf if called from an ISR ( RTEMS only )
+   - Added OS_printf_enable and OS_printf_disable API
+   - Added OS_USED macro to common_types.h for the GNU "used" attribute
+   - Fixed error in OSAL API Document for OS_QueueGet
+
+Version 3.4.1 release notes
+   January 17, 2012
+   - Quick fix: The OS X port had a compilation error
+   - added -m32 to OS X link rule
+
+Version 3.4 release notes
+   December 5, 2011
+   - Added OS_rewinddir API 
+   - Removed OS_MEM_TABLE_SIZE from osconfig.h -- no longer used
+   - Changed the RTEMS volatile/ram disk from NVRAM disk to the regular RTEMS
+     RAM disk for efficiency
+   - Completed the implementation of the RTEMS shell command API. It works
+     with RTEMS 4.10+ to execute a shell command and return the results.
+   - Improved the error handling in some of the example programs
+   - Protected internal data structures in Counting Semaphore APIs in all host
+     OSs
+   - Fixed OS_creat in RTEMS where it was not overwriting an existing file
+
+Version 3.3 release notes
+   May 31, 2011
+   - Added an API to close a file given the original filename/path
+   - Added an API to close all files opened by the OSAL
+   - Changed OS_stat to not look at the length of a directory segment as a file ( length restriction )
+   - Added permissions to vxworks6/OS_creat so it will work on an NFS volume
+   - In vxworks6, replaced xbdBlkDev calls with "sync" versions to allow the xbd volumes to be created without a hard-coded delay after the call.
+   - Implemented symbol table dump function on vxworks6 and RTEMS ( RTEMS using the GSFC static loader )
+   - Removed the -fvolatile compiler option from the PPC vxWorks makefiles. This is no longer needed for vxWorks 6.x
+   - Added semaphore protection around the file system functions in RTEMS. RTEMS does not provide protection in it's high level file system calls
+   - Fixed RTEMS OS_cp error
+   - Fixed vxworks6 OS_BinSemTimedWait - It was incrementing the incorrect counter.
+   - Improved posix message queue and semaphore pends. Now pends that were interrupted by a signal are continued.
+   - Improved posix message queue port to create unique message queue names for each process. This allows multiple OSAL apps to run on one machine
+   - Simplified posix file system path mapping. Now the path mapping does not try to create or delete directories on the running system. 
+     The OSAL path to host path translation is a simple 1 to 1 mapping. 
+     For example: OSAL path "/cf/apps" can translate to "/media/compactFlash0/apps". The OSAL will not try to create "ramdev0" etc.
+   - Cleaned up the documentation, code comments and OSAL code with regard to return codes. The return codes are consistent with the 
+     API guide and each port conforms to the documentation much better. There are still a few instances where functions are not implemented
+     on one of the ports.
+
+Version 3.2 release notes
+   November 15, 2010
+   - Various bug fixes in the RTEMS port. There were left over internal posix mutexes and a couple of cut and 
+      paste errors with the internal muteness. 
+   - Added a new API: OS_FileOpenCheck
+   - Removed special symbols from source code ( the copyright symbol ). This was causing some debuggers and editors trouble.
+   - Updated some of the make rules for RTEMS 4.10
+
+Version 3.1 release notes
+   March 10, 2010
+  - removed the "arch" directory which had the porting layer for the OSAL. This has been simplified and turned into
+    the "bsp" directory. This is where the OSAL port to a particular board/OS is done. For example, under the old
+    "arch" directory structure we had: src/arch/ppc/mac/osx and src/arch/x86/mac/osx. These ports were nearly 
+    identical, yet they had a bunch of code that has to be maintained and tested. The new "bsp" directory structure has
+    "bsp/mac-osx" which can be used to make the OSAL run on an intel mac. It could be used for a PPC mac with a few
+     changes. Overall, another move for simplicity and ease of maintenance.
+   - Consolidated the "osx" and "linux" ports into "posix". We had considered dropping OS X, but it is close enough to 
+     warrant a single "posix" port with a few "ifdefs" to make it work. This removed over 3k lines of code from the OSAL.
+   - Verified Cygwin operation using Cygwin version 1.7.1. Cygwin 1.7.1 works almost identical to Linux for the OSAL. 
+     Earlier versions of Cygwin are not supported.
+   - Removed all POSIX code from the "rtems" port. This makes the rtems port more consistent and, in my opinion cleaner.
+   - Added support for the CEXP and a static loader in RTEMS. Neither one are included, but it is possible to do dynamic
+     loading in RTEMS. Eventually RTEMS will have it's own native dynamic loader.
+   - Added support for creating a RAM disk in RTEMS using the NVRAM disk device and the RFS file system. These are new 
+     features in RTEMS 4.10. 
+   - Added an API to return the free bytes in a file system ( required a 64 bit data type )
+   - Various fixes for warnings
+   - Various bug fixes
+
+   - Future releases:
+      - Still would like a Win32 port. Preferably using the MinGW32 compiler. 
+      - Need to make sure the OSAL works correctly on 64 bit OSs.
+
+Version 3.0 release notes
+  - Removed the hardware API. Now the OSAPI is more focused on the Operating System abstraction and not trying
+    to abstract hardware. One of the main reasons for doing this was that the hardware platforms were just not
+    being maintained and updated as they should. For NASA, we split these functions out of the OSAL and incorporated
+    them into our cFE platform support package ( where they were being copied anyway ). The end result is that
+    the OSAL project is just trying to do one thing: abstract the RTOS.
+  - various bug fixes
+
+Version 2.12 release notes
+Date: 9/5/2008
+
+Major changes from version 2.11 to 2.12:
+- Finished Memory Range API
+- Progress on the Loader and Symbol API:
+   The vxWorks, linux, and RTEMS APIs are complete with the exception of the dump symbol table API. This will 
+     probably never work on the linux/OSX/Cygwin ports.
+   The RTEMS Loader and Symbol API had to be left incomplete for this release due to time constraints. This will be finished
+     in version 2.13 ( hopefully before the end of 2008 ). The RTEMS port will rely on the CEXP dynamic loader.
+- broke apart the osapiarch.c file into osmemeeprom.c, osmemport.c, osmemram.c, osmemrange.c and osmemutils.c
+  This was done to make the differences between platforms easier to deal with. Also, since all of this code is generic
+  on the existing platforms, I created an src/arch/common directory with only one copy of these files. If you need to 
+  customize one of them, copy the file and put it in the arch/<cpu>/<platform>hal directory. The makefile will pick it up
+  from there first.
+- created an OS timer API -- This is documented in the API reference. The vxWorks, Linux, and RTEMS timer APIs are complete for this
+  release. The OS X timer API will be complete on the next release, but it will probably not be too pretty :) OS X lacks the POSIX timer 
+  API, so the timer code has to be handled with one timer interrupt. Also, cygwin support is unknown at this point. That will be addressed
+  in the next release as well
+- Added a timer test and a memory range test sample to the apps.
+
+What's next?:
+  Near term:
+   - Complete symbol table API for RTEMS.
+   - Complete the timer API for OS X and Cygwin
+   - Incorporate more unit/regression tests
+   - A cleanup/rewrite of some of the RTEMS code, would like to switch to all RTEMS API calls instead of POSIX calls.
+   - Break apart the osapi.c files to modularize the development.
+  Longer term:
+   - Doxygen documentation
+   - Still would like to do the native Win32 port
+
+--------------------------------  
+Version 2.11 release notes
+Date:    2/14/2008
+
+Version 2.11 is a minor update to the OSAL. 
+Major changes from version 2.10 to 2.11:
+- Update OS X BSP to support 10.5
+- Fix queue timeout implementation in OS X and Linux in the socket queue implementation. It now uses select instead of a wait loop.
+- Fix bug in OS_open and OS_creat for all ports regarding path length #define used
+- Fixed Application link rule in Cygwin
+- Added POSIX message queue implementation in Linux. Linux can use the message queues rather than UDP sockets.
+- Updated binary and counting semaphore implementations for all ports to not be able to have a semaphore 'give' and increment its value beyond its maximum value
+- Added a way to get the value of a binary or counting semaphore through OS_*SemGetInfo return structure.
+- Added a function for remapping the OSAL priorities to the underlying OS's. The priority levels are now completely abstracted.
+- Added a task delete hook handler for a task to clean up it's own non OSAL resources.
+- Fixed task create problem in cygwin
+
+- Added valid memory range checking API -- The implementation is not complete, and will be in version 2.12
+- New dynamic load/ symbol table lookup API -- The implementation is not complete, and will be in version 2.12
+
+All sample programs ( example1, test1, and test2 ) work on Linux, OS X, Cygwin, vxWorks-6.4, and RTEMS
+
+What's next?:
+  Near term:
+   - Complete memory range checking API
+   - Complete dynamic load and symbol API
+   - Add Timer API
+  Longer term:
+   - Break apart osapi.c into multiple files
+   - incorporate doxygen headers
+   - Integrate Native Win32 port ( contributed code )
+   - Integrate Test Suite and other improvements ( contributed code )
+
+-------------------------------------------------------------------------------------
+
+Version: 2.10
+Date:    10/25/2007
+Contact Information: Alan Cudmore
+                     NASA Goddard Space Flight Center
+                     Code 582.0
+                     Greenbelt, MD 20771
+                     Alan.P.Cudmore@nasa.gov
+
+Copyright notice:
+"Copyright United States Government" as represented by the Administrator of the National Aeronautics and Space Administration
+
+License information:
+This software is licensed under NASA's Open Source Agreement. The release of the software is conditional upon the recipient's acceptance of the Open Source Agreement. Please see the file: NASA_Open_Source_Agreement_1_3-OS_AbstractionLayer.txt
+
+Major changes from version 2.0 to 2.10:
+- A Counting Semaphore API was added. 
+- All OS APIs have corresponding delete APIs ( delete tasks, queues, semaphores, etc )
+- Many bugs have been fixed. The OSAPI internal data structures are now all gaurded by mutexes.
+- The OS_printf API has been added along with a utility task that buffers the output, rather than dumping it to stdout.
+- New interrupt functions have been added to correspond to vxWorks intLock and intUnlock.
+- Additional file system APIs have been added: OS_initfs, OS_GetPhysDriveName, OS_cp, OS_mv, OS_FDGetInfo, OS_rmfs
+- The File system API now uses it's own file descriptor, rather than passing the system file descriptor through.
+- The Makefile/build system has been re-done. Now all of the OSAL code and example programs are built in a separate directory
+- Obsolete OSs and architectures have been removed. The following OSs are supported: 
+  Mac OS X, Linux/Cygwin, RTEMS, and vxWorks 6.x
+-The following platforms are supported in this release:
+  Generic PPC/vxWorks 6.4, x86 Linux, x86 and PPC Mac OS X, Coldfire/RTEMS
+- Other Platforms and Architectures should be easy to add ( i.e. Sparc/LEON RTEMS, ARM/RTEMS, x86 vxWorks, etc.. )
+
+Future release plans:
+- Fill in some of the missing functionality: shared memory API, Process API, Interrupt APIs, Hardware APIs
+- Simplify file system layer 
+- Include contributions made to the OSAL library by other users  
+- Improve testsuite and examples. 
+- Improve POSIX port priority handling ( Linux, OS X )
+- Improve Linux Queue implementation ( use posix message queues )
+
+Known problems: 
+- The OS X OS_TaskDelete implementation is not working correctly. 
+- There are a few warnings in the OSAL library and the examples.
+
+Credits:
+Version 2.0 - 2.10: 
+    Nicholas Yanchik, NASA/GSFC, Code 582
+      - Version 2 API coding
+      - Documentation
+      - Tests and examples
+      - ( just about everything in version 2 )     
+    Jacob Hageman, NASA/GSFC, Code 582
+      - Testing/updating Linux version to run on Cygwin
+Version 1: 
+    Alan Cudmore,  NASA/GSFC, Code 582
+      - Original design and coding
+      - POSIX based ports
+      - Directory structure and makefiles
+    J-P Swinski, NASA/GSFC, Code 582 
+      - Coding/vxWorks port
+    Ezra Yeheskeli, NASA/GSFC, RSC    
+      - Design and coding
+      - RTEMS Port
+      - Documentation
+
+OS Abstraction Layer information:
+This distribution contains:
+1. The OS Abstraction Layer Library
+2. The Hardware abstraction layer Library
+3. At least one example application
+4. Impelemtations for the following targets:
+   - Generic PPC running vxWorks 6.x ( Tested on vxWorks 6.4 )
+   - Axiom m5235BCC Coldfire Evaluation board running the RTEMS 4.7 Operating System
+   - A standard Intel Pentium PC running Linux ( or Cygwin )
+   - A Power PC or Intel Macintosh running Mac OS X ( 10.3 or better )
+5. A directory structre and makefiles to manage it all.
+
+Getting Started:
+See the document doc/OSAL-Configuration-Guide-1.0.doc for complete details.
+
+All of the targets included build with the GNU compiler tools and rely on GNU make. The makefiles work on Mac OS X, Linux, and Solaris. The provided examples have been tested and work under Microsoft Windows XP and Cygwin. Other versions of Microsoft Windows have not been tested, but similar versions should work.
+
+An easy way to get started is to use the Linux or Mac OS X ports. 
+For a linux box:
+1. Set the OSAL_SRC environment variable to point to the OSAL source code. Running setvars.sh will set the variable for you ( $ . ./setvars.sh )
+2. Edit the build/osal-config.mak file and set the following options:
+HWARCH - Set this to the processor architecture you are building for. For a linux PC, use x86.
+PLATFORM - Set this to the board you are running on. For a PC running linux, just use PC.
+OS - Set this to the OS you are running. For a PC running linux, use linux.
+Example of a PC running linux:
+
+export OSAL_SRC = /home/acudmore/osal/src
+
+In build/osal-config.mak:
+HWARCH=x86
+PLATFORM=pc
+OS=linux
+
+Now just type 'make' from the build directory and it should build the OSAL core files and sample applications for you.
+The binary for each application is it's own directory ( i.e. build/example1/example1.bin )
+You can switch to that directory and run it. You can also debug it using GDB.
+
+The Mac OS X target will work almost exactly the same way.
+
+The Embedded targets take a little more work to run, because they must be cross compiled and booted on the board. 
+By copying a target, you should be able to come up with a new target.
+
+If you would like just the OSAL itself, just look in common/inc for the include files and os/<your os here> for the OS AL implementation. The Hardware abstraction layer implementation is buried down in the 'arch' directory.
+
+The API document is in the 'doc' directory.
+
+The test files for the program are located in src/apps directory under example1, test1, and test2. The example1 file creates several tasks and passes messages back and forth between them. The test1 file test main OSAPI functionality. The test2 file tests the filesystem functionality. There are readme files in each directory which better explain each test.

@@ -1,0 +1,54 @@
+#
+# Connect to the target.
+# 
+target remote | m68k-bdm-gdbserver pipe /dev/bdmcf0
+
+#
+# The console loop in the Axman dbug monitor. Found by trial and error
+# with the debugger.
+#
+hb *0xffe254c0
+
+#
+# Show the exception stack frame.
+#
+define show-exception-sframe
+ set $frsr = *(unsigned short *)((unsigned long)$sp + 2)
+ set $frpc = *(unsigned long *)((unsigned long)$sp + 4)
+ set $frfvo = *(unsigned short *)((unsigned long)$sp + 0)
+ set $frcode = $frfvo >> 12
+ set $frvect = ($frfvo & 0xFFF) >> 2
+ set $frstatus = ((($frfvo >> 10) & 3) << 2) | ($frfvo & 3)
+ printf "EXCEPTION -- SR:0x%X  PC:0x%X  FRAME:0x%x  VECTOR:%d  STATUS:%d\n", $frsr, $frpc, $frcode, $frvect, $frstatus
+ if $frstatus == 4
+  printf " Fault Type: Error on instruction fetch"
+ end
+ if $frstatus == 8
+  printf " Fault Type: Error on operand write"
+ end
+ if $frstatus == 12
+  printf " Fault Type: Error on operand read"
+ end
+ if $frstatus == 9
+  printf " Fault Type: Attempted write to write-protected space"
+ end
+end
+
+#
+# Run to initialise the RAM. The target will stop when the
+# breakpoint is hit. Load the program.
+#
+c
+load
+
+#
+# Break on an exception.
+#
+b _uhoh
+
+#
+# Travel to main then stop.
+#
+tb Init
+c
+
