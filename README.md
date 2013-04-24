@@ -7,17 +7,20 @@ Operating System Abstraction Layer Project
 The OS Abstraction Layer was originally devloped by the Flight Software Systems Branch at NASA Goddard Space Flight Center.
 
 OS Abstraction Layer information:
---------------------------------
+=================================
 
 This distribution contains:
+
+-----------------------------------------------------------------------------------
 1. The OS Abstraction Layer Library
 2. Tests and example applications
 3. Impelemtations for the following targets:
-   - Generic PPC running vxWorks 6.x ( Tested on vxWorks 6.4 )
-   - Axiom m5235BCC Coldfire Evaluation board running the RTEMS 4.7 Operating System
-   - A standard Intel Pentium PC running Linux 
-   - The sparc/sis simulator running RTEMS 
-5. A directory structre and makefiles to manage it all.
+    - Generic PPC running vxWorks 6.x ( Tested on vxWorks 6.4 )
+    - Axiom m5235BCC Coldfire Evaluation board running the RTEMS 4.7 Operating System
+    - A standard Intel Pentium PC running Linux 
+    - The sparc/sis simulator running RTEMS 
+4. A directory structre and makefiles to manage it all.
+------------------------------------------------------------------------------------
 
 Getting Started:
 ================
@@ -42,7 +45,7 @@ OS=posix
 BSP=pc-linux
 
 Now just type 'make' from the build directory and it should build the OSAL core files, tests, and sample applications for you.
-The binary for each application is it's own directory ( i.e. build/examples/tasking-example/tasking-example.bin )
+The binary for each application is its own directory ( i.e. build/examples/tasking-example/tasking-example.bin )
 You can switch to that directory and run it. You can also debug it using GDB.
 
 The Embedded targets take a little more work to run, because they must be cross compiled and booted on the board. 
@@ -50,24 +53,26 @@ By copying a target, you should be able to come up with a new target.
 
 If you would like just the OSAL itself, just look in src/os/inc for the include files and src/os/<your os here> for the OSAL implementation. 
 
-The API document is in the 'doc' directory.
+The API document is in the *doc* directory.
 
 Contact Information: 
 ====================
 
+-------------------
 Alan Cudmore
 NASA Goddard Space Flight Center
 Code 582.0
 Greenbelt, MD 20771
 Alan.P.Cudmore@nasa.gov
+-------------------
 
 Copyright notice:
 =================
 
-"Copyright United States Government" as represented by the Administrator of the National Aeronautics and Space Administration
+Copyright United States Government as represented by the Administrator of the National Aeronautics and Space Administration
 
 License information:
 ==================== 
 
-This software is licensed under NASA's Open Source Agreement. The release of the software is conditional upon the recipient's acceptance of the Open Source Agreement. Please see the file: NASA_Open_Source_Agreement_1_3-OS_AbstractionLayer.txt
+This software is licensed under NASAs Open Source Agreement. The release of the software is conditional upon the recipients acceptance of the Open Source Agreement. Please see the file: NASA_Open_Source_Agreement_1_3-OS_AbstractionLayer.txt
 
