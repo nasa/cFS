@@ -31,8 +31,8 @@ An easy way to get started is to use the Linux port:
 1. Set the OSAL_SRC environment variable to point to the OSAL source code. 
     Running setvars.sh will set the variable for you ($ . ./setvars.sh)
 2. Edit the build/osal-config.mak file and set the following options:
-    BSP - Set this to the board you are running on. For a PC running linux, just usepc-linux 
-    OS - Set this to the OS you are running. For a PC running linux, use posix.
+    BSP - Set this to the board you are running on. For a PC running linux, just use *pc-linux* 
+    OS - Set this to the OS you are running. For a PC running linux, use *posix*.
 
 Example of a PC running linux:
 
@@ -54,11 +54,11 @@ The API document is in the *doc* directory.
 Contact Information: 
 ====================
 
-Alan Cudmore
-NASA Goddard Space Flight Center
-Code 582.0
-Greenbelt, MD 20771
-Alan.P.Cudmore@nasa.gov
+    Alan Cudmore
+    NASA Goddard Space Flight Center
+    Code 582.0
+    Greenbelt, MD 20771
+    Alan.P.Cudmore@nasa.gov
 
 Copyright notice:
 =================
