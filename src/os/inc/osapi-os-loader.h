@@ -14,11 +14,13 @@
 ** Purpose: Contains functions prototype definitions and variables declarations
 **          for the OS Abstraction Layer, Object file loader API
 **
-** $Revision: 1.4 $ 
+** $Revision: 1.5 $ 
 **
-** $Date: 2010/11/12 12:00:18GMT-05:00 $
+** $Date: 2013/07/25 10:02:08GMT-05:00 $
 **
 ** $Log: osapi-os-loader.h  $
+** Revision 1.5 2013/07/25 10:02:08GMT-05:00 acudmore 
+** removed circular include "osapi.h"
 ** Revision 1.4 2010/11/12 12:00:18GMT-05:00 acudmore 
 ** replaced copyright character with (c) and added open source notice where needed.
 ** Revision 1.3 2010/02/01 12:38:06EST acudmore 
@@ -37,8 +39,6 @@
 
 #ifndef _osapi_loader_
 #define _osapi_loader_
-
-#include "osapi.h"
 
 /*
 ** Defines

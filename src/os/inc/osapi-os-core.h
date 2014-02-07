@@ -14,11 +14,13 @@
 ** Purpose: Contains functions prototype definitions and variables declarations
 **          for the OS Abstraction Layer, Core OS module
 **
-** $Revision: 1.7 $ 
+** $Revision: 1.8 $ 
 **
-** $Date: 2012/04/11 09:30:48GMT-05:00 $
+** $Date: 2013/07/25 10:02:00GMT-05:00 $
 **
 ** $Log: osapi-os-core.h  $
+** Revision 1.8 2013/07/25 10:02:00GMT-05:00 acudmore 
+** removed circular include "osapi.h"
 ** Revision 1.7 2012/04/11 09:30:48GMT-05:00 acudmore 
 ** Added OS_printf_enable and OS_printf_disable
 ** Revision 1.6 2010/11/12 12:00:17EST acudmore 
@@ -36,8 +38,7 @@
 #ifndef _osapi_core_
 #define _osapi_core_
 
-#include "osapi.h"
-#include "stdarg.h"   /* for va_list */
+#include <stdarg.h>   /* for va_list */
 
 /*difines constants for OS_BinSemCreate for state of semaphore  */
 #define OS_SEM_FULL     1

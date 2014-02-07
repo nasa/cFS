@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------
 **
 **  Filename:
-**    $Id: common_types.h 1.6 2012/04/11 09:19:03GMT-05:00 acudmore Exp  $
+**    $Id: common_types.h 1.9 2014/01/14 16:28:32GMT-05:00 acudmore Exp  $
 **
 **      Copyright (c) 2004-2006, United States government as represented by the 
 **      administrator of the National Aeronautics Space Administration.  
@@ -24,9 +24,15 @@
 **	Notes:
 **
 **
-**  $Date: 2012/04/11 09:19:03GMT-05:00 $
-**  $Revision: 1.6 $
+**  $Date: 2014/01/14 16:28:32GMT-05:00 $
+**  $Revision: 1.9 $
 **  $Log: common_types.h  $
+**  Revision 1.9 2014/01/14 16:28:32GMT-05:00 acudmore 
+**  Fixed typo in macro for x86-64
+**  Revision 1.8 2013/08/09 13:58:04GMT-05:00 acudmore 
+**  Added int64 type, added support for ARM arch, added 64 bit x86 arch, added arch check for GCC arch macros, added check for proper data type sizes
+**  Revision 1.7 2013/07/25 10:01:29GMT-05:00 acudmore 
+**  Added C++ support
 **  Revision 1.6 2012/04/11 09:19:03GMT-05:00 acudmore 
 **  added OS_USED attribute
 **  Revision 1.5 2010/02/18 16:43:29EST acudmore 
@@ -80,6 +86,10 @@
 #ifndef _common_types_
 #define _common_types_
 
+#ifdef __cplusplus
+   extern "C" {
+#endif
+
 /*
 ** Includes
 */
@@ -87,6 +97,12 @@
 /*
 ** Macro Definitions
 */
+
+/* 
+** Condition = TRUE is ok, Condition = FALSE is error 
+*/
+#define CompileTimeAssert(Condition, Message) typedef char Message[(Condition) ? 1 : -1]
+
 
 /*
 ** Define compiler specific macros
@@ -107,25 +123,43 @@
    #define OS_USED 
 #endif
 
-#if defined(_ix86_)
+#if defined(_ix86_) || defined (__i386__)
 /* ----------------------- Intel x86 processor family -------------------------*/
   /* Little endian */
   #undef   _STRUCT_HIGH_BIT_FIRST_
   #define  _STRUCT_LOW_BIT_FIRST_
 
-#ifndef _USING_RTEMS_INCLUDES_
   typedef unsigned char                         boolean;
-#endif
-
   typedef signed char                           int8;
   typedef short int                             int16;
   typedef long int                              int32;
+ _EXTENSION_ typedef long long int              int64; 
   typedef unsigned char                         uint8;
   typedef unsigned short int                    uint16;
   typedef unsigned long int                     uint32;
   _EXTENSION_ typedef unsigned long long int    uint64;
 
-#elif defined(__PPC__)
+  typedef unsigned long int                     cpuaddr;
+
+#elif defined (_ix64_) || defined (__x86_64__) 
+/* ----------------------- Intel/AMD x64 processor family -------------------------*/
+  /* Little endian */
+  #undef   _STRUCT_HIGH_BIT_FIRST_
+  #define  _STRUCT_LOW_BIT_FIRST_
+
+  typedef unsigned char                         boolean;
+  typedef signed char                           int8;
+  typedef short int                             int16;
+  typedef int                                   int32;
+  typedef long int                              int64;
+  typedef unsigned char                         uint8;
+  typedef unsigned short int                    uint16;
+  typedef unsigned int                          uint32;
+  typedef unsigned long int                     uint64;
+
+  typedef unsigned long int                     cpuaddr;
+
+#elif defined(__PPC__) || defined (__ppc__)
    /* ----------------------- Motorola Power PC family ---------------------------*/
    /* The PPC can be programmed to be big or little endian, we assume native */
    /* Big endian */
@@ -136,12 +170,15 @@
    typedef signed char                          int8;
    typedef short int                            int16;
    typedef long int                             int32;
+   _EXTENSION_ typedef long long int            int64;
    typedef unsigned char                        uint8;
    typedef unsigned short int                   uint16;
    typedef unsigned long int                    uint32;
    _EXTENSION_ typedef unsigned long long int   uint64;
 
-#elif defined(_m68k_)
+  typedef unsigned long int                     cpuaddr;
+
+#elif defined(_m68k_) || defined(__m68k__)
    /* ----------------------- Motorola m68k/Coldfire family ---------------------------*/
    /* Big endian */
    #define _STRUCT_HIGH_BIT_FIRST_
@@ -151,12 +188,33 @@
    typedef signed char                          int8;
    typedef short int                            int16;
    typedef long int                             int32;
+   _EXTENSION_ typedef long long int            int64;
    typedef unsigned char                        uint8;
    typedef unsigned short int                   uint16;
    typedef unsigned long int                    uint32;
    _EXTENSION_ typedef unsigned long long int   uint64;
 
-#elif defined(__SPARC__)
+  typedef unsigned long int                     cpuaddr;
+
+#elif defined (__ARM__) || defined(__arm__)
+/* ----------------------- ARM processor family -------------------------*/
+  /* Little endian */
+  #undef   _STRUCT_HIGH_BIT_FIRST_
+  #define  _STRUCT_LOW_BIT_FIRST_
+
+  typedef unsigned char                         boolean;
+  typedef signed char                           int8;
+  typedef short int                             int16;
+  typedef long int                              int32;
+  _EXTENSION_ typedef long long int             int64;
+  typedef unsigned char                         uint8;
+  typedef unsigned short int                    uint16;
+  typedef unsigned long int                     uint32;
+  _EXTENSION_ typedef unsigned long long int    uint64;
+
+  typedef unsigned long int                     cpuaddr;
+
+#elif defined(__SPARC__) || defined (_sparc_)
    /* ----------------------- SPARC/LEON family ---------------------------*/
    /* SPARC Big endian */
    #define _STRUCT_HIGH_BIT_FIRST_
@@ -166,10 +224,13 @@
    typedef signed char                          int8;
    typedef short int                            int16;
    typedef long int                             int32;
+   _EXTENSION_ typedef long long int            int64;
    typedef unsigned char                        uint8;
    typedef unsigned short int                   uint16;
    typedef unsigned long int                    uint32;
    _EXTENSION_ typedef unsigned long long int   uint64;
+
+   typedef unsigned long int                     cpuaddr;
 
 #else  /* not any of the above */
    #error undefined processor
@@ -185,6 +246,22 @@
 
 #ifndef FALSE              /* Boolean false */
    #define FALSE (0)
+#endif
+
+/* 
+** Check Sizes 
+*/
+CompileTimeAssert(sizeof(uint8)==1,  TypeUint8WrongSize);
+CompileTimeAssert(sizeof(uint16)==2, TypeUint16WrongSize);
+CompileTimeAssert(sizeof(uint32)==4, TypeUint32WrongSize);
+CompileTimeAssert(sizeof(uint64)==8, TypeUint64WrongSize);
+CompileTimeAssert(sizeof(int8)==1,   Typeint8WrongSize);
+CompileTimeAssert(sizeof(int16)==2,  Typeint16WrongSize);
+CompileTimeAssert(sizeof(int32)==4,  Typeint32WrongSize);
+CompileTimeAssert(sizeof(int64)==8,  Typeint64WrongSize);
+
+#ifdef __cplusplus
+   }
 #endif
 
 #endif  /* _common_types_ */

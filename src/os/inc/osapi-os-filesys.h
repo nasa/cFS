@@ -14,11 +14,17 @@
 ** Purpose: Contains functions prototype definitions and variables declarations
 **          for the OS Abstraction Layer, File System module
 **
-** $Revision: 1.8 $ 
+** $Revision: 1.11 $ 
 **
-** $Date: 2011/12/05 12:04:21GMT-05:00 $
+** $Date: 2013/12/16 12:57:41GMT-05:00 $
 **
 ** $Log: osapi-os-filesys.h  $
+** Revision 1.11 2013/12/16 12:57:41GMT-05:00 acudmore 
+** Added macros for Volume name length and physical device name length
+** Revision 1.10 2013/07/29 12:05:48GMT-05:00 acudmore 
+** Added define for device and volume name length
+** Revision 1.9 2013/07/25 14:31:21GMT-05:00 acudmore 
+** Added prototype and datatype for OS_GetFsInfo
 ** Revision 1.8 2011/12/05 12:04:21GMT-05:00 acudmore 
 ** Added OS_rewinddir API
 ** Revision 1.7 2011/04/05 16:01:12EDT acudmore 
@@ -142,6 +148,14 @@
 #define NUM_TABLE_ENTRIES 14
 
 /*
+** Length of a Device and Volume name 
+*/
+#define OS_FS_DEV_NAME_LEN  32
+#define OS_FS_PHYS_NAME_LEN 64
+#define OS_FS_VOL_NAME_LEN  32
+
+
+/*
 ** Defines for File System Calls
 */
 #define OS_FS_SUCCESS                    0
@@ -168,14 +182,14 @@ typedef char os_fs_err_name_t[35];
 */
 typedef struct
 {
-    char   DeviceName [32];
-    char   PhysDevName [32];
+    char   DeviceName [OS_FS_DEV_NAME_LEN];
+    char   PhysDevName [OS_FS_PHYS_NAME_LEN];
     uint32 VolumeType;
     uint8  VolatileFlag;
     uint8  FreeFlag;
     uint8  IsMounted;
-    char   VolumeName [32];
-    char   MountPoint [64];
+    char   VolumeName [OS_FS_VOL_NAME_LEN];
+    char   MountPoint [OS_MAX_PATH_LEN];
     uint32 BlockSize;
 
 }OS_VolumeInfo_t;
@@ -188,6 +202,13 @@ typedef struct
     uint8   IsValid;                /* Whether or not this entry is valid */
 }OS_FDTableEntry;
 
+typedef struct
+{
+   uint32   MaxFds;                /* Total number of file descriptors */
+   uint32   FreeFds;               /* Total number that are free */
+   uint32   MaxVolumes;            /* Maximum number of volumes */
+   uint32   FreeVolumes;           /* Total number of volumes free */
+} os_fsinfo_t; 
 
 /* modified to posix calls, since all of the 
  * applicable OSes use the posix calls */
@@ -292,6 +313,7 @@ int32 OS_CloseAllFiles(void);
 */
 int32 OS_CloseFileByName(char *Filename);
 
+
 /******************************************************************************
 ** Directory API 
 ******************************************************************************/
@@ -381,6 +403,11 @@ int32       OS_FS_GetPhysDriveName  (char * PhysDriveName, char * MountPoint);
 ** Translates a OSAL Virtual file system path to a host Local path
 */
 int32       OS_TranslatePath ( const char *VirtualPath, char *LocalPath);
+
+/*             
+**  Returns information about the file system in an os_fsinfo_t
+*/
+int32       OS_GetFsInfo(os_fsinfo_t  *filesys_info);
 
 /******************************************************************************
 ** Shell API

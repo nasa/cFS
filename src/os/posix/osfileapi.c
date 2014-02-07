@@ -14,9 +14,16 @@
 ** Purpose: This file Contains all of the api calls for manipulating
 **          files in a file system for posix 
 **
-** $Date: 2012/12/19 13:38:58GMT-05:00 $
-** $Revision: 1.11 $
+** $Date: 2014/01/16 16:26:08GMT-05:00 $
+** $Revision: 1.14 $
 ** $Log: osfileapi.c  $
+** Revision 1.14 2014/01/16 16:26:08GMT-05:00 acudmore 
+** Implemented safer mutex lock/unlock
+** Revision 1.13 2013/07/29 12:03:18GMT-05:00 acudmore 
+** Updated OS_open to create a file if it does not exist
+** Update OS_ShellOutputToFile to check pointer and return OS_FS_SUCCESS
+** Revision 1.12 2013/04/11 15:25:40GMT-05:00 acudmore 
+** Add open file checks to OS_mv, OS_remove, and OS_cp
 ** Revision 1.11 2012/12/19 13:38:58GMT-05:00 acudmore 
 ** updated access flags for OS_open and OS_creat
 ** Revision 1.10 2012/12/11 13:26:19EST acudmore 
@@ -95,8 +102,10 @@
                                  FUNCTION PROTOTYPES
 ***************************************************************************************/
 
-int32 OS_check_name_length(const char *path);
+int32         OS_check_name_length(const char *path);
 extern uint32 OS_FindCreator(void);
+extern int    OS_InterruptSafeLock(pthread_mutex_t *lock, sigset_t *set, sigset_t *previous);
+extern void   OS_InterruptSafeUnlock(pthread_mutex_t *lock, sigset_t *previous);
 
 /****************************************************************************************
                                    GLOBAL DATA
@@ -160,11 +169,13 @@ int32 OS_FS_Init(void)
 
 int32 OS_creat  (const char *path, int32  access)
 {
-    int    status;
-    char   local_path[OS_MAX_LOCAL_PATH_LEN];
-    int    perm;
-    mode_t mode;
-    uint32 PossibleFD;
+    int        status;
+    char       local_path[OS_MAX_LOCAL_PATH_LEN];
+    int        perm;
+    mode_t     mode;
+    uint32     PossibleFD;
+    sigset_t   previous;
+    sigset_t   mask;
 
     /*
     ** Check to see if the path pointer is NULL
@@ -213,8 +224,8 @@ int32 OS_creat  (const char *path, int32  access)
     {
         return OS_FS_ERR_PATH_INVALID;
     }
-    
-    pthread_mutex_lock(&OS_FDTableMutex);
+
+    OS_InterruptSafeLock(&OS_FDTableMutex, &mask, &previous);
 
     for ( PossibleFD = 0; PossibleFD < OS_MAX_NUM_OPEN_FILES; PossibleFD++)
     {
@@ -226,7 +237,7 @@ int32 OS_creat  (const char *path, int32  access)
 
     if (PossibleFD >= OS_MAX_NUM_OPEN_FILES)
     {
-        pthread_mutex_unlock(&OS_FDTableMutex);
+        OS_InterruptSafeUnlock(&OS_FDTableMutex, &previous);
         return OS_FS_ERR_NO_FREE_FDS;
     }
 
@@ -235,13 +246,13 @@ int32 OS_creat  (const char *path, int32  access)
      * task can take that ID */
     OS_FDTable[PossibleFD].IsValid =    TRUE;
 
-    pthread_mutex_unlock(&OS_FDTableMutex);
+    OS_InterruptSafeUnlock(&OS_FDTableMutex, &previous);
 
     mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
    
     status =  open(local_path, perm | O_CREAT | O_TRUNC, mode);
 
-    pthread_mutex_lock(&OS_FDTableMutex);
+    OS_InterruptSafeLock(&OS_FDTableMutex, &mask, &previous);
 
     if (status != ERROR)
     {
@@ -249,14 +260,14 @@ int32 OS_creat  (const char *path, int32  access)
         OS_FDTable[PossibleFD].OSfd =       status;
         strncpy(OS_FDTable[PossibleFD].Path, path, OS_MAX_PATH_LEN);
         OS_FDTable[PossibleFD].User =       OS_FindCreator();
-        pthread_mutex_unlock(&OS_FDTableMutex);
+        OS_InterruptSafeUnlock(&OS_FDTableMutex, &previous);
         return PossibleFD;
     }
     else
     {
         /* Operation failed, so reset to false */
         OS_FDTable[PossibleFD].IsValid = FALSE;
-        pthread_mutex_unlock(&OS_FDTableMutex);
+        OS_InterruptSafeUnlock(&OS_FDTableMutex, &previous);
         return OS_FS_ERROR;
     }
  
@@ -279,10 +290,12 @@ int32 OS_creat  (const char *path, int32  access)
 
 int32 OS_open   (const char *path,  int32 access,  uint32  mode)
 {
-    int    status;
-    char   local_path[OS_MAX_LOCAL_PATH_LEN];
-    int    perm;
-    uint32 PossibleFD;
+    int       status;
+    char      local_path[OS_MAX_LOCAL_PATH_LEN];
+    int       perm;
+    uint32    PossibleFD;
+    sigset_t  previous;
+    sigset_t  mask;
     
     /*
     ** Check to see if the path pointer is NULL
@@ -334,7 +347,7 @@ int32 OS_open   (const char *path,  int32 access,  uint32  mode)
         return OS_FS_ERR_PATH_INVALID;
     }
     
-    pthread_mutex_lock(&OS_FDTableMutex);
+    OS_InterruptSafeLock(&OS_FDTableMutex, &mask, &previous);
 
     for ( PossibleFD = 0; PossibleFD < OS_MAX_NUM_OPEN_FILES; PossibleFD++)
     {
@@ -346,7 +359,7 @@ int32 OS_open   (const char *path,  int32 access,  uint32  mode)
 
     if (PossibleFD >= OS_MAX_NUM_OPEN_FILES)
     {
-        pthread_mutex_unlock(&OS_FDTableMutex);
+        OS_InterruptSafeUnlock(&OS_FDTableMutex, &previous);
 
         return OS_FS_ERR_NO_FREE_FDS;
     }
@@ -355,12 +368,12 @@ int32 OS_open   (const char *path,  int32 access,  uint32  mode)
      * task can take that ID */
     OS_FDTable[PossibleFD].IsValid = TRUE;
 
-    pthread_mutex_unlock(&OS_FDTableMutex);
+    OS_InterruptSafeUnlock(&OS_FDTableMutex, &previous);
 
     /* open the file  */
-    status =  open(local_path, perm, mode);
+    status =  open(local_path, perm | O_CREAT, mode);
 
-    pthread_mutex_lock(&OS_FDTableMutex);
+    OS_InterruptSafeLock(&OS_FDTableMutex, &mask, &previous);
 
     if (status != ERROR)
     {
@@ -368,7 +381,7 @@ int32 OS_open   (const char *path,  int32 access,  uint32  mode)
         OS_FDTable[PossibleFD].OSfd =       status;
         strncpy(OS_FDTable[PossibleFD].Path, path, OS_MAX_PATH_LEN);
         OS_FDTable[PossibleFD].User =       OS_FindCreator();
-        pthread_mutex_unlock(&OS_FDTableMutex);
+        OS_InterruptSafeUnlock(&OS_FDTableMutex, &previous);
         
         return PossibleFD;
     }
@@ -376,7 +389,7 @@ int32 OS_open   (const char *path,  int32 access,  uint32  mode)
     {
         /* Operation failed, so reset to false */
         OS_FDTable[PossibleFD].IsValid = FALSE;
-        pthread_mutex_unlock(&OS_FDTableMutex);
+        OS_InterruptSafeUnlock(&OS_FDTableMutex, &previous);
         return OS_FS_ERROR;
     }
  
@@ -395,7 +408,9 @@ int32 OS_open   (const char *path,  int32 access,  uint32  mode)
 
 int32 OS_close (int32  filedes)
 {
-    int status;
+    int       status;
+    sigset_t  previous;
+    sigset_t  mask;
 
     /* Make sure the file descriptor is legit before using it */
     if (filedes < 0 || filedes >= OS_MAX_NUM_OPEN_FILES || OS_FDTable[filedes].IsValid == FALSE)
@@ -420,24 +435,24 @@ int32 OS_close (int32  filedes)
             ** to free up that slot 
             */
             /* fill in the table before returning */
-            pthread_mutex_lock(&OS_FDTableMutex);
+            OS_InterruptSafeLock(&OS_FDTableMutex, &mask, &previous);
             OS_FDTable[filedes].OSfd =       -1;
             strcpy(OS_FDTable[filedes].Path, "\0");
             OS_FDTable[filedes].User =       0;
             OS_FDTable[filedes].IsValid =    FALSE;
-            pthread_mutex_unlock(&OS_FDTableMutex);
+            OS_InterruptSafeUnlock(&OS_FDTableMutex, &previous);
 
             return OS_FS_ERROR;
         }
         else
         {
             /* fill in the table before returning */
-            pthread_mutex_lock(&OS_FDTableMutex);
+            OS_InterruptSafeLock(&OS_FDTableMutex, &mask, &previous);
             OS_FDTable[filedes].OSfd =       -1;
             strcpy(OS_FDTable[filedes].Path, "\0");
             OS_FDTable[filedes].User =       0;
             OS_FDTable[filedes].IsValid =    FALSE;
-            pthread_mutex_unlock(&OS_FDTableMutex);
+            OS_InterruptSafeUnlock(&OS_FDTableMutex, &previous);
             
             return OS_FS_SUCCESS;
         }
@@ -641,27 +656,46 @@ int32 OS_lseek  (int32  filedes, int32 offset, uint32 whence)
 
 int32 OS_remove (const char *path)
 {
-    int status;
+    int  i;
+    int  status;
     char local_path[OS_MAX_LOCAL_PATH_LEN];
 
     /*
     ** Check to see if the path pointer is NULL
     */
     if (path == NULL)
+    {
         return OS_FS_ERR_INVALID_POINTER;
+    }
    
     /*
     ** Check to see if the path is too long
     */
     if (strlen(path) >= OS_MAX_PATH_LEN)
+    {
         return OS_FS_ERR_PATH_TOO_LONG;
+    }
 
     /* 
     ** check if the name of the file is too long 
     */
     if (OS_check_name_length(path) != OS_FS_SUCCESS)
+    {
         return OS_FS_ERR_NAME_TOO_LONG;
-   
+    }
+
+    /*
+    ** Make sure the file is not open by the OSAL before deleting it 
+    */
+    for ( i =0; i < OS_MAX_NUM_OPEN_FILES; i++)
+    {
+       if ((OS_FDTable[i].IsValid == TRUE) &&
+          (strcmp(OS_FDTable[i].Path, path) == 0))
+       {
+          return OS_FS_ERROR;
+       }
+    }
+ 
     /*
     ** Translate the path
     */
@@ -674,7 +708,7 @@ int32 OS_remove (const char *path)
     ** Call the system to remove the file
     */
     status = remove (local_path);
-    if (status != ERROR)
+    if (status == 0)
     {
         return OS_FS_SUCCESS;
     }
@@ -746,7 +780,7 @@ int32 OS_rename (const char *old, const char *new)
     }
      
     status = rename (old_path, new_path);
-    if (status != ERROR)
+    if (status == 0)
     {
         for ( i =0; i < OS_MAX_NUM_OPEN_FILES; i++) 
         {
@@ -758,8 +792,10 @@ int32 OS_rename (const char *old, const char *new)
         }
         return OS_FS_SUCCESS;
     }
-     else
-         return OS_FS_ERROR;
+    else
+    {
+        return OS_FS_ERROR;
+    }
      
 }/*end OS_rename */
 
@@ -779,7 +815,8 @@ int32 OS_rename (const char *old, const char *new)
 
 int32 OS_cp (const char *src, const char *dest)
 {
-    int status;
+    int  i;
+    int  status;
     char src_path[OS_MAX_LOCAL_PATH_LEN];
     char dest_path[OS_MAX_LOCAL_PATH_LEN];
 
@@ -821,6 +858,20 @@ int32 OS_cp (const char *src, const char *dest)
     }
 
     /*
+    ** Make sure the destintation file is not open by the OSAL before doing the copy 
+    ** This may be caught by the host OS call but it does not hurt to 
+    ** be consistent 
+    */
+    for ( i =0; i < OS_MAX_NUM_OPEN_FILES; i++)
+    {
+        if ((OS_FDTable[i].IsValid == TRUE) &&
+           (strcmp(OS_FDTable[i].Path, dest) == 0))
+        {
+           return OS_FS_ERROR;
+        }
+    }
+
+    /*
     ** Translate the path
     */
     if ( OS_TranslatePath(src, (char *)src_path) != OS_FS_SUCCESS )
@@ -839,7 +890,7 @@ int32 OS_cp (const char *src, const char *dest)
     sprintf(command,"cp %s %s",src_path, dest_path);
      
      status = system(command);
-     if (status != ERROR)
+     if (status == 0)
      {
          return OS_FS_SUCCESS;
      }
@@ -865,73 +916,69 @@ int32 OS_cp (const char *src, const char *dest)
 
 int32 OS_mv (const char *src, const char *dest)
 {
-    int status,i;
-    char src_path[OS_MAX_LOCAL_PATH_LEN];
-    char dest_path[OS_MAX_LOCAL_PATH_LEN];
+   int i;
+   int32 status;
 
-    /* leave enough space for the two paths and the command */
-    char command [OS_MAX_LOCAL_PATH_LEN * 2 + 5];
-    
-    /*
-    ** Check to see if the path pointers are NULL
-    */    
-    if (src == NULL || dest == NULL)
+   /*
+   ** Validate the source and destination
+   ** These checks may seem redundant because OS_cp and OS_remove also do 
+   ** the same checks, but this call needs to abort before doing a copy
+   ** in some cases.
+   */
+
+   /*
+   ** Check to see if the path pointers are NULL
+   */
+   if (src == NULL || dest == NULL)
+   {
         return OS_FS_ERR_INVALID_POINTER;
+   }
 
-    /*
-    ** Check to see if the paths are too long
-    */
-    if (strlen(src) >= OS_MAX_PATH_LEN)
-        return OS_FS_ERR_PATH_TOO_LONG;
-    
-    if (strlen(dest) >= OS_MAX_PATH_LEN)
-        return OS_FS_ERR_PATH_TOO_LONG;
+   /*
+   ** Check to see if the paths are too long
+   */
+   if (strlen(src) >= OS_MAX_PATH_LEN)
+   {
+       return OS_FS_ERR_PATH_TOO_LONG;
+   }
 
-    /* 
-    ** check if the names of the files are too long 
-    */
-    if (OS_check_name_length(src) != OS_FS_SUCCESS)
-        return OS_FS_ERR_NAME_TOO_LONG;
+   if (strlen(dest) >= OS_MAX_PATH_LEN)
+   {
+       return OS_FS_ERR_PATH_TOO_LONG;
+   }
 
-    if (OS_check_name_length(dest) != OS_FS_SUCCESS)
-        return OS_FS_ERR_NAME_TOO_LONG;
+   /* 
+   ** check if the names of the files are too long 
+   */
+   if (OS_check_name_length(src) != OS_FS_SUCCESS)
+   {
+       return OS_FS_ERR_NAME_TOO_LONG;
+   }
 
+   if (OS_check_name_length(dest) != OS_FS_SUCCESS)
+   {
+       return OS_FS_ERR_NAME_TOO_LONG;
+   }
 
-    /*
-    ** Translate the path
-    */
-    if ( OS_TranslatePath(src, (char *)src_path) != OS_FS_SUCCESS )
-    {
-        return OS_FS_ERR_PATH_INVALID;
-    }
+   /*
+   ** Make sure the source file is not open by the OSAL before doing the move 
+   */
+   for ( i =0; i < OS_MAX_NUM_OPEN_FILES; i++)
+   {
+       if ((OS_FDTable[i].IsValid == TRUE) &&
+          (strcmp(OS_FDTable[i].Path, src) == 0))
+       {
+          return OS_FS_ERROR;
+       }
+   }
 
-    /*
-    ** Translate the path
-    */
-    if ( OS_TranslatePath(dest, (char *)dest_path) != OS_FS_SUCCESS )
-    {
-        return OS_FS_ERR_PATH_INVALID;
-    }
+   status = OS_cp (src, dest);
+   if ( status == OS_FS_SUCCESS )
+   {
+      status = OS_remove(src);
+   }
 
-    sprintf(command,"mv %s %s",src_path, dest_path);
-     
-    status = system(command);
-    if (status != ERROR)
-    {
-        for ( i =0; i < OS_MAX_NUM_OPEN_FILES; i++) 
-        {
-            if (strcmp(OS_FDTable[i].Path, src) == 0 &&
-                OS_FDTable[i].IsValid == TRUE)
-            {
-                strncpy (OS_FDTable[i].Path, dest, OS_MAX_PATH_LEN);  
-            } 
-        }
-        return OS_FS_SUCCESS;
-    }
-    else
-    {
-        return OS_FS_ERROR;
-    }
+   return ( status);
 }/*end OS_mv */
 
 /*
@@ -981,7 +1028,7 @@ int32 OS_mkdir (const char *path, uint32 access)
     mode = S_IFDIR |S_IRWXU | S_IRWXG | S_IRWXO;
     status = mkdir(local_path, mode);
 
-    if (status != ERROR)
+    if (status == 0)
     {
         return OS_FS_SUCCESS;
     }
@@ -1083,8 +1130,6 @@ int32 OS_closedir (os_dirp_t directory)
     Returns: a pointer to the next entry for success
              NULL if error or end of directory is reached
 ---------------------------------------------------------------------------------------*/
-
-
 os_dirent_t *  OS_readdir (os_dirp_t directory)
 { 
     os_dirent_t *tempptr;
@@ -1119,7 +1164,6 @@ void  OS_rewinddir (os_dirp_t directory )
        rewinddir( directory);
     }
 }
-
 /*--------------------------------------------------------------------------------------
     Name: OS_rmdir
     
@@ -1163,7 +1207,7 @@ int32  OS_rmdir (const char *path)
     
     status = rmdir(local_path);
     
-    if (status != ERROR)
+    if (status == 0)
     {
         return OS_FS_SUCCESS;
     }
@@ -1230,41 +1274,50 @@ int32 OS_check_name_length(const char *path)
 int32 OS_ShellOutputToFile(char* Cmd, int32 OS_fd)
 {
     
-    /* this is a #define to avoid a 'variable length array' warning */
-    /* 15 is for the size of the redirection string that is added 
-     * to the command */
-    char LocalCmd [OS_MAX_CMD_LEN + OS_REDIRECTSTRSIZE]; 
-    char String [OS_REDIRECTSTRSIZE];
+    /* 
+    ** this is a #define to avoid a 'variable length array' warning 
+    ** 15 is for the size of the redirection string that is added 
+    ** to the command 
+    */
+    char  LocalCmd [OS_MAX_CMD_LEN + OS_REDIRECTSTRSIZE]; 
+    char  String [OS_REDIRECTSTRSIZE];
     int32 ReturnCode;
     int32 Result;
 
-    /* Make sure the file descriptor is legit before using it */
+    /*
+    ** Check parameters
+    */
+    if (Cmd == NULL)
+    {
+        return(OS_FS_ERR_INVALID_POINTER);
+    }
+
+    /* 
+    ** Make sure the file descriptor is valid before using it 
+    */
     if (OS_fd < 0 || OS_fd >= OS_MAX_NUM_OPEN_FILES || OS_FDTable[OS_fd].IsValid == FALSE)
     {
         return OS_FS_ERR_INVALID_FD;
     }
     else
     {
-
         strncpy(LocalCmd,Cmd,OS_MAX_CMD_LEN +OS_REDIRECTSTRSIZE);
     
         /* Make sure that we are able to access this file */
         fchmod(OS_FDTable[OS_fd].OSfd,0777);
   
-
-        /* add in the extra chars necessary to perform the redirection
-        1 for stdout and 2 for stderr. they are redirected to the 
-        file descriptor passed in
+        /* 
+        ** add in the extra chars necessary to perform the redirection
+        ** 1 for stdout and 2 for stderr. they are redirected to the 
+        ** file descriptor passed in
         */
         sprintf(String, " 1>&%d 2>&%d",(int)OS_FDTable[OS_fd].OSfd, (int)OS_FDTable[OS_fd].OSfd);
         strcat(LocalCmd, String);
-
     
         Result = system(LocalCmd);
-    
         if (Result == 0)
         {
-            ReturnCode = OS_SUCCESS;
+            ReturnCode = OS_FS_SUCCESS;
         }
         else
         {
@@ -1318,25 +1371,27 @@ int32 OS_FDGetInfo (int32 filedes, OS_FDTableEntry *fd_prop)
  ---------------------------------------------------------------------------------------*/
 int32 OS_FileOpenCheck(char *Filename)
 {
-    uint32  i;
+    uint32    i;
+    sigset_t  previous;
+    sigset_t  mask;
 
     if (Filename == NULL)
     {
         return(OS_FS_ERR_INVALID_POINTER);
     }
 
-    pthread_mutex_lock(&OS_FDTableMutex);
+    OS_InterruptSafeLock(&OS_FDTableMutex, &mask, &previous);
 
     for ( i = 0; i < OS_MAX_NUM_OPEN_FILES; i++)
     {
         if ((OS_FDTable[i].IsValid == TRUE) &&  (strcmp(OS_FDTable[i].Path, Filename) == 0))
         {
-           pthread_mutex_unlock(&OS_FDTableMutex);
+           OS_InterruptSafeUnlock(&OS_FDTableMutex, &previous);
            return(OS_FS_SUCCESS);
         }
     }/* end for */
 
-    pthread_mutex_unlock(&OS_FDTableMutex);
+    OS_InterruptSafeUnlock(&OS_FDTableMutex, &previous);
     return OS_FS_ERROR;
 
 }/* end OS_FileOpenCheck */
@@ -1355,15 +1410,17 @@ int32 OS_FileOpenCheck(char *Filename)
  ---------------------------------------------------------------------------------------*/
 int32 OS_CloseFileByName(char *Filename)
 {
-    uint32            i;
-    int               status;
+    uint32    i;
+    int       status;
+    sigset_t  previous;
+    sigset_t  mask;
 
     if (Filename == NULL)
     {
         return(OS_FS_ERR_INVALID_POINTER);
     }
 
-    pthread_mutex_lock(&OS_FDTableMutex);
+    OS_InterruptSafeLock(&OS_FDTableMutex, &mask, &previous);
 
     for ( i = 0; i < OS_MAX_NUM_OPEN_FILES; i++)
     {
@@ -1382,21 +1439,22 @@ int32 OS_CloseFileByName(char *Filename)
            strcpy(OS_FDTable[i].Path, "\0");
            OS_FDTable[i].User =       0;
            OS_FDTable[i].IsValid =    FALSE;
-           pthread_mutex_unlock(&OS_FDTableMutex);
+           OS_InterruptSafeUnlock(&OS_FDTableMutex, &previous);
 
-           if (status == ERROR)
+           if (status == 0)
            {
-              return(OS_FS_ERROR);
+              return(OS_FS_SUCCESS);
            }
            else
            {
-              return(OS_FS_SUCCESS);
+              return(OS_FS_ERROR);
            }
         }
 
     }/* end for */
 
-    pthread_mutex_unlock(&OS_FDTableMutex);
+    OS_InterruptSafeUnlock(&OS_FDTableMutex, &previous);
+
     return (OS_FS_ERR_PATH_INVALID);
 
 }/* end OS_CloseFileByName */
@@ -1411,11 +1469,13 @@ int32 OS_CloseFileByName(char *Filename)
  ---------------------------------------------------------------------------------------*/
 int32 OS_CloseAllFiles(void)
 {
-    uint32  i;
-    int32   return_status = OS_FS_SUCCESS;
-    int     status;
+    uint32    i;
+    int32     return_status = OS_FS_SUCCESS;
+    int       status;
+    sigset_t  previous;
+    sigset_t  mask;
     
-    pthread_mutex_lock(&OS_FDTableMutex);
+    OS_InterruptSafeLock(&OS_FDTableMutex, &mask, &previous);
 
     for ( i = 0; i < OS_MAX_NUM_OPEN_FILES; i++)
     {
@@ -1442,7 +1502,7 @@ int32 OS_CloseAllFiles(void)
 
     }/* end for */
 
-    pthread_mutex_unlock(&OS_FDTableMutex);
+    OS_InterruptSafeUnlock(&OS_FDTableMutex, &previous);
     return (return_status);
 
 }/* end OS_CloseAllFiles */

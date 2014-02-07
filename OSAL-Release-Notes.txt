@@ -1,3 +1,39 @@
+Version 4.1.0 release notes
+   January 31, 2014
+   - This release contains one new function, and one slightly altered function
+     OS_GetFsInfo returns information about the file systems including:
+      - Number of mounted/mapped volumes
+      - Maximum number of mounted/mapped volumes
+      - Number of open files
+      - Maximum number of open files
+     OS_QueueGet has a slightly modified behavior. The size passed is the size of the buffer
+        that the message is supposed to be copied into. If the size of the buffer passed in
+        is smaller than the maximum size of the message specified when the queue was created, 
+        then the call will return an OS_INVALID_SIZE error. This will prevent buffer overflow
+        errors. Previous versions of OS_QueueGet required the size of the buffer to match the
+        exact size of the Queue and message being received. This works fine for a system with
+        fixed size messages, but will not work for a system that uses variable sized messages.
+   - This release adds a suite of unit tests developed primarily by Tam Ngo of NASA/JSC. The
+     tests run on Linux and use gcov to provide code coverage information. 
+   - This release fixes a number of bugs and adds a number of improvements:
+      - Fixed issues reported by static analysis tool
+      - Implemented signal mask improvements on POSIX port
+      - Improved OS_TaskDelay on POSIX port
+      - Added additional parameter checks in osloader ports
+      - Fixed the priority and scheduler selection on the POSIX port
+         ( priorities were being ignored )
+      - Removed error printfs in POSIX port
+      - Fixed incorrect table reference in CountSemCreate POSIX port
+      - Fixed minor bugs in POSIX osfilesys and osfileapi functions
+      - Fixed POSIX OS_TimerCreate
+      - Fixed divide by zero bug in OS_Milli2Ticks
+      - Improved POSIX mutex lock by masking signals
+      - Improved Queue handling by allowing variable size messages and 
+         preventing buffer overflows on RTEMS queue receive
+      - Updated common_types.h include file to include ARM and x86_64
+      - Added C++ extern "C" keywords in include files
+
+
 Version 4.0.0 release notes
    January 16, 2013
    - This release contains no new API functionality. This release focuses on

@@ -113,6 +113,8 @@ void OS_Application_Startup(void)
    uint32 status;
    int    i;
 
+   OS_API_Init();
+
    OS_printf("OS Application Startup\n");
 
    /*

@@ -12,9 +12,9 @@ TARGET = bsp.o
 
 #==============================================================================
 # Object files required to build subsystem.
-OBJS = bsp_start.o bsp_voltab.o  bsp_timer.o bsp_loader.o
+OBJS = bsp_start.o bsp_voltab.o bsp_loader.o
 
 #==============================================================================
 # Source files required to build subsystem; used to generate dependencies.
-SOURCES = bsp_start.c bsp_voltab.c  bsp_timer.c bsp_loader.c
+SOURCES = bsp_start.c bsp_voltab.c bsp_loader.c
 

@@ -42,6 +42,12 @@
 ****************************************************************************************/
 
 /****************************************************************************************
+                                     FUNCTION PROTOTYPES 
+****************************************************************************************/
+extern int    OS_InterruptSafeLock(pthread_mutex_t *lock, sigset_t *set, sigset_t *previous);
+extern void   OS_InterruptSafeUnlock(pthread_mutex_t *lock, sigset_t *previous);
+
+/****************************************************************************************
                                    GLOBAL DATA
 ****************************************************************************************/
 
@@ -114,13 +120,20 @@ int32 OS_SymbolLookup( uint32 *SymbolAddress, char *SymbolName )
    uint32        Function;
 
    /*
+   ** Check parameters
+   */
+   if (( SymbolAddress == NULL ) || ( SymbolName == NULL ))
+   {
+      return(OS_INVALID_POINTER);
+   }
+
+   /*
    ** Lookup the entry point
    */
    Function = (uint32 )dlsym((void *)0, SymbolName);
    dlError = dlerror();
    if( dlError )
    {
-      OS_printf("OSAL: Error, cannot locate symbol entry point: %s\n",dlError);
       return(OS_ERROR);
    }
 
@@ -144,7 +157,6 @@ int32 OS_SymbolLookup( uint32 *SymbolAddress, char *SymbolName )
 int32 OS_SymbolTableDump ( char *filename, uint32 SizeLimit )
 {
 
-   OS_printf("OSAL: OS_SymbolTableDump Not Implemented on Posix.\n"); 
    return(OS_ERR_NOT_IMPLEMENTED);
    
 }/* end OS_SymbolTableDump */
@@ -175,17 +187,18 @@ int32 OS_ModuleLoad ( uint32 *module_id, char *module_name, char *filename )
    int32       return_code;
    void       *function_lib;     /*  Handle to shared lib file */
    const char *dl_error;    /*  Pointer to error string   */
-   
+   sigset_t    previous;
+   sigset_t    mask;
+
    /*
    ** Check parameters
    */
    if (( filename == NULL ) || (module_id == NULL ) || (module_name == NULL))
    {
-      OS_printf("OSAL: Error, invalid parameters to OS_ModuleLoad\n");
       return(OS_INVALID_POINTER);
    }
-  
-   pthread_mutex_lock(&OS_module_table_mut); 
+ 
+   OS_InterruptSafeLock(&OS_module_table_mut, &mask, &previous); 
 
    /*
    ** Find a free module id
@@ -203,7 +216,7 @@ int32 OS_ModuleLoad ( uint32 *module_id, char *module_name, char *filename )
    */
    if( possible_moduleid >= OS_MAX_MODULES || OS_module_table[possible_moduleid].free != TRUE)
    {
-       pthread_mutex_unlock(&OS_module_table_mut);
+       OS_InterruptSafeUnlock(&OS_module_table_mut, &previous); 
        return OS_ERR_NO_FREE_IDS;
    }
 
@@ -215,7 +228,7 @@ int32 OS_ModuleLoad ( uint32 *module_id, char *module_name, char *filename )
        if ((OS_module_table[i].free == FALSE) &&
           ( strcmp((char*) module_name, OS_module_table[i].name) == 0)) 
        {       
-           pthread_mutex_unlock(&OS_module_table_mut);
+           OS_InterruptSafeUnlock(&OS_module_table_mut, &previous); 
            return OS_ERR_NAME_TAKEN;
        }
    }
@@ -225,7 +238,7 @@ int32 OS_ModuleLoad ( uint32 *module_id, char *module_name, char *filename )
    ** no other task can try to use it 
    */
    OS_module_table[possible_moduleid].free = FALSE ;
-   pthread_mutex_unlock(&OS_module_table_mut);
+   OS_InterruptSafeUnlock(&OS_module_table_mut, &previous); 
  
    /*
    ** Translate the filename to the Host System
@@ -233,8 +246,10 @@ int32 OS_ModuleLoad ( uint32 *module_id, char *module_name, char *filename )
    return_code = OS_TranslatePath((const char *)filename, (char *)translated_path); 
    if ( return_code != OS_SUCCESS )
    {
+      OS_module_table[possible_moduleid].free = TRUE;
       return(return_code);
    }
+
    /*
    ** File is ready to load
    */
@@ -246,7 +261,6 @@ int32 OS_ModuleLoad ( uint32 *module_id, char *module_name, char *filename )
    dl_error = dlerror();
    if( dl_error )
    {
-      OS_printf("OSAL: Error, cannot open application file: %s\n",dl_error);
       OS_module_table[possible_moduleid].free = TRUE;
       return(OS_ERROR);
    }
@@ -289,15 +303,15 @@ int32 OS_ModuleUnload ( uint32 module_id )
 
    int         ReturnCode;
    const char *dlError;   
-   
+
    /*
    ** Check the module_id
    */
-   if ( OS_module_table[module_id].free == TRUE )
+   if ( module_id >= OS_MAX_MODULES || OS_module_table[module_id].free == TRUE )
    {
       return(OS_ERR_INVALID_ID);
    }
-  
+   
    /*
    ** Attempt to close/unload the module
    */ 
@@ -305,7 +319,6 @@ int32 OS_ModuleUnload ( uint32 module_id )
    dlError = dlerror();
    if( dlError )
    {
-      OS_printf("OSAL Error, Cannot Unload module: %s\n",dlError);
       OS_module_table[module_id].free = TRUE;  
       return(OS_ERROR);
    }
@@ -340,7 +353,7 @@ int32 OS_ModuleInfo ( uint32 module_id, OS_module_record_t *module_info )
    /*
    ** Check the module_id
    */
-   if ( OS_module_table[module_id].free == TRUE )
+   if ( module_id >= OS_MAX_MODULES || OS_module_table[module_id].free == TRUE )
    {
       return(OS_ERR_INVALID_ID);
    }

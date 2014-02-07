@@ -14,11 +14,13 @@
 ** Purpose: Contains functions prototype definitions and variables declarations
 **          for the OS Abstraction Layer, Core OS module
 **
-** $Revision: 1.9 $
+** $Revision: 1.10 $
 **
-** $Date: 2010/11/12 12:00:17GMT-05:00 $
+** $Date: 2013/07/25 10:01:32GMT-05:00 $
 **
 ** $Log: osapi.h  $
+** Revision 1.10 2013/07/25 10:01:32GMT-05:00 acudmore 
+** Added C++ support
 ** Revision 1.9 2010/11/12 12:00:17GMT-05:00 acudmore 
 ** replaced copyright character with (c) and added open source notice where needed.
 ** Revision 1.8 2010/03/08 15:57:20EST acudmore 
@@ -78,6 +80,10 @@
 
 #include "common_types.h"
 
+#ifdef __cplusplus
+   extern "C" {
+#endif
+
 #define OS_SUCCESS                     (0)
 #define OS_ERROR                       (-1)
 #define OS_INVALID_POINTER             (-2)
@@ -127,6 +133,10 @@
 #include "osapi-os-net.h"
 #include "osapi-os-loader.h"
 #include "osapi-os-timer.h"
+
+#ifdef __cplusplus
+   }
+#endif
 
 #endif
 

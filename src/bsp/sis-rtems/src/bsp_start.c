@@ -97,12 +97,6 @@ rtems_driver_address_table rtems_ramdisk_io_ops =
 
 void OS_BSPMain( void )
 {
-
-   /*
-   ** Initialize the OS API
-   */
-   OS_API_Init();
-
    /*
    ** Call OSAL entry point.    
    */

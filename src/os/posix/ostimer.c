@@ -39,7 +39,9 @@
                                 EXTERNAL FUNCTION PROTOTYPES
 ****************************************************************************************/
 
-uint32 OS_FindCreator(void);
+extern uint32 OS_FindCreator(void);
+extern int    OS_InterruptSafeLock(pthread_mutex_t *lock, sigset_t *set, sigset_t *previous);
+extern void   OS_InterruptSafeUnlock(pthread_mutex_t *lock, sigset_t *previous);
 
 /****************************************************************************************
                                 INTERNAL FUNCTION PROTOTYPES
@@ -123,7 +125,6 @@ int32  OS_TimerAPIInit ( void )
    status = clock_getres(CLOCK_REALTIME, &clock_resolution);
    if ( status < 0 )
    {
-      OS_printf("OS_TimerAPIInit: Error calling clock_getres\n");
       return_code = OS_ERROR;
    }  
    else
@@ -139,7 +140,6 @@ int32  OS_TimerAPIInit ( void )
       status = pthread_mutex_init((pthread_mutex_t *) & OS_timer_table_mut,NULL); 
       if ( status < 0 )
       {
-         OS_printf("OS_TimerAPIInit: Error calling pthread_mutex_init\n");
          return_code = OS_ERROR;
       }
    }
@@ -237,14 +237,16 @@ void  OS_TimespecToUsec(struct timespec time_spec, uint32 *usecs)
 */
 int32 OS_TimerCreate(uint32 *timer_id, const char *timer_name, uint32 *clock_accuracy, OS_TimerCallback_t  callback_ptr)
 {
-   uint32             possible_tid;
-   int32              i;
+   uint32    possible_tid;
+   int32     i;
+   sigset_t  previous;
+   sigset_t  mask;
 
    int                status;
    struct  sigaction  sig_act;
    struct  sigevent   evp;
 
-   if ( timer_id == NULL || timer_name == NULL)
+   if ( timer_id == NULL || timer_name == NULL || clock_accuracy == NULL)
    {
         return OS_INVALID_POINTER;
    }
@@ -261,7 +263,7 @@ int32 OS_TimerCreate(uint32 *timer_id, const char *timer_name, uint32 *clock_acc
    /* 
    ** Check Parameters 
    */
-   pthread_mutex_lock(&OS_timer_table_mut); 
+   OS_InterruptSafeLock(&OS_timer_table_mut, &mask, &previous);
     
    for(possible_tid = 0; possible_tid < OS_MAX_TIMERS; possible_tid++)
    {
@@ -272,7 +274,7 @@ int32 OS_TimerCreate(uint32 *timer_id, const char *timer_name, uint32 *clock_acc
 
    if( possible_tid >= OS_MAX_TIMERS || OS_timer_table[possible_tid].free != TRUE)
    {
-        pthread_mutex_unlock(&OS_timer_table_mut);
+        OS_InterruptSafeUnlock(&OS_timer_table_mut, &previous);
         return OS_ERR_NO_FREE_IDS;
    }
 
@@ -284,7 +286,7 @@ int32 OS_TimerCreate(uint32 *timer_id, const char *timer_name, uint32 *clock_acc
        if ((OS_timer_table[i].free == FALSE) &&
             strcmp ((char*) timer_name, OS_timer_table[i].name) == 0)
        {
-            pthread_mutex_unlock(&OS_timer_table_mut);
+            OS_InterruptSafeUnlock(&OS_timer_table_mut, &previous);
             return OS_ERR_NAME_TAKEN;
        }
    }
@@ -294,7 +296,7 @@ int32 OS_TimerCreate(uint32 *timer_id, const char *timer_name, uint32 *clock_acc
    */
    if (callback_ptr == NULL ) 
    {
-      pthread_mutex_unlock(&OS_timer_table_mut);
+      OS_InterruptSafeUnlock(&OS_timer_table_mut, &previous);
       return OS_TIMER_ERR_INVALID_ARGS;
    }    
 
@@ -303,10 +305,10 @@ int32 OS_TimerCreate(uint32 *timer_id, const char *timer_name, uint32 *clock_acc
    ** no other task can try to use it 
    */
    OS_timer_table[possible_tid].free = FALSE;
-   pthread_mutex_unlock(&OS_timer_table_mut);
+   OS_InterruptSafeUnlock(&OS_timer_table_mut, &previous);
+
    OS_timer_table[possible_tid].creator = OS_FindCreator();
-
-
+   strncpy(OS_timer_table[possible_tid].name, timer_name, OS_MAX_API_NAME);
    OS_timer_table[possible_tid].start_time = 0;
    OS_timer_table[possible_tid].interval_time = 0;
     
@@ -318,7 +320,7 @@ int32 OS_TimerCreate(uint32 *timer_id, const char *timer_name, uint32 *clock_acc
    memset((void *)&sig_act, 0, sizeof(sig_act));
    sigemptyset(&sig_act.sa_mask);
    sig_act.sa_handler = OS_TimerSignalHandler;
-   sig_act.sa_flags = 0;
+   sig_act.sa_flags = SA_RESTART; 
 
    memset((void *)&evp, 0, sizeof(evp));
    evp.sigev_notify = SIGEV_SIGNAL; 
@@ -514,6 +516,9 @@ int32 OS_TimerGetIdByName (uint32 *timer_id, const char *timer_name)
 */
 int32 OS_TimerGetInfo (uint32 timer_id, OS_timer_prop_t *timer_prop)  
 {
+    sigset_t  previous;
+    sigset_t  mask;
+
     /* 
     ** Check to see that the id given is valid 
     */
@@ -530,7 +535,7 @@ int32 OS_TimerGetInfo (uint32 timer_id, OS_timer_prop_t *timer_prop)
     /* 
     ** put the info into the stucture 
     */
-    pthread_mutex_lock(&OS_timer_table_mut);  
+    OS_InterruptSafeLock(&OS_timer_table_mut, &mask, &previous);
 
     timer_prop ->creator       = OS_timer_table[timer_id].creator;
     strcpy(timer_prop-> name, OS_timer_table[timer_id].name);
@@ -538,7 +543,7 @@ int32 OS_TimerGetInfo (uint32 timer_id, OS_timer_prop_t *timer_prop)
     timer_prop ->interval_time = OS_timer_table[timer_id].interval_time;
     timer_prop ->accuracy      = OS_timer_table[timer_id].accuracy;
     
-    pthread_mutex_unlock(&OS_timer_table_mut);
+    OS_InterruptSafeUnlock(&OS_timer_table_mut, &previous);
 
     return OS_SUCCESS;
     

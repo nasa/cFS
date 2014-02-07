@@ -99,11 +99,6 @@ void OS_BSPMain( void )
 {
 
    /*
-   ** Initialize the OS API
-   */
-   OS_API_Init();
-
-   /*
    ** Call OSAL entry point.    
    */
    OS_Application_Startup();

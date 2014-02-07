@@ -12,6 +12,8 @@ void OS_Application_Startup(void)
 {
     int32  status;
     uint32 SymAddress;
+
+    OS_API_Init();
   
     OS_printf("Symbol and Symbol Table Dump test\n");
 

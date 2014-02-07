@@ -15,9 +15,13 @@
 **	   This file  contains some of the OS APIs abstraction layer.It 
 **     contains those APIs that call the  OS. In this case the OS is the Rtems OS.
 **
-**  $Date: 2013/01/15 16:41:26GMT-05:00 $
-**  $Revision: 1.25 $
+**  $Date: 2013/12/11 15:46:47GMT-05:00 $
+**  $Revision: 1.27 $
 **  $Log: osapi.c  $
+**  Revision 1.27 2013/12/11 15:46:47GMT-05:00 acudmore 
+**  Updated OS_QueueGet to detect buffer overflow condition
+**  Revision 1.26 2013/07/24 11:15:37GMT-05:00 acudmore 
+**  Updated comments and formatting in Milli2Ticks and Tick2Micros
 **  Revision 1.25 2013/01/15 16:41:26GMT-05:00 acudmore 
 **  Removed fields from binary and counting sem tables that are not needed.
 **  Fixed return code for binary semaphores when flushed.
@@ -139,6 +143,7 @@ typedef struct
 {
     int      free;
     rtems_id id;
+    uint32   max_size;
     char     name [OS_MAX_API_NAME];
     int      creator;
 }OS_queue_record_t;
@@ -925,6 +930,7 @@ int32 OS_QueueCreate (uint32 *queue_id, const char *queue_name, uint32 queue_dep
      
     status = rtems_semaphore_obtain (OS_queue_table_sem, RTEMS_WAIT, RTEMS_NO_TIMEOUT);
 
+    OS_queue_table[*queue_id].max_size = data_size; 
     strcpy( OS_queue_table[*queue_id].name, (char*) queue_name);
     OS_queue_table[*queue_id].creator = OS_FindCreator();
     status = rtems_semaphore_release (OS_queue_table_sem);
@@ -971,6 +977,7 @@ int32 OS_QueueDelete (uint32 queue_id)
     OS_queue_table[queue_id].name[0] = '\0';
     OS_queue_table[queue_id].creator = UNINITIALIZED;
     OS_queue_table[queue_id].id = UNINITIALIZED;
+    OS_queue_table[queue_id].max_size = 0;
     status = rtems_semaphore_release (OS_queue_table_sem);
 
     return OS_SUCCESS;
@@ -986,7 +993,7 @@ int32 OS_QueueDelete (uint32 queue_id)
             OS_INVALID_POINTER if a pointer passed in is NULL
             OS_QUEUE_EMPTY if the Queue has no messages on it to be recieved
             OS_QUEUE_TIMEOUT if the timeout was OS_PEND and the time expired
-            OS_QUEUE_INVALID_SIZE if the size copied from the queue was not correct
+            OS_QUEUE_INVALID_SIZE if the size passed in may be too small for the message 
             OS_SUCCESS if success
 ---------------------------------------------------------------------------------------*/
 
@@ -1001,11 +1008,20 @@ int32 OS_QueueGet (uint32 queue_id, void *data, uint32 size, uint32 *size_copied
     /* Check Parameters */
     if(queue_id >= OS_MAX_QUEUES || OS_queue_table[queue_id].free == TRUE)
     {
-        return OS_ERR_INVALID_ID;
+        return(OS_ERR_INVALID_ID);
     }
     else if( (data == NULL) || (size_copied == NULL) )
     {
-        return OS_INVALID_POINTER;
+        return (OS_INVALID_POINTER);
+    }
+    else if( size < OS_queue_table[queue_id].max_size )
+    {
+        /* 
+        ** The buffer that the user is passing in is potentially too small
+        ** RTEMS will just copy into a buffer that is too small
+        */
+        *size_copied = 0;
+        return(OS_QUEUE_INVALID_SIZE);
     }
 
     rtems_queue_id = OS_queue_table[queue_id].id; 
@@ -1040,6 +1056,7 @@ int32 OS_QueueGet (uint32 queue_id, void *data, uint32 size, uint32 *size_copied
 		
 	if (status == RTEMS_UNSATISFIED)
         {
+            *size_copied = 0;
 	    return OS_QUEUE_EMPTY;
         } 
         
@@ -1062,25 +1079,21 @@ int32 OS_QueueGet (uint32 queue_id, void *data, uint32 size, uint32 *size_copied
 		
         if (status == RTEMS_TIMEOUT)
         {
+            *size_copied = 0;
  	    return OS_QUEUE_TIMEOUT;       
         }
         
     }/* else */
    
-   
     /*
     ** Check the status of the read operation.  If a valid message was
     ** obtained, indicate success.  
     */
-    if (status == RTEMS_SUCCESSFUL && *size_copied == size)
+    if (status == RTEMS_SUCCESSFUL)
     {
 	/* Success. */
 	return OS_SUCCESS;
     }
-    else if ( status == RTEMS_SUCCESSFUL && *size_copied != size ) 
-    {
-       return OS_QUEUE_INVALID_SIZE;
-    } 
     else 
     {
        *size_copied = 0;
@@ -2317,17 +2330,18 @@ int32 OS_MutSemGetInfo (uint32 sem_id, OS_mut_sem_prop_t *mut_prop)
 /*---------------------------------------------------------------------------------------
    Name: OS_Milli2Ticks
 
-   Purpose: This function accepts a time interval in milli_seconds as input an
+   Purpose: This function accepts a time interval in milliseconds as input an
             returns the tick equivalent is o.s. system clock ticks. The tick
             value is rounded up.  This algorthim should change to use a integer divide.
 ---------------------------------------------------------------------------------------*/
 
 int32 OS_Milli2Ticks (uint32 milli_seconds)
 {
-    uint32 num_of_ticks,tick_duration_usec ;
+    uint32 num_of_ticks;
+    uint32 tick_duration_usec;
 	
-    tick_duration_usec = OS_Tick2Micros() ;
-    num_of_ticks = ((milli_seconds * 1000) + tick_duration_usec -1 ) / tick_duration_usec ;
+    tick_duration_usec = OS_Tick2Micros();
+    num_of_ticks = ((milli_seconds * 1000) + tick_duration_usec - 1)/tick_duration_usec;
 
     return(num_of_ticks) ; 
 }/* end OS_Milli2Ticks */
@@ -2340,22 +2354,10 @@ int32 OS_Milli2Ticks (uint32 milli_seconds)
 
 int32 OS_Tick2Micros (void)
 {
-    /* sysconf(_SC_CLK_TCK) returns  ticks/second.
-    ** 1/sysconf(_SC_CLK_TCK) is the duration of a tick in seconds
-    ** 1000000 * sysconf(_SC_CLK_TCK) is the duration of a tick in 
-    **	microsecond seconds 
+    /* 
+    ** sysconf(_SC_CLK_TCK) returns ticks/second.
     */
-    return(1000000/sysconf(_SC_CLK_TCK) );
-	
-	/*
-    comment:
-    last line could be replaced with:
-    return(	1000000/TICKS_PER_SECOND );
-    where TICKS_PER_SECOND is #defined .
-    but then one could #define :
-    TICKS_IN_USEC
-    if so , don't call the api but use  TICKS_IN_USEC directly 
-	*/
+    return(1000000/sysconf(_SC_CLK_TCK));
 	    
 }/* end OS_InfoGetTicks */
 

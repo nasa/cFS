@@ -15,9 +15,19 @@
 **         This file  contains some of the OS APIs abstraction layer 
 **         implementation for POSIX, specifically for vxWorks.
 **
-** $Date: 2013/01/15 16:45:03GMT-05:00 $
-** $Revision: 1.21 $
+** $Date: 2013/12/11 15:45:28GMT-05:00 $
+** $Revision: 1.25 $
 ** $Log: osapi.c  $
+** Revision 1.25 2013/12/11 15:45:28GMT-05:00 acudmore 
+** Updated logic for OS_QueueGet to detect buffer overflow condition
+** Revision 1.24 2013/12/11 12:10:46GMT-05:00 acudmore 
+** Updated OS_QueueGet to not require the buffer to be the exact size as the incoming message.
+** Revision 1.23 2013/07/24 11:17:38GMT-05:00 acudmore 
+** Updated Milli2Ticks and Tick2Micros
+**   -- Comments and formatting
+**   -- Consistent implementation with other ports ( rounds up result )
+** Revision 1.22 2013/07/22 16:01:14GMT-05:00 acudmore 
+** conditionally compile debug printfs
 ** Revision 1.21 2013/01/15 16:45:03GMT-05:00 acudmore 
 ** Fixed Binary and Counting Semaphores to not depend on OSAL maintained counters.
 **   vxWorks has sufficient support for these counters allowing the OSAL functions to be 
@@ -90,6 +100,8 @@ uint32 OS_FindCreator(void);
 #define OK	0
 #define EOS	'\0'
 
+#undef OS_DEBUG_PRINTF
+
 /****************************************************************************************
                                    GLOBAL DATA
 ****************************************************************************************/
@@ -114,6 +126,7 @@ typedef struct
 {
     int      free;
     MSG_Q_ID id;                       /* a pointer to the id */
+    uint32   max_size;
     char     name [OS_MAX_API_NAME];
     int      creator;
 }OS_queue_record_t;
@@ -492,18 +505,20 @@ int32 OS_TaskDelete (uint32 task_id)
     /* Try to delete the task */
     status = taskDelete(OS_task_table[task_id].id);
     if (status == ERROR)
-        {
-            /* These statements are here for debugging purposes only */
-            if ( errno == S_objLib_OBJ_ID_ERROR)
-            {
-                printf("Error # %d S_objLib_OBJ_ID_ERROR\n\n", errno);
-            }
-            else
-            {
-                printf("taskDelete - vxWorks Errno # %d\n",errno);
-            }
-            return OS_ERROR;
-        }
+    {
+       #ifdef OS_DEBUG_PRINTF
+          /* These statements are here for debugging purposes only */
+          if ( errno == S_objLib_OBJ_ID_ERROR)
+          {
+             printf("Error # %d S_objLib_OBJ_ID_ERROR\n\n", errno);
+          }
+          else
+          {
+             printf("taskDelete - vxWorks Errno # %d\n",errno);
+          }
+       #endif
+       return OS_ERROR;
+    }
 
     /*
      * Now that the task is deleted, remove its
@@ -884,6 +899,7 @@ int32 OS_QueueCreate (uint32 *queue_id, const char *queue_name, uint32 queue_dep
 
     semTake(OS_queue_table_sem,WAIT_FOREVER);
 
+    OS_queue_table[*queue_id].max_size = data_size;
     OS_queue_table[*queue_id].free = FALSE;
     strcpy( OS_queue_table[*queue_id].name, (char*) queue_name);
     OS_queue_table[*queue_id].creator = OS_FindCreator();
@@ -932,6 +948,7 @@ int32 OS_QueueDelete (uint32 queue_id)
     strcpy(OS_queue_table[queue_id].name, "");
     OS_queue_table[queue_id].creator = UNINITIALIZED;
     OS_queue_table[queue_id].id = NULL;
+    OS_queue_table[queue_id].max_size = 0;
 
     semGive(OS_queue_table_sem);
 
@@ -947,7 +964,8 @@ int32 OS_QueueDelete (uint32 queue_id)
             OS_ERR_INVALID_POINTER if a pointer passed in is NULL
             OS_QUEUE_EMPTY if the Queue has no messages on it to be recieved
             OS_QUEUE_TIMEOUT if the timeout was OS_PEND and the time expired
-            OS_QUEUE_INVALID_SIZE if the size copied from the queue was not correct
+            OS_QUEUE_INVALID_SIZE if the buffer passed in is too small for the maximum sized 
+                                 message
             OS_SUCCESS if success
 ---------------------------------------------------------------------------------------*/
 
@@ -963,10 +981,18 @@ int32 OS_QueueGet (uint32 queue_id, void *data, uint32 size, uint32 *size_copied
     {
         return OS_ERR_INVALID_ID;
     }
-
-    if( (data == NULL) || (size_copied == NULL) )
+    else if( (data == NULL) || (size_copied == NULL) )
     {
             return OS_INVALID_POINTER;
+    }
+    else if( size < OS_queue_table[queue_id].max_size )
+    {
+        /* 
+        ** The buffer that the user is passing in is potentially too small
+        ** RTEMS will just copy into a buffer that is too small
+        */
+        *size_copied = 0;
+        return(OS_QUEUE_INVALID_SIZE);
     }
 
     /* Get Message From VxWorks Message Queue */
@@ -974,26 +1000,25 @@ int32 OS_QueueGet (uint32 queue_id, void *data, uint32 size, uint32 *size_copied
     {
         status = msgQReceive(OS_queue_table[queue_id].id, data, size, WAIT_FOREVER);
     }
+    else if (timeout == OS_CHECK)
+    {
+        status = msgQReceive(OS_queue_table[queue_id].id, data, size, NO_WAIT);
+
+        if((status == ERROR) && (errno == S_objLib_OBJ_UNAVAILABLE))
+        {
+            *size_copied = 0;
+            return OS_QUEUE_EMPTY;
+        }
+    }
     else
     {
-        if (timeout == OS_CHECK)
-        {
-            status = msgQReceive(OS_queue_table[queue_id].id, data, size, NO_WAIT);
+        sys_ticks = OS_Milli2Ticks(timeout);
+        status = msgQReceive(OS_queue_table[queue_id].id, data, size, sys_ticks);
 
-            if( (status == ERROR) && (errno == S_objLib_OBJ_UNAVAILABLE) )
-            {
-                return OS_QUEUE_EMPTY;
-            }
-        }
-        else
+        if((status == ERROR) && (errno == S_objLib_OBJ_TIMEOUT))
         {
-            sys_ticks = OS_Milli2Ticks(timeout);
-            status = msgQReceive(OS_queue_table[queue_id].id, data, size, sys_ticks);
-
-            if( (status == ERROR) && (errno == S_objLib_OBJ_TIMEOUT) )
-            {
-                return OS_QUEUE_TIMEOUT;
-            }
+            *size_copied = 0;
+            return OS_QUEUE_TIMEOUT;
         }
     }
 
@@ -1005,14 +1030,7 @@ int32 OS_QueueGet (uint32 queue_id, void *data, uint32 size, uint32 *size_copied
     else
     {
         *size_copied = (uint32)status;
-        if((uint32)status != size)
-        {
-            return OS_QUEUE_INVALID_SIZE;
-        }
-        else
-        {
-            return OS_SUCCESS;
-        }
+        return OS_SUCCESS;
     }
 
 }/* end OS_QueueGet */
@@ -2228,33 +2246,35 @@ int32 OS_MutSemGetInfo (uint32 sem_id, OS_mut_sem_prop_t *mut_prop)
 /*---------------------------------------------------------------------------------------
    Name: OS_Milli2Ticks
 
-   Purpose: This function accepts a time interval in milli_seconds as input an
+   Purpose: This function accepts a time interval in milliseconds as input an
             returns the tick equivalent is o.s. system clock ticks. The tick
-            value is rounded up.  This algorthim should change to use a integer divide.
+            value is rounded up. 
 ---------------------------------------------------------------------------------------*/
 
 int32 OS_Milli2Ticks (uint32 milli_seconds)
 {
-    return( ((sysClkRateGet() * milli_seconds) / 1000) );
-    /*
-     * this function can be modified - it gives a good approx without any
-     * floating point (">>10" ~= "/1000")
-    */
+    uint32 num_of_ticks;
+    uint32 tick_duration_usec;
+
+    tick_duration_usec = OS_Tick2Micros() ;
+    num_of_ticks = ((milli_seconds * 1000) + tick_duration_usec - 1)/tick_duration_usec;
+
+    return(num_of_ticks);
 
 }/* end OS_Milli2Ticks */
 
-
 /*---------------------------------------------------------------------------------------
-   Name: OS_InfoGetTicks
+   Name: OS_Tick2Micros
 
    Purpose: This function returns the duration of a system tick in micro seconds.
 ---------------------------------------------------------------------------------------*/
-
 int32 OS_Tick2Micros (void)
 {
-    return( 1000000 / sysClkRateGet() );
-
-}/* end OS_InfoGetTicks */
+   /* 
+   ** sysClkRateGet returns ticks/second.
+   */
+   return(1000000/sysClkRateGet());
+}
 
 /*---------------------------------------------------------------------------------------
  * Name: OS_GetLocalTime
@@ -2656,7 +2676,9 @@ void UtilityTask()
    {    
        if(OS_DroppedMessages > 0)
        {
-          printf("Dropped Msgs to UART = %d\n",OS_DroppedMessages);
+          #ifdef OS_DEBUG_PRINTF
+             printf("Dropped Msgs to UART = %d\n",OS_DroppedMessages);
+          #endif
           OS_DroppedMessages=0;
        }
 

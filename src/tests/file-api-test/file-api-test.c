@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <strings.h>
 #include <stdlib.h>
 
 #include "common_types.h"
@@ -23,6 +24,9 @@ os_fs_err_name_t errname;
 void OS_Application_Startup(void)
 {
     int status;
+
+    OS_API_Init();
+
     OS_printf("This is Example 2\n");
 
     /* Make the file system */

@@ -53,11 +53,6 @@ void OS_BSPMain( void )
 {
    int    TicksPerSecond;
    
-   /*
-   ** Initialize the OS API
-   */
-   OS_API_Init();
-
    /* 
    ** Delay for one second. 
    */

@@ -227,7 +227,7 @@ int32 OS_TimerCreate(uint32 *timer_id,       const char         *timer_name,
    uint32            possible_tid;
    int32             i;
 
-   if ( timer_id == NULL || timer_name == NULL)
+   if ( timer_id == NULL || timer_name == NULL || clock_accuracy == NULL )
    {
         return OS_INVALID_POINTER;
    }
@@ -286,9 +286,9 @@ int32 OS_TimerCreate(uint32 *timer_id,       const char         *timer_name,
    */
    OS_timer_table[possible_tid].free = FALSE;
    status = rtems_semaphore_release (OS_timer_table_sem);
+
    OS_timer_table[possible_tid].creator = OS_FindCreator();
-
-
+   strncpy(OS_timer_table[possible_tid].name, timer_name, OS_MAX_API_NAME);
    OS_timer_table[possible_tid].start_time = 0;
    OS_timer_table[possible_tid].interval_time = 0;
    OS_timer_table[possible_tid].callback_ptr = callback_ptr;
@@ -377,7 +377,6 @@ int32 OS_TimerSet(uint32 timer_id, uint32 start_time, uint32 interval_time)
                                         OS_TimerSignalHandler, (void *)timer_id );
       if ( status != RTEMS_SUCCESSFUL )
       {
-         OS_printf("BSP: Error: Cannot setup interval timer to fire.\n");
          return ( OS_TIMER_ERR_INTERNAL);
       }
    }

@@ -14,9 +14,16 @@
 ** Purpose: This file Contains all of the api calls for manipulating
 **          files in a file system for vxworks
 **
-** $Date: 2012/12/20 14:04:58GMT-05:00 $
-** $Revision: 1.18 $
+** $Date: 2013/12/16 12:52:59GMT-05:00 $
+** $Revision: 1.21 $
 ** $Log: osfileapi.c  $
+** Revision 1.21 2013/12/16 12:52:59GMT-05:00 acudmore 
+** Removed dupliclate if/then/else block
+** Revision 1.20 2013/07/29 12:04:07GMT-05:00 acudmore 
+** Updated OS_open to create a file if it does not exist
+** Update OS_ShellOutputToFile to check pointer and return OS_FS_SUCCESS
+** Revision 1.19 2013/04/11 15:25:32GMT-05:00 acudmore 
+** Add open file checks to OS_mv, OS_remove, and OS_cp
 ** Revision 1.18 2012/12/20 14:04:58GMT-05:00 acudmore 
 ** Changed OS_mv to do a copy and delete.
 **    This is less efficient, but allows cross file system moves to work, which
@@ -361,7 +368,7 @@ int32 OS_open   (const char *path,  int32 access,  uint32  mode)
     semGive(OS_FDTableMutex);  
 
     /* Open the file */
-    status = open(local_path, (int) perm, (int) mode);
+    status = open(local_path, (int) perm | O_CREAT, (int) mode);
 
     semTake(OS_FDTableMutex,WAIT_FOREVER);
 
@@ -639,27 +646,46 @@ int32 OS_lseek  (int32  filedes, int32 offset, uint32 whence)
 
 int32 OS_remove (const char *path)
 {
-    int status;
+    int  i;
+    int  status;
     char local_path[OS_MAX_LOCAL_PATH_LEN];
     
     /*
     ** Check to see if the path pointer is NULL
     */
     if (path == NULL)
+    {
         return OS_FS_ERR_INVALID_POINTER;
+    }
    
     /*
     ** Check to see if the path is too long
     */
     if (strlen(path) >= OS_MAX_PATH_LEN)
+    {
         return OS_FS_ERR_PATH_TOO_LONG;
+    }
 
     /* 
     ** check if the name of the file is too long 
     */
     if (OS_check_name_length(path) != OS_FS_SUCCESS)
+    {
         return OS_FS_ERR_NAME_TOO_LONG;
-   
+    }
+ 
+    /*
+    ** Make sure the file is not open by the OSAL before deleting it 
+    */
+    for ( i =0; i < OS_MAX_NUM_OPEN_FILES; i++)
+    {
+       if ((OS_FDTable[i].IsValid == TRUE) &&
+          (strcmp(OS_FDTable[i].Path, path) == 0))
+       {
+          return OS_FS_ERROR;
+       }
+    }
+ 
     /*
     ** Translate the path
     */
@@ -773,7 +799,8 @@ int32 OS_rename (const char *old_filename, const char *new_filename)
 
 int32 OS_cp (const char *src, const char *dest)
 {
-    int status;
+    int  i;
+    int  status;
     char src_path[OS_MAX_LOCAL_PATH_LEN];
     char dest_path[OS_MAX_LOCAL_PATH_LEN];
 
@@ -827,6 +854,20 @@ int32 OS_cp (const char *src, const char *dest)
         return OS_FS_ERR_PATH_INVALID;
     }
 
+    /*
+    ** Make sure the destintation file is not open by the OSAL before doing the copy 
+    ** This may be caught by the host OS open call but it does not hurt to 
+    ** be consistent 
+    */
+    for ( i =0; i < OS_MAX_NUM_OPEN_FILES; i++)
+    {
+        if ((OS_FDTable[i].IsValid == TRUE) &&
+          (strcmp(OS_FDTable[i].Path, dest) == 0))
+        {
+           return OS_FS_ERROR;
+        }
+    }
+
     status = cp(src_path, dest_path);
      
     if (status != ERROR)
@@ -855,7 +896,61 @@ int32 OS_cp (const char *src, const char *dest)
 
 int32 OS_mv (const char *src, const char *dest)
 {    
+   int i;
    int32 status;
+
+   /*
+   ** Validate the source and destination
+   ** These checks may seem redundant because OS_cp and OS_remove also do 
+   ** the same checks, but this call needs to abort before doing a copy
+   ** in some cases.
+   */
+
+   /*
+   ** Check to see if the path pointers are NULL
+   */
+   if (src == NULL || dest == NULL)
+   {
+        return OS_FS_ERR_INVALID_POINTER;
+   }
+
+   /*
+   ** Check to see if the paths are too long
+   */
+   if (strlen(src) >= OS_MAX_PATH_LEN)
+   {
+       return OS_FS_ERR_PATH_TOO_LONG;
+   }
+
+   if (strlen(dest) >= OS_MAX_PATH_LEN)
+   {
+       return OS_FS_ERR_PATH_TOO_LONG;
+   }
+
+   /* 
+   ** check if the names of the files are too long 
+   */
+   if (OS_check_name_length(src) != OS_FS_SUCCESS)
+   {
+       return OS_FS_ERR_NAME_TOO_LONG;
+   }
+
+   if (OS_check_name_length(dest) != OS_FS_SUCCESS)
+   {
+       return OS_FS_ERR_NAME_TOO_LONG;
+   }
+
+   /*
+   ** Make sure the source file is not open by the OSAL before doing the move 
+   */
+   for ( i =0; i < OS_MAX_NUM_OPEN_FILES; i++)
+   {
+       if ((OS_FDTable[i].IsValid == TRUE) &&
+          (strcmp(OS_FDTable[i].Path, src) == 0))
+       {
+          return OS_FS_ERROR;
+       }
+   }
 
    status = OS_cp (src, dest);
    if ( status == OS_FS_SUCCESS )
@@ -1019,14 +1114,7 @@ os_dirent_t *  OS_readdir (os_dirp_t directory)
     }
     else
     {
-        if (errno != OK)
-        {
-            return NULL;
-        } 
-        else
-        {
-            return NULL;
-        }
+        return NULL;
     }
 
     /* should never reach this point in the code */
@@ -1156,9 +1244,17 @@ int32 OS_ShellOutputToFile(char* Cmd, int32 OS_fd)
 {
     char LocalCmd [OS_MAX_CMD_LEN];
     int32 Result;
-    int32 ReturnCode = OS_SUCCESS;
+    int32 ReturnCode = OS_FS_SUCCESS;
     int32 fdCmd;
     char * shellName;
+
+    /*
+    ** Check parameters
+    */
+    if (Cmd == NULL)
+    {
+        return(OS_FS_ERR_INVALID_POINTER);
+    }
 
     /* Make sure the file descriptor is legit before using it */
     if (OS_fd < 0 || OS_fd >= OS_MAX_NUM_OPEN_FILES || OS_FDTable[OS_fd].IsValid == FALSE)
@@ -1202,7 +1298,6 @@ int32 OS_ShellOutputToFile(char* Cmd, int32 OS_fd)
         }
         
     }
-    
     return ReturnCode;
 }/* end OS_ShellOutputToFile */
 

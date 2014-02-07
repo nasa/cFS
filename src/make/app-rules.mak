@@ -59,10 +59,28 @@ clean::
 	-$(RM) *.bin
 	-$(RM) *.d
 
+
+##
+## gcov rule
+##
+gcov:
+	@echo
+	@echo "Running OSAL unit test: $@"
+	@echo
+	./$(APPTARGET).$(APP_EXT)
+	@rm -f gmon.out
+	@echo
+	@gcov   os*.gcda | sed 'N;s/\n/ /' | \
+                sed -n '/File/p' | sed '/ads/d'  | \
+                sed 's/ Lines executed:/ /; s/File/gcov:/; s/of//'
+	@echo
+
+
 #
 # Include the dependancy list
 #
 -include $(APPTARGET).d
+
 
 
 # eof

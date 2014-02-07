@@ -113,7 +113,6 @@ int32  OS_TimerAPIInit ( void )
    status = clock_getres(CLOCK_REALTIME, &clock_resolution);
    if ( status < 0 )
    {
-      OS_printf("OS_TimerAPIInit: Error calling clock_getres\n");
       return_code = OS_ERROR;
    }  
    else
@@ -229,7 +228,7 @@ int32 OS_TimerCreate(uint32 *timer_id, const char *timer_name, uint32 *clock_acc
    int32    i;
    int      status;
 
-   if ( timer_id == NULL || timer_name == NULL)
+   if ( timer_id == NULL || timer_name == NULL || clock_accuracy == NULL )
    {
         return OS_INVALID_POINTER;
    }
@@ -289,12 +288,11 @@ int32 OS_TimerCreate(uint32 *timer_id, const char *timer_name, uint32 *clock_acc
    */
    OS_timer_table[possible_tid].free = FALSE;
    semGive(OS_timer_table_sem);
+
    OS_timer_table[possible_tid].creator = OS_FindCreator();
-
-
+   strncpy(OS_timer_table[possible_tid].name, timer_name, OS_MAX_API_NAME);
    OS_timer_table[possible_tid].start_time = 0;
    OS_timer_table[possible_tid].interval_time = 0;
-    
    OS_timer_table[possible_tid].callback_ptr = callback_ptr;
      
    /*

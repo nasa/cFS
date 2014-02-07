@@ -64,9 +64,9 @@ void OS_Application_Startup(void);
 
 int main(void)
 {
-
-   int mode;
-   int status; 
+   sigset_t mask;
+   int      mode;
+   int      status; 
 
    /*
    ** Create local directories for "disk" mount points
@@ -77,18 +77,34 @@ int main(void)
    status = mkdir("ram0", mode);
    status = mkdir("ram1", mode);
    status = mkdir("eeprom1", mode); 
-
+    
+   /*
+   ** OS_API_Init is called by OS_Application_Startup
+   */
 
    /*
-   ** Initialize the OS API data structures
+   ** Disable Signals to parent thread and therefore all
+   ** child threads create will block all signals
+   ** Note: Timers will not work in the application unless 
+   **       threads are spawned in OS_Application_Startup.
    */
-   OS_API_Init();
-     
+   sigfillset(&mask);
+   sigdelset(&mask, SIGINT); /* Needed to kill program */
+   sigprocmask(SIG_SETMASK, &mask, NULL);
+
+
    /*
    ** Call application specific entry point.
    */
    OS_Application_Startup();
-   
+  
+   /*
+   ** Re-enable Signals to current thread so that
+   ** any signals will interrupt in this threads context
+   ** ... this is needed for timers
+   */
+   sigprocmask(SIG_UNBLOCK, &mask, NULL);
+
    /*
    ** Let the main thread sleep 
    */     

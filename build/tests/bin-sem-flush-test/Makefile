@@ -16,6 +16,16 @@ APPTARGET = bin-sem-flush-test
 OBJS = bin-sem-flush-test.o
 
 #
+# Core object files
+# 
+OBJS += osapi.o osfileapi.o osfilesys.o osloader.o osnetwork.o ostimer.o
+
+#
+# BSP Object files
+#
+OBJS += bsp_start.o  bsp_voltab.o
+
+#
 # Source files required to build subsystem; used to generate dependencies.
 # As long as there are no assembly files this can be automated.
 #
@@ -39,7 +49,7 @@ EXEDIR=./
 # directory structures
 ########################################################################
 
-CORE_OBJS = ../../core/osal/osal.o ../../core/bsp/bsp.o
+CORE_OBJS = 
 
 ## 
 ## Include all necessary make rules
@@ -79,6 +89,8 @@ INCLUDE_PATH = \
 ## added here as well.
 ##
 VPATH = $(OSAL_SRC)/tests/$(APPTARGET) 
+VPATH += $(OSAL_SRC)/os/$(OS)
+VPATH += $(OSAL_SRC)/bsp/$(BSP)/src
 
 ##
 ## Include the common make rules for building an OSAL Application

@@ -115,6 +115,9 @@ void OS_Application_Startup(void)
 {
    uint32 status;
    OS_bin_sem_prop_t  bin_sem_prop;
+
+   OS_API_Init();
+
    OS_printf("OS Application Startup\n");
 
    /*

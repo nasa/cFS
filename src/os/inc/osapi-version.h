@@ -1,6 +1,6 @@
 /************************************************************************
 ** File:
-**   $Id: osapi-version.h 1.9 2013/01/16 14:35:18GMT-05:00 acudmore Exp  $
+**   $Id: osapi-version.h 1.10 2014/01/23 16:33:31GMT-05:00 acudmore Exp  $
 **
 **      Copyright (c) 2004-2006, United States government as represented by the 
 **      administrator of the National Aeronautics Space Administration.  
@@ -16,6 +16,8 @@
 ** Notes:
 **
 ** $Log: osapi-version.h  $
+** Revision 1.10 2014/01/23 16:33:31GMT-05:00 acudmore 
+** Update for 4.1 release
 ** Revision 1.9 2013/01/16 14:35:18GMT-05:00 acudmore 
 ** updated version label
 ** Revision 1.8 2012/04/16 14:57:04GMT-05:00 acudmore 
@@ -32,7 +34,7 @@
 #define _osapi_version_h_
 
 #define OS_MAJOR_VERSION (4)
-#define OS_MINOR_VERSION (0)
+#define OS_MINOR_VERSION (1)
 #define OS_REVISION      (0)
 #define OS_MISSION_REV   (0)
 

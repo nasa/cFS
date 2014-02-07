@@ -64,6 +64,9 @@ uint32 shared_resource_x;
 void OS_Application_Startup(void)
 {
   uint32 status;
+
+  OS_API_Init();
+
   OS_printf("********If You see this, we got into OS_Application_Startup****\n");
 
   status = OS_QueueCreate( &msgq_id, "MsgQ", MSGQ_DEPTH, MSGQ_SIZE, 0);

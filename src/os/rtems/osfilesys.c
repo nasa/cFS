@@ -51,7 +51,7 @@
 */
 #define RTEMS_DRIVER_AUTO_MAJOR (0)
 
-#undef  OS_FS_DEBUG
+#undef  OS_DEBUG_PRINTF
 /****************************************************************************************
                                    Prototypes
 ****************************************************************************************/
@@ -64,6 +64,11 @@ int32 OS_check_name_length(const char *path);
 ** This is the volume table reference. It is defined in the BSP/startup code for the board
 */
 extern OS_VolumeInfo_t OS_VolumeTable [NUM_TABLE_ENTRIES]; 
+
+/*
+** Fd Table
+*/
+extern OS_FDTableEntry OS_FDTable[OS_MAX_NUM_OPEN_FILES];
 
 /*
 ** A semaphore to guard the RTEMS file system calls.
@@ -105,22 +110,30 @@ int32 rtems_setup_ramdisk (char *phys_dev_name, uint32 *address, uint32 block_si
   */
   if ( num_blocks == 0 )
   {
-     printf("OSAL: Error: Cannot setup RAM disk, No size given.\n");
+     #ifdef OS_DEBUG_PRINTF
+        printf("OSAL: Error: Cannot setup RAM disk, No size given.\n");
+     #endif
      return(OS_FS_ERROR);
   }
   if ( block_size != 512 )
   {
-     printf("OSAL: Error: RAM Disk currently needs a block size of 512.\n");
+     #ifdef OS_DEBUG_PRINTF
+        printf("OSAL: Error: RAM Disk currently needs a block size of 512.\n");
+     #endif
      return(OS_FS_ERROR);
   }
   if ( address == 0 )
   {
-       printf("OSAL: RAM disk address is zero: allocating %d bytes from heap\n",
-               (int)(block_size * num_blocks));
+       #ifdef OS_DEBUG_PRINTF
+          printf("OSAL: RAM disk address is zero: allocating %d bytes from heap\n",
+                  (int)(block_size * num_blocks));
+       #endif
        local_address = (uint32) malloc (block_size * num_blocks);
        if (!local_address)
        {
-          printf ("OSAL: Error: no memory for RAM disk 0\n");
+          #ifdef OS_DEBUG_PRINTF
+             printf ("OSAL: Error: no memory for RAM disk 0\n");
+          #endif
           return(OS_FS_ERROR); 
        }
       
@@ -156,11 +169,16 @@ int32 rtems_setup_ramdisk (char *phys_dev_name, uint32 *address, uint32 block_si
                                  &major);
   if (sc != RTEMS_SUCCESSFUL)
   {
-    printf ("OSAL: Error: RAM driver not initialized: %s\n",
-            rtems_status_text (sc));
+    #ifdef OS_DEBUG_PRINTF
+       printf ("OSAL: Error: RAM driver not initialized: %s\n",
+               rtems_status_text (sc));
+    #endif
     return (OS_FS_ERROR);
   }
-  printf ("OSAL: RAM disk initialized: Address = 0x%08X\n",(unsigned int)rtems_ramdisk_configuration[0].location);
+  #ifdef OS_DEBUG_PRINTF
+     printf ("OSAL: RAM disk initialized: Address = 0x%08X\n",
+              (unsigned int)rtems_ramdisk_configuration[0].location);
+  #endif
 
   return(OS_FS_SUCCESS);
 }
@@ -190,6 +208,11 @@ int32 OS_mkfs (char *address, char *devname,char * volname, uint32 blocksize,
     if ( devname == NULL || volname == NULL )
     {
         return OS_FS_ERR_INVALID_POINTER;
+    }
+
+    if( strlen(devname) >= OS_FS_DEV_NAME_LEN || strlen(volname) >= OS_FS_VOL_NAME_LEN)
+    {
+        return OS_FS_ERR_PATH_TOO_LONG;
     }
  
     /*
@@ -234,8 +257,10 @@ int32 OS_mkfs (char *address, char *devname,char * volname, uint32 blocksize,
            memset (&config, 0, sizeof(rtems_rfs_format_config));
            if ( rtems_rfs_format ( OS_VolumeTable[i].PhysDevName, &config ) < 0 )
            {
-              printf("OSAL: Error: RFS format of %s failed: %s\n",
-                     OS_VolumeTable[i].PhysDevName, strerror(errno));
+              #ifdef OS_DEBUG_PRINTF
+                 printf("OSAL: Error: RFS format of %s failed: %s\n",
+                        OS_VolumeTable[i].PhysDevName, strerror(errno));
+              #endif
               ReturnCode = OS_FS_ERR_DRIVE_NOT_CREATED;
            }
            else
@@ -301,6 +326,10 @@ int32 OS_rmfs (char *devname)
     {
         ReturnCode =  OS_FS_ERR_INVALID_POINTER;
     }
+    else if ( strlen(devname) >= OS_FS_DEV_NAME_LEN )
+    {
+        ReturnCode = OS_FS_ERR_PATH_TOO_LONG;
+    }
     else
     {
         /*
@@ -364,7 +393,7 @@ int32 OS_initfs (char *address,char *devname, char *volname,
         return OS_FS_ERR_INVALID_POINTER;
     }
 
-    if(strlen(devname) > 32 || strlen(volname) > 32) 
+    if( strlen(devname) >= OS_FS_DEV_NAME_LEN || strlen(volname) >= OS_FS_VOL_NAME_LEN)
     {
         return OS_FS_ERR_PATH_TOO_LONG;
     }
@@ -393,7 +422,9 @@ int32 OS_initfs (char *address,char *devname, char *volname,
     */    
     if (OS_VolumeTable[i].VolumeType == RAM_DISK)
     {
-        printf("OSAL: Re-Initializing a RAM disk at: 0x%08X\n",(unsigned int)address );
+        #ifdef OS_DEBUG_PRINTF
+           printf("OSAL: Re-Initializing a RAM disk at: 0x%08X\n",(unsigned int)address );
+        #endif
         /*
         ** Create the RAM disk device. Do not erase the disk! 
         */
@@ -460,6 +491,11 @@ int32 OS_mount (const char *devname, char* mountpoint)
         return OS_FS_ERR_INVALID_POINTER;
     }
 
+    if( strlen(devname) >= OS_FS_DEV_NAME_LEN || strlen(mountpoint) >= OS_MAX_PATH_LEN)
+    {
+        return OS_FS_ERR_PATH_TOO_LONG;
+    }
+
     /*
     ** Lock 
     */
@@ -492,9 +528,11 @@ int32 OS_mount (const char *devname, char* mountpoint)
        */
        if ( mount(OS_VolumeTable[i].PhysDevName, mountpoint, RTEMS_FILESYSTEM_TYPE_RFS, 0, NULL) != 0 )
        {
-           printf("OSAL: Error: mount of %s to %s failed: %s\n",
+           #ifdef OS_DEBUG_PRINTF
+              printf("OSAL: Error: mount of %s to %s failed: %s\n",
                           OS_VolumeTable[i].PhysDevName,
                           mountpoint, strerror(errno));
+           #endif
            rtems_sc = rtems_semaphore_release (OS_VolumeTableSem);
            return OS_FS_ERROR;
        }
@@ -571,8 +609,10 @@ int32 OS_unmount (const char *mountpoint)
    /* make sure we found the device */
    if (i >= NUM_TABLE_ENTRIES)
    {
-       printf("OSAL: Error: unmount of %s failed: invalid volume table entry.\n",
+       #ifdef OS_DEBUG_PRINTF
+          printf("OSAL: Error: unmount of %s failed: invalid volume table entry.\n",
                      local_path);
+       #endif
        rtems_sc = rtems_semaphore_release (OS_VolumeTableSem);
        return OS_FS_ERROR;
    }
@@ -584,7 +624,9 @@ int32 OS_unmount (const char *mountpoint)
       */
       if ( unmount(local_path) < 0) 
       {
-         printf("OSAL: RTEMS unmount of %s failed :%s\n",local_path, strerror(errno));
+         #ifdef OS_DEBUG_PRINTF
+            printf("OSAL: RTEMS unmount of %s failed :%s\n",local_path, strerror(errno));
+         #endif
          rtems_sc = rtems_semaphore_release (OS_VolumeTableSem);
          return OS_FS_ERROR;
       } 
@@ -760,7 +802,7 @@ os_fshealth_t OS_chkfs (const char *name, boolean repair)
 /*--------------------------------------------------------------------------------------
     Name: OS_FS_GetPhysDriveName
     
-    Purpose: Gets the name of the physical volume underneith the drive,
+    Purpose: Returns the name of the physical volume associated with the drive,
              when given the mount point of the drive
 
     Returns: OS_FS_ERR_INVALID_POINTER if either  parameter is NULL
@@ -769,24 +811,45 @@ os_fshealth_t OS_chkfs (const char *name, boolean repair)
 ---------------------------------------------------------------------------------------*/
 int32 OS_FS_GetPhysDriveName(char * PhysDriveName, char * MountPoint)
 {
-    char LocalDrvName [OS_MAX_LOCAL_PATH_LEN];
     int32 ReturnCode;
-    int32 status;
+    int   i;
     
     if (MountPoint == NULL || PhysDriveName == NULL)
     {
         return OS_FS_ERR_INVALID_POINTER;
     }
-   
-    status = OS_TranslatePath((const char *)MountPoint, (char *)LocalDrvName);
-    if (status != OS_SUCCESS)
+  
+    if( strlen(PhysDriveName) >= OS_FS_DEV_NAME_LEN || strlen(MountPoint) >= OS_MAX_PATH_LEN)
+    {
+        return OS_FS_ERR_PATH_TOO_LONG;
+    }
+ 
+    /*
+    ** look for the CFS Mount Point in the VolumeTable 
+    */
+    for (i = 0; i < NUM_TABLE_ENTRIES; i++)
+    {
+        if (OS_VolumeTable[i].FreeFlag == FALSE &&
+            strncmp(OS_VolumeTable[i].MountPoint, MountPoint, OS_MAX_PATH_LEN) == 0)
+        {
+            break;
+        }
+    }
+
+    /* 
+    ** Make sure we found a valid volume table entry 
+    */
+    if (i >= NUM_TABLE_ENTRIES)
     {
         ReturnCode = OS_FS_ERROR;
     }
     else
     {
-        ReturnCode = OS_SUCCESS;
-        strcpy(PhysDriveName,LocalDrvName);
+       /*
+       ** Yes, so copy the physical drive name  
+       */
+       strncpy(PhysDriveName, OS_VolumeTable[i].PhysDevName,OS_FS_PHYS_NAME_LEN);
+       ReturnCode = OS_SUCCESS;
     }
 
     return ReturnCode;
@@ -837,7 +900,7 @@ int32 OS_TranslatePath(const char *VirtualPath, char *LocalPath)
     strncpy(LocalPath, VirtualPath, strlen(VirtualPath));
     LocalPath[strlen(VirtualPath)] = '\0'; /* Truncate it with a NULL. */
 
-    #ifdef OS_FS_DEBUG 
+    #ifdef OS_DEBUG_PRINTF
        printf("VirtualPath: %s, Length: %d\n",VirtualPath, (int)strlen(VirtualPath));
        printf("LocalPath: %s, Length: %d\n",LocalPath, (int)strlen(LocalPath));
     #endif
@@ -892,3 +955,49 @@ int32 OS_FS_GetErrorName(int32 error_num, os_fs_err_name_t * err_name)
     return return_code;
 }
 
+/*--------------------------------------------------------------------------------------
+     Name: OS_GetFsInfo
+       
+     Purpose: returns information about the file system in an os_fsinfo_t
+         
+     Returns: OS_FS_ERR_INVALID_POINTER if filesys_info is NULL
+              OS_FS_SUCCESS if success
+
+              Note: The information returned is in the structure pointed to by filesys_info         
+---------------------------------------------------------------------------------------*/
+int32 OS_GetFsInfo(os_fsinfo_t  *filesys_info)
+{
+   int i;
+ 
+   /*
+   ** Check to see if the file pointers are NULL
+   */
+   if (filesys_info == NULL)
+   {
+       return OS_FS_ERR_INVALID_POINTER;
+   }
+
+   filesys_info->MaxFds = OS_MAX_NUM_OPEN_FILES;
+   filesys_info->MaxVolumes = NUM_TABLE_ENTRIES;
+ 
+   filesys_info->FreeFds = 0;
+   for ( i = 0; i < OS_MAX_NUM_OPEN_FILES; i++ )
+   {
+      if ( OS_FDTable[i].IsValid == FALSE)
+      {
+         filesys_info->FreeFds++;
+      }       
+
+   }
+
+   filesys_info->FreeVolumes = 0;
+   for ( i = 0; i < NUM_TABLE_ENTRIES; i++ )
+   {
+      if (OS_VolumeTable[i].FreeFlag == TRUE )
+      {
+         filesys_info->FreeVolumes++;
+      }
+   }
+
+   return(OS_FS_SUCCESS);
+}

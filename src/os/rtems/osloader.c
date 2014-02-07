@@ -62,11 +62,7 @@ typedef struct
 ****************************************************************************************/
 #define OS_SYMBOL_RECORD_SIZE sizeof(SymbolRecord_t)
 
-/****************************************************************************************
-                                     DEFINES
-****************************************************************************************/
-
-#undef LOADER_DEBUG 
+#undef OS_DEBUG_PRINTF 
 
 #define OSAL_TABLE_MUTEX_ATTRIBS \
  (RTEMS_PRIORITY | RTEMS_BINARY_SEMAPHORE | \
@@ -196,15 +192,25 @@ int32 OS_SymbolLookup( uint32 *SymbolAddress, char *SymbolName )
    CexpSym     CexpSymbol;
 
    /*
+   ** Check parameters
+   */
+   if (( SymbolAddress == NULL ) || (SymbolName == NULL ))
+   {
+      return(OS_INVALID_POINTER);
+   }
+
+   /*
    ** Lookup the entry point
    */
    CexpSymbol = cexpSymLookup(SymbolName, NULL);
    if ( CexpSymbol == NULL )
    {
-      OS_printf("OSAL: ERROR cexpSymLookup error when resolving address of %s\n",SymbolName);
+      #ifdef OS_DEBUG_PRINTF
+         OS_printf("OSAL: ERROR cexpSymLookup error when resolving address of %s\n",SymbolName);
+      #endif
       return(OS_ERROR);
    }
-   #ifdef LOADER_DEBUG
+   #ifdef OS_DEBUG_PRINTF
       OS_printf("OSAL: Symbol table lookup OK\n");
    #endif
 
@@ -307,7 +313,11 @@ int32 OS_SymbolTableDump ( char *filename, uint32 SizeLimit )
    {
       return_status = OS_ERROR;
    }
+
+   close(sym_table_file_fd);
+
    return(return_status);
+
 #else
    /*
    ** Need to do a CEXP implementation
@@ -355,7 +365,9 @@ int32 OS_ModuleLoad ( uint32 *module_id, char *module_name, char *filename )
    */
    if (( filename == NULL ) || (module_id == NULL ) || ( module_name == NULL))
    {
-      OS_printf("OSAL: Error, invalid parameters to OS_ModuleLoad\n");
+      #ifdef OS_DEBUG_PRINTF
+         OS_printf("OSAL: Error, invalid parameters to OS_ModuleLoad\n");
+      #endif
       return(OS_INVALID_POINTER);
    }
   
@@ -420,10 +432,12 @@ int32 OS_ModuleLoad ( uint32 *module_id, char *module_name, char *filename )
    if ( StaticLoadStatus == FALSE )
    {
       OS_module_table[possible_moduleid].free = TRUE ;
-      OS_printf("OSAL: Error, cannot load static module: %s\n",translated_path);
+      #ifdef OS_DEBUG_PRINTF
+         OS_printf("OSAL: Error, cannot load static module: %s\n",translated_path);
+      #endif
       return(OS_ERROR);
    }
-   #ifdef LOADER_DEBUG
+   #ifdef OS_DEBUG_PRINTF
        OS_printf("OSAL: Loaded Module OK.\n");
    #endif 
  
@@ -436,10 +450,12 @@ int32 OS_ModuleLoad ( uint32 *module_id, char *module_name, char *filename )
    if ( CexpModuleId == 0 )
    {
       OS_module_table[possible_moduleid].free = TRUE ;
-      OS_printf("OSAL: Error, cannot load module: %s\n",translated_path);
+      #ifdef OS_DEBUG_PRINTF
+         OS_printf("OSAL: Error, cannot load module: %s\n",translated_path);
+      #endif
       return(OS_ERROR);
    }
-   #ifdef LOADER_DEBUG
+   #ifdef OS_DEBUG_PRINTF
        OS_printf("OSAL: Loaded Module OK.\n");
    #endif 
 
@@ -494,7 +510,7 @@ int32 OS_ModuleUnload ( uint32 module_id )
    /*
    ** Check the module_id
    */
-   if ( OS_module_table[module_id].free == TRUE )
+   if ( module_id >= OS_MAX_MODULES || OS_module_table[module_id].free == TRUE )
    {
       return(OS_ERR_INVALID_ID);
    }
@@ -503,10 +519,12 @@ int32 OS_ModuleUnload ( uint32 module_id )
    CexpUnloadStatus = cexpModuleUnload((CexpModule )OS_module_table[module_id].host_module_id);
    if ( CexpUnloadStatus != 0 )   
    {
-      OS_printf("BSP: Error, Cannot Close/Unload application file: %d\n",CexpUnloadStatus);
+      #ifdef OS_DEBUG_PRINTF
+         OS_printf("BSP: Error, Cannot Close/Unload application file: %d\n",CexpUnloadStatus);
+      #endif
       return(OS_ERROR);
    }
-   #ifdef LOADER_DEBUG
+   #ifdef OS_DEBUG_PRINTF
       OS_printf("OSAL: Unloaded module OK\n");
    #endif 
 
@@ -537,7 +555,7 @@ int32 OS_ModuleInfo ( uint32 module_id, OS_module_record_t *module_info )
    /*
    ** Check the parameter
    */
-   if ( module_info == 0 )
+   if ( module_info == NULL )
    {
       return(OS_INVALID_POINTER);
    }
@@ -545,7 +563,7 @@ int32 OS_ModuleInfo ( uint32 module_id, OS_module_record_t *module_info )
    /*
    ** Check the module_id
    */
-   if ( OS_module_table[module_id].free == TRUE )
+   if ( module_id >= OS_MAX_MODULES || OS_module_table[module_id].free == TRUE )
    {
       return(OS_ERR_INVALID_ID);
    }

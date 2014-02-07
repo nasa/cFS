@@ -25,6 +25,8 @@ void OS_Application_Startup(void)
 {
     int status;
     int totalfailures = 0;
+
+    OS_API_Init();
     
     OS_printf("*********************************************************\n");
     status = TestTasks();

@@ -30,7 +30,10 @@ int    counter = 0;
 void TimerFunction(uint32 timer_id)
 {
    int32              status;
+
+#ifndef _RTEMS_OS_
    OS_bin_sem_prop_t  bin_sem_prop;
+#endif
   
    timer_counter++;
 
@@ -108,6 +111,8 @@ void OS_Application_Startup(void)
 {
    uint32             status;
    OS_bin_sem_prop_t  bin_sem_prop;
+
+   OS_API_Init();
 
    OS_printf("OS Application Startup\n");
 

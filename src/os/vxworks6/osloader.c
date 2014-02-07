@@ -52,7 +52,7 @@ typedef struct
 /****************************************************************************************
                                      DEFINES
 ****************************************************************************************/
-#undef  OS_LOADER_DEBUG
+#undef  OS_DEBUG_PRINTF
 #define OS_SYMBOL_RECORD_SIZE sizeof(SymbolRecord_t)
 
 /****************************************************************************************
@@ -315,7 +315,9 @@ int32 OS_ModuleLoad ( uint32 *module_id, char *module_name, char *filename )
    */
    if (( filename == NULL ) || (module_id == NULL ) || (module_name == NULL))
    {
-      OS_printf("OSAL: Error, invalid parameters to OS_ModuleLoad\n");
+      #ifdef OS_DEBUG_PRINTF
+         OS_printf("OSAL: Error, invalid parameters to OS_ModuleLoad\n");
+      #endif
       return(OS_INVALID_POINTER);
    }
   
@@ -380,13 +382,15 @@ int32 OS_ModuleLoad ( uint32 *module_id, char *module_name, char *filename )
    if( fd < 0 )
    {
       OS_module_table[possible_moduleid].free = TRUE ;
-      OS_printf("OSAL: Error, cannot open application file: %s\n",translated_path);
+      #ifdef OS_DEBUG_PRINTF
+         OS_printf("OSAL: Error, cannot open application file: %s\n",translated_path);
+      #endif
       return(OS_ERROR);
    }
-   #ifdef OS_LOADER_DEBUG
+   #ifdef OS_DEBUG_PRINTF
    else
    {
-         OS_printf("OSAL: Opened application file OK.\n");
+      OS_printf("OSAL: Opened application file OK.\n");
    }
    #endif
    
@@ -397,11 +401,13 @@ int32 OS_ModuleLoad ( uint32 *module_id, char *module_name, char *filename )
    if( vxModuleId == NULL )
    {
       OS_module_table[possible_moduleid].free = TRUE ;
-      OS_printf("OSAL: Error, cannot load module: %s\n",translated_path);
+      #ifdef OS_DEBUG_PRINTF
+         OS_printf("OSAL: Error, cannot load module: %s\n",translated_path);
+      #endif
       close(fd);
       return(OS_ERROR);
    }
-   #ifdef OS_LOADER_DEBUG
+   #ifdef OS_DEBUG_PRINTF
    else
    {
          OS_printf("OSAL: Loaded Module OK\n");
@@ -453,7 +459,7 @@ int32 OS_ModuleUnload ( uint32 module_id )
    /*
    ** Check the module_id
    */
-   if ( OS_module_table[module_id].free == TRUE )
+   if ( module_id >= OS_MAX_MODULES || OS_module_table[module_id].free == TRUE )
    {
       return(OS_ERR_INVALID_ID);
    }
@@ -464,11 +470,13 @@ int32 OS_ModuleUnload ( uint32 module_id )
    vxStatus = unldByModuleId((MODULE_ID )OS_module_table[module_id].host_module_id, 0);
    if ( vxStatus == ERROR )   
    {
-      OS_printf("OSAL: Error, Cannot Close/Unload application file: %d\n",vxStatus);
+      #ifdef OS_DEBUG_PRINTF
+         OS_printf("OSAL: Error, Cannot Close/Unload application file: %d\n",vxStatus);
+      #endif
       return(OS_ERROR);
    }
    OS_module_table[module_id].free = TRUE ;
-   #ifdef OS_LOADER_DEBUG
+   #ifdef OS_DEBUG_PRINTF
       OS_printf("OS_ModuleUnload: Object file unloaded OK\n");
    #endif
    
@@ -495,7 +503,7 @@ int32 OS_ModuleInfo ( uint32 module_id, OS_module_record_t *module_info )
    /*
    ** Check the parameter
    */
-   if ( module_info == 0 )
+   if ( module_info == NULL )
    {
       return(OS_INVALID_POINTER);
    }
@@ -503,7 +511,7 @@ int32 OS_ModuleInfo ( uint32 module_id, OS_module_record_t *module_info )
    /*
    ** Check the module_id
    */
-   if ( OS_module_table[module_id].free == TRUE )
+   if ( module_id >= OS_MAX_MODULES || OS_module_table[module_id].free == TRUE )
    {
       return(OS_ERR_INVALID_ID);
    }
@@ -522,7 +530,9 @@ int32 OS_ModuleInfo ( uint32 module_id, OS_module_record_t *module_info )
    vxStatus = moduleInfoGet((MODULE_ID)OS_module_table[module_id].host_module_id, &vxModuleInfo);
    if ( vxStatus == ERROR )
    {
-      OS_printf("OSAL: OS_ModuleInfoGet Error from vxWorks: %d\n",vxStatus);  
+      #ifdef OS_DEBUG_PRINTF
+         OS_printf("OSAL: OS_ModuleInfoGet Error from vxWorks: %d\n",vxStatus);  
+      #endif
       module_info->addr.valid = FALSE;
       module_info->addr.code_address = 0;
       module_info->addr.code_size = 0;

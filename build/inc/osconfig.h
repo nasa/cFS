@@ -1,6 +1,6 @@
 /******************************************************************************
 ** File: osconfig.h
-** $Id: osconfig.h 1.8 2011/12/05 12:41:15GMT-05:00 acudmore Exp  $
+** $Id: osconfig.h 1.9 2013/12/16 13:05:49GMT-05:00 acudmore Exp  $
 **
 ** Purpose:
 **   This header file contains the OS API  configuration parameters.
@@ -9,9 +9,14 @@
 **
 ** Notes:
 **
-** $Date: 2011/12/05 12:41:15GMT-05:00 $
-** $Revision: 1.8 $
+** $Date: 2013/12/16 13:05:49GMT-05:00 $
+** $Revision: 1.9 $
 ** $Log: osconfig.h  $
+** Revision 1.9 2013/12/16 13:05:49GMT-05:00 acudmore 
+** use OS_FS_PHYS_NAME_LEN macro instead of hard-coded value
+** Revision 1.1 2013/07/19 14:05:01GMT-05:00 acudmore 
+** Initial revision
+** Member added to project c:/MKSDATA/MKS-REPOSITORY/MKS-OSAL-REPOSITORY/src/bsp/pc-linux/config/project.pj
 ** Revision 1.8 2011/12/05 12:41:15GMT-05:00 acudmore 
 ** Removed OS_MEM_TABLE_SIZE parameter
 ** Revision 1.7 2009/07/14 14:24:53EDT acudmore 
@@ -60,17 +65,10 @@
 
 /*
 ** Maximum length for a local or host path/filename.
-** This parameter is used for the filename on the host OS. 
-** Because the local or host path can add on to the OSAL virtual path,
-** This needs to be longer than OS_MAX_PATH_LEN. 
-**  On a system such as RTEMS, where the virtual paths can be the same as 
-**  local paths, it does not have to be much bigger.
-** On a system such as Linux, where a OSAL virtual drive might be 
-** mapped to something like: "/home/bob/projects/osal/drive1", the 
-**  OS_MAX_LOCAL_PATH_LEN might need to be 32 more than OS_MAX_PATH_LEN.
+**   This parameter can consist of the OSAL filename/path + 
+**   the host OS physical volume name or path.
 */
-#define OS_MAX_LOCAL_PATH_LEN (OS_MAX_PATH_LEN + 16)
-
+#define OS_MAX_LOCAL_PATH_LEN (OS_MAX_PATH_LEN + OS_FS_PHYS_NAME_LEN)
 
 /* 
 ** The maxium length allowed for a object (task,queue....) name 

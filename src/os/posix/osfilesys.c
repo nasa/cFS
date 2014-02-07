@@ -14,9 +14,19 @@
 ** Purpose: This file has the api's for all of the making
 **          and mounting type of calls for file systems
 **
-** $Date: 2012/12/11 14:04:35GMT-05:00 $
-** $Revision: 1.10 $
+** $Date: 2013/12/16 12:59:48GMT-05:00 $
+** $Revision: 1.14 $
 ** $Log: osfilesys.c  $
+** Revision 1.14 2013/12/16 12:59:48GMT-05:00 acudmore 
+** Use macros for volume name length and physical device name length.
+** Remove use of TranslatePath call in GetPhysDriveName call
+** Revision 1.13 2013/07/29 12:08:50GMT-05:00 acudmore 
+** Updated paramter checks in all functions
+**   removed hardcoded numbers
+** Revision 1.12 2013/07/25 14:32:58GMT-05:00 acudmore 
+** Added OS_GetFsInfo
+** Revision 1.11 2013/07/22 15:53:59GMT-05:00 acudmore 
+** conditionally compile debug printfs
 ** Revision 1.10 2012/12/11 14:04:35GMT-05:00 acudmore 
 ** updated return codes for consistency
 ** Revision 1.9 2012/11/28 16:56:16EST acudmore 
@@ -95,6 +105,7 @@
 ****************************************************************************************/
 
 # define ERROR (-1)
+#undef OS_DEBUG_PRINTF
 
 /****************************************************************************************
                                    GLOBAL DATA
@@ -105,6 +116,10 @@
 */
 extern OS_VolumeInfo_t OS_VolumeTable [NUM_TABLE_ENTRIES]; 
 
+/*
+** Fd Table
+*/
+extern OS_FDTableEntry OS_FDTable[OS_MAX_NUM_OPEN_FILES];
 
 /****************************************************************************************
                                 Filesys API
@@ -126,7 +141,7 @@ extern OS_VolumeInfo_t OS_VolumeTable [NUM_TABLE_ENTRIES];
     
 ---------------------------------------------------------------------------------------*/
 
-int32 OS_mkfs (char *address, char *devname,char * volname, uint32 blocksize, 
+int32 OS_mkfs (char *address, char *devname, char * volname, uint32 blocksize, 
                uint32 numblocks)
 {
     int i;
@@ -137,6 +152,11 @@ int32 OS_mkfs (char *address, char *devname,char * volname, uint32 blocksize,
     if ( devname == NULL || volname == NULL )
     {
         return OS_FS_ERR_INVALID_POINTER;
+    }
+
+    if( strlen(devname) >= OS_FS_DEV_NAME_LEN || strlen(volname) >= OS_FS_VOL_NAME_LEN)
+    {
+        return OS_FS_ERR_PATH_TOO_LONG;
     }
 
     /* find an open entry in the Volume Table */
@@ -157,7 +177,6 @@ int32 OS_mkfs (char *address, char *devname,char * volname, uint32 blocksize,
     if (OS_VolumeTable[i].VolumeType == FS_BASED)
     {
        /* now enter the info in the table */
-
        OS_VolumeTable[i].FreeFlag = FALSE;
        strcpy(OS_VolumeTable[i].VolumeName, volname);
        OS_VolumeTable[i].BlockSize = blocksize;
@@ -190,9 +209,12 @@ int32 OS_rmfs (char *devname)
     {
         ReturnCode =  OS_FS_ERR_INVALID_POINTER;
     }
+    else if ( strlen(devname) >= OS_FS_DEV_NAME_LEN )
+    {
+        ReturnCode = OS_FS_ERR_PATH_TOO_LONG;
+    }
     else
     {
-    
         /* find this entry in the Volume Table */
         for (i = 0; i < NUM_TABLE_ENTRIES; i++)
         {
@@ -219,7 +241,6 @@ int32 OS_rmfs (char *devname)
         }
 
     }
-
     return ReturnCode;
 }/* end OS_rmfs */
 
@@ -245,6 +266,11 @@ int32 OS_initfs (char *address,char *devname, char *volname,
         return OS_FS_ERR_INVALID_POINTER;
     }
 
+    if( strlen(devname) >= OS_FS_DEV_NAME_LEN || strlen(volname) >= OS_FS_VOL_NAME_LEN)
+    {
+        return OS_FS_ERR_PATH_TOO_LONG;
+    }
+
     /* find an open entry in the Volume Table */
     for (i = 0; i < NUM_TABLE_ENTRIES; i++)
     {
@@ -256,11 +282,6 @@ int32 OS_initfs (char *address,char *devname, char *volname,
     if (i >= NUM_TABLE_ENTRIES)
     {
         return OS_FS_ERR_DEVICE_NOT_FREE;
-    }
-
-    if(strlen(devname) > 32 || strlen(volname) > 32) 
-    {
-        return OS_FS_ERR_PATH_TOO_LONG;
     }
 
     /* make a disk if it is FS based */
@@ -296,6 +317,11 @@ int32 OS_mount (const char *devname, char* mountpoint)
     if ( devname == NULL || mountpoint == NULL )
     {
         return OS_FS_ERR_INVALID_POINTER;
+    }
+
+    if( strlen(devname) >= OS_FS_DEV_NAME_LEN || strlen(mountpoint) >= OS_MAX_PATH_LEN)
+    {
+        return OS_FS_ERR_PATH_TOO_LONG;
     }
 
     /* find the device in the table */
@@ -337,10 +363,14 @@ int32 OS_unmount (const char *mountpoint)
     int i;
     
     if (mountpoint == NULL)
+    {
         return OS_FS_ERR_INVALID_POINTER;
+    }
 
     if (strlen(mountpoint) >= OS_MAX_PATH_LEN)
+    {
         return OS_FS_ERR_PATH_TOO_LONG;
+    }
 
     for (i = 0; i < NUM_TABLE_ENTRIES; i++)
     {
@@ -351,7 +381,9 @@ int32 OS_unmount (const char *mountpoint)
 
     /* make sure we found the device */
     if (i >= NUM_TABLE_ENTRIES)
+    {
         return OS_FS_ERROR;
+    }
 
     /* release the informationm from the table */
     OS_VolumeTable[i].IsMounted = FALSE;
@@ -474,8 +506,8 @@ os_fshealth_t OS_chkfs (const char *name, boolean repair)
 /*--------------------------------------------------------------------------------------
     Name: OS_FS_GetPhysDriveName
     
-    Purpose: Gets the name of the physical volume underneith the drive,
-             when given the mount point of the drive
+    Purpose: Returns the name of the physical volume associated with the drive,
+             when given the OSAL mount point of the drive
 
     Returns: OS_FS_ERR_INVALID_POINTER if either  parameter is NULL
              OS_SUCCESS if success
@@ -483,27 +515,45 @@ os_fshealth_t OS_chkfs (const char *name, boolean repair)
 ---------------------------------------------------------------------------------------*/
 int32 OS_FS_GetPhysDriveName(char * PhysDriveName, char * MountPoint)
 {
-    char LocalDrvName [OS_MAX_LOCAL_PATH_LEN];
     int32 ReturnCode;
-    int32 status;
+    int   i;
     
     if (MountPoint == NULL || PhysDriveName == NULL)
     {
         return OS_FS_ERR_INVALID_POINTER;
     }
  
+    if( strlen(PhysDriveName) >= OS_FS_DEV_NAME_LEN || strlen(MountPoint) >= OS_MAX_PATH_LEN)
+    {
+        return OS_FS_ERR_PATH_TOO_LONG;
+    }
+
     /*
-    ** Translate the path
+    ** look for the CFS Mount Point in the VolumeTable 
     */
-    status = OS_TranslatePath((const char *)MountPoint, (char *)LocalDrvName);
-    if (status != OS_SUCCESS)
+    for (i = 0; i < NUM_TABLE_ENTRIES; i++)
+    {
+        if (OS_VolumeTable[i].FreeFlag == FALSE &&
+            strncmp(OS_VolumeTable[i].MountPoint, MountPoint, OS_MAX_PATH_LEN) == 0)
+        {
+            break;
+        }
+    }
+
+    /* 
+    ** Make sure we found a valid volume table entry 
+    */
+    if (i >= NUM_TABLE_ENTRIES)
     {
         ReturnCode = OS_FS_ERROR;
     }
     else
     {
-        ReturnCode = OS_SUCCESS;
-        strcpy(PhysDriveName,LocalDrvName);
+       /*
+       ** Yes, so copy the physical drive name  
+       */
+       strncpy(PhysDriveName, OS_VolumeTable[i].PhysDevName,OS_FS_PHYS_NAME_LEN);
+       ReturnCode = OS_SUCCESS;
     }
 
     return ReturnCode;
@@ -566,7 +616,7 @@ int32 OS_TranslatePath(const char *VirtualPath, char *LocalPath)
     ** we find it.
     */    
     NumChars = 1;
-    while ((VirtualPath[NumChars] != '/') && (NumChars <= strlen(VirtualPath)))
+    while ((NumChars <= strlen(VirtualPath)) && (VirtualPath[NumChars] != '/'))
     {
         NumChars++;
     }
@@ -593,7 +643,7 @@ int32 OS_TranslatePath(const char *VirtualPath, char *LocalPath)
     strncpy(filename, &(VirtualPath[NumChars]), OS_MAX_PATH_LEN);
     FilenameLen = strlen(filename);
     
-#if 0
+#ifdef OS_DEBUG_PRINTF 
     printf("VirtualPath: %s, Length: %d\n",VirtualPath, (int)strlen(VirtualPath));
     printf("NumChars: %d\n",NumChars);
     printf("devname: %s\n",devname);
@@ -631,7 +681,7 @@ int32 OS_TranslatePath(const char *VirtualPath, char *LocalPath)
     */
     strncat(LocalPath, filename, (OS_MAX_LOCAL_PATH_LEN - NumChars));
 
-#if 0
+#ifdef OS_DEBUG_PRINTF
     printf("Result of TranslatePath = %s\n",LocalPath);
 #endif
 
@@ -679,5 +729,52 @@ int32 OS_FS_GetErrorName(int32 error_num, os_fs_err_name_t * err_name)
 
     strcpy((char*) err_name, local_name);
     return return_code;
+}
+
+/*--------------------------------------------------------------------------------------
+     Name: OS_GetFsInfo
+  
+     Purpose: returns information about the file system in an os_fsinfo_t
+                  
+     Returns: OS_FS_ERR_INVALID_POINTER if filesys_info is NULL
+              OS_FS_SUCCESS if success
+
+     Note: The information returned is in the structure pointed to by filesys_info         
+ ---------------------------------------------------------------------------------------*/
+int32 OS_GetFsInfo(os_fsinfo_t  *filesys_info)
+{
+   int i;
+
+   /*
+   ** Check to see if the file pointers are NULL
+   */
+   if (filesys_info == NULL)
+   {
+       return OS_FS_ERR_INVALID_POINTER;
+   }
+
+   filesys_info->MaxFds = OS_MAX_NUM_OPEN_FILES;
+   filesys_info->MaxVolumes = NUM_TABLE_ENTRIES;
+
+   filesys_info->FreeFds = 0;
+   for ( i = 0; i < OS_MAX_NUM_OPEN_FILES; i++ )
+   {
+      if ( OS_FDTable[i].IsValid == FALSE)
+      {
+         filesys_info->FreeFds++;
+      }
+
+   }
+
+   filesys_info->FreeVolumes = 0;
+   for ( i = 0; i < NUM_TABLE_ENTRIES; i++ )
+   {
+      if (OS_VolumeTable[i].FreeFlag == TRUE )
+      {
+         filesys_info->FreeVolumes++;
+      }
+   }
+
+   return(OS_FS_SUCCESS);
 }
 

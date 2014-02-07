@@ -130,6 +130,9 @@ void task_3(void)
 void OS_Application_Startup(void)
 {
    uint32 status;
+
+   OS_API_Init();
+
    OS_printf("OS Application Startup\n");
 
    /*
