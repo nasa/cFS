@@ -14,9 +14,11 @@
 ** Purpose: This file Contains all of the api calls for manipulating
 **            files in a file system for RTEMS 
 **
-** $Date: 2014/01/16 16:12:15GMT-05:00 $
-** $Revision: 1.27 $
+** $Date: 2014/04/23 15:14:17GMT-05:00 $
+** $Revision: 1.28 $
 ** $Log: osfileapi.c  $
+** Revision 1.28 2014/04/23 15:14:17GMT-05:00 acudmore 
+** Fixed use of O_CREAT flag in OS_open. Dont use it when opening a file as read only
 ** Revision 1.27 2014/01/16 16:12:15GMT-05:00 acudmore 
 ** in RTEMS file system calls, check for 0 instead of !ERROR.
 ** Revision 1.26 2013/07/29 12:03:40GMT-05:00 acudmore 
@@ -379,10 +381,10 @@ int32 OS_open   (const char *path,  int32 access,  uint32  mode)
             perm = O_RDONLY;
             break;
         case OS_WRITE_ONLY:
-            perm = O_WRONLY;
+            perm = O_WRONLY | O_CREAT;
             break;
         case OS_READ_WRITE:
-            perm = O_RDWR;
+            perm = O_RDWR | O_CREAT;
             break;
         default:
             return OS_FS_ERROR;
@@ -421,7 +423,7 @@ int32 OS_open   (const char *path,  int32 access,  uint32  mode)
     rtems_sc = rtems_semaphore_release (OS_FDTableSem);
 
     /* open the file  */
-    status =  open(local_path, perm | O_CREAT, mode);
+    status =  open(local_path, perm, mode);
 
     if (status != ERROR)
     {

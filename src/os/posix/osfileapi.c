@@ -14,9 +14,11 @@
 ** Purpose: This file Contains all of the api calls for manipulating
 **          files in a file system for posix 
 **
-** $Date: 2014/01/16 16:26:08GMT-05:00 $
-** $Revision: 1.14 $
+** $Date: 2014/04/23 15:13:50GMT-05:00 $
+** $Revision: 1.15 $
 ** $Log: osfileapi.c  $
+** Revision 1.15 2014/04/23 15:13:50GMT-05:00 acudmore 
+** Fixed use of O_CREAT flag in OS_open. Dont use it when opening a file as read only.
 ** Revision 1.14 2014/01/16 16:26:08GMT-05:00 acudmore 
 ** Implemented safer mutex lock/unlock
 ** Revision 1.13 2013/07/29 12:03:18GMT-05:00 acudmore 
@@ -330,10 +332,10 @@ int32 OS_open   (const char *path,  int32 access,  uint32  mode)
             perm = O_RDONLY;
             break;
         case OS_WRITE_ONLY:
-            perm = O_WRONLY;
+            perm = O_WRONLY | O_CREAT;
             break;
         case OS_READ_WRITE:
-            perm = O_RDWR;
+            perm = O_RDWR | O_CREAT;
             break;
         default:
             return OS_FS_ERROR;
@@ -371,7 +373,7 @@ int32 OS_open   (const char *path,  int32 access,  uint32  mode)
     OS_InterruptSafeUnlock(&OS_FDTableMutex, &previous);
 
     /* open the file  */
-    status =  open(local_path, perm | O_CREAT, mode);
+    status =  open(local_path, perm, mode);
 
     OS_InterruptSafeLock(&OS_FDTableMutex, &mask, &previous);
 

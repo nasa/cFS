@@ -14,9 +14,11 @@
 ** Purpose: This file Contains all of the api calls for manipulating
 **          files in a file system for vxworks
 **
-** $Date: 2013/12/16 12:52:59GMT-05:00 $
-** $Revision: 1.21 $
+** $Date: 2014/04/23 15:14:37GMT-05:00 $
+** $Revision: 1.22 $
 ** $Log: osfileapi.c  $
+** Revision 1.22 2014/04/23 15:14:37GMT-05:00 acudmore 
+** Fixed use of O_CREAT flag in OS_open. Dont use it when opening a file as read only
 ** Revision 1.21 2013/12/16 12:52:59GMT-05:00 acudmore 
 ** Removed dupliclate if/then/else block
 ** Revision 1.20 2013/07/29 12:04:07GMT-05:00 acudmore 
@@ -328,10 +330,10 @@ int32 OS_open   (const char *path,  int32 access,  uint32  mode)
             perm = O_RDONLY;
             break;
         case OS_WRITE_ONLY:
-            perm = O_WRONLY;
+            perm = O_WRONLY | O_CREAT;
             break;
         case OS_READ_WRITE:
-            perm = O_RDWR;
+            perm = O_RDWR | O_CREAT;
             break;
         default:
             return OS_FS_ERROR;
@@ -368,7 +370,7 @@ int32 OS_open   (const char *path,  int32 access,  uint32  mode)
     semGive(OS_FDTableMutex);  
 
     /* Open the file */
-    status = open(local_path, (int) perm | O_CREAT, (int) mode);
+    status = open(local_path, (int) perm, (int) mode);
 
     semTake(OS_FDTableMutex,WAIT_FOREVER);
 
