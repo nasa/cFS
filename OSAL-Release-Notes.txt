@@ -1,3 +1,15 @@
+Version 4.1.1 release notes
+   April 28, 2014
+   - This release fixes two issues:
+      1. The posix port OS_QueueCreate ( posix message queue version ) 
+         was hardcoding the queue depth rather than using the passed in 
+         parameter.
+      2. A bug was introduced in 4.1.0 in OS_open that caused a zero length
+         file to be created when a file is opened with the OS_READ_ONLY flag
+         and it does not exist. The original change was intended to create
+         a new file if one did not exist, but only if the file was opened
+         as READ/WRITE or WRITE ONLY.
+
 Version 4.1.0 release notes
    January 31, 2014
    - This release contains one new function, and one slightly altered function
