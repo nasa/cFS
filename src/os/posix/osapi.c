@@ -17,9 +17,11 @@
 **         with the gnu c library. uClibc or other embedded C libraries may not work. 
 **         
 **
-** $Date: 2014/01/16 16:29:22GMT-05:00 $
-** $Revision: 1.28 $
+** $Date: 2014/04/23 13:11:08GMT-05:00 $
+** $Revision: 1.29 $
 ** $Log: osapi.c  $
+** Revision 1.29 2014/04/23 13:11:08GMT-05:00 acudmore 
+** In the posix message queue version of OS_QueueCreate, fixed the problem where the queue size was hardcoded
 ** Revision 1.28 2014/01/16 16:29:22GMT-05:00 acudmore 
 ** Implemented safer mutex lock/unlock
 ** switched time functions to clock_gettime/clock_settime
@@ -1593,7 +1595,7 @@ int32 OS_QueueCreate (uint32 *queue_id, const char *queue_name, uint32 queue_dep
     OS_InterruptSafeUnlock(&OS_queue_table_mut, &previous); 
     
     /* set queue attributes */
-    queueAttr.mq_maxmsg  = 20;
+    queueAttr.mq_maxmsg  = queue_depth;
     queueAttr.mq_msgsize = data_size;
    
     /*
