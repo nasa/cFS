@@ -18,11 +18,14 @@ void UT_osprintf_X(void)
     char *test_fmt = "x"; /* Test format character(s) */
     int i;
 
+#ifdef OSP_ARINC653
+#pragma ghs nowarning 68
+#endif
     struct
     {
         char *test_num;        /* Test identifier; sequential numbers */
         unsigned int test_val; /* Test value */
-        int  max_len;      /* Maximum output string length */
+        int  max_len;          /* Maximum output string length */
         char *format;          /* Format string */
         char *expected;        /* Expected result */
         char *description;     /* Test description */
@@ -39,12 +42,15 @@ void UT_osprintf_X(void)
         {"09", 0x12b45, 5, "%08X", "00012B45", "%X with minimum field size > number of digits and leading zeroes"},
         {"", 0, 0, "", "", ""} /* End with a null format to terminate list */
     };
+#ifdef OSP_ARINC653
+#pragma ghs endnowarning
+#endif
 
     for (i = 0; osp_tests[i].format[0] != '\0'; i++)
     {
         /* Perform sprintf test */
         init_test();
-        SPRINTF(strg_buf, osp_tests[i].format, osp_tests[i].test_val);
+        sprintf(strg_buf, osp_tests[i].format, osp_tests[i].test_val);
         UT_Report(check_test(osp_tests[i].expected, strg_buf),
                   "SPRINTF",
                   osp_tests[i].description,
@@ -61,7 +67,7 @@ void UT_osprintf_X(void)
 
         /* Perform snprintf test */
         init_test();
-        SNPRINTF(strg_buf, osp_tests[i].max_len,
+        snprintf(strg_buf, osp_tests[i].max_len,
                  osp_tests[i].format, osp_tests[i].test_val);
         UT_Report(check_test(trunc_buf, strg_buf),
                   "SNPRINTF",

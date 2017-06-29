@@ -100,18 +100,15 @@ void UT_os_init_fs_misc()
 
 void UT_os_init_checkfs_test()
 {
-	g_skipTestCase = 3;
+	g_skipTestCase = 4;
 	g_skipTestCaseResult = UT_OS_NA;
 }
 
 /*--------------------------------------------------------------------------------*
 ** Main
 **--------------------------------------------------------------------------------*/
-#ifdef _OSAL_UNIT_TEST_
-   void OS_Application_Startup(void)
-#else
-   int main(int argc, char* argv[])
-#endif
+
+void OS_Application_Startup(void)
 {
     UT_os_setup(UT_OS_LOG_FILENAME);
 
@@ -134,6 +131,7 @@ void UT_os_init_checkfs_test()
     UT_os_unmount_test();
 
     UT_os_getphysdrivename_test();
+    UT_os_getfsinfo_test();
     UT_os_translatepath_test();
 
     UT_os_init_checkfs_test();
@@ -144,7 +142,7 @@ void UT_os_init_checkfs_test()
 
     UT_os_teardown("ut_osfilesys");
 
-    return (0);
+    OS_ApplicationExit(g_logInfo.nFailed > 0);
 }
 
 /*================================================================================*

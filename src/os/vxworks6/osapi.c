@@ -80,14 +80,13 @@
 #include "taskVarLib.h"
 #include "logLib.h"
 #include "objLib.h"
+#include "semaphore.h"
+#include "limits.h"
 
 #include "common_types.h"
 #include "osapi.h"
 
-#ifdef _PPC_
-  #include "arch/ppc/vxPpcLib.h"
-  #include "arch/ppc/ivPpc.h"
-#endif
+#include "iv.h"
 
 uint32 OS_FindCreator(void);
 
@@ -95,11 +94,10 @@ uint32 OS_FindCreator(void);
                                      DEFINES
 ****************************************************************************************/
 #define MAX_PRIORITY  255
-#define MAX_SEM_VALUE 0xFFFF
-#define UNINITIALIZED 0
-#define OK	0
-#define EOS	'\0'
+#define OK      0
+#define EOS     '\0'
 
+#define VXWORKS_OSAPI_UNINITIALIZED 0
 #undef OS_DEBUG_PRINTF
 
 /****************************************************************************************
@@ -109,75 +107,81 @@ uint32 OS_FindCreator(void);
 /*  tables for the properties of objects */
 
 /*tasks */
+/* the id field in the following struct is a VxWorks task ID that is of type
+ * int in VxWorks.  This is a valid exception to the MISRA rule that wants
+ * defined types with size indicated in type names */
 typedef struct
 {
-    int      free;
+    osalbool free;
     int      id;
     char     name [OS_MAX_API_NAME];
-    int      creator;
+    uint32   creator;
     uint32   stack_size;
     uint32   priority;
-    void    *delete_hook_pointer;
+    osal_task_entry delete_hook_pointer;
     
-}OS_task_record_t;
+}OS_task_internal_record_t;
 
 /* queues */
 typedef struct
 {
-    int      free;
+    osalbool free;
     MSG_Q_ID id;                       /* a pointer to the id */
     uint32   max_size;
     char     name [OS_MAX_API_NAME];
-    int      creator;
-}OS_queue_record_t;
+    uint32   creator;
+}OS_queue_internal_record_t;
 
 /* Binary Semaphores */
 typedef struct
 {
-    int    free;
+    osalbool free;
     SEM_ID id;                       /* a pointer to the id */
     char   name [OS_MAX_API_NAME];
-    int    creator;
-}OS_bin_sem_record_t;
+    uint32 creator;
+}OS_bin_sem_internal_record_t;
 
 /* Counting Semaphores */
 typedef struct
 {
-    int    free;
+    osalbool free;
     SEM_ID id;                       /* a pointer to the id */
     char   name [OS_MAX_API_NAME];
-    int    creator;
-}OS_count_sem_record_t;
+    uint32 creator;
+}OS_count_sem_internal_record_t;
 
 
 /* Mutexes */
 typedef struct
 {
-    int    free;
+    osalbool  free;
     SEM_ID id;
     char   name [OS_MAX_API_NAME];
-    int    creator;
-}OS_mut_sem_record_t;
+    uint32  creator;
+}OS_mut_sem_internal_record_t;
 
 /* function pointer type */
 typedef void (*FuncPtr_t)(void);
 
-uint32                OS_task_key;
+static uint32                OS_task_key;
 
 /* Tables where the OS object information is stored */
-OS_task_record_t      OS_task_table      [OS_MAX_TASKS];
-OS_queue_record_t     OS_queue_table     [OS_MAX_QUEUES];
-OS_bin_sem_record_t   OS_bin_sem_table   [OS_MAX_BIN_SEMAPHORES];
-OS_count_sem_record_t OS_count_sem_table [OS_MAX_COUNT_SEMAPHORES];
-OS_mut_sem_record_t   OS_mut_sem_table   [OS_MAX_MUTEXES];
+static OS_task_internal_record_t      OS_task_table      [OS_MAX_TASKS];
+static OS_queue_internal_record_t     OS_queue_table     [OS_MAX_QUEUES];
+static OS_bin_sem_internal_record_t   OS_bin_sem_table   [OS_MAX_BIN_SEMAPHORES];
+static OS_count_sem_internal_record_t OS_count_sem_table [OS_MAX_COUNT_SEMAPHORES];
+static OS_mut_sem_internal_record_t   OS_mut_sem_table   [OS_MAX_MUTEXES];
 
-SEM_ID                OS_task_table_sem;
-SEM_ID                OS_queue_table_sem;
-SEM_ID                OS_bin_sem_table_sem;
-SEM_ID                OS_count_sem_table_sem; 
-SEM_ID                OS_mut_sem_table_sem;
+static SEM_ID                OS_task_table_sem;
+static SEM_ID                OS_queue_table_sem;
+static SEM_ID                OS_bin_sem_table_sem;
+static SEM_ID                OS_count_sem_table_sem;
+static SEM_ID                OS_mut_sem_table_sem;
 
-uint32                OS_printf_enabled = TRUE;
+VX_BINARY_SEMAPHORE(idle_sem); /* used with OS_IdleLoop */
+static SEM_ID idle_sem_id;
+
+static boolean               OS_printf_enabled = TRUE;
 
 /* for the utility task printing */
 #ifdef OS_UTILITY_TASK_ON
@@ -187,6 +191,22 @@ uint32                OS_printf_enabled = TRUE;
     int32     OS_DroppedMessages;
 #endif
 
+/******************************************************************************
+ * Design Notes on table locking and semaphores in this file.
+ *
+ * With the current design, the various OS_*_tables above have matching
+ * OS_*_table_sem semaphores that are used to lock the table for access.
+ * However, the table data is not accessed in a thread-safe manner in all
+ * of the methods below.  Locking an entire table to read/access a single
+ * entry in the table results in performance problems and deadlock
+ * conditions.  Therefore, in general, an entire table is locked primarily
+ * when a table entry is created or deleted.  Locking the table for most
+ * other access is not performed because the standard usage pattern is for
+ * a task to only modify its own entries in the table.  WARNING: other
+ * patterns of multi-threaded table access via the OSAL API are not
+ * safely supported with the current implementation.
+ *
+ *****************************************************************************/
 /****************************************************************************************
                                 INITIALIZATION FUNCTION
 ****************************************************************************************/
@@ -202,15 +222,15 @@ uint32                OS_printf_enabled = TRUE;
 ---------------------------------------------------------------------------------------*/
 int32 OS_API_Init(void)
 {
-    int   i;
-    int32 return_code = OS_SUCCESS;
+    uint32 i;
+    int32  return_code = OS_SUCCESS;
 
     /* Initialize Task Table */
     for(i = 0; i < OS_MAX_TASKS; i++)
     {
         OS_task_table[i].free                = TRUE;
-        OS_task_table[i].id                  = UNINITIALIZED;
-        OS_task_table[i].creator             = UNINITIALIZED ;
+        OS_task_table[i].id                  = VXWORKS_OSAPI_UNINITIALIZED;
+        OS_task_table[i].creator             = VXWORKS_OSAPI_UNINITIALIZED ;
         OS_task_table[i].delete_hook_pointer = NULL;        
         strcpy(OS_task_table[i].name,"");
     }
@@ -220,7 +240,7 @@ int32 OS_API_Init(void)
     {
         OS_queue_table[i].free        = TRUE;
         OS_queue_table[i].id          = NULL;
-        OS_queue_table[i].creator     = UNINITIALIZED ;
+        OS_queue_table[i].creator     = VXWORKS_OSAPI_UNINITIALIZED ;
         strcpy(OS_queue_table[i].name,"");
     }
 
@@ -229,7 +249,7 @@ int32 OS_API_Init(void)
     {
         OS_bin_sem_table[i].free        = TRUE;
         OS_bin_sem_table[i].id          = NULL;
-        OS_bin_sem_table[i].creator     = UNINITIALIZED ;
+        OS_bin_sem_table[i].creator     = VXWORKS_OSAPI_UNINITIALIZED ;
         strcpy(OS_bin_sem_table[i].name,"");
     }
 
@@ -238,7 +258,7 @@ int32 OS_API_Init(void)
     {
         OS_count_sem_table[i].free        = TRUE;
         OS_count_sem_table[i].id       = NULL;
-        OS_count_sem_table[i].creator     = UNINITIALIZED ;
+        OS_count_sem_table[i].creator     = VXWORKS_OSAPI_UNINITIALIZED ;
         strcpy(OS_count_sem_table[i].name,"");
     }
 
@@ -247,7 +267,7 @@ int32 OS_API_Init(void)
     {
         OS_mut_sem_table[i].free        = TRUE;
         OS_mut_sem_table[i].id       = NULL;
-        OS_mut_sem_table[i].creator     = UNINITIALIZED ;
+        OS_mut_sem_table[i].creator     = VXWORKS_OSAPI_UNINITIALIZED ;
         strcpy(OS_mut_sem_table[i].name,"");
     }
 
@@ -334,11 +354,100 @@ int32 OS_API_Init(void)
       return(OS_ERROR);
    }
 #endif
- 	      
+ 
+   idle_sem_id = semBInitialize(idle_sem, 0, SEM_EMPTY);
+   if(!idle_sem_id) return OS_ERROR;
+
    return(return_code);
 
 } /* end OS_API_Init */
 
+/*---------------------------------------------------------------------------------------
+   Name: OS_ApplicationExit
+
+   Purpose: Indicates that the OSAL application should exit and return control to the OS
+         This is intended for e.g. scripted unit testing where the test needs to end
+         without user intervention.  This function does not do anything on 
+         VxWorks, it cannot call exit like it does in the posix osal.
+
+    NOTES: This exits the entire process including tasks that have been created.
+       It does not return.  Production embedded code typically would not ever call this.
+       True, except that the unit test code calls this function...
+
+---------------------------------------------------------------------------------------*/
+void OS_ApplicationExit(int32 Status)
+{
+}
+
+/*---------------------------------------------------------------------------------------
+    Name: OS_ApplicationShutdown
+
+    Purpose: Causes the main task to exit from OS_IdleLoop, when called from a child task.
+ ---------------------------------------------------------------------------------------*/
+void OS_ApplicationShutdown(uint8 flag)
+{
+    semGive(idle_sem_id);
+    semFlush(idle_sem_id); /* just in case others are waiting? */
+}
+
+/*---------------------------------------------------------------------------------------
+    Name: OS_DeleteAllObjects
+ 
+    Purpose: This task will delete all objects allocated by this instance of OSAL
+             May be used during shutdown or by the unit tests to purge all state
+                returns: no value
+ ---------------------------------------------------------------------------------------*/
+void OS_DeleteAllObjects       (void)
+{
+    uint32 i;
+    
+    for (i = 0; i < OS_MAX_TASKS; ++i)
+    {
+        OS_TaskDelete(i);
+    }
+    for (i = 0; i < OS_MAX_QUEUES; ++i)
+    {
+        OS_QueueDelete(i);
+    }
+    for (i = 0; i < OS_MAX_MUTEXES; ++i)
+    {
+        OS_MutSemDelete(i);
+    }
+    for (i = 0; i < OS_MAX_COUNT_SEMAPHORES; ++i)
+    {
+        OS_CountSemDelete(i);
+    }
+    for (i = 0; i < OS_MAX_BIN_SEMAPHORES; ++i)
+    {
+        OS_BinSemDelete(i);
+    }
+    for (i = 0; i < OS_MAX_TIMERS; ++i)
+    {
+        OS_TimerDelete(i);
+    }
+    for (i = 0; i < OS_MAX_MODULES; ++i)
+    {
+        OS_ModuleUnload(i);
+    }
+    for (i = 0; i < OS_MAX_NUM_OPEN_FILES; ++i)
+    {
+        OS_close(i);
+    }
+}
+
+/*---------------------------------------------------------------------------------------
+   Name: OS_IdleLoop
+
+   Purpose: Should be called after all initialization is done
+            This thread may be used to wait for and handle external events
+            Typically just waits forever until "OS_shutdown" flag becomes true.
+
+   returns: no value
+---------------------------------------------------------------------------------------*/
+void OS_IdleLoop()
+{
+    semTake(idle_sem_id, WAIT_FOREVER);
+}
 
 /****************************************************************************************
                                     TASK API
@@ -358,17 +467,20 @@ int32 OS_API_Init(void)
             OS_SUCCESS if success
 
     NOTES: task_id is passed back to the user as the ID.
-           if stack_pointer is NULL, then vxWorks will allocate a stack for the task 
+           stack_pointer is not used in this implementation.
 
 ---------------------------------------------------------------------------------------*/
 
 int32 OS_TaskCreate (uint32 *task_id,  const char *task_name,
-                      osal_task_entry function_pointer, const uint32 *stack_pointer,
+                      osal_task_entry function_pointer, uint32 *stack_pointer,
                       uint32 stack_size, uint32 priority, uint32 flags)
 {
     uint32 possible_taskid;
     uint32 i;
     int32  LocalFlags;
+    /* the following variable needs to be an int, not in32, because the VxWorks
+     * task ID type is an int */
+    int  tmp_task_id = ERROR;
 
     /* we don't want to allow names too long*/
     /* if truncated, two names might be the same */
@@ -393,10 +505,13 @@ int32 OS_TaskCreate (uint32 *task_id,  const char *task_name,
 
     /* Check Parameters */
 
+    /*
+    ** Lock
+    */
     semTake(OS_task_table_sem,WAIT_FOREVER);
     for(possible_taskid = 0; possible_taskid < OS_MAX_TASKS; possible_taskid++)
     {
-        if (OS_task_table[possible_taskid].free  == 1)
+        if (OS_task_table[possible_taskid].free == TRUE)
         {
             break;
         }
@@ -405,6 +520,9 @@ int32 OS_TaskCreate (uint32 *task_id,  const char *task_name,
     /* Check to see if the id is out of bounds */
     if( possible_taskid >= OS_MAX_TASKS || OS_task_table[possible_taskid].free != TRUE)
     {
+        /*
+        ** Unlock
+        */
         semGive(OS_task_table_sem);
         return OS_ERR_NO_FREE_IDS;
     }
@@ -415,6 +533,9 @@ int32 OS_TaskCreate (uint32 *task_id,  const char *task_name,
         if ((OS_task_table[i].free == FALSE) &&
            ( strcmp(task_name, OS_task_table[i].name) == 0))
         {
+            /*
+            ** Unlock
+            */
             semGive(OS_task_table_sem);
             return OS_ERR_NAME_TAKEN;
         }
@@ -422,6 +543,9 @@ int32 OS_TaskCreate (uint32 *task_id,  const char *task_name,
 
     OS_task_table[possible_taskid].free = FALSE;
    
+    /*
+    ** Unlock
+    */
     semGive(OS_task_table_sem);
 
     /* Create VxWorks Task */
@@ -438,14 +562,20 @@ int32 OS_TaskCreate (uint32 *task_id,  const char *task_name,
         LocalFlags = 0;
     }
     
-    OS_task_table[possible_taskid].id = taskSpawn((char*)task_name, priority, LocalFlags, stack_size,
+    tmp_task_id = taskSpawn((char*)task_name, priority, LocalFlags, stack_size,
             (FUNCPTR)function_pointer,0,0,0,0,0,0,0,0,0,0);
+    /*
+    ** Lock
+    */
+    semTake(OS_task_table_sem,WAIT_FOREVER);
     /* check if taskSpawn failed */
 
-    if(OS_task_table[possible_taskid].id == ERROR)
+    if(tmp_task_id == ERROR)
     {
-        semTake(OS_task_table_sem,WAIT_FOREVER);
         OS_task_table[possible_taskid].free = TRUE;
+        /*
+        ** Unlock
+        */
         semGive(OS_task_table_sem);
         return OS_ERROR;
     }
@@ -457,7 +587,7 @@ int32 OS_TaskCreate (uint32 *task_id,  const char *task_name,
 
 
     /* this Id no longer free */
-    semTake(OS_task_table_sem,WAIT_FOREVER);
+    OS_task_table[*task_id].id = tmp_task_id;
 
     strcpy(OS_task_table[*task_id].name, task_name);
     OS_task_table[*task_id].free = FALSE;
@@ -465,6 +595,9 @@ int32 OS_TaskCreate (uint32 *task_id,  const char *task_name,
     OS_task_table[*task_id].stack_size = stack_size;
     OS_task_table[*task_id].priority = priority;
 
+    /*
+    ** Unlock
+    */
     semGive(OS_task_table_sem);
 
     return OS_SUCCESS;
@@ -486,6 +619,12 @@ int32 OS_TaskDelete (uint32 task_id)
     FuncPtr_t FunctionPointer;
 
     /* 
+     * Note: There is currently no semaphore protection for the simple
+     * OS_bin_sem_table accesses in this function, only the significant
+     * table entry update.
+     */
+
+    /*
     ** Check to see if the task_id given is valid 
     */
     if (task_id >= OS_MAX_TASKS || OS_task_table[task_id].free == TRUE)
@@ -499,7 +638,10 @@ int32 OS_TaskDelete (uint32 task_id)
     if ( OS_task_table[task_id].delete_hook_pointer != NULL)
     {
        FunctionPointer = (FuncPtr_t)OS_task_table[task_id].delete_hook_pointer;
-       (*FunctionPointer)();
+       if (FunctionPointer != NULL)
+       {
+          (*FunctionPointer)();
+       }
     }
 
     /* Try to delete the task */
@@ -524,16 +666,22 @@ int32 OS_TaskDelete (uint32 task_id)
      * Now that the task is deleted, remove its
      * "presence" in OS_task_table
     */
+    /*
+    ** Lock
+    */
     semTake(OS_task_table_sem,WAIT_FOREVER);
 
     OS_task_table[task_id].free = TRUE;
-    OS_task_table[task_id].id = UNINITIALIZED;
+    OS_task_table[task_id].id = VXWORKS_OSAPI_UNINITIALIZED;
     strcpy(OS_task_table[task_id].name, "");
-    OS_task_table[task_id].creator = UNINITIALIZED;
-    OS_task_table[task_id].stack_size = UNINITIALIZED;
-    OS_task_table[task_id].priority = UNINITIALIZED;
+    OS_task_table[task_id].creator = VXWORKS_OSAPI_UNINITIALIZED;
+    OS_task_table[task_id].stack_size = VXWORKS_OSAPI_UNINITIALIZED;
+    OS_task_table[task_id].priority = VXWORKS_OSAPI_UNINITIALIZED;
     OS_task_table[task_id].delete_hook_pointer = NULL;        
     
+    /*
+    ** Unlock
+    */
     semGive(OS_task_table_sem);
 
     return OS_SUCCESS;
@@ -547,22 +695,28 @@ int32 OS_TaskDelete (uint32 task_id)
     returns: Nothing 
 ---------------------------------------------------------------------------------------*/
 
-void OS_TaskExit()
+void OS_TaskExit(void)
 {
     uint32 task_id;
 
     task_id = OS_TaskGetId();
 
+    /*
+    ** Lock
+    */
     semTake(OS_task_table_sem,WAIT_FOREVER);
 
     OS_task_table[task_id].free = TRUE;
-    OS_task_table[task_id].id = UNINITIALIZED;
+    OS_task_table[task_id].id = VXWORKS_OSAPI_UNINITIALIZED;
     strcpy(OS_task_table[task_id].name, "");
-    OS_task_table[task_id].creator = UNINITIALIZED;
-    OS_task_table[task_id].stack_size = UNINITIALIZED;
-    OS_task_table[task_id].priority = UNINITIALIZED;
+    OS_task_table[task_id].creator = VXWORKS_OSAPI_UNINITIALIZED;
+    OS_task_table[task_id].stack_size = VXWORKS_OSAPI_UNINITIALIZED;
+    OS_task_table[task_id].priority = VXWORKS_OSAPI_UNINITIALIZED;
     OS_task_table[task_id].delete_hook_pointer = NULL;        
     
+    /*
+    ** Unlock
+    */
     semGive(OS_task_table_sem);
 
     taskExit(OS_SUCCESS);
@@ -648,16 +802,22 @@ int32 OS_TaskSetPriority (uint32 task_id, uint32 new_priority)
 int32 OS_TaskRegister (void)
 {
     int     vxworks_task_id;
-    int     i;
+    uint32  i;
     uint32  task_id;
 
+    /*
+     * Note: This function accesses the OS_task_table without locking that table's
+     * semaphore.
+     */
     /* Find Defined Task Id */
     vxworks_task_id = taskIdSelf();
 
     for(i = 0; i < OS_MAX_TASKS; i++)
     {
         if(OS_task_table[i].id == vxworks_task_id)
+        {
             break;
+    }
     }
 
     task_id = i;
@@ -668,7 +828,7 @@ int32 OS_TaskRegister (void)
     }
 
     /* Add VxWorks Task Variable */
-    if(taskVarAdd(OS_task_table[task_id].id, (int*)(char *)&OS_task_key) != OK)
+    if(taskVarAdd(OS_task_table[task_id].id, (int*)&OS_task_key) != OK)
     {
         return OS_ERROR;
     }
@@ -710,6 +870,10 @@ int32 OS_TaskGetIdByName (uint32 *task_id, const char *task_name)
 {
     uint32 i;
 
+    /*
+     * Note: This function accesses the OS_task_table without locking that table's
+     * semaphore.
+     */
     if (task_id == NULL || task_name == NULL)
     {
         return OS_INVALID_POINTER;
@@ -750,25 +914,41 @@ int32 OS_TaskGetIdByName (uint32 *task_id, const char *task_name)
 ---------------------------------------------------------------------------------------*/
 int32 OS_TaskGetInfo (uint32 task_id, OS_task_prop_t *task_prop)
 {
+    /*
+    ** Lock
+    */
+    semTake(OS_task_table_sem,WAIT_FOREVER);
     /* Check to see that the id given is valid */
     if (task_id >= OS_MAX_TASKS || OS_task_table[task_id].free == TRUE)
     {
+        /*
+        ** Unlock
+        */
+        semGive(OS_task_table_sem);
         return OS_ERR_INVALID_ID;
     }
 
     if( task_prop == NULL)
     {
+        /*
+        ** Unlock
+        */
+        semGive(OS_task_table_sem);
         return OS_INVALID_POINTER;
     }
 
     /* put the info into the stucture */
-    semTake(OS_task_table_sem,WAIT_FOREVER);
     task_prop -> creator =    OS_task_table[task_id].creator;
     task_prop -> stack_size = OS_task_table[task_id].stack_size;
     task_prop -> priority =   OS_task_table[task_id].priority;
+    /* why is OStask_id a uint32, the VxWorks type for a task id is int,
+     * not changing this at this time */
     task_prop -> OStask_id =  (uint32)OS_task_table[task_id].id;
 
     strcpy(task_prop-> name, OS_task_table[task_id].name);
+    /*
+    ** Unlock
+    */
     semGive(OS_task_table_sem);
 
     return OS_SUCCESS;
@@ -783,7 +963,7 @@ int32 OS_TaskGetInfo (uint32 task_id, OS_task_prop_t *task_prop)
     returns: status
 ---------------------------------------------------------------------------------------*/
 
-int32 OS_TaskInstallDeleteHandler(void *function_pointer)
+int32 OS_TaskInstallDeleteHandler(osal_task_entry function_pointer)
 {
     uint32 task_id;
 
@@ -794,6 +974,9 @@ int32 OS_TaskInstallDeleteHandler(void *function_pointer)
        return(OS_ERR_INVALID_ID);
     }
 
+    /*
+    ** Lock
+    */
     semTake(OS_task_table_sem,WAIT_FOREVER);
 
     if ( OS_task_table[task_id].free != FALSE )
@@ -801,6 +984,9 @@ int32 OS_TaskInstallDeleteHandler(void *function_pointer)
        /* 
        ** Somehow the calling task is not registered 
        */
+        /*
+        ** Unlock
+        */
        semGive(OS_task_table_sem);
        return(OS_ERR_INVALID_ID);
     }
@@ -810,6 +996,9 @@ int32 OS_TaskInstallDeleteHandler(void *function_pointer)
     */
     OS_task_table[task_id].delete_hook_pointer = function_pointer;    
     
+    /*
+    ** Unlock
+    */
     semGive(OS_task_table_sem);
 
     return(OS_SUCCESS);
@@ -840,6 +1029,7 @@ int32 OS_QueueCreate (uint32 *queue_id, const char *queue_name, uint32 queue_dep
 {
     uint32 possible_qid;
     uint32 i;
+    MSG_Q_ID tmp_msgq_id = NULL;
 
     if ( queue_id == NULL || queue_name == NULL)
     {
@@ -854,15 +1044,23 @@ int32 OS_QueueCreate (uint32 *queue_id, const char *queue_name, uint32 queue_dep
     }
 
     /* Check Parameters */
+    /*
+    ** Lock
+    */
     semTake(OS_queue_table_sem,WAIT_FOREVER);
     for(possible_qid = 0; possible_qid < OS_MAX_QUEUES; possible_qid++)
     {
         if (OS_queue_table[possible_qid].free == TRUE)
+        {
             break;
+    }
     }
 
     if( possible_qid >= OS_MAX_QUEUES || OS_queue_table[possible_qid].free != TRUE)
     {
+        /*
+        ** Unlock
+        */
         semGive(OS_queue_table_sem);
         return OS_ERR_NO_FREE_IDS;
     }
@@ -873,22 +1071,34 @@ int32 OS_QueueCreate (uint32 *queue_id, const char *queue_name, uint32 queue_dep
         if ((OS_queue_table[i].free == FALSE) &&
                 strcmp ((char*)queue_name, OS_queue_table[i].name) == 0)
         {
+            /*
+            ** Unlock
+            */
             semGive(OS_queue_table_sem);
             return OS_ERR_NAME_TAKEN;
         }
     }
 
     OS_queue_table[possible_qid].free = FALSE;
+    /*
+    ** Unlock
+    */
     semGive(OS_queue_table_sem);
 
     /* Create VxWorks Message Queue */
-    OS_queue_table[possible_qid].id = msgQCreate(queue_depth, data_size, MSG_Q_FIFO);
+    tmp_msgq_id = msgQCreate(queue_depth, data_size, MSG_Q_FIFO);
 
     /* check if message Q create failed */
-    if(OS_queue_table[possible_qid].id == NULL)
+    if(tmp_msgq_id == NULL)
     {
+        /*
+        ** Lock
+        */
         semTake(OS_queue_table_sem,WAIT_FOREVER);
         OS_queue_table[possible_qid].free = TRUE;
+        /*
+        ** Unlock
+        */
         semGive(OS_queue_table_sem);
         return OS_ERROR;
     }
@@ -897,13 +1107,19 @@ int32 OS_QueueCreate (uint32 *queue_id, const char *queue_name, uint32 queue_dep
     /* Set the name of the queue, and the creator as well */
     *queue_id = possible_qid;
 
+    /*
+    ** Lock
+    */
     semTake(OS_queue_table_sem,WAIT_FOREVER);
 
+    OS_queue_table[*queue_id].id = tmp_msgq_id;
     OS_queue_table[*queue_id].max_size = data_size;
-    OS_queue_table[*queue_id].free = FALSE;
     strcpy( OS_queue_table[*queue_id].name, (char*) queue_name);
     OS_queue_table[*queue_id].creator = OS_FindCreator();
 
+    /*
+    ** Unlock
+    */
     semGive(OS_queue_table_sem);
 
     return OS_SUCCESS;
@@ -926,6 +1142,11 @@ int32 OS_QueueCreate (uint32 *queue_id, const char *queue_name, uint32 queue_dep
 
 int32 OS_QueueDelete (uint32 queue_id)
 {
+    /*
+     * Note: There is currently no semaphore protection for the simple
+     * OS_queue_table accesses in this function, only the significant
+     * table entry update.
+     */
     /* Check to see if the queue_id given is valid */
     if (queue_id >= OS_MAX_QUEUES || OS_queue_table[queue_id].free == TRUE)
     {
@@ -942,14 +1163,20 @@ int32 OS_QueueDelete (uint32 queue_id)
      * Now that the queue is deleted, remove its "presence"
      * in OS_message_q_table and OS_message_q_name_table
     */
+    /*
+    ** Lock
+    */
     semTake(OS_queue_table_sem,WAIT_FOREVER);
 
     OS_queue_table[queue_id].free = TRUE;
     strcpy(OS_queue_table[queue_id].name, "");
-    OS_queue_table[queue_id].creator = UNINITIALIZED;
+    OS_queue_table[queue_id].creator = VXWORKS_OSAPI_UNINITIALIZED;
     OS_queue_table[queue_id].id = NULL;
     OS_queue_table[queue_id].max_size = 0;
 
+    /*
+    ** Unlock
+    */
     semGive(OS_queue_table_sem);
 
     return OS_SUCCESS;
@@ -972,20 +1199,24 @@ int32 OS_QueueDelete (uint32 queue_id)
 int32 OS_QueueGet (uint32 queue_id, void *data, uint32 size, uint32 *size_copied,
                     int32 timeout)
 {
+    /*
+     * Note: this function accesses the OS_queue_table without locking that table's
+     * semaphore.
+     */
     /* msecs rounded to the closest system tick count */
     int status = -1;
     uint32 sys_ticks;
 
     /* Check Parameters */
-    if(queue_id >= OS_MAX_QUEUES || OS_queue_table[queue_id].free == TRUE)
+    if ( (data == NULL) || (size_copied == NULL) )
+    {
+        return OS_INVALID_POINTER;
+    }
+    if (queue_id >= OS_MAX_QUEUES || OS_queue_table[queue_id].free == TRUE)
     {
         return OS_ERR_INVALID_ID;
     }
-    else if( (data == NULL) || (size_copied == NULL) )
-    {
-            return OS_INVALID_POINTER;
-    }
-    else if( size < OS_queue_table[queue_id].max_size )
+    if ( size < OS_queue_table[queue_id].max_size )
     {
         /* 
         ** The buffer that the user is passing in is potentially too small
@@ -1050,8 +1281,12 @@ int32 OS_QueueGet (uint32 queue_id, void *data, uint32 size, uint32 *size_copied
             immediately return an error if the receiving message queue is full.
 ---------------------------------------------------------------------------------------*/
 
-int32 OS_QueuePut (uint32 queue_id, void *data, uint32 size, uint32 flags)
+int32 OS_QueuePut (uint32 queue_id, const void *data, uint32 size, uint32 flags)
 {
+    /*
+     * Note: This function accesses the OS_queue_table without locking that table's
+     * semaphore.
+     */
     /* Check Parameters */
     if(queue_id >= OS_MAX_QUEUES || OS_queue_table[queue_id].free == TRUE)
     {
@@ -1063,8 +1298,8 @@ int32 OS_QueuePut (uint32 queue_id, void *data, uint32 size, uint32 flags)
         return OS_INVALID_POINTER;
     }
 
-    /* Get Message From VxWorks Message Queue */
-    if(msgQSend(OS_queue_table[queue_id].id, data, size, NO_WAIT, MSG_PRI_NORMAL) != OK)
+    /* Put Message Into VxWorks Message Queue */
+    if(msgQSend(OS_queue_table[queue_id].id, (void*)data, size, NO_WAIT, MSG_PRI_NORMAL) != OK)
     {
         if(errno == S_objLib_OBJ_UNAVAILABLE)
         {
@@ -1094,6 +1329,10 @@ int32 OS_QueuePut (uint32 queue_id, void *data, uint32 size, uint32 flags)
 
 int32 OS_QueueGetIdByName (uint32 *queue_id, const char *queue_name)
 {
+    /*
+     * Note: This function accesses the OS_queue_table without
+     * locking that table's semaphore.
+     */
     uint32 i;
 
     if(queue_id == NULL || queue_name == NULL)
@@ -1138,6 +1377,10 @@ int32 OS_QueueGetIdByName (uint32 *queue_id, const char *queue_name)
 
 int32 OS_QueueGetInfo (uint32 queue_id, OS_queue_prop_t *queue_prop)
 {
+    /*
+     * Note: This function accesses the OS_queue_table without locking that table's
+     * semaphore, but locks the table while copying the data.
+     */
     /* Check to see that the id given is valid */
     if (queue_prop == NULL)
     {
@@ -1150,11 +1393,17 @@ int32 OS_QueueGetInfo (uint32 queue_id, OS_queue_prop_t *queue_prop)
     }
 
     /* put the info into the stucture */
+    /*
+    ** Lock
+    */
     semTake(OS_queue_table_sem,WAIT_FOREVER);
 
     queue_prop -> creator =   OS_queue_table[queue_id].creator;
     strcpy(queue_prop -> name, OS_queue_table[queue_id].name);
 
+    /*
+    ** Unlock
+    */
     semGive(OS_queue_table_sem);
 
     return OS_SUCCESS;
@@ -1189,6 +1438,7 @@ int32 OS_BinSemCreate (uint32 *sem_id, const char *sem_name, uint32 sem_initial_
     /* the current candidate for the new sem id */
     uint32 possible_semid;
     uint32 i;
+    SEM_ID tmp_sem_id = NULL;
 
     if (sem_id == NULL || sem_name == NULL)
     {
@@ -1204,17 +1454,25 @@ int32 OS_BinSemCreate (uint32 *sem_id, const char *sem_name, uint32 sem_initial_
     }
 
     /* Check Parameters */
+    /*
+    ** Lock
+    */
     semTake(OS_bin_sem_table_sem,WAIT_FOREVER);
 
     for (possible_semid = 0; possible_semid < OS_MAX_BIN_SEMAPHORES; possible_semid++)
     {
         if (OS_bin_sem_table[possible_semid].free == TRUE)
+        {
             break;
+    }
     }
 
     if((possible_semid >= OS_MAX_BIN_SEMAPHORES) ||
        (OS_bin_sem_table[possible_semid].free != TRUE))
     {
+        /*
+        ** Unlock
+        */
         semGive(OS_bin_sem_table_sem);
         return OS_ERR_NO_FREE_IDS;
     }
@@ -1225,6 +1483,9 @@ int32 OS_BinSemCreate (uint32 *sem_id, const char *sem_name, uint32 sem_initial_
         if ((OS_bin_sem_table[i].free == FALSE) &&
                 strcmp ((char*)sem_name, OS_bin_sem_table[i].name) == 0)
         {
+            /*
+            ** Unlock
+            */
             semGive(OS_bin_sem_table_sem);
             return OS_ERR_NAME_TAKEN;
         }
@@ -1232,6 +1493,9 @@ int32 OS_BinSemCreate (uint32 *sem_id, const char *sem_name, uint32 sem_initial_
     
     OS_bin_sem_table[possible_semid].free  = FALSE;
 
+    /*
+    ** Unlock
+    */
     semGive(OS_bin_sem_table_sem);
 
     /* Check to make sure the sem value is going to be either 0 or 1 */
@@ -1241,13 +1505,20 @@ int32 OS_BinSemCreate (uint32 *sem_id, const char *sem_name, uint32 sem_initial_
     }
     
     /* Create VxWorks Semaphore */
-    OS_bin_sem_table[possible_semid].id = semBCreate(SEM_Q_PRIORITY, sem_initial_value);
+    tmp_sem_id = semBCreate(SEM_Q_PRIORITY, sem_initial_value);
+
+    /*
+    ** Lock
+    */
+    semTake(OS_bin_sem_table_sem,WAIT_FOREVER);
 
     /* check if semBCreate failed */
-    if(OS_bin_sem_table[possible_semid].id == NULL)
+    if(tmp_sem_id == NULL)
     {
-        semTake(OS_bin_sem_table_sem,WAIT_FOREVER);
         OS_bin_sem_table[possible_semid].free  = TRUE;
+        /*
+        ** Unlock
+        */
         semGive(OS_bin_sem_table_sem);
         return OS_SEM_FAILURE;
     }
@@ -1257,11 +1528,14 @@ int32 OS_BinSemCreate (uint32 *sem_id, const char *sem_name, uint32 sem_initial_
 
     *sem_id = possible_semid;
 
-    semTake(OS_bin_sem_table_sem,WAIT_FOREVER);
     OS_bin_sem_table[*sem_id].free = FALSE;
+    OS_bin_sem_table[*sem_id].id = tmp_sem_id;
     strcpy(OS_bin_sem_table[*sem_id].name , (char*) sem_name);
     OS_bin_sem_table[*sem_id].creator = OS_FindCreator();
     
+    /*
+    ** Unlock
+    */
     semGive(OS_bin_sem_table_sem);
 
     return OS_SUCCESS;
@@ -1281,6 +1555,11 @@ int32 OS_BinSemCreate (uint32 *sem_id, const char *sem_name, uint32 sem_initial_
 
 int32 OS_BinSemDelete (uint32 sem_id)
 {
+    /*
+     * Note: There is currently no semaphore protection for the simple
+     * OS_bin_sem_table accesses in this function, only the significant
+     * table entry update.
+     */
     /* Check to see if this sem_id is valid */
     if (sem_id >= OS_MAX_BIN_SEMAPHORES || OS_bin_sem_table[sem_id].free == TRUE)
     {
@@ -1293,13 +1572,19 @@ int32 OS_BinSemDelete (uint32 sem_id)
     }
 
     /* Remove the Id from the table, and its name, so that it cannot be found again */
+    /*
+    ** Lock
+    */
     semTake(OS_bin_sem_table_sem,WAIT_FOREVER);
 
     OS_bin_sem_table[sem_id].free = TRUE;
     strcpy(OS_bin_sem_table[sem_id].name , "");
-    OS_bin_sem_table[sem_id].creator = UNINITIALIZED;
+    OS_bin_sem_table[sem_id].creator = VXWORKS_OSAPI_UNINITIALIZED;
     OS_bin_sem_table[sem_id].id = NULL;
     
+    /*
+    ** Unlock
+    */
     semGive(OS_bin_sem_table_sem);
 
     return OS_SUCCESS;
@@ -1324,6 +1609,10 @@ int32 OS_BinSemDelete (uint32 sem_id)
 ---------------------------------------------------------------------------------------*/
 int32 OS_BinSemGive (uint32 sem_id)
 {
+    /*
+     * Note: This function accesses the OS_bin_sem_table without locking that table's
+     * semaphore.
+     */
     /* Check Parameters */
     if(sem_id >= OS_MAX_BIN_SEMAPHORES || OS_bin_sem_table[sem_id].free == TRUE)
     {
@@ -1335,10 +1624,8 @@ int32 OS_BinSemGive (uint32 sem_id)
     {
        return OS_SEM_FAILURE;
     }
-    else /* just drop the semGive call */
-    {
-        return OS_SUCCESS;
-    }
+    /* just drop the semGive call */
+    return OS_SUCCESS;
     
 }/* end OS_BinSemGive */
 
@@ -1357,13 +1644,17 @@ int32 OS_BinSemGive (uint32 sem_id)
 ---------------------------------------------------------------------------------------*/
 int32 OS_BinSemFlush (uint32 sem_id)
 {
+    /*
+     * Note: This function accesses the OS_bin_sem_table without locking that table's
+     * semaphore.
+     */
     /* Check Parameters */
     if(sem_id >= OS_MAX_BIN_SEMAPHORES || OS_bin_sem_table[sem_id].free == TRUE)
     {
         return OS_ERR_INVALID_ID;
     }
 
-    /* Give VxWorks Semaphore */
+    /* Flush VxWorks Semaphore */
     if(semFlush(OS_bin_sem_table[sem_id].id) != OK)
     {
         return OS_SEM_FAILURE;
@@ -1392,13 +1683,18 @@ int32 OS_BinSemFlush (uint32 sem_id)
 
 int32 OS_BinSemTake (uint32 sem_id)
 {
+    /*
+     * Note: This function accesses the OS_bin_sem_table without locking that table's
+     * semaphore.
+     */
     /* Check Parameters */
     if(sem_id >= OS_MAX_BIN_SEMAPHORES  || OS_bin_sem_table[sem_id].free == TRUE)
     {
         return OS_ERR_INVALID_ID;
     }
 
-    /* Take VxWorks Semaphore */
+    /* Take VxWorks Semaphore
+     */
     if(semTake(OS_bin_sem_table[sem_id].id, WAIT_FOREVER) != OK)
     {
         return OS_SEM_FAILURE;
@@ -1427,6 +1723,10 @@ int32 OS_BinSemTake (uint32 sem_id)
 
 int32 OS_BinSemTimedWait (uint32 sem_id, uint32 msecs)
 {
+    /*
+     * Note: This function accesses the OS_bin_sem_table without locking that table's
+     * semaphore.
+     */
     /* msecs rounded to the closest system tick count */
     uint32 sys_ticks;
     STATUS vx_status;
@@ -1440,7 +1740,8 @@ int32 OS_BinSemTimedWait (uint32 sem_id, uint32 msecs)
 
     sys_ticks = OS_Milli2Ticks(msecs);
 
-    /* Wait for VxWorks Semaphore */
+    /* Wait for VxWorks Semaphore
+     */
     vx_status = semTake(OS_bin_sem_table[sem_id].id, sys_ticks);
     if (vx_status == OK )
     {
@@ -1472,6 +1773,10 @@ int32 OS_BinSemTimedWait (uint32 sem_id, uint32 msecs)
 ---------------------------------------------------------------------------------------*/
 int32 OS_BinSemGetIdByName (uint32 *sem_id, const char *sem_name)
 {
+    /*
+     * Note: This function accesses the OS_bin_sem_table without locking that table's
+     * semaphore.
+     */
     uint32 i;
 
     if (sem_id == NULL || sem_name == NULL)
@@ -1517,24 +1822,38 @@ int32 OS_BinSemGetIdByName (uint32 *sem_id, const char *sem_name)
 
 int32 OS_BinSemGetInfo (uint32 sem_id, OS_bin_sem_prop_t *bin_prop)
 {
+    /*
+    ** Lock
+    */
+    semTake(OS_bin_sem_table_sem,WAIT_FOREVER);
     /* Check to see that the id given is valid */
     if (sem_id >= OS_MAX_BIN_SEMAPHORES || OS_bin_sem_table[sem_id].free == TRUE)
     {
+        /*
+        ** Unlock
+        */
+        semGive(OS_bin_sem_table_sem);
         return OS_ERR_INVALID_ID;
     }
 
     if (bin_prop == NULL)
     {
+        /*
+        ** Unlock
+        */
+        semGive(OS_bin_sem_table_sem);
         return OS_INVALID_POINTER;
     }
 
-    /* put the info into the stucture */
-    semTake(OS_bin_sem_table_sem,WAIT_FOREVER);
+    /* put the info into the structure */
 
-    bin_prop ->creator =    OS_bin_sem_table[sem_id].creator;
+    bin_prop ->creator = OS_bin_sem_table[sem_id].creator;
     bin_prop -> value = 0;
     strcpy(bin_prop-> name, OS_bin_sem_table[sem_id].name);
 
+    /*
+    ** Unlock
+    */
     semGive(OS_bin_sem_table_sem);
 
     return OS_SUCCESS;
@@ -1564,6 +1883,7 @@ int32 OS_CountSemCreate (uint32 *sem_id, const char *sem_name, uint32 sem_initia
 {
     uint32 possible_semid;
     uint32 i;
+    SEM_ID tmp_sem_id = NULL;
 
     /*
     ** Check Parameters
@@ -1576,7 +1896,7 @@ int32 OS_CountSemCreate (uint32 *sem_id, const char *sem_name, uint32 sem_initia
     /*
     ** Verify that the semaphore maximum value is not too high
     */ 
-    if ( sem_initial_value > MAX_SEM_VALUE )
+    if ( sem_initial_value > SEM_VALUE_MAX )
     {
         return OS_INVALID_SEM_VALUE;
     }
@@ -1632,17 +1952,18 @@ int32 OS_CountSemCreate (uint32 *sem_id, const char *sem_name, uint32 sem_initia
     semGive(OS_count_sem_table_sem);
 
     /* Create VxWorks Semaphore */
-    OS_count_sem_table[possible_semid].id = semCCreate(SEM_Q_PRIORITY, sem_initial_value);
+    tmp_sem_id = semCCreate(SEM_Q_PRIORITY, sem_initial_value);
+
+    /*
+    ** Lock
+    */
+    semTake(OS_count_sem_table_sem,WAIT_FOREVER);
 
     /* check if semCCreate failed */
-    if(OS_count_sem_table[possible_semid].id == NULL)
+    if(tmp_sem_id == NULL)
     {
-        /*
-        ** Lock
-        */
-        semTake(OS_count_sem_table_sem,WAIT_FOREVER);    
 
-        OS_count_sem_table[possible_semid].free =TRUE;
+        OS_count_sem_table[possible_semid].free = TRUE;
 
         /*
         ** Unlock
@@ -1656,10 +1977,7 @@ int32 OS_CountSemCreate (uint32 *sem_id, const char *sem_name, uint32 sem_initia
 
     *sem_id = possible_semid;
 
-    /*
-    ** Lock
-    */
-    semTake(OS_count_sem_table_sem,WAIT_FOREVER);
+    OS_count_sem_table[*sem_id].id = tmp_sem_id;
 
     OS_count_sem_table[*sem_id].free = FALSE;
     strcpy(OS_count_sem_table[*sem_id].name , (char*) sem_name);
@@ -1688,6 +2006,11 @@ int32 OS_CountSemCreate (uint32 *sem_id, const char *sem_name, uint32 sem_initia
 int32 OS_CountSemDelete (uint32 sem_id)
 {
     /* 
+     * Note: This function accesses the OS_count_sem_table without locking that table's
+     * semaphore.
+     */
+
+    /*
     ** Check to see if this sem_id is valid 
     */
     if (sem_id >= OS_MAX_COUNT_SEMAPHORES || OS_count_sem_table[sem_id].free == TRUE)
@@ -1711,7 +2034,7 @@ int32 OS_CountSemDelete (uint32 sem_id)
 
     OS_count_sem_table[sem_id].free = TRUE;
     strcpy(OS_count_sem_table[sem_id].name , "");
-    OS_count_sem_table[sem_id].creator = UNINITIALIZED;
+    OS_count_sem_table[sem_id].creator = VXWORKS_OSAPI_UNINITIALIZED;
     OS_count_sem_table[sem_id].id = NULL;
 
     /*
@@ -1742,12 +2065,16 @@ int32 OS_CountSemDelete (uint32 sem_id)
 ---------------------------------------------------------------------------------------*/
 int32 OS_CountSemGive (uint32 sem_id)
 {
+    /*
+     * Note: This function accesses the OS_count_sem_table without locking that table's
+     * semaphore.
+     */
     int32 return_code = OS_SUCCESS;
 
     /* 
     ** Check Parameters 
     */
-    if(sem_id >= OS_MAX_COUNT_SEMAPHORES || OS_count_sem_table[sem_id].free == TRUE)
+    if (sem_id >= OS_MAX_COUNT_SEMAPHORES || OS_count_sem_table[sem_id].free == TRUE)
     {
         return OS_ERR_INVALID_ID;
     }
@@ -1784,6 +2111,10 @@ int32 OS_CountSemGive (uint32 sem_id)
 
 int32 OS_CountSemTake (uint32 sem_id)
 {
+    /*
+     * Note: This function accesses the OS_count_sem_table without locking that table's
+     * semaphore.
+     */
     int32 return_code;
 
     /* 
@@ -1827,6 +2158,10 @@ int32 OS_CountSemTake (uint32 sem_id)
 
 int32 OS_CountSemTimedWait (uint32 sem_id, uint32 msecs)
 {
+    /*
+     * Note: This function accesses the OS_count_sem_table without locking that table's
+     * semaphore.
+     */
     int32  return_code = OS_SUCCESS;
     uint32 sys_ticks;
     STATUS vx_status;
@@ -1877,6 +2212,10 @@ int32 OS_CountSemTimedWait (uint32 sem_id, uint32 msecs)
 ---------------------------------------------------------------------------------------*/
 int32 OS_CountSemGetIdByName (uint32 *sem_id, const char *sem_name)
 {
+    /*
+     * Note: This function accesses the OS_count_sem_table without locking that table's
+     * semaphore.
+     */
     uint32 i;
 
     /*
@@ -1929,6 +2268,11 @@ int32 OS_CountSemGetIdByName (uint32 *sem_id, const char *sem_name)
 int32 OS_CountSemGetInfo (uint32 sem_id, OS_count_sem_prop_t *count_prop)
 {
     /* 
+     * Note: This function performs some accesses to the OS_count_sem_table
+     * without locking that table's semaphore.
+     */
+
+    /*
     ** Check to see that the id given is valid 
     */
     if (sem_id >= OS_MAX_COUNT_SEMAPHORES || OS_count_sem_table[sem_id].free == TRUE)
@@ -1984,6 +2328,7 @@ int32 OS_MutSemCreate (uint32 *sem_id, const char *sem_name, uint32 options)
 {
     uint32 possible_semid;
     uint32 i;
+    SEM_ID tmp_sem_id = NULL;
 
     /* Check Parameters */
     if (sem_id == NULL || sem_name == NULL)
@@ -1998,17 +2343,25 @@ int32 OS_MutSemCreate (uint32 *sem_id, const char *sem_name, uint32 options)
        return OS_ERR_NAME_TOO_LONG;
     }
 
+    /*
+    ** Lock
+    */
     semTake(OS_mut_sem_table_sem,WAIT_FOREVER);
 
     for (possible_semid = 0; possible_semid < OS_MAX_MUTEXES; possible_semid++)
     {
         if (OS_mut_sem_table[possible_semid].free == TRUE)
+        {
             break;
+        }
     }
 
     if( (possible_semid >= OS_MAX_MUTEXES) ||
         (OS_mut_sem_table[possible_semid].free != TRUE) )
     {
+        /*
+        ** Unlock
+        */
         semGive(OS_mut_sem_table_sem);
         return OS_ERR_NO_FREE_IDS;
     }
@@ -2019,22 +2372,36 @@ int32 OS_MutSemCreate (uint32 *sem_id, const char *sem_name, uint32 options)
         if ((OS_mut_sem_table[i].free == FALSE) &&
             strcmp ((char*) sem_name, OS_mut_sem_table[i].name) == 0)
         {
+            /*
+            ** Unlock
+            */
             semGive(OS_mut_sem_table_sem);
             return OS_ERR_NAME_TAKEN;
         }
     }
     OS_mut_sem_table[possible_semid].free = FALSE;
-    semGive(OS_mut_sem_table_sem);
 
     /* Create VxWorks Semaphore */
 
-    OS_mut_sem_table[possible_semid].id = semMCreate(SEM_Q_PRIORITY | SEM_INVERSION_SAFE );
+    /*
+    ** Unlock
+    */
+    semGive(OS_mut_sem_table_sem);
+
+    tmp_sem_id = semMCreate(SEM_Q_PRIORITY | SEM_INVERSION_SAFE );
+
+    /*
+    ** Lock
+    */
+    semTake(OS_mut_sem_table_sem,WAIT_FOREVER);
 
      /* check if semMCreate failed */
-    if(OS_mut_sem_table[possible_semid].id == NULL)
+    if(tmp_sem_id == NULL)
     {
-        semTake(OS_mut_sem_table_sem,WAIT_FOREVER);
         OS_mut_sem_table[possible_semid].free = TRUE;
+        /*
+        ** Unlock
+        */
         semGive(OS_mut_sem_table_sem);
         return OS_SEM_FAILURE;
     }
@@ -2043,12 +2410,15 @@ int32 OS_MutSemCreate (uint32 *sem_id, const char *sem_name, uint32 options)
     /* Set the name of the semaphore, creator, and free as well */
 
     *sem_id = possible_semid;
-    semTake(OS_mut_sem_table_sem,WAIT_FOREVER);
 
+    OS_mut_sem_table[*sem_id].id = tmp_sem_id;
     strcpy(OS_mut_sem_table[*sem_id].name, (char*)sem_name);
     OS_mut_sem_table[*sem_id].free = FALSE;
     OS_mut_sem_table[*sem_id].creator = OS_FindCreator();
 
+    /*
+    ** Unlock
+    */
     semGive(OS_mut_sem_table_sem);
 
     return OS_SUCCESS;
@@ -2068,6 +2438,10 @@ int32 OS_MutSemCreate (uint32 *sem_id, const char *sem_name, uint32 options)
 
 int32 OS_MutSemDelete (uint32 sem_id)
 {
+    /*
+     * Note: This function performs some access to the OS_mut_sem_table without
+     * locking that table's semaphore.
+     */
     /* Check to see if this sem_id is valid   */
     if (sem_id >= OS_MAX_MUTEXES || OS_mut_sem_table[sem_id].free == TRUE)
     {
@@ -2080,13 +2454,19 @@ int32 OS_MutSemDelete (uint32 sem_id)
     }
 
     /* Delete its presence in the table */
+    /*
+    ** Lock
+    */
     semTake(OS_mut_sem_table_sem,WAIT_FOREVER);
 
     OS_mut_sem_table[sem_id].free = TRUE;
     OS_mut_sem_table[sem_id].id = NULL;
     strcpy(OS_mut_sem_table[sem_id].name , "");
-    OS_mut_sem_table[sem_id].creator = UNINITIALIZED;
+    OS_mut_sem_table[sem_id].creator = VXWORKS_OSAPI_UNINITIALIZED;
 
+    /*
+    ** Unlock
+    */
     semGive(OS_mut_sem_table_sem);
 
     return OS_SUCCESS;
@@ -2111,6 +2491,10 @@ int32 OS_MutSemDelete (uint32 sem_id)
 
 int32 OS_MutSemGive (uint32 sem_id)
 {
+    /*
+     * Note: This function accesses the OS_mut_sem_table_sem without locking that table's
+     * semaphore.
+     */
     /* Check Parameters */
     if(sem_id >= OS_MAX_MUTEXES || OS_mut_sem_table[sem_id].free == TRUE)
     {
@@ -2133,7 +2517,8 @@ int32 OS_MutSemGive (uint32 sem_id)
     Purpose: The mutex object referenced by sem_id shall be locked by calling this
              function. If the mutex is already locked, the calling thread shall
              block until the mutex becomes available. This operation shall return
-             with the mutex object referenced by mutex in the locked state with the              calling thread as its owner.
+             with the mutex object referenced by mutex in the locked state with the
+             calling thread as its owner.
 
     Returns: OS_SUCCESS if success
              OS_SEM_FAILURE if the semaphore was not previously initialized or is
@@ -2142,6 +2527,10 @@ int32 OS_MutSemGive (uint32 sem_id)
 ---------------------------------------------------------------------------------------*/
 int32 OS_MutSemTake (uint32 sem_id)
 {
+   /*
+    * Note: This function accesses the OS_mut_sem_table_sem without locking that table's
+    * semaphore.
+    */
    /* Check Parameters */
    if(sem_id >= OS_MAX_MUTEXES || OS_mut_sem_table[sem_id].free == TRUE)
    {
@@ -2173,6 +2562,10 @@ int32 OS_MutSemTake (uint32 sem_id)
 
 int32 OS_MutSemGetIdByName (uint32 *sem_id, const char *sem_name)
 {
+    /*
+     * Note: This function accesses the OS_mut_sem_table_sem without locking that table's
+     * semaphore.
+     */
     uint32 i;
 
     if(sem_id == NULL || sem_name == NULL)
@@ -2217,6 +2610,10 @@ int32 OS_MutSemGetIdByName (uint32 *sem_id, const char *sem_name)
 
 int32 OS_MutSemGetInfo (uint32 sem_id, OS_mut_sem_prop_t *mut_prop)
 {
+    /*
+     * Note: This function performs some accesses to the OS_mut_sem_table without
+     * locking that table's semaphore, but locks the table while copying the data.
+     */
     /* Check to see that the id given is valid */
     if (sem_id >= OS_MAX_MUTEXES || OS_mut_sem_table[sem_id].free == TRUE)
     {
@@ -2229,11 +2626,17 @@ int32 OS_MutSemGetInfo (uint32 sem_id, OS_mut_sem_prop_t *mut_prop)
     }
 
     /* put the info into the stucture */
+    /*
+    ** Lock
+    */
     semTake(OS_mut_sem_table_sem,WAIT_FOREVER);
 
     mut_prop -> creator =   OS_mut_sem_table[sem_id].creator;
     strcpy(mut_prop-> name, OS_mut_sem_table[sem_id].name);
 
+    /*
+    ** Unlock
+    */
     semGive(OS_mut_sem_table_sem);
 
     return OS_SUCCESS;
@@ -2246,8 +2649,8 @@ int32 OS_MutSemGetInfo (uint32 sem_id, OS_mut_sem_prop_t *mut_prop)
 /*---------------------------------------------------------------------------------------
    Name: OS_Milli2Ticks
 
-   Purpose: This function accepts a time interval in milliseconds as input an
-            returns the tick equivalent is o.s. system clock ticks. The tick
+   Purpose: This function accepts a time interval in milliseconds as input and
+            returns the tick equivalent in o.s. system clock ticks. The tick
             value is rounded up. 
 ---------------------------------------------------------------------------------------*/
 
@@ -2520,11 +2923,23 @@ int32 OS_HeapGetInfo       (OS_heap_prop_t *heap_prop)
 ---------------------------------------------------------------------------------------*/
 int32 OS_GetErrorName(int32 error_num, os_err_name_t * err_name)
 {
+    /*
+     * Implementation note for developers:
+     *
+     * The size of the string literals below (including the terminating null)
+     * must fit into os_err_name_t.  Always check the string length when
+     * adding or modifying strings in this function.  If changing os_err_name_t
+     * then confirm these strings will fit.
+     */
     os_err_name_t local_name;
     uint32        return_code;
 
     return_code = OS_SUCCESS;
 
+    if (err_name == NULL)
+    {
+        return OS_INVALID_POINTER;
+    }
     switch (error_num)
     {
         case OS_SUCCESS:
@@ -2534,7 +2949,7 @@ int32 OS_GetErrorName(int32 error_num, os_err_name_t * err_name)
         case OS_INVALID_POINTER:
             strcpy(local_name,"OS_INVALID_POINTER"); break;
         case OS_ERROR_ADDRESS_MISALIGNED:
-            strcpy(local_name,"OS_ADDRESS_MISALIGNED"); break;
+            strcpy(local_name,"OS_ERROR_ADDRESS_MISALIGNED"); break;
         case OS_ERROR_TIMEOUT:
             strcpy(local_name,"OS_ERROR_TIMEOUT"); break;
         case OS_INVALID_INT_NUM:
@@ -2567,9 +2982,24 @@ int32 OS_GetErrorName(int32 error_num, os_err_name_t * err_name)
             strcpy(local_name,"OS_ERR_SEM_NOT_FULL"); break;
         case OS_ERR_INVALID_PRIORITY:
             strcpy(local_name,"OS_ERR_INVALID_PRIORITY"); break;
+        case OS_INVALID_SEM_VALUE:
+            strcpy(local_name,"OS_INVALID_SEM_VALUE"); break;
+        case OS_ERR_FILE:
+            strcpy(local_name,"OS_ERR_FILE"); break;
+        case OS_ERR_NOT_IMPLEMENTED:
+            strcpy(local_name,"OS_ERR_NOT_IMPLEMENTED"); break;
+        case OS_TIMER_ERR_INVALID_ARGS:
+            strcpy(local_name,"OS_TIMER_ERR_INVALID_ARGS"); break;
+        case OS_TIMER_ERR_TIMER_ID:
+            strcpy(local_name,"OS_TIMER_ERR_TIMER_ID"); break;
+        case OS_TIMER_ERR_UNAVAILABLE:
+            strcpy(local_name,"OS_TIMER_ERR_UNAVAILABLE"); break;
+        case OS_TIMER_ERR_INTERNAL:
+            strcpy(local_name,"OS_TIMER_ERR_INTERNAL"); break;
 
         default: strcpy(local_name,"ERROR_UNKNOWN");
                  return_code = OS_ERROR;
+                 break;
     }
 
     strcpy((char*) err_name, local_name);
@@ -2581,16 +3011,18 @@ int32 OS_GetErrorName(int32 error_num, os_err_name_t * err_name)
  *  This function will return the OSAL ID of the task that created the calling function;
  *  This is an internal call, not to be used by the user.
 ---------------------------------------------------------------------------------------*/
-uint32 OS_FindCreator()
+uint32 OS_FindCreator(void)
 {
     int VxWorks_Id;
-    int i;
+    uint32 i;
     VxWorks_Id = taskIdSelf();
 
     for (i = 0; i < OS_MAX_TASKS; i++)
     {
         if (VxWorks_Id == OS_task_table[i].id)
+        {
             break;
+        }
     }
 
     return i;
@@ -2704,11 +3136,14 @@ void UtilityTask()
 */
 int32 OS_FPUExcSetMask(uint32 mask)
 {
+    int32 Status = OS_SUCCESS;
 
 #if defined(_PPC_) && CPU != PPC440
     vxFpscrSet( mask);
+#else
+    Status = OS_ERR_NOT_IMPLEMENTED;
 #endif 
-    return(OS_SUCCESS);
+    return Status;
 }
 
 /*
@@ -2722,12 +3157,19 @@ int32 OS_FPUExcSetMask(uint32 mask)
 */
 int32 OS_FPUExcGetMask(uint32 *mask)
 {
+    int32 Status = OS_SUCCESS;
 
 #if defined(_PPC_) && CPU != PPC440
     uint32 tempMask;
 
+    if (mask == NULL)
+    {
+    	return (OS_INVALID_POINTER);
+    }
     tempMask = vxFpscrGet();
     *mask = tempMask;
+#else
+    Status = OS_ERR_NOT_IMPLEMENTED;
 #endif
-    return(OS_SUCCESS);
+    return Status;
 }

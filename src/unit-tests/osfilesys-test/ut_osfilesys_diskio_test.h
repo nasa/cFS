@@ -44,6 +44,7 @@ void UT_os_mount_test(void);
 void UT_os_unmount_test(void);
 
 void UT_os_getphysdrivename_test(void);
+void UT_os_getfsinfo_test(void);
 void UT_os_translatepath_test(void);
 
 void UT_os_checkfs_test(void);

@@ -26,8 +26,8 @@
 #ifdef _LINUX_OS_
 /*--------------------------------------------*/
 
-#define UT_OS_GET_HOME_ENV_FOR_NOMINAL_SHELLOUTPUTTOFILE_MACRO \
-    envName = getenv("HOME");
+#define UT_OS_OUTPUT_TO_FILE_SUCCESS_COND_MACRO \
+    strncmp(g_readBuff, "UT_os_outputtofile_test", 7) == 0
 
 /*--------------------------------------------------------------------------------*/
 
@@ -41,10 +41,28 @@ if ((OS_FDGetInfo(g_fDescs[0], &fdProps) != OS_FS_SUCCESS) ||       \
 /*--------------------------------------------*/
 
 /*--------------------------------------------*/
-#ifdef OSP_ARINC653
+#ifdef _VXWORKS_OS_
 /*--------------------------------------------*/
 
-#define UT_OS_GET_HOME_ENV_FOR_NOMINAL_SHELLOUTPUTTOFILE_MACRO
+#define UT_OS_OUTPUT_TO_FILE_SUCCESS_COND_MACRO \
+    strncmp(&g_readBuff[1], cmd, strlen(cmd)) == 0
+
+/*--------------------------------------------------------------------------------*/
+
+#define UT_OS_COMPARE_COND_FOR_NOMINAL_GETFDINFO_MACRO              \
+if ((OS_FDGetInfo(g_fDescs[0], &fdProps) != OS_FS_SUCCESS) ||       \
+    (fdProps.IsValid != TRUE) ||                                    \
+    (strncmp(fdProps.Path, g_fNames[0], strlen(g_fNames[0])) != 0))
+
+/*--------------------------------------------*/
+#endif  /* _VXWORKS_OS_ */
+/*--------------------------------------------*/
+
+/*--------------------------------------------*/
+#if defined(OSP_ARINC653) || defined(_RTEMS_OS_)
+/*--------------------------------------------*/
+
+#define UT_OS_OUTPUT_TO_FILE_SUCCESS_COND_MACRO  1
 
 /*--------------------------------------------------------------------------------*/
 

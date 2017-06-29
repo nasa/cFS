@@ -34,14 +34,6 @@ UT_OsReturnCode_t  g_moduleInfo = {0,0};
 UT_OsReturnCode_t  g_symbolTblLookup = {0,0};
 UT_OsReturnCode_t  g_symbolTblDump = {0,0};
 
-#ifdef OS_INCLUDE_MODULE_LOADER
-/* As defined in osloader.c */
-OS_module_record_t OS_module_table[OS_MAX_MODULES];
-
-#ifdef _LINUX_OS_
-pthread_mutex_t    OS_module_table_mut;
-#endif
-#endif  /* OS_INCLUDE_MODULE_LOADER */
 
 /*--------------------------------------------------------------------------------*
 ** Local function prototypes
@@ -72,7 +64,7 @@ int32 OS_ModuleUnload(uint32 module_id)
 
 /*--------------------------------------------------------------------------------*/
 
-int32 OS_ModuleInfo(uint32 module_id, OS_module_record_t* module_info)
+int32 OS_ModuleInfo(uint32 module_id, OS_module_prop_t* module_info)
 {
     return (g_moduleInfo.value);
 }

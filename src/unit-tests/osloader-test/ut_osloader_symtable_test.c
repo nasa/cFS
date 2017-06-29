@@ -9,6 +9,7 @@
 **--------------------------------------------------------------------------------*/
 
 #include "ut_osloader_symtable_test.h"
+#include "ut_osloader_test_platforms.h"
 
 /*--------------------------------------------------------------------------------*
 ** Macros
@@ -134,7 +135,7 @@ void UT_os_symbol_lookup_test()
     UT_OsApiInfo_t apiInfo;
     int32 res = 0, idx = 0;
     const char*    testDesc = NULL;
-    uint32         symbol_addr;
+    cpuaddr        symbol_addr;
     uint32         module_id = 0;
 
     UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
@@ -180,14 +181,14 @@ void UT_os_symbol_lookup_test()
     testDesc = "#4 Nominal";
 
     /* Setup */
-    res = OS_ModuleLoad(&module_id, "Mod0", "/cf/MODULE0.so");
+    res = OS_ModuleLoad(&module_id, "Mod1", UT_OS_GENERIC_MODULE_NAME2);
     if ( res != OS_SUCCESS )
     {
         UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, "#4 Nominal - Module Load failed", UT_OS_TSF)
     }
     else
     {
-        res = OS_SymbolLookup(&symbol_addr, "module0");
+        res = OS_SymbolLookup(&symbol_addr, "module1");
         if (res == OS_SUCCESS)
             UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
         else
@@ -216,14 +217,13 @@ void UT_os_symbol_table_dump_test()
     UT_OsApiInfo_t apiInfo;
     int32 res = 0, idx = 0;
     const char* testDesc = NULL;
-    uint32  size_limit;
 
     UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
 
     /*-----------------------------------------------------*/
     testDesc = "API Not implemented";
 
-    res = OS_SymbolTableDump("/cf/SymbolFile.dat", 32000);
+    res = OS_SymbolTableDump("/cf/apps/SymbolFile.dat", 32000);
     if (res == OS_ERR_NOT_IMPLEMENTED)
     {
         UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
@@ -257,7 +257,7 @@ void UT_os_symbol_table_dump_test()
     testDesc = "#4 Nominal";
 
     /* Setup */
-    res = OS_SymbolTableDump("/cf/SymbolFile.dat", 32000);
+    res = OS_SymbolTableDump("/cf/apps/SymbolFile.dat", 32000);
     if ( res == OS_SUCCESS )
         UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
     else

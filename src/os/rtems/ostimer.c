@@ -66,13 +66,13 @@ typedef struct
    OS_TimerCallback_t  callback_ptr;
    rtems_id            host_timerid;
 
-} OS_timer_record_t;
+} OS_timer_internal_record_t;
 
 /****************************************************************************************
                                    GLOBAL DATA
 ****************************************************************************************/
 
-OS_timer_record_t OS_timer_table[OS_MAX_TIMERS];
+OS_timer_internal_record_t OS_timer_table[OS_MAX_TIMERS];
 uint32            os_clock_accuracy;
 
 /*
@@ -524,3 +524,39 @@ int32 OS_TimerGetInfo (uint32 timer_id, OS_timer_prop_t *timer_prop)
     return OS_SUCCESS;
     
 } /* end OS_TimerGetInfo */
+
+/****************************************************************
+ * TIME BASE API
+ *
+ * This is not implemented by this OSAL, so return "OS_ERR_NOT_IMPLEMENTED"
+ * for all calls defined by this API.  This is necessary for forward
+ * compatibility (runtime code can check for this return code and use
+ * an alternative API where appropriate).
+ */
+
+int32 OS_TimeBaseCreate(uint32 *timer_id, const char *timebase_name, OS_TimerSync_t external_sync)
+{
+    return OS_ERR_NOT_IMPLEMENTED;
+}
+
+int32 OS_TimeBaseSet(uint32 timer_id, uint32 start_time, uint32 interval_time)
+{
+    return OS_ERR_NOT_IMPLEMENTED;
+}
+
+int32 OS_TimeBaseDelete(uint32 timer_id)
+{
+    return OS_ERR_NOT_IMPLEMENTED;
+}
+
+int32 OS_TimeBaseGetIdByName (uint32 *timer_id, const char *timebase_name)
+{
+    return OS_ERR_NOT_IMPLEMENTED;
+}
+
+int32 OS_TimerAdd(uint32 *timer_id, const char *timer_name, uint32 timebase_id, OS_ArgCallback_t  callback_ptr, void *callback_arg)
+{
+    return OS_ERR_NOT_IMPLEMENTED;
+}
+
+

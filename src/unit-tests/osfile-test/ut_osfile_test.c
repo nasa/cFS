@@ -60,7 +60,6 @@ void UT_os_init_file_misc(void);
 int32 UT_os_setup_fs()
 {
     int32 res=OS_FS_SUCCESS;
-    char text[UT_OS_LG_TEXT_LEN];
 
     res = OS_mkfs(g_fsAddrPtr, g_devName, " ", 512, 20);
     if (res != OS_FS_SUCCESS)
@@ -74,9 +73,7 @@ int32 UT_os_setup_fs()
     }
 
 UT_os_setup_fs_exit_tag:
-    memset(text, '\0', sizeof(text));
-    UT_os_sprintf(text, "\nUT_os_setup_fs() returns %d\n", (int)res);
-    UT_OS_LOG_MACRO(text);
+    UT_OS_LOG_MACRO("\nUT_os_setup_fs() returns %d\n", (int)res);
 
     return (res);
 }
@@ -111,11 +108,8 @@ void UT_os_init_file_misc()
 /*--------------------------------------------------------------------------------*
 ** Main
 **--------------------------------------------------------------------------------*/
-#ifdef _OSAL_UNIT_TEST_
-   void OS_Application_Startup(void)
-#else
-   int main(int argc, char* argv[])
-#endif
+
+void OS_Application_Startup(void)
 {
     UT_os_setup(UT_OS_LOG_FILENAME);
 
@@ -169,7 +163,7 @@ void UT_os_init_file_misc()
 
     UT_os_teardown("ut_osfile");
 
-    return (0);
+    OS_ApplicationExit(g_logInfo.nFailed > 0);
 }
 
 /*================================================================================*

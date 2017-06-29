@@ -88,6 +88,7 @@
 
 #include "dirent.h"
 #include "sys/stat.h"
+#include "signal.h"
 
 #include "common_types.h"
 #include "osapi.h"
@@ -1235,34 +1236,43 @@ int32  OS_rmdir (const char *path)
 int32 OS_check_name_length(const char *path)
 {
     char* name_ptr;
-    char* end_of_path;
-    int name_len;
-    
-    if (path == NULL)
-        return OS_FS_ERR_INVALID_POINTER;
 
-    
+    if (path == NULL)
+    {
+        return OS_FS_ERR_INVALID_POINTER;
+    }
+
     if (strlen(path) > OS_MAX_PATH_LEN)
+    {
         return OS_FS_ERROR;
-    /* checks to see if there is a '/' somewhere in the path */
+    }
+
+    /*
+     * All names passed into this function are REQUIRED to contain at
+     * least one directory separator. Find the last one.
+     */
     name_ptr = strrchr(path, '/');
     if (name_ptr == NULL)
+    {
         return OS_FS_ERROR;
-    
-    /* strrchr returns a pointer to the last '/' char, so we advance one char */
-    name_ptr = name_ptr + sizeof(char);
-    
-    /* end_of_path points to the null terminator at the end of the path */
-    end_of_path = strrchr(path,'\0');
+    }
 
-    /* pointer subraction to see how many characters there are in the name */
-    name_len = ((int) end_of_path - (int)name_ptr) / sizeof(char);
-    
-    if( name_len > OS_MAX_FILE_NAME)
+    /*
+     * Advance the pointer past the directory separator so that it
+     * indicates the final component of the path.
+     */
+    name_ptr ++;
+
+    /*
+     * Reject paths whose final component is too long.
+     */
+    if( strlen(name_ptr) > OS_MAX_FILE_NAME)
+    {
         return OS_FS_ERROR;
-    
+    }
+
     return OS_FS_SUCCESS;
-    
+
 }/* end OS_check_name_length */
 /* --------------------------------------------------------------------------------------
     Name: OS_ShellOutputToFile
@@ -1282,7 +1292,6 @@ int32 OS_ShellOutputToFile(char* Cmd, int32 OS_fd)
     ** to the command 
     */
     char  LocalCmd [OS_MAX_CMD_LEN + OS_REDIRECTSTRSIZE]; 
-    char  String [OS_REDIRECTSTRSIZE];
     int32 ReturnCode;
     int32 Result;
 
@@ -1303,7 +1312,6 @@ int32 OS_ShellOutputToFile(char* Cmd, int32 OS_fd)
     }
     else
     {
-        strncpy(LocalCmd,Cmd,OS_MAX_CMD_LEN +OS_REDIRECTSTRSIZE);
     
         /* Make sure that we are able to access this file */
         fchmod(OS_FDTable[OS_fd].OSfd,0777);
@@ -1311,10 +1319,14 @@ int32 OS_ShellOutputToFile(char* Cmd, int32 OS_fd)
         /* 
         ** add in the extra chars necessary to perform the redirection
         ** 1 for stdout and 2 for stderr. they are redirected to the 
-        ** file descriptor passed in
+        ** file descriptor passed in.
+        **
+        ** LocalCmd is defined above to be big enough to handle the largest
+        ** allowed Cmd (OS_MAX_CMD_LEN characters) plus the longest possible
+        ** redirect string size (OS_REDIRECTSTRSIZE). If those constants are
         */
-        sprintf(String, " 1>&%d 2>&%d",(int)OS_FDTable[OS_fd].OSfd, (int)OS_FDTable[OS_fd].OSfd);
-        strcat(LocalCmd, String);
+        snprintf(LocalCmd, sizeof LocalCmd,
+                 "%s 1>&%d 2>&%d", Cmd, (int)OS_FDTable[OS_fd].OSfd, (int)OS_FDTable[OS_fd].OSfd);
     
         Result = system(LocalCmd);
         if (Result == 0)

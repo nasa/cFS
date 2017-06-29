@@ -108,15 +108,41 @@ typedef struct
 
 
 /* This typedef is for the OS_GetErrorName function, to ensure
- * everyone is making an array of the same length */
+ * everyone is making an array of the same length.
+ *
+ * Implementation note for developers:
+ *
+ * The sizes of strings in OSAL functions are built with this
+ * OS_ERROR_NAME_LENGTH limit in mind.  Always check the uses of os_err_name_t
+ * when changing this value.
+ */
 
-typedef char os_err_name_t[35];
+#define OS_ERROR_NAME_LENGTH     35
+typedef char os_err_name_t[OS_ERROR_NAME_LENGTH];
 
 /*
 ** These typedefs are for the task entry point
 */
 typedef void osal_task;
 typedef osal_task ((*osal_task_entry)(void));
+
+/*
+** Typedef for general purpose OSAL callback functions
+** This may be used by multiple APIS
+*/
+typedef void (*OS_ArgCallback_t)(uint32 object_id, void *arg);
+
+
+/*
+**  External Declarations
+*/
+
+/*
+** Prototype for application startup function.
+** This is implemented by the user application
+*/
+void OS_Application_Startup(void);
+
 
 /*
 ** Exported Functions
@@ -127,6 +153,29 @@ typedef osal_task ((*osal_task_entry)(void));
 */
 int32 OS_API_Init (void);
 
+/*
+** OS-specific background thread implementation - waits forever for events to occur.
+**
+** This should be called from the BSP main routine / initial thread after all other 
+** board / application initialization has taken place and all other tasks are running.
+*/
+void OS_IdleLoop (void);
+
+/*
+** OS_DeleteAllObjects() provides a means to clean up all resources allocated by this 
+** instance of OSAL.  It would typically be used during an orderly shutdown but may also
+** be helpful for testing purposes.
+*/
+void OS_DeleteAllObjects       (void);
+
+/*
+** OS_ApplicationShutdown() provides a means for a user-created thread to request the orderly
+** shutdown of the whole system, such as part of a user-commanded reset command.
+** This is preferred over e.g. ApplicationExit() which exits immediately and does not
+** provide for any means to clean up first.
+*/
+void OS_ApplicationShutdown         (uint8 flag);
+
 
 /*
 ** Task API
@@ -134,13 +183,13 @@ int32 OS_API_Init (void);
 
 int32 OS_TaskCreate            (uint32 *task_id, const char *task_name, 
                                 osal_task_entry function_pointer,
-                                const uint32 *stack_pointer, 
+                                uint32 *stack_pointer,
                                 uint32 stack_size,
                                 uint32 priority, uint32 flags);
 
 int32 OS_TaskDelete            (uint32 task_id); 
 void OS_TaskExit               (void);
-int32 OS_TaskInstallDeleteHandler(void *function_pointer);
+int32 OS_TaskInstallDeleteHandler(osal_task_entry function_pointer);
 int32 OS_TaskDelay             (uint32 millisecond);
 int32 OS_TaskSetPriority       (uint32 task_id, uint32 new_priority);
 int32 OS_TaskRegister          (void);
@@ -160,7 +209,7 @@ int32 OS_QueueCreate           (uint32 *queue_id, const char *queue_name,
 int32 OS_QueueDelete           (uint32 queue_id);
 int32 OS_QueueGet              (uint32 queue_id, void *data, uint32 size, 
                                 uint32 *size_copied, int32 timeout);
-int32 OS_QueuePut              (uint32 queue_id, void *data, uint32 size, 
+int32 OS_QueuePut              (uint32 queue_id, const void *data, uint32 size,
                                 uint32 flags);
 int32 OS_QueueGetIdByName      (uint32 *queue_id, const char *queue_name);
 int32 OS_QueueGetInfo          (uint32 queue_id, OS_queue_prop_t *queue_prop);
@@ -213,7 +262,7 @@ int32  OS_SetLocalTime         (OS_time_t *time_struct);
 */
 
 int32 OS_ExcAttachHandler      (uint32 ExceptionNumber, 
-                                void (*ExceptionHandler)(uint32, uint32 *,uint32), 
+                                void (*ExceptionHandler)(uint32, const void *,uint32),
                                 int32 parameter);
 int32 OS_ExcEnable             (int32 ExceptionNumber);
 int32 OS_ExcDisable            (int32 ExceptionNumber);
@@ -247,10 +296,10 @@ int32 OS_IntAck             (int32 InterruptNumber);
 ** Shared memory API 
 */
 int32 OS_ShMemInit          (void);
-int32 OS_ShMemCreate        (uint32 *Id, uint32 NBytes, char* SegName);
+int32 OS_ShMemCreate        (uint32 *Id, uint32 NBytes, const char* SegName);
 int32 OS_ShMemSemTake       (uint32 Id);
 int32 OS_ShMemSemGive       (uint32 Id);
-int32 OS_ShMemAttach        (uint32 * Address, uint32 Id);
+int32 OS_ShMemAttach        (cpuaddr * Address, uint32 Id);
 int32 OS_ShMemGetIdByName   (uint32 *ShMemId, const char *SegName );
 
 /*
@@ -267,8 +316,15 @@ int32 OS_GetErrorName      (int32 error_num, os_err_name_t* err_name);
 /* 
 ** Abstraction for printf statements 
 */
-void OS_printf( const char *string, ...);
+void OS_printf( const char *string, ...) OS_PRINTF(1,2);
 void OS_printf_disable(void);
 void OS_printf_enable(void);
+
+/*
+** Call to exit the running application
+** Normally embedded applications run forever, but for debugging purposes
+** (unit testing for example) this is needed in order to end the test
+*/
+void OS_ApplicationExit(int32 Status);
 
 #endif

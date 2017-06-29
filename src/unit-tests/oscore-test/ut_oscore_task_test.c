@@ -145,18 +145,15 @@ UT_os_sample_test_exit_tag:
 
 void generic_test_task(void)
 {
-    int32 res=0, task_id=0;
+    int32 task_id=0;
     OS_task_prop_t task_prop;
-    char text[UT_OS_MD_TEXT_LEN];
 
     OS_TaskRegister();
 
     task_id = OS_TaskGetId();
-    res = OS_TaskGetInfo(task_id, &task_prop);
+    OS_TaskGetInfo(task_id, &task_prop);
    
-    memset(text, '\0', sizeof(text));
-    UT_os_sprintf(text, "Starting GenericTask: %s, id: %d\n", task_prop.name, task_id);
-    UT_OS_LOG_MACRO(text)
+    UT_OS_LOG_MACRO("Starting GenericTask: %s, id: %d\n", task_prop.name, (int)task_id);
 
     while (1)
     {
@@ -427,26 +424,25 @@ void delete_handler_callback(void)
 
 void delete_handler_test_task(void)
 {
-    int32 res=0, task_id=0;
+    int32 task_id=0;
     OS_task_prop_t task_prop;
     char text[UT_OS_MD_TEXT_LEN];
 
     OS_TaskRegister();
 
     task_id = OS_TaskGetId();
-    res = OS_TaskGetInfo(task_id, &task_prop);
+    OS_TaskGetInfo(task_id, &task_prop);
 
     memset(text, '\0', sizeof(text));
-    UT_os_sprintf(text, "Starting DeleteTest Task: %s, id: %d\n", task_prop.name, task_id);
-    UT_OS_LOG_MACRO(text)
+    UT_OS_LOG_MACRO("Starting DeleteTest Task: %s, id: %d\n", task_prop.name, (int)task_id);
 
-    g_task_result = OS_TaskInstallDeleteHandler((void *)&delete_handler_callback);
+    g_task_result = OS_TaskInstallDeleteHandler(&delete_handler_callback);
 
     /* 
     ** Release the semaphore so the main function can record the results of the test
     ** and clean up
     */
-    res = OS_BinSemGive(g_task_sync_sem);
+    OS_BinSemGive(g_task_sync_sem);
 
     for (;;)
     {
@@ -467,7 +463,7 @@ void UT_os_task_install_delete_handler_test(void)
     /*-----------------------------------------------------*/
     testDesc = "API not implemented";
 
-    res = OS_TaskInstallDeleteHandler((void *)&delete_handler_callback);
+    res = OS_TaskInstallDeleteHandler(&delete_handler_callback);
     if (res == OS_ERR_NOT_IMPLEMENTED)
     {
         UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
@@ -488,7 +484,7 @@ void UT_os_task_install_delete_handler_test(void)
         ** This test works because it is being called from the main task
         **  which should not be an official OSAL task
         */
-        res = OS_TaskInstallDeleteHandler((void *)&delete_handler_callback);
+        res = OS_TaskInstallDeleteHandler(&delete_handler_callback);
         if ( res == OS_ERR_INVALID_ID )
            UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
         else
@@ -547,18 +543,15 @@ UT_os_task_install_delete_handler_test_exit_tag:
 **--------------------------------------------------------------------------------*/
 void exit_test_task(void)
 {
-    int32 res=0, task_id=0;
+    int32 task_id=0;
     OS_task_prop_t task_prop;
-    char text[UT_OS_MD_TEXT_LEN];
 
     OS_TaskRegister();
 
     task_id = OS_TaskGetId();
-    res = OS_TaskGetInfo(task_id, &task_prop);
+    OS_TaskGetInfo(task_id, &task_prop);
 
-    memset(text, '\0', sizeof(text));
-    UT_os_sprintf(text, "Starting ExitTest Task: %s, id: %d\n", task_prop.name, task_id);
-    UT_OS_LOG_MACRO(text)
+    UT_OS_LOG_MACRO("Starting ExitTest Task: %s, id: %d\n", task_prop.name, (int)task_id);
 
     /*
     ** The parent task will check to see if this task is valid.
@@ -567,7 +560,7 @@ void exit_test_task(void)
     */
     while (1)
     {
-        res = OS_BinSemGive(g_task_sync_sem);
+        OS_BinSemGive(g_task_sync_sem);
 
         OS_TaskExit();
     }
@@ -800,24 +793,23 @@ UT_os_task_set_priority_test_exit_tag:
 **--------------------------------------------------------------------------------*/
 void register_test_task(void)
 {
-    int32 res=0, task_id=0;
+    int32 task_id=0;
     OS_task_prop_t task_prop;
     char text[UT_OS_MD_TEXT_LEN];
 
     g_task_result = OS_TaskRegister();
 
     task_id = OS_TaskGetId();
-    res = OS_TaskGetInfo(task_id, &task_prop);
+    OS_TaskGetInfo(task_id, &task_prop);
 
     memset(text, '\0', sizeof(text));
-    UT_os_sprintf(text, "Starting RegisterTest Task: %s\n", task_prop.name);
-    UT_OS_LOG_MACRO(text)
+    UT_OS_LOG_MACRO("Starting RegisterTest Task: %s\n", task_prop.name);
 
     /* 
     ** Release the semaphore so the main function can record the results of the test
     ** and clean up
     */
-    res = OS_BinSemGive(g_task_sync_sem);
+    OS_BinSemGive(g_task_sync_sem);
 
     for (;;)
     {
@@ -914,19 +906,18 @@ UT_os_task_register_test_exit_tag:
 
 void getid_test_task(void)
 {
-    int32 res=0, task_id=0;
+    int32 task_id=0;
     OS_task_prop_t task_prop;
     char text[UT_OS_LG_TEXT_LEN];
 
     OS_TaskRegister();
 
     task_id = OS_TaskGetId();
-    res = OS_TaskGetInfo(task_id, &task_prop);
+    OS_TaskGetInfo(task_id, &task_prop);
 
     memset(text, '\0', sizeof(text));
-    UT_os_sprintf(text, "OS_TaskGetId() - #1 Nominal [This is the returned task Id=%d]\n",
-    		            task_id);
-    UT_OS_LOG_MACRO(text)
+    UT_OS_LOG_MACRO("OS_TaskGetId() - #1 Nominal [This is the returned task Id=%d]\n",
+    		            (int)task_id);
 
     while (1)
     {
@@ -945,7 +936,6 @@ void UT_os_task_get_id_test()
     int32 res=0, idx=0;
     UT_OsApiInfo_t apiInfo;
     const char* testDesc=NULL;
-    char text[UT_OS_MD_TEXT_LEN];
 
     UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
 
@@ -974,10 +964,8 @@ void UT_os_task_get_id_test()
     {
     	OS_TaskDelay(500);
 
-    	memset(text, '\0', sizeof(text));
-    	UT_os_sprintf(text, "OS_TaskGetId() - #1 Nominal [This is the expected task Id=%d]\n",
-    			            g_task_ids[1]);
-    	UT_OS_LOG_MACRO(text)
+    	UT_OS_LOG_MACRO("OS_TaskGetId() - #1 Nominal [This is the expected task Id=%d]\n",
+    			            (int)g_task_ids[1]);
 
     	res = OS_TaskDelete(g_task_ids[1]);  /* Won't hurt if its already deleted */
 

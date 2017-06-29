@@ -59,8 +59,7 @@ void UT_os_timercallback(uint32 timerId)
 {
     int deltaTime = 0;
     char text[UT_OS_LG_TEXT_LEN];
-    RETURN_CODE_TYPE arincRes = 0;
-    static int32 loopCnt = 0, res = 0;
+    static int32 loopCnt = 0;
     static uint32 prevIntervalTime = 0;
     static uint32 currIntervalTime = 0;
     static OS_time_t beginTime = {0,0}, currTime = {0,0};
@@ -194,8 +193,7 @@ void UT_os_timer_tests()
 
 void UT_main()
 {
-    int32 osalRet=0;
-    uint32 tId1=0, tId2=0, stackPtr=0;
+    uint32 tId1=0, stackPtr=0;
     RETURN_CODE_TYPE arincRet=NO_ERROR;
 
     UT_os_setup(UT_OS_LOG_FILENAME);
@@ -207,7 +205,7 @@ void UT_main()
 
     UT_os_timerinit_test();
 
-    osalRet = OS_TaskCreate(&tId1, "ut_ostimer",
+    OS_TaskCreate(&tId1, "ut_ostimer",
                             (osal_task_entry)&UT_os_timer_tests,
                             &stackPtr, 0x2000, 110, 0);
 

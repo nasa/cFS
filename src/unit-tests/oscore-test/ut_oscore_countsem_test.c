@@ -190,11 +190,20 @@ void UT_os_count_sem_create_test()
     /*-----------------------------------------------------*/
     testDesc = "#4 Initial-count-too-high";
 
-    res = OS_CountSemCreate(&count_sem_ids[0], "CountSem1", SEM_VALUE_MAX + 1, 0);
+    /*
+     * FIXME: This test can only be done if the OS defines a specific "SEM_VALUE_MAX"
+     * The OSAL should define this for itself, but it currently does not.
+     *  (This macro is not currently defined in RTEMS)
+     */
+#ifdef SEM_VALUE_MAX
+    res = OS_CountSemCreate(&count_sem_ids[0], "CountSem1", ((uint32)SEM_VALUE_MAX) + 1, 0);
     if (res == OS_INVALID_SEM_VALUE)
         UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
     else
         UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+#else
+    UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
+#endif
 
     /*-----------------------------------------------------*/
     testDesc = "#5 No-free-IDs";
@@ -224,10 +233,7 @@ void UT_os_count_sem_create_test()
     }
 
     /* Reset test environment */
-    for ( i = 0; i< OS_MAX_COUNT_SEMAPHORES; i++ )
-    {
-        res = OS_CountSemDelete(count_sem_ids[i]); /* Ignore errors, does not matter here */
-    }
+    OS_DeleteAllObjects();
 
     /*-----------------------------------------------------*/
     testDesc = "#6 Duplicate-name";

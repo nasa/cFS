@@ -1,0 +1,9 @@
+
+ld < osfileapi-cov_UT.o
+
+main()
+
+sleep(5)
+
+unld "osfileapi-cov_UT.o"
+

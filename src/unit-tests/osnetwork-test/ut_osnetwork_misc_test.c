@@ -155,7 +155,11 @@ void UT_os_networkgetid_test()
     /*-----------------------------------------------------*/
     testDesc = "API Not implemented";
 
+#ifdef OS_INCLUDE_NETWORK
     res = OS_NetworkGetID();
+#else
+    res = OS_ERR_NOT_IMPLEMENTED;
+#endif
     if (res == OS_ERR_NOT_IMPLEMENTED)
     {
         UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
@@ -170,8 +174,10 @@ void UT_os_networkgetid_test()
     /*-----------------------------------------------------*/
     testDesc = "#2 Nominal";
 
+#ifdef OS_INCLUDE_NETWORK
     res = OS_NetworkGetID();
-    if (res > 0)
+#endif
+    if (res != OS_ERROR)
         UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
     else
         UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
@@ -222,23 +228,31 @@ void UT_os_networkgethostname_test()
     UT_OsApiInfo_t apiInfo;
     int32 res = 0, idx = 0;
     const char* testDesc = NULL;
-    char buffer[UT_OS_XS_TEXT_LEN];
+#ifdef OS_INCLUDE_NETWORK
+    char buffer[UT_OS_MD_TEXT_LEN];
+#endif
 
     UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
 
     /*-----------------------------------------------------*/
     testDesc = "API Not implemented";
 
+#ifdef OS_INCLUDE_NETWORK
     res = OS_NetworkGetHostName(buffer, sizeof(buffer));
+#else
+    res = OS_ERR_NOT_IMPLEMENTED;
+#endif
     if (res == OS_ERR_NOT_IMPLEMENTED)
     {
         UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
         goto UT_os_networkgethostname_test_exit_tag;
     }
 
+
     /*-----------------------------------------------------*/
     testDesc = "#1 Null-pointer-arg";
 
+#ifdef OS_INCLUDE_NETWORK
     res = OS_NetworkGetHostName(NULL, 0);
     if (res == OS_INVALID_POINTER)
         UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
@@ -267,6 +281,7 @@ void UT_os_networkgethostname_test()
         UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
     else
         UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+#endif
 
 UT_os_networkgethostname_test_exit_tag:
     UT_OS_SET_API_NAME_AND_TEST_COUNT_MACRO(apiInfo, "OS_NetworkGetHostName", idx)

@@ -216,10 +216,7 @@ void UT_os_bin_sem_create_test()
     }
 
     /* Reset test environment */
-    for ( i = 0; i< OS_MAX_BIN_SEMAPHORES; i++ )
-    {
-       res = OS_BinSemDelete(sem_ids[i]); /* Ignore errors, does not matter here */
-    }
+    OS_DeleteAllObjects();
 
     /*-----------------------------------------------------*/
     testDesc = "#5 Duplicate-name";

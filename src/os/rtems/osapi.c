@@ -94,6 +94,7 @@ uint32  OS_FindCreator(void);
 #define MAX_SEM_VALUE               0x7FFFFFFF
 #define UNINITIALIZED               0 
 
+#define OS_SHUTDOWN_MAGIC_NUMBER    0xABADC0DE
 
 /*
 ** Define all of the RTEMS semaphore attributes
@@ -134,9 +135,9 @@ typedef struct
     int      creator;
     uint32   stack_size;
     uint32   priority;
-    void    *delete_hook_pointer;
+    osal_task_entry  delete_hook_pointer;
     
-}OS_task_record_t;
+}OS_task_internal_record_t;
     
 /* queues */
 typedef struct
@@ -146,7 +147,7 @@ typedef struct
     uint32   max_size;
     char     name [OS_MAX_API_NAME];
     int      creator;
-}OS_queue_record_t;
+}OS_queue_internal_record_t;
 
 /* Binary Semaphores */
 typedef struct
@@ -155,7 +156,7 @@ typedef struct
     rtems_id id;
     char     name [OS_MAX_API_NAME];
     int      creator;    
-}OS_bin_sem_record_t;
+}OS_bin_sem_internal_record_t;
 
 /* Counting Semaphores */
 typedef struct
@@ -164,7 +165,7 @@ typedef struct
     rtems_id id;
     char     name [OS_MAX_API_NAME];
     int      creator;
-}OS_count_sem_record_t;
+}OS_count_sem_internal_record_t;
 
 /* Mutexes */
 typedef struct
@@ -173,7 +174,7 @@ typedef struct
     rtems_id        id;
     char            name [OS_MAX_API_NAME];
     int             creator;
-}OS_mut_sem_record_t;
+}OS_mut_sem_internal_record_t;
 
 /* function pointer type */
 typedef void (*FuncPtr_t)(void);
@@ -181,11 +182,11 @@ typedef void (*FuncPtr_t)(void);
 void    *OS_task_key = 0;         /* this is what rtems wants! */
 
 /* Tables where the OS object information is stored */
-OS_task_record_t    OS_task_table          [OS_MAX_TASKS];
-OS_queue_record_t   OS_queue_table         [OS_MAX_QUEUES];
-OS_bin_sem_record_t OS_bin_sem_table       [OS_MAX_BIN_SEMAPHORES];
-OS_count_sem_record_t OS_count_sem_table   [OS_MAX_COUNT_SEMAPHORES];
-OS_mut_sem_record_t OS_mut_sem_table       [OS_MAX_MUTEXES];
+OS_task_internal_record_t    OS_task_table          [OS_MAX_TASKS];
+OS_queue_internal_record_t   OS_queue_table         [OS_MAX_QUEUES];
+OS_bin_sem_internal_record_t OS_bin_sem_table       [OS_MAX_BIN_SEMAPHORES];
+OS_count_sem_internal_record_t OS_count_sem_table   [OS_MAX_COUNT_SEMAPHORES];
+OS_mut_sem_internal_record_t OS_mut_sem_table       [OS_MAX_MUTEXES];
 
 rtems_id            OS_task_table_sem;
 rtems_id            OS_queue_table_sem;
@@ -194,6 +195,8 @@ rtems_id            OS_mut_sem_table_sem;
 rtems_id            OS_count_sem_table_sem;
 
 uint32              OS_printf_enabled = TRUE;
+volatile uint32     OS_shutdown = FALSE;
+
 
 /****************************************************************************************
                                 INITIALIZATION FUNCTION
@@ -337,6 +340,124 @@ int32 OS_API_Init(void)
    
 } /* end OS_API_Init */
 
+/*---------------------------------------------------------------------------------------
+   Name: OS_ApplicationExit
+
+   Purpose: Indicates that the OSAL application should exit and return control to the OS
+         This is intended for e.g. scripted unit testing where the test needs to end
+         without user intervention.  This function does not return.
+
+    NOTES: This exits the entire process including tasks that have been created.
+       It does not return.  Production embedded code typically would not ever call this.
+
+---------------------------------------------------------------------------------------*/
+void OS_ApplicationExit(int32 Status)
+{
+   if (Status == OS_SUCCESS)
+   {
+      exit(EXIT_SUCCESS);
+   }
+   else
+   {
+      exit(EXIT_FAILURE);
+   }
+}
+
+/*---------------------------------------------------------------------------------------
+   Name: OS_DeleteAllObjects
+
+   Purpose: This task will delete all objects allocated by this instance of OSAL
+            May be used during shutdown or by the unit tests to purge all state
+
+   returns: no value
+---------------------------------------------------------------------------------------*/
+void OS_DeleteAllObjects       (void)
+{
+    uint32 i;
+
+    for (i = 0; i < OS_MAX_TASKS; ++i)
+    {
+        OS_TaskDelete(i);
+    }
+    for (i = 0; i < OS_MAX_QUEUES; ++i)
+    {
+        OS_QueueDelete(i);
+    }
+    for (i = 0; i < OS_MAX_MUTEXES; ++i)
+    {
+        OS_MutSemDelete(i);
+    }
+    for (i = 0; i < OS_MAX_COUNT_SEMAPHORES; ++i)
+    {
+        OS_CountSemDelete(i);
+    }
+    for (i = 0; i < OS_MAX_BIN_SEMAPHORES; ++i)
+    {
+        OS_BinSemDelete(i);
+    }
+    for (i = 0; i < OS_MAX_TIMERS; ++i)
+    {
+        OS_TimerDelete(i);
+    }
+    for (i = 0; i < OS_MAX_MODULES; ++i)
+    {
+        OS_ModuleUnload(i);
+    }
+    for (i = 0; i < OS_MAX_NUM_OPEN_FILES; ++i)
+    {
+        OS_close(i);
+    }
+}
+
+/*---------------------------------------------------------------------------------------
+   Name: OS_IdleLoop
+
+   Purpose: Should be called after all initialization is done
+            This thread may be used to wait for and handle external events
+            Typically just waits forever until "OS_shutdown" flag becomes true.
+
+   returns: no value
+---------------------------------------------------------------------------------------*/
+void OS_IdleLoop()
+{
+   sigset_t mask;
+
+   /* All signals should be unblocked in this thread while suspended */
+   sigemptyset(&mask);
+
+   while (OS_shutdown != OS_SHUTDOWN_MAGIC_NUMBER)
+   {
+      /* Unblock signals and wait for something to occur */
+      sigsuspend(&mask);
+   }
+}
+
+
+/*---------------------------------------------------------------------------------------
+   Name: OS_ApplicationShutdown
+
+   Purpose: Indicates that the OSAL application should perform an orderly shutdown
+       of ALL tasks, clean up all resources, and exit the application.
+
+   returns: none
+
+---------------------------------------------------------------------------------------*/
+void OS_ApplicationShutdown(uint8 flag)
+{
+   if (flag == TRUE)
+   {
+      OS_shutdown = OS_SHUTDOWN_MAGIC_NUMBER;
+   }
+
+   /*
+    * Raise a signal that is unblocked in OS_IdleLoop(),
+    * which should break it out of the sigsuspend() call.
+    */
+   kill(getpid(), SIGHUP);
+}
+
+
+
 /****************************************************************************************
                                     TASK API
 ****************************************************************************************/
@@ -360,7 +481,7 @@ int32 OS_API_Init(void)
 ---------------------------------------------------------------------------------------*/
 
 int32 OS_TaskCreate (uint32 *task_id, const char *task_name, osal_task_entry function_pointer,
-                      const uint32 *stack_pointer, uint32 stack_size, uint32 priority, 
+                      uint32 *stack_pointer, uint32 stack_size, uint32 priority,
                       uint32 flags)
 {
     uint32             possible_taskid;
@@ -795,7 +916,7 @@ int32 OS_TaskGetInfo (uint32 task_id, OS_task_prop_t *task_prop)
 
     returns: status
 ---------------------------------------------------------------------------------------*/
-int32 OS_TaskInstallDeleteHandler(void *function_pointer)
+int32 OS_TaskInstallDeleteHandler(osal_task_entry function_pointer)
 {
     uint32            task_id;
     rtems_status_code status;
@@ -1117,7 +1238,7 @@ int32 OS_QueueGet (uint32 queue_id, void *data, uint32 size, uint32 *size_copied
             immediately return an error if the receiving message queue is full.
 ---------------------------------------------------------------------------------------*/
 
-int32 OS_QueuePut (uint32 queue_id, void *data, uint32 size, uint32 flags)
+int32 OS_QueuePut (uint32 queue_id, const void *data, uint32 size, uint32 flags)
 {
     rtems_status_code  status;
     rtems_id           rtems_queue_id;
@@ -2438,15 +2559,20 @@ int32 OS_SetLocalTime(OS_time_t *time_struct)
 ---------------------------------------------------------------------------------------*/
 int32 OS_IntAttachHandler  (uint32 InterruptNumber, osal_task_entry InterruptHandler, int32 parameter)
 {
+   int32 status;
+
+#if defined(CPU_SIMPLE_VECTORED_INTERRUPTS) && (CPU_SIMPLE_VECTORED_INTERRUPTS == FALSE)
+
+   status = OS_ERR_NOT_IMPLEMENTED;
+
+#else
+
    rtems_status_code ret_status;
-   uint32 status ;
    rtems_isr_entry old_handler;
-	
    ret_status = rtems_interrupt_catch( 
 		(rtems_isr_entry)InterruptHandler,
 		(rtems_vector_number)InterruptNumber,
 		&old_handler);
-
    switch (ret_status) 
    {
        case RTEMS_SUCCESSFUL :
@@ -2465,6 +2591,7 @@ int32 OS_IntAttachHandler  (uint32 InterruptNumber, osal_task_entry InterruptHan
           status = OS_ERROR;
           break ;
     }
+#endif
     return(status) ;
 
 }/* end OS_IntAttachHandler */
@@ -2575,6 +2702,15 @@ int32 OS_HeapGetInfo       (OS_heap_prop_t *heap_prop)
 ---------------------------------------------------------------------------------------*/
 int32 OS_GetErrorName(int32 error_num, os_err_name_t * err_name)
 {
+    /*
+     * Implementation note for developers:
+     *
+     * The size of the string literals below (including the terminating null)
+     * must fit into os_err_name_t.  Always check the string length when
+     * adding or modifying strings in this function.  If changing os_err_name_t
+     * then confirm these strings will fit.
+     */
+
     os_err_name_t local_name;
     uint32 return_code;
 

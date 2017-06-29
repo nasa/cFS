@@ -115,8 +115,8 @@
 /*
 ** Defines for Queue Timeout parameters
 */
-#define OS_PEND   (0)
-#define OS_CHECK (-1)
+#define OS_PEND   (-1)
+#define OS_CHECK  (0)
 
 #include "osapi-version.h"
 
@@ -133,6 +133,13 @@
 #include "osapi-os-net.h"
 #include "osapi-os-loader.h"
 #include "osapi-os-timer.h"
+
+/*
+ ******************************************************************************
+ * Items below here are internal OSAL-use definitions and are not part of the
+ * OSAL API
+ *****************************************************************************
+ */
 
 #ifdef __cplusplus
    }

@@ -52,40 +52,53 @@
 typedef struct
 {
    uint32 valid;
-   uint32 code_address;
-   uint32 code_size;
-   uint32 data_address;
-   uint32 data_size;
-   uint32 bss_address;
-   uint32 bss_size;
    uint32 flags;  
+   cpuaddr code_address;
+   cpuaddr code_size;
+   cpuaddr data_address;
+   cpuaddr data_size;
+   cpuaddr bss_address;
+   cpuaddr bss_size;
 } OS_module_address_t;
 
-typedef struct 
+typedef struct
 {
-   int                 free;
-   uint32              entry_point; 
+   cpuaddr             entry_point;
    uint32              host_module_id;
    char                filename[OS_MAX_PATH_LEN];
    char                name[OS_MAX_API_NAME];
    OS_module_address_t addr;
+} OS_module_prop_t;
 
-} OS_module_record_t;
+/*
+ * Define the former "OS_module_record_t" type as equivalent
+ * to the OS_module_prop_t.  This is what the OS_ModuleInfo()
+ * will output.  It used to be the same as the internal record
+ * just without all the fields filled in.  This has been changed
+ * to make it a separate structure, which will allow the internal
+ * implementation to change without further changing the API.
+ *
+ * Ideally OS_module_record_t type should be removed to avoid confusion,
+ * but this would break existing code that calls OS_ModuleInfo().
+ */
+#ifndef OSAL_OMIT_DEPRECATED
+typedef OS_module_prop_t OS_module_record_t;
+#endif
 
 /*
 ** Loader API
 */
 int32 OS_ModuleTableInit ( void );
 
-int32 OS_SymbolLookup (uint32 *symbol_address, char *symbol_name );
+int32 OS_SymbolLookup (cpuaddr *symbol_address, const char *symbol_name );
 
-int32 OS_SymbolTableDump ( char *filename, uint32 size_limit );
+int32 OS_SymbolTableDump ( const char *filename, uint32 size_limit );
 
-int32 OS_ModuleLoad ( uint32 *module_id, char *module_name, char *filename );
+int32 OS_ModuleLoad ( uint32 *module_id, const char *module_name, const char *filename );
 
 int32 OS_ModuleUnload ( uint32 module_id );
 
-int32 OS_ModuleInfo ( uint32 module_id, OS_module_record_t *module_info );
+int32 OS_ModuleInfo ( uint32 module_id, OS_module_prop_t *module_info );
 
 
 #endif

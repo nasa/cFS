@@ -23,7 +23,12 @@ OBJS += osapi.o osfileapi.o osfilesys.o osloader.o osnetwork.o ostimer.o
 #
 # BSP Object files
 #
-OBJS += bsp_start.o bsp_voltab.o
+OBJS += bsp_ut_voltab.o bsp_ut.o
+
+#
+# UT Assert files
+#
+OBJS += utassert.o utlist.o utstubs.o uttest.o uttools.o
 
 #
 # Source files required to build subsystem; used to generate dependencies.
@@ -79,6 +84,7 @@ INCLUDE_PATH = \
 -I$(OSAL_SRC)/inc \
 -I$(OSAL_SRC)/os/inc \
 -I$(OSAL_SRC)/tests/$(APPTARGET) \
+-I$(OSAL_SRC)/../ut_assert/inc \
 -I../../inc
 
 ##
@@ -90,7 +96,8 @@ INCLUDE_PATH = \
 ##
 VPATH = $(OSAL_SRC)/tests/$(APPTARGET) 
 VPATH += $(OSAL_SRC)/os/$(OS)
-VPATH += $(OSAL_SRC)/bsp/$(BSP)/src
+VPATH += $(OSAL_SRC)/bsp/$(BSP)/ut-src
+VPATH += $(OSAL_SRC)/../ut_assert/src
 
 ##
 ## Include the common make rules for building an OSAL Application

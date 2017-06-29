@@ -45,12 +45,13 @@
 ****************************************************************************************/
 
 /*--------------------------------------------------------------------------------------
-    Name: OS_NetworkGetID
-    
-    Purpose: Gets the ID of the current Network 
+    Purpose: Get the Host ID from Networking
 
     Returns: OS_ERROR if the  host id could not be found
-             a 32 bit host id if success
+             an opaque 32 bit host id if success (NOT AN IPv4 ADDRESS).
+
+    WARNING: OS_NetworkGetID is currently [[deprecated]] as its behavior is
+             unknown and not consistent across operating systems.
 ---------------------------------------------------------------------------------------*/
 int32 OS_NetworkGetID             (void)
 {

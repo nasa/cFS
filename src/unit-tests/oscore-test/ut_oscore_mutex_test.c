@@ -215,10 +215,7 @@ void UT_os_mut_sem_create_test()
     }
 
     /* Reset test environment */
-    for ( i = 0; i< OS_MAX_MUTEXES; i++ )
-    {
-        res = OS_MutSemDelete(i); /* Ignore errors, does not matter here */
-    }
+    OS_DeleteAllObjects();
 
     /*-----------------------------------------------------*/
     testDesc = "#5 Duplicate-name";

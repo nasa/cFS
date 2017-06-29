@@ -10,7 +10,7 @@
 ## Warning Level Configuration
 ##
 ## WARNINGS=-Wall -ansi -pedantic -Wstrict-prototypes
-WARNINGS	= -Wall  -ansi
+WARNINGS	= -Wall  -std=c99
 
 ##
 ## A fix for Windows systems on vxWorks 6.4

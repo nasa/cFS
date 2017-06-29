@@ -39,11 +39,8 @@ extern UT_OsLogInfo_t  g_logInfo;
 /*--------------------------------------------------------------------------------*
 ** Main
 **--------------------------------------------------------------------------------*/
-#ifdef _OSAL_UNIT_TEST_
-   void OS_Application_Startup(void)
-#else
-   int main(int argc, char* argv[])
-#endif
+
+void OS_Application_Startup(void)
 {
     UT_os_setup(UT_OS_LOG_FILENAME);
 
@@ -59,7 +56,7 @@ extern UT_OsLogInfo_t  g_logInfo;
 
     UT_os_teardown("ut_osnetwork");
 
-    return (0);
+    OS_ApplicationExit(g_logInfo.nFailed > 0);
 }
 
 /*================================================================================*

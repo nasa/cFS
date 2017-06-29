@@ -103,6 +103,22 @@
 #include "common_types.h"
 #include "osapi.h"
 
+/******************************************************************************
+ * Design Notes on table locking and mutex use in this file.
+ *
+ * With the current design, the OS_FDTable has a matching
+ * OS_FDTableMutex mutex that is used to lock the table for access.
+ * However, the table data is not accessed in a thread-safe manner in all
+ * of the methods below.  Locking an entire table to read/access a single
+ * entry in the table results in performance problems and deadlock
+ * conditions.  Therefore, in general, an entire table is locked primarily
+ * when a table entry is created or deleted.  Locking the table for most
+ * other access is not performed because the standard usage pattern is for
+ * a task to only modify its own entries in the table.  WARNING: other
+ * patterns of multi-threaded table access via the OSAL API are not
+ * safely supported with the current implementation.
+ *
+ *****************************************************************************/
 
 /****************************************************************************************
                                      DEFINES
@@ -114,7 +130,7 @@
                                    GLOBAL DATA
 ****************************************************************************************/
 OS_FDTableEntry OS_FDTable[OS_MAX_NUM_OPEN_FILES];
-SEM_ID  OS_FDTableMutex;
+static SEM_ID  OS_FDTableMutex;
 
 extern uint32 OS_FindCreator(void);
 int32 OS_check_name_length(const char *path);
@@ -127,7 +143,7 @@ int32 OS_NameChange( char* name);
 
 int32 OS_FS_Init(void)
 {
-    int i;
+    uint32 i;
 	
     /* Initialize the file system constructs */
     for (i =0; i < OS_MAX_NUM_OPEN_FILES; i++)
@@ -137,9 +153,9 @@ int32 OS_FS_Init(void)
         OS_FDTable[i].User =       0;
         OS_FDTable[i].IsValid =    FALSE;
     }
-    
-    OS_FDTableMutex = semMCreate(SEM_Q_PRIORITY); 
-    if ( OS_FDTableMutex == NULL )
+
+    OS_FDTableMutex = semMCreate(SEM_Q_PRIORITY);
+    if ( OS_FDTableMutex == (SEM_ID)0 )
 	{
 	   return(OS_ERROR);
 	}
@@ -462,7 +478,9 @@ int32 OS_read  (int32  filedes, void *buffer, uint32 nbytes)
     int32 status;
 
     if (buffer == NULL)
+    {
         return OS_FS_ERR_INVALID_POINTER;
+    }
 
     /* Make sure the file descriptor is legit before using it */
     if (filedes < 0 || filedes >= OS_MAX_NUM_OPEN_FILES || OS_FDTable[filedes].IsValid == FALSE)
@@ -474,7 +492,9 @@ int32 OS_read  (int32  filedes, void *buffer, uint32 nbytes)
         status = read (OS_FDTable[filedes].OSfd, (char*) buffer, (size_t) nbytes);
  
         if (status == ERROR)
+        {
             return OS_FS_ERROR;
+        }
     }
 
     return status;
@@ -498,7 +518,9 @@ int32 OS_write (int32  filedes, void *buffer, uint32 nbytes)
     int32 status;
 
     if (buffer == NULL)
+    {
         return OS_FS_ERR_INVALID_POINTER;
+    }
 
     /* Make sure the file descriptor is legit before using it */
     if (filedes < 0 || filedes >= OS_MAX_NUM_OPEN_FILES || OS_FDTable[filedes].IsValid == FALSE)
@@ -507,13 +529,16 @@ int32 OS_write (int32  filedes, void *buffer, uint32 nbytes)
     }
     else
     {
-        status = write(OS_FDTable[filedes].OSfd, buffer, nbytes );
-    
+        status = write(OS_FDTable[filedes].OSfd, (void*)buffer, nbytes );
         if (status != ERROR)
+        {
             return  status;
+        }
         else
+        {
             return OS_FS_ERROR;
-    }    
+        }
+    }
 }/* end OS_write */
 
 /*--------------------------------------------------------------------------------------
@@ -545,6 +570,8 @@ int32 OS_chmod  (const char *path, uint32 access)
 
 int32 OS_stat   (const char *path, os_fstat_t  *filestats)
 {
+    /* NOTE: ret_val must remain "int" as it is used to store the
+     * return value of the stat() function */
     int ret_val;
     char local_path[OS_MAX_LOCAL_PATH_LEN];
  
@@ -552,13 +579,17 @@ int32 OS_stat   (const char *path, os_fstat_t  *filestats)
     ** Check to see if the file pointers are NULL
     */
     if (path == NULL || filestats == NULL)
+    {
         return OS_FS_ERR_INVALID_POINTER;
+    }
         
     /*
     ** Check to see if the path is too long
     */
     if (strlen(path) >= OS_MAX_PATH_LEN)
+    {
         return OS_FS_ERR_PATH_TOO_LONG;
+    }
 
     /*
     ** Translate the path
@@ -648,7 +679,7 @@ int32 OS_lseek  (int32  filedes, int32 offset, uint32 whence)
 
 int32 OS_remove (const char *path)
 {
-    int  i;
+    uint32  i;
     int  status;
     char local_path[OS_MAX_LOCAL_PATH_LEN];
     
@@ -722,7 +753,10 @@ int32 OS_remove (const char *path)
 ---------------------------------------------------------------------------------------*/
 int32 OS_rename (const char *old_filename, const char *new_filename)
 {
-    int status,i;
+    uint32 i;
+    /* NOTE: status must remain "int" as it is used to store the
+     * return value of the rename() function */
+    int status;
     char old_path[OS_MAX_LOCAL_PATH_LEN];
     char new_path[OS_MAX_LOCAL_PATH_LEN];
 
@@ -730,25 +764,35 @@ int32 OS_rename (const char *old_filename, const char *new_filename)
     ** Check to see if the path pointers are NULL
     */    
     if (old_filename == NULL || new_filename == NULL)
+    {
         return OS_FS_ERR_INVALID_POINTER;
+    }
 
     /*
     ** Check to see if the paths are too long
     */
     if (strlen(old_filename) >= OS_MAX_PATH_LEN)
+    {
         return OS_FS_ERR_PATH_TOO_LONG;
+    }
     
     if (strlen(new_filename) >= OS_MAX_PATH_LEN)
+    {
         return OS_FS_ERR_PATH_TOO_LONG;
+    }
 
     /* 
     ** check if the names of the files are too long 
     */
     if (OS_check_name_length(old_filename) != OS_FS_SUCCESS)
+    {
         return OS_FS_ERR_NAME_TOO_LONG;
+    }
 
     if (OS_check_name_length(new_filename) != OS_FS_SUCCESS)
+    {
         return OS_FS_ERR_NAME_TOO_LONG;
+    }
 
     /*
     ** Translate the path
@@ -801,7 +845,7 @@ int32 OS_rename (const char *old_filename, const char *new_filename)
 
 int32 OS_cp (const char *src, const char *dest)
 {
-    int  i;
+    uint32  i;
     int  status;
     char src_path[OS_MAX_LOCAL_PATH_LEN];
     char dest_path[OS_MAX_LOCAL_PATH_LEN];
@@ -857,7 +901,7 @@ int32 OS_cp (const char *src, const char *dest)
     }
 
     /*
-    ** Make sure the destintation file is not open by the OSAL before doing the copy 
+    ** Make sure the destination file is not open by the OSAL before doing the copy
     ** This may be caught by the host OS open call but it does not hurt to 
     ** be consistent 
     */
@@ -898,7 +942,7 @@ int32 OS_cp (const char *src, const char *dest)
 
 int32 OS_mv (const char *src, const char *dest)
 {    
-   int i;
+   uint32 i;
    int32 status;
 
    /*
@@ -989,13 +1033,17 @@ int32 OS_mkdir (const char *path, uint32 access)
     ** Check to see if the path pointer is NULL
     */    
     if (path == NULL)
+    {
         return OS_FS_ERR_INVALID_POINTER;
+    }
 
     /*
     ** Check to see if the path is too long
     */      
     if (strlen(path) >= OS_MAX_PATH_LEN)
+    {
         return OS_FS_ERR_PATH_TOO_LONG;
+    }
 
     /*
     ** Translate the path
@@ -1036,13 +1084,17 @@ os_dirp_t OS_opendir (const char *path)
     ** Check to see if the path pointer is NULL
     */        
     if (path == NULL)
+    {
         return NULL;
+    }
 
     /*
     ** Check to see if the path is too long
     */      
-    if (strlen(path) > OS_MAX_PATH_LEN)
+    if (strlen(path) >= OS_MAX_PATH_LEN)
+    {
         return NULL;
+    }
    
     /*
     ** Translate the path
@@ -1079,14 +1131,20 @@ int32 OS_closedir (os_dirp_t directory)
     int status;
 
     if (directory == NULL)
+    {
         return OS_FS_ERR_INVALID_POINTER;
+    }
 
     status = closedir(directory);
     
     if (status == OK)
+    {
         return OS_FS_SUCCESS;
+    }
     else
+    {
         return OS_FS_ERROR;
+    }
 
 } /* end OS_closedir */
 
@@ -1106,7 +1164,9 @@ os_dirent_t *  OS_readdir (os_dirp_t directory)
     errno = OK;
     
     if (directory == NULL)
+    {
         return NULL;
+    }
 
     tempptr = readdir( directory);
     
@@ -1119,8 +1179,6 @@ os_dirent_t *  OS_readdir (os_dirp_t directory)
         return NULL;
     }
 
-    /* should never reach this point in the code */
-    return NULL;
     
 } /* end OS_readdir */
 
@@ -1158,13 +1216,17 @@ int32  OS_rmdir (const char *path)
     ** Check to see if the path pointer is NULL
     */            
     if (path == NULL)
+    {
         return OS_FS_ERR_INVALID_POINTER;
+    }
 
     /*
     ** Check to see if the path is too long
     */      
     if (strlen(path) >= OS_MAX_PATH_LEN)
+    {
         return OS_FS_ERR_PATH_TOO_LONG;
+    }
 
     /*
     ** Translate the path
@@ -1202,32 +1264,41 @@ int32  OS_rmdir (const char *path)
 int32 OS_check_name_length(const char *path)
 {
     char *name_ptr;
-    char *end_of_path;
-    int   name_len;
 
     if (path == NULL)
+    {
         return OS_FS_ERROR;
+    }
 
-    if (strlen(path) > OS_MAX_PATH_LEN)
+    if (strlen(path) >= OS_MAX_PATH_LEN)
+    {
         return OS_FS_ERROR;
+    }
     
-    /* checks to see if there is a '/' somewhere in the path */
+    /*
+     * All names passed into this function are REQUIRED to contain at
+     * least one directory separator. Find the last one.
+     */
     name_ptr = strrchr(path, '/');
     
     if (name_ptr == NULL)
+    {
         return OS_FS_ERROR;
+    }
     
-    /* strrchr returns a pointer to the last '/' char, so we advance one char */
-    name_ptr = name_ptr + sizeof(char);
+    /*
+     * Advance the pointer past the directory separator so that it
+     * indicates the final component of the path.
+     */
+    name_ptr ++;
     
-    /* end_of_path points to the null terminator at the end of the path */
-    end_of_path = strrchr(path,'\0');
-
-    /* pointer subraction to see how many characters there are in the name */
-    name_len = ((int) end_of_path - (int)name_ptr) / sizeof(char);
-    
-    if( name_len > OS_MAX_FILE_NAME)
+    /*
+     * Reject paths whose final component is too long.
+     */
+    if( strlen(name_ptr) > OS_MAX_FILE_NAME)
+    {
         return OS_FS_ERROR;
+    }
 
     return OS_FS_SUCCESS;
     
@@ -1388,8 +1459,6 @@ int32 OS_CloseFileByName(char *Filename)
         return(OS_FS_ERR_INVALID_POINTER);
     }
 
-    semTake(OS_FDTableMutex,WAIT_FOREVER);
-
     for ( i = 0; i < OS_MAX_NUM_OPEN_FILES; i++)
     {
         if ((OS_FDTable[i].IsValid == TRUE) &&  (strcmp(OS_FDTable[i].Path, Filename) == 0))
@@ -1403,10 +1472,13 @@ int32 OS_CloseFileByName(char *Filename)
            ** Next, remove the file from the OSAL list
            ** to free up that slot
            */
+           semTake(OS_FDTableMutex,WAIT_FOREVER);
+
            OS_FDTable[i].OSfd =       -1;
            strcpy(OS_FDTable[i].Path, "\0");
            OS_FDTable[i].User =       0;
            OS_FDTable[i].IsValid =    FALSE;
+
            semGive(OS_FDTableMutex);
 
            if (status == ERROR)
@@ -1421,7 +1493,6 @@ int32 OS_CloseFileByName(char *Filename)
 
     }/* end for */
 
-    semGive(OS_FDTableMutex);
     return (OS_FS_ERR_PATH_INVALID);
 
 }/* end OS_CloseFileByName */
@@ -1439,8 +1510,6 @@ int32 OS_CloseAllFiles(void)
     uint32            i;
     int32             return_status = OS_FS_SUCCESS;
     int               status;
-    
-    semTake(OS_FDTableMutex,WAIT_FOREVER);
 
     for ( i = 0; i < OS_MAX_NUM_OPEN_FILES; i++)
     {
@@ -1455,10 +1524,14 @@ int32 OS_CloseAllFiles(void)
            ** Next, remove the file from the OSAL list
            ** to free up that slot
            */
+           semTake(OS_FDTableMutex,WAIT_FOREVER);
+
            OS_FDTable[i].OSfd =       -1;
            strcpy(OS_FDTable[i].Path, "\0");
            OS_FDTable[i].User =       0;
            OS_FDTable[i].IsValid =    FALSE;
+           semGive(OS_FDTableMutex);
+
            if (status == ERROR)
            {
               return_status = OS_FS_ERROR;
@@ -1467,7 +1540,6 @@ int32 OS_CloseAllFiles(void)
 
     }/* end for */
 
-    semGive(OS_FDTableMutex);
     return (return_status);
 
 }/* end OS_CloseAllFiles */

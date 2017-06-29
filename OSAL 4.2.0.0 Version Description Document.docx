@@ -1,0 +1,128 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  
+  
+
+
+  <head>
+    <title>
+      OSAL 4.2.0.0 Version Description Document.docx on Ticket #158 – Attachment
+     – cFS Operating System Abstraction Layer
+    </title>
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+      <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <!--[if IE]><script type="text/javascript">
+      if (/^#__msie303:/.test(window.location.hash))
+        window.location.replace(window.location.hash.replace(/^#__msie303:/, '#'));
+    </script><![endif]-->
+        <link rel="search" href="/trac/cfs_osal/search" />
+        <link rel="help" href="/trac/cfs_osal/wiki/TracGuide" />
+        <link rel="alternate" href="/trac/cfs_osal/raw-attachment/ticket/158/OSAL%204.2.0.0%20Version%20Description%20Document.docx" type="application/octet-stream; charset=utf-8" title="Original Format" />
+        <link rel="up" href="/trac/cfs_osal/ticket/158" title="Ticket #158" />
+        <link rel="start" href="/trac/cfs_osal/wiki" />
+        <link rel="stylesheet" href="/trac/cfs_osal/chrome/common/css/trac.css" type="text/css" /><link rel="stylesheet" href="/trac/cfs_osal/chrome/common/css/code.css" type="text/css" /><link rel="stylesheet" href="/trac/cfs_osal/chrome/tracwysiwyg/wysiwyg.css" type="text/css" />
+        <link rel="tracwysiwyg.stylesheet" href="/trac/cfs_osal/chrome/common/css/trac.css" /><link rel="tracwysiwyg.stylesheet" href="/trac/cfs_osal/chrome/tracwysiwyg/editor.css" />
+        <link rel="tracwysiwyg.base" href="/trac/cfs_osal" />
+        <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+        <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+      <link type="application/opensearchdescription+xml" rel="search" href="/trac/cfs_osal/search/opensearch" title="Search cFS Operating System Abstraction Layer" />
+    <script type="text/javascript">
+      var _tracwysiwyg={"escapeNewlines":false};
+    </script>
+      <script type="text/javascript" charset="utf-8" src="/trac/cfs_osal/chrome/common/js/jquery.js"></script>
+      <script type="text/javascript" charset="utf-8" src="/trac/cfs_osal/chrome/common/js/babel.js"></script>
+      <script type="text/javascript" charset="utf-8" src="/trac/cfs_osal/chrome/common/js/trac.js"></script>
+      <script type="text/javascript" charset="utf-8" src="/trac/cfs_osal/chrome/common/js/search.js"></script>
+      <script type="text/javascript" charset="utf-8" src="/trac/cfs_osal/chrome/tracwysiwyg/wysiwyg.js"></script>
+      <script type="text/javascript" charset="utf-8" src="/trac/cfs_osal/chrome/tracwysiwyg/wysiwyg-load.js"></script>
+      <script type="text/javascript" src="/trac/cfs_osal/chrome/common/js/folding.js"></script>
+      <script type="text/javascript">
+        jQuery(document).ready(function($) {
+          $('#preview table.code').enableCollapsibleColumns($('#preview table.code thead th.content'));
+        });
+      </script>
+  </head>
+  <body>
+    <div id="banner">
+      <div id="header">
+        <h1><a href="">cFS Operating System Abstraction Layer</a></h1>
+      </div>
+      <form id="search" action="/trac/cfs_osal/search" method="get">
+        <div>
+          <label for="proj-search">Search:</label>
+          <input type="text" id="proj-search" name="q" size="18" value="" />
+          <input type="submit" value="Search" />
+        </div>
+      </form>
+      <div id="metanav" class="nav">
+    <ul>
+      <li class="first">logged in as glimes</li><li><a href="/trac/cfs_osal/prefs">Preferences</a></li><li class="last"><a href="/trac/cfs_osal/wiki/TracGuide">Help/Guide</a></li>
+    </ul>
+  </div>
+    </div>
+    <div id="mainnav" class="nav">
+    <ul>
+      <li class="first"><a href="/trac/cfs_osal/wiki">Wiki</a></li><li><a href="/trac/cfs_osal/timeline">Timeline</a></li><li><a href="/trac/cfs_osal/roadmap">Roadmap</a></li><li><a href="/trac/cfs_osal/browser">Browse Source</a></li><li><a href="/trac/cfs_osal/report">View Tickets</a></li><li><a href="/trac/cfs_osal/ticketstats">Ticket Stats</a></li><li><a href="/trac/cfs_osal/newticket">New Ticket</a></li><li><a href="/trac/cfs_osal/search">Search</a></li><li class="last"><a href="/trac/cfs_osal/admin" title="Administration">Admin</a></li>
+    </ul>
+  </div>
+    <div id="main">
+      <div id="ctxtnav" class="nav">
+        <h2>Context Navigation</h2>
+        <ul>
+          <li class="last first"><a href="/trac/cfs_osal/ticket/158">Back to Ticket #158</a></li>
+        </ul>
+        <hr />
+      </div>
+    <div id="content" class="attachment">
+        <h1><a href="/trac/cfs_osal/ticket/158">Ticket #158</a>: OSAL 4.2.0.0 Version Description Document.docx</h1>
+        <table id="info" summary="Description">
+          <tbody>
+            <tr>
+              <th scope="col">File OSAL 4.2.0.0 Version Description Document.docx,
+                <span title="136616 bytes">133.4 KB</span>
+                (added by sstrege, <a class="timeline" href="/trac/cfs_osal/timeline?from=2016-03-04T15%3A16%3A22-08%3A00&amp;precision=second" title="See timeline 3 days ago">on 03/04/2016 at 03:16:22 PM</a>)</th>
+            </tr>
+            <tr>
+              <td class="message searchable">
+                <p>
+For merge to development branch with all tracked changes accepted and release date added
+</p>
+
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div id="preview" class="searchable">
+          
+    <p>
+        <strong>HTML preview not available</strong>, since no preview renderer could handle it.
+      Try <a href="/trac/cfs_osal/raw-attachment/ticket/158/OSAL%204.2.0.0%20Version%20Description%20Document.docx">downloading</a> the file instead.
+    </p>
+
+        </div>
+          <div class="buttons">
+            <form method="get" action="">
+              <div id="delete">
+                <input type="hidden" name="action" value="delete" />
+                <input type="submit" value="Delete attachment" />
+              </div>
+            </form>
+          </div>
+    </div>
+    <div id="altlinks">
+      <h3>Download in other formats:</h3>
+      <ul>
+        <li class="last first">
+          <a rel="nofollow" href="/trac/cfs_osal/raw-attachment/ticket/158/OSAL%204.2.0.0%20Version%20Description%20Document.docx">Original Format</a>
+        </li>
+      </ul>
+    </div>
+    </div>
+    <div id="footer" lang="en" xml:lang="en"><hr />
+      <a id="tracpowered" href="http://trac.edgewall.org/"><img src="/trac/cfs_osal/chrome/common/trac_logo_mini.png" height="30" width="107" alt="Trac Powered" /></a>
+      <p class="left">Powered by <a href="/trac/cfs_osal/about"><strong>Trac 1.0.1</strong></a><br />
+        By <a href="http://www.edgewall.org/">Edgewall Software</a>.</p>
+      <p class="right"><a href="http://www.nasa.gov/about/highlights/HP_Privacy.html" class="footerLnk">Privacy Policy and Important Notices</a><br>Curator: ASANI Solutions<br>NASA Official: Sonie Lau<br>Last Updated: October 30, 2007</p>
+    </div>
+  </body>
+</html>

@@ -39,11 +39,8 @@ extern UT_OsLogInfo_t  g_logInfo;
 /*--------------------------------------------------------------------------------*
 ** Main
 **--------------------------------------------------------------------------------*/
-#ifdef _OSAL_UNIT_TEST_
-   void OS_Application_Startup(void)
-#else
-   int main(int argc, char* argv[])
-#endif
+
+void OS_Application_Startup(void)
 {
     UT_os_setup(UT_OS_LOG_FILENAME);
 
@@ -54,7 +51,6 @@ extern UT_OsLogInfo_t  g_logInfo;
 
     OS_API_Init();
 
-    UT_os_module_table_init_test();
     UT_os_module_load_test();
     UT_os_module_unload_test();
     UT_os_module_info_test();
@@ -64,7 +60,7 @@ extern UT_OsLogInfo_t  g_logInfo;
 
     UT_os_teardown("ut_osloader");
 
-    return (0);
+    OS_ApplicationExit(g_logInfo.nFailed > 0);
 }
 
 /*================================================================================*

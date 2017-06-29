@@ -33,7 +33,6 @@
 ** Function prototypes
 **--------------------------------------------------------------------------------*/
 
-void UT_os_module_table_init_test(void);
 void UT_os_module_load_test(void);
 void UT_os_module_unload_test(void);
 void UT_os_module_info_test(void);

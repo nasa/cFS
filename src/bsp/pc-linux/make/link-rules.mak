@@ -12,7 +12,7 @@
 ##
 ## Linker flags that are needed
 ##
-LDFLAGS = 
+LDFLAGS ?= $(OSAL_M32)
 
 ##
 ## Libraries to link in

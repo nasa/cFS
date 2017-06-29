@@ -1332,43 +1332,43 @@ int32  OS_rmdir (const char *path)
 int32 OS_check_name_length(const char *path)
 {
     char* name_ptr;
-    char* end_of_path;
-    int name_len;
-    
+
     if (path == NULL)
     {
         return OS_FS_ERR_INVALID_POINTER;
     }
 
-    
     if (strlen(path) > OS_MAX_PATH_LEN)
     {
         return OS_FS_ERROR;
     }
-    
-    /* checks to see if there is a '/' somewhere in the path */
+
+    /*
+     * All names passed into this function are REQUIRED to contain at
+     * least one directory separator. Find the last one.
+     */
     name_ptr = strrchr(path, '/');
     if (name_ptr == NULL)
     {
         return OS_FS_ERROR;
     }
-    
-    /* strrchr returns a pointer to the last '/' char, so we advance one char */
-    name_ptr = name_ptr + sizeof(char);
-    
-    /* end_of_path points to the null terminator at the end of the path */
-    end_of_path = strrchr(path,'\0');
 
-    /* pointer subraction to see how many characters there are in the name */
-    name_len = ((int) end_of_path - (int)name_ptr) / sizeof(char);
-    
-    if( name_len > OS_MAX_FILE_NAME)
+    /*
+     * Advance the pointer past the directory separator so that it
+     * indicates the final component of the path.
+     */
+    name_ptr ++;
+
+    /*
+     * Reject paths whose final component is too long.
+     */
+    if( strlen(name_ptr) > OS_MAX_FILE_NAME)
     {
         return OS_FS_ERROR;
     }
-    
+
     return OS_FS_SUCCESS;
-    
+
 }/* end OS_check_name_length */
 /* --------------------------------------------------------------------------------------
     Name: OS_ShellOutputToFile

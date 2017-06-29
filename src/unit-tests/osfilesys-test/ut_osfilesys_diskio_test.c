@@ -879,8 +879,70 @@ void UT_os_getphysdrivename_test()
     OS_rmfs(g_devNames[4]);
 
 UT_os_getphysicaldrivename_test_exit_tag:
-        UT_OS_SET_API_NAME_AND_TEST_COUNT_MACRO(apiInfo, "OS_FS_GetPhysDriveName", idx)
-        UT_OS_LOG_API_MACRO(apiInfo)
+    UT_OS_SET_API_NAME_AND_TEST_COUNT_MACRO(apiInfo, "OS_FS_GetPhysDriveName", idx)
+    UT_OS_LOG_API_MACRO(apiInfo)
+}
+
+/*--------------------------------------------------------------------------------*
+** Syntax: int32 OS_GetFsInfo(os_fsinfo_t* filesys_info)
+** Purpose: Returns information about the file system
+** Parameters: filesys_info - out pointer contains info. about the file system
+** Returns: OS_FS_ERR_INVALID_POINTER if any of the pointers passed in is NULL
+**          OS_FS_SUCCESS if succeeded
+**          OS_ERR_NOT_IMPLEMENTED if not implemented
+** -----------------------------------------------------
+** Test #0: Not-implemented condition
+**   1) Call this routine
+**   2) If the returned value is OS_ERR_NOT_IMPLEMENTED, then exit test
+** -----------------------------------------------------
+** Test #1: Null-pointer-arg condition
+**   1) Call this routine with a null pointer as argument
+**   2) Expect the returned value to be
+**        (a) OS_FS_ERR_INVALID_POINTER
+** -----------------------------------------------------
+** Test #2: Nominal condition
+**   1) Call this routine with a valid argument
+**   2) Expect the returned value to be
+**        (a) OS_FS_SUCCESS
+** --------------------------------------------------------------------------------*/
+void UT_os_getfsinfo_test(void)
+{
+    os_fsinfo_t fsInfo;
+    int32 res=0, idx=0;
+    UT_OsApiInfo_t apiInfo;
+    const char* testDesc=NULL;
+
+    UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
+
+    /*-----------------------------------------------------*/
+    testDesc = "API not implemented";
+
+    res = OS_GetFsInfo(&fsInfo);
+    if (res == OS_ERR_NOT_IMPLEMENTED)
+    {
+        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
+        goto UT_os_getfsinfo_test_exit_tag;
+    }
+
+    /*-----------------------------------------------------*/
+    testDesc = "#1 Null-pointer-arg";
+
+    if (OS_GetFsInfo(NULL) == OS_FS_ERR_INVALID_POINTER)
+        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+    else
+        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+
+    /*-----------------------------------------------------*/
+    testDesc = "#2 Nominal";
+
+    if (OS_GetFsInfo(&fsInfo) == OS_FS_SUCCESS)
+        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+    else
+        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+
+UT_os_getfsinfo_test_exit_tag:
+    UT_OS_SET_API_NAME_AND_TEST_COUNT_MACRO(apiInfo, "OS_GetFsInfo", idx)
+    UT_OS_LOG_API_MACRO(apiInfo)
 }
 
 /*--------------------------------------------------------------------------------*
@@ -1033,28 +1095,34 @@ UT_os_translatepath_test_exit_tag:
 **   2) Expect the returned value to be
 **        (a) OS_FS_ERR_INVALID_POINTER
 ** -----------------------------------------------------
-** Test #2: OS-call-failure condition
+** Test #2: Path-too-long-arg condition
+**   1) Call this routine with some drive name of length greater than
+**      maximum path length defined in macro
+**   2) Expect the returned value to be
+**        (a) OS_FS_ERR_PATH_TOO_LONG
+** -----------------------------------------------------
+** Test #3: OS-call-failure condition
 **   1) Setup the test to cause the OS call to fail inside this routine
 **   2) Call this routine
 **   3) Expect the returned value to be
 **        (a) OS_FS_ERROR
 ** -----------------------------------------------------
-** Test#3: Nominal condition
-**   1) TBD - posix implementation is not yet implemented
+** Test #4: Nominal condition
+**   1) Currently only applicable to vxworks platform
 ** --------------------------------------------------------------------------------*/
 void UT_os_checkfs_test()
 {
-    int32 res=0, idx=0;
+    int32 idx=0;
     UT_OsApiInfo_t apiInfo;
     const char* testDesc=NULL;
+    char driveName[OS_MAX_PATH_LEN + 5];
 
     UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
 
     /*-----------------------------------------------------*/
     testDesc = "API not implemented";
 
-    res = OS_chkfs(NULL, 0);
-    if (res == OS_ERR_NOT_IMPLEMENTED)
+    if ((int)OS_chkfs(NULL, 0) == OS_FS_UNIMPLEMENTED)
     {
         UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
         goto UT_os_checkfs_test_exit_tag;
@@ -1063,27 +1131,59 @@ void UT_os_checkfs_test()
     /*-----------------------------------------------------*/
     testDesc = "#1 Null-pointer-arg";
 
-    if (OS_chkfs(NULL, 0) == OS_FS_ERR_INVALID_POINTER)
+    if ((int)OS_chkfs(NULL, 0) == OS_FS_ERR_INVALID_POINTER)
         UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
     else
         UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
 
     /*-----------------------------------------------------*/
-    testDesc = "#2 OS-call-failure";
+    testDesc = "#2 Path-too-long-arg";
+
+    memset(driveName, 'A', sizeof(driveName));
+    driveName[sizeof(driveName)-1] = '\0';
+
+    if ((int)OS_chkfs(driveName, 0) == OS_FS_ERR_PATH_TOO_LONG)
+        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+    else
+        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+
+    /*-----------------------------------------------------*/
+    testDesc = "#3 OS-call-failure";
 
     UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_UOF)
 
     /*-----------------------------------------------------*/
-    testDesc = "#3 Nominal";
+    testDesc = "#4 Nominal";
 
-    if (g_skipTestCase == 3)
+    if (g_skipTestCase == 4)
     {
-        testDesc = "#3 Nominal - Not implemented in API";
+        testDesc = "#4 Nominal - Not implemented in API";
         UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, g_skipTestCaseResult)
     }
     else
     {
-        /* TBD */
+    	if (OS_mkfs(g_fsAddrPtr, g_devNames[5], g_volNames[5], g_blkSize, g_blkCnt) != OS_FS_SUCCESS)
+    	{
+            testDesc = "#4 Nominal - File-system-create failed";
+            UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_TSF)
+            goto UT_os_checkfs_test_exit_tag;
+    	}
+
+        if (OS_mount(g_devNames[5], g_mntNames[5]) != OS_FS_SUCCESS)
+        {
+            testDesc = "#4 Nominal - File-system-mount failed";
+            UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_TSF)
+            goto UT_os_checkfs_test_exit_tag;
+        }
+
+        if ((int)OS_chkfs(g_mntNames[5], 0) == OS_FS_SUCCESS)
+            UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        else
+            UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+
+        /* Reset test environment */
+        OS_unmount(g_mntNames[5]);
+        OS_rmfs(g_devNames[5]);
     }
 
 UT_os_checkfs_test_exit_tag:

@@ -1,0 +1,147 @@
+OSAL Unit Test Output File for ostimer APIs
+
+============================================
+
+OS_TimerSet() - #3 Interval-too-short (clk_accuracy=0)
+
+OS_TimerSet() - #4 Nominal [Output from timer callback func: current_time=1471987560.869889, delta_time=1, tolVal=0, loopCnt=0]
+
+OS_TimerSet() - #4 Nominal [Output from timer callback func: current_time=1471987560.869890, delta_time=33, tolVal=0, loopCnt=1]
+
+OS_TimerSet() - #4 Nominal [Output from timer callback func: current_time=1471987560.869924, delta_time=24, tolVal=0, loopCnt=2]
+
+OS_TimerSet() - #4 Nominal [Output from timer callback func: current_time=1471987560.869934, delta_time=0, tolVal=0, loopCnt=3]
+
+OS_TimerSet() - #4 Nominal [Output from timer callback func: current_time=1471987560.869944, delta_time=1, tolVal=0, loopCnt=4]
+
+OS_TimerSet() - #4 Nominal [Output from timer callback func: current_time=1471987560.869953, delta_time=1, tolVal=0, loopCnt=5]
+
+OS_TimerSet() - #4 Nominal [Output from timer callback func: current_time=1471987560.869961, delta_time=1, tolVal=0, loopCnt=6]
+
+OS_TimerSet() - #4 Nominal [Output from timer callback func: current_time=1471987560.869970, delta_time=0, tolVal=0, loopCnt=7]
+
+OS_TimerSet() - #4 Nominal [Output from timer callback func: current_time=1471987560.869979, delta_time=8, tolVal=0, loopCnt=8]
+
+OS_TimerSet() - #4 Nominal [Output from timer callback func: current_time=1471987560.869996, delta_time=9, tolVal=0, loopCnt=9]
+
+OS_TimerSet() - #4 Nominal [Output from timer callback func: current_time=1471987560.869996, delta_time=3, tolVal=0, loopCnt=10]
+
+OS_TimerSet() - #1 Nominal condition (clk_accuracy=0)
+
+OS_TimerSet() - #4 Nominal [Output from timer callback func: current_time=1471987560.872060, delta_time=1, tolVal=25000, loopCnt=0]
+
+OS_TimerSet() - #4 Nominal [Output from timer callback func: current_time=1471987560.872061, delta_time=499969, tolVal=25000, loopCnt=1]
+
+OS_TimerSet() - #4 Nominal [Output from timer callback func: current_time=1471987561.372031, delta_time=24, tolVal=25000, loopCnt=2]
+
+OS_TimerSet() - #4 Nominal [Output from timer callback func: current_time=1471987561.872025, delta_time=4, tolVal=25000, loopCnt=3]
+
+OS_TimerSet() - #4 Nominal [Output from timer callback func: current_time=1471987562.372023, delta_time=2, tolVal=25000, loopCnt=4]
+
+OS_TimerSet() - #4 Nominal [Output from timer callback func: current_time=1471987562.872023, delta_time=2, tolVal=25000, loopCnt=5]
+
+OS_TimerSet() - #4 Nominal [Output from timer callback func: current_time=1471987563.372021, delta_time=2, tolVal=25000, loopCnt=6]
+
+OS_TimerSet() - #4 Nominal [Output from timer callback func: current_time=1471987563.872021, delta_time=0, tolVal=25000, loopCnt=7]
+
+OS_TimerSet() - #4 Nominal [Output from timer callback func: current_time=1471987564.372021, delta_time=2, tolVal=25000, loopCnt=8]
+
+OS_TimerSet() - #4 Nominal [Output from timer callback func: current_time=1471987564.872023, delta_time=4, tolVal=25000, loopCnt=9]
+============================================
+
+========================================================
+ut_ostimer TOTAL APIs: 6
+ut_ostimer TOTAL TEST CASES: 23
+
+ut_ostimer PASSED  20 tests.
+ut_ostimer FAILED   0 tests.
+
+ut_ostimer contains  3 tests that are untested OS-call-failure.
+ut_ostimer contains  0 tests that are manual-inspection-required.
+
+ut_ostimer contains  0 tests that are not-applicable.
+========================================================
+
+--------------------------------------------------------
+ut_ostimer TOTAL APIs: 6
+ut_ostimer TOTAL TEST CASES: 23
+--------------------------------------------------------
+    OS_TimerAPIInit: 2
+        #1 Init-not-call-first [PASSED]
+        #2 Nominal [PASSED]
+
+    OS_TimerCreate: 7
+        #1 Null-pointer-arg [PASSED]
+        #2 Name-too-long [PASSED]
+        #3 Name-taken [PASSED]
+        #4 No-free-IDs [PASSED]
+        #5 Invalid-arg [PASSED]
+        #6 Timer-unavailable [_UOF_ ]
+        #7 Nominal [PASSED]
+
+    OS_TimerDelete: 3
+        #1 Invalid-id-arg [PASSED]
+        #2 Internal-error [_UOF_ ]
+        #3 Nominal [PASSED]
+
+    OS_TimerGetIdByName: 4
+        #1 Null-pointer-arg [PASSED]
+        #2 Name-too-long [PASSED]
+        #3 Name-not-found [PASSED]
+        #4 Nominal [PASSED]
+
+    OS_TimerGetInfo: 3
+        #1 Null-pointer-arg [PASSED]
+        #2 Invalid-id-arg [PASSED]
+        #3 Nominal [PASSED]
+
+    OS_TimerSet: 4
+        #1 Invalid-id-arg [PASSED]
+        #2 Internal-error [_UOF_ ]
+        #3 Interval-too-short [PASSED]
+        #4 Nominal [PASSED]
+
+--------------------------------------------------------
+  TOTAL TEST CASES PASSED -> 20
+--------------------------------------------------------
+    PASSED [ ] OS_TimerAPIInit - #1 Init-not-call-first 
+    PASSED [ ] OS_TimerAPIInit - #2 Nominal 
+    PASSED [ ] OS_TimerCreate - #1 Null-pointer-arg 
+    PASSED [ ] OS_TimerCreate - #2 Name-too-long 
+    PASSED [ ] OS_TimerCreate - #3 Name-taken 
+    PASSED [ ] OS_TimerCreate - #4 No-free-IDs 
+    PASSED [ ] OS_TimerCreate - #5 Invalid-arg 
+    PASSED [ ] OS_TimerCreate - #7 Nominal 
+    PASSED [ ] OS_TimerDelete - #1 Invalid-id-arg 
+    PASSED [ ] OS_TimerDelete - #3 Nominal 
+    PASSED [ ] OS_TimerGetIdByName - #1 Null-pointer-arg 
+    PASSED [ ] OS_TimerGetIdByName - #2 Name-too-long 
+    PASSED [ ] OS_TimerGetIdByName - #3 Name-not-found 
+    PASSED [ ] OS_TimerGetIdByName - #4 Nominal 
+    PASSED [ ] OS_TimerGetInfo - #1 Null-pointer-arg 
+    PASSED [ ] OS_TimerGetInfo - #2 Invalid-id-arg 
+    PASSED [ ] OS_TimerGetInfo - #3 Nominal 
+    PASSED [ ] OS_TimerSet - #1 Invalid-id-arg 
+    PASSED [ ] OS_TimerSet - #3 Interval-too-short 
+    PASSED [ ] OS_TimerSet - #4 Nominal 
+
+--------------------------------------------------------
+  TOTAL TEST CASES FAILED -> 0
+--------------------------------------------------------
+
+--------------------------------------------------------
+  TOTAL TEST CASES MANUAL-INSPECTION-REQUIRED -> 0
+--------------------------------------------------------
+
+--------------------------------------------------------
+  TOTAL TEST CASES NOT-APPLICABLE -> 0
+--------------------------------------------------------
+
+--------------------------------------------------------
+  TOTAL TEST CASES UNTESTED-OS-CALL-FAILURE -> 3
+--------------------------------------------------------
+    _UOF_  [ ] OS_TimerCreate - #6 Timer-unavailable 
+    _UOF_  [ ] OS_TimerDelete - #2 Internal-error 
+    _UOF_  [ ] OS_TimerSet - #2 Internal-error 
+
+

@@ -82,7 +82,7 @@ void OS_Application_Startup(void)
   }
   else
   {
-     OS_printf("MutexSem ID = %d\n",mutex_id);
+     OS_printf("MutexSem ID = %d\n", (int)mutex_id);
   }
 
   status = OS_TaskCreate( &task_1_id, "Task 1", task_1, task_1_stack, TASK_1_STACK_SIZE, TASK_1_PRIORITY, 0);
@@ -121,7 +121,7 @@ void task_1(void)
         status = OS_MutSemTake(mutex_id);
         if ( status != OS_SUCCESS )
         {
-           OS_printf("TASK 1:Error calling OS_MutSemTake with mutex_id = %d\n",mutex_id);
+           OS_printf("TASK 1:Error calling OS_MutSemTake with mutex_id = %d\n", (int)mutex_id);
         }
 
         shared_resource_x = task_1_id;

@@ -32,18 +32,35 @@
 #include "timers.h"
 #include "signal.h"
 
+#define VXWORKS_OSTIMER_UNINITIALIZED 0
+
+/******************************************************************************
+ * Design Notes on table locking and semaphore use in this file.
+ *
+ * With the current design, the OS_timer_table has a matching
+ * OS_timer_table_sem semaphore that is used to lock the table for access.
+ * However, the table data is not accessed in a thread-safe manner in all
+ * of the methods below.  Locking an entire table to read/access a single
+ * entry in the table results in performance problems and deadlock
+ * conditions.  Therefore, in general, an entire table is locked primarily
+ * when a table entry is created or deleted.  Locking the table for most
+ * other access is not performed because the standard usage pattern is for
+ * a task to only modify its own entries in the table.  WARNING: other
+ * patterns of multi-threaded table access via the OSAL API are not
+ * safely supported with the current implementation.
+ *
+ *****************************************************************************/
 
 /****************************************************************************************
                                 EXTERNAL FUNCTION PROTOTYPES
 ****************************************************************************************/
 
-uint32 OS_FindCreator(void);
+extern uint32 OS_FindCreator(void);
 
 /****************************************************************************************
                                 INTERNAL FUNCTION PROTOTYPES
 ****************************************************************************************/
 
-void  OS_TimespecToUsec(struct timespec time_spec, uint32 *usecs);
 void  OS_TimespecToUsec(struct timespec time_spec, uint32 *usecs);
 
 /****************************************************************************************
@@ -56,7 +73,6 @@ void  OS_TimespecToUsec(struct timespec time_spec, uint32 *usecs);
 */
 #define MAX_SECS_IN_USEC 4293
 
-#define UNINITIALIZED 0
 
 /****************************************************************************************
                                     LOCAL TYPEDEFS 
@@ -71,21 +87,21 @@ typedef struct
    uint32              interval_time;
    uint32              accuracy;
    OS_TimerCallback_t  callback_ptr;
-   uint32              host_timerid;
+   timer_t              host_timerid;
 
-} OS_timer_record_t;
+} OS_timer_internal_record_t;
 
 /****************************************************************************************
                                    GLOBAL DATA
 ****************************************************************************************/
 
-OS_timer_record_t OS_timer_table[OS_MAX_TIMERS];
-uint32           os_clock_accuracy;
+static OS_timer_internal_record_t OS_timer_table[OS_MAX_TIMERS];
+static uint32           os_clock_accuracy;
 
 /*
 ** The Semaphore for protecting the above table
 */
-SEM_ID OS_timer_table_sem;
+static SEM_ID OS_timer_table_sem;
 
 /****************************************************************************************
                                 INITIALIZATION FUNCTION
@@ -93,7 +109,7 @@ SEM_ID OS_timer_table_sem;
 int32  OS_TimerAPIInit ( void )
 {
    int    status;
-   int    i;
+   uint32 i;
    int32  return_code = OS_SUCCESS;
    struct timespec clock_resolution;
 
@@ -103,8 +119,8 @@ int32  OS_TimerAPIInit ( void )
    for ( i = 0; i < OS_MAX_TIMERS; i++ )
    {
       OS_timer_table[i].free      = TRUE;
-      OS_timer_table[i].creator   = UNINITIALIZED;
-      strcpy(OS_timer_table[i].name,"");
+      OS_timer_table[i].creator   = VXWORKS_OSTIMER_UNINITIALIZED;
+      OS_timer_table[i].name[0] = '\0';
    }
 	
    /*
@@ -146,13 +162,13 @@ int32  OS_TimerAPIInit ( void )
 ** want the OSAL timer ID to be passed to the user function, this wrapper
 ** function must be used. 
 */
-void OS_TimerSignalHandler(int host_timer_id)
+static void OS_TimerSignalHandler(int host_timer_id)
 {
    int     i;
 
    for (i = 0; i < OS_MAX_TIMERS; i++ )   
    {
-      if  (( OS_timer_table[i].free == FALSE ) && ( host_timer_id == OS_timer_table[i].host_timerid))
+      if  (( OS_timer_table[i].free == FALSE ) && ( host_timer_id == (int)OS_timer_table[i].host_timerid))
       {
          (OS_timer_table[i].callback_ptr)(i);
          break;
@@ -170,6 +186,9 @@ void OS_TimerSignalHandler(int host_timer_id)
  */
 void OS_UsecToTimespec(uint32 usecs, struct timespec *time_spec)
 {
+   if (time_spec == 0) {
+      return;
+   }
    if ( usecs < 1000000 )
    {
       time_spec->tv_nsec = (usecs * 1000);
@@ -191,22 +210,18 @@ void OS_UsecToTimespec(uint32 usecs, struct timespec *time_spec)
  */
 void OS_TimespecToUsec(struct timespec time_spec, uint32 *usecs)
 {
-   if ( (*usecs) < 1000000 )
-   {
-      *usecs = time_spec.tv_nsec / 1000;
+   if (usecs == 0) {
+       return;
    }
-   else
+   /*
+   ** Need to account for maximum number of seconds that will fit in the 
+   ** 32 bit usec integer
+   */
+   if ( time_spec.tv_sec > MAX_SECS_IN_USEC )
    {
-      /*
-      ** Need to account for maximum number of seconds that will fit in the 
-      ** 32 bit usec integer
-      */
-      if ( time_spec.tv_sec > MAX_SECS_IN_USEC )
-      {
-         time_spec.tv_sec = MAX_SECS_IN_USEC;
-      }
-      *usecs = (time_spec.tv_sec * 1000000 ) + (time_spec.tv_nsec / 1000 );
+      time_spec.tv_sec = MAX_SECS_IN_USEC;
    }
+   *usecs = (time_spec.tv_sec * 1000000 ) + (time_spec.tv_nsec / 1000 );
 }
 
 /****************************************************************************************
@@ -228,29 +243,39 @@ int32 OS_TimerCreate(uint32 *timer_id, const char *timer_name, uint32 *clock_acc
    int32    i;
    int      status;
 
+   /*
+   ** Check Parameters
+   */
    if ( timer_id == NULL || timer_name == NULL || clock_accuracy == NULL )
    {
         return OS_INVALID_POINTER;
    }
 
    /* 
+   ** Verify callback parameter
+   */
+   if (callback_ptr == NULL )
+   {
+      return OS_TIMER_ERR_INVALID_ARGS;
+   }
+
+   /*
    ** we don't want to allow names too long
    ** if truncated, two names might be the same 
    */
-   if (strlen(timer_name) > OS_MAX_API_NAME)
+   if (strlen(timer_name) >= OS_MAX_API_NAME)
    {
       return OS_ERR_NAME_TOO_LONG;
    }
 
-   /* 
-   ** Check Parameters 
-   */
    semTake(OS_timer_table_sem,WAIT_FOREVER);
     
    for(possible_tid = 0; possible_tid < OS_MAX_TIMERS; possible_tid++)
    {
       if (OS_timer_table[possible_tid].free == TRUE)
+      {
          break;
+      }
    }
 
 
@@ -274,15 +299,6 @@ int32 OS_TimerCreate(uint32 *timer_id, const char *timer_name, uint32 *clock_acc
    }
 
    /*
-   ** Verify callback parameter
-   */
-   if (callback_ptr == NULL ) 
-   {
-      semGive(OS_timer_table_sem);
-      return OS_TIMER_ERR_INVALID_ARGS;
-   }    
-
-   /* 
    ** Set the possible timer Id to not free so that
    ** no other task can try to use it 
    */
@@ -309,10 +325,11 @@ int32 OS_TimerCreate(uint32 *timer_id, const char *timer_name, uint32 *clock_acc
    ** Connect the timer to the callback function. This is non-posix, but it make the timer
    ** setup easier.
    */
-   status = timer_connect((timer_t)(OS_timer_table[possible_tid].host_timerid), OS_TimerSignalHandler, possible_tid );
+   status = timer_connect((timer_t)(OS_timer_table[possible_tid].host_timerid), (VOIDFUNCPTR)OS_TimerSignalHandler, possible_tid );
    if (status < 0 )
    {
-      status = timer_delete((timer_t)(OS_timer_table[possible_tid].host_timerid));
+      (void) timer_delete((timer_t)(OS_timer_table[possible_tid].host_timerid));
+      OS_timer_table[possible_tid].free = TRUE;
       return(OS_TIMER_ERR_UNAVAILABLE);
    }  
 
@@ -348,11 +365,18 @@ int32 OS_TimerSet(uint32 timer_id, uint32 start_time, uint32 interval_time)
    /* 
    ** Check to see if the timer_id given is valid 
    */
-   if (timer_id >= OS_MAX_TIMERS || OS_timer_table[timer_id].free == TRUE)
+   if (timer_id >= OS_MAX_TIMERS)
    {
       return OS_ERR_INVALID_ID;
    }
 
+   semTake(OS_timer_table_sem,WAIT_FOREVER);
+
+   if ( OS_timer_table[timer_id].free == TRUE)
+   {
+      semGive(OS_timer_table_sem);
+      return OS_ERR_INVALID_ID;
+   }
    /*
    ** Round up the accuracy of the start time and interval times 
    */
@@ -385,6 +409,7 @@ int32 OS_TimerSet(uint32 timer_id, uint32 start_time, uint32 interval_time)
                            0,              /* Flags field can be zero */
                            &timeout,       /* struct itimerspec */
 		                     NULL);         /* Oldvalue */
+   semGive(OS_timer_table_sem);
    if (status < 0) 
    {
       return ( OS_TIMER_ERR_INTERNAL);
@@ -411,16 +436,25 @@ int32 OS_TimerDelete(uint32 timer_id)
    /* 
    ** Check to see if the timer_id given is valid 
    */
-   if (timer_id >= OS_MAX_TIMERS || OS_timer_table[timer_id].free == TRUE)
+   if (timer_id >= OS_MAX_TIMERS)
    {
       return OS_ERR_INVALID_ID;
    }
 
+   semTake(OS_timer_table_sem,WAIT_FOREVER);
+
+   if (OS_timer_table[timer_id].free == TRUE)
+   {
+      semGive(OS_timer_table_sem);
+      return OS_ERR_INVALID_ID;
+   }
+
+   OS_timer_table[timer_id].free = TRUE;
+   semGive(OS_timer_table_sem);
    /*
    ** Delete the timer 
    */
    status = timer_delete((timer_t)(OS_timer_table[timer_id].host_timerid));
-   OS_timer_table[timer_id].free = TRUE;
    if (status < 0)
    {
       return ( OS_TIMER_ERR_INTERNAL);
@@ -455,21 +489,24 @@ int32 OS_TimerGetIdByName (uint32 *timer_id, const char *timer_name)
     ** a name too long wouldn't have been allowed in the first place
     ** so we definitely won't find a name too long
     */
-    if (strlen(timer_name) > OS_MAX_API_NAME)
+    if (strlen(timer_name) >= OS_MAX_API_NAME)
     {
         return OS_ERR_NAME_TOO_LONG;
     }
 
+    semTake(OS_timer_table_sem,WAIT_FOREVER);
     for (i = 0; i < OS_MAX_TIMERS; i++)
     {
         if (OS_timer_table[i].free != TRUE &&
                 (strcmp (OS_timer_table[i].name , (char*) timer_name) == 0))
         {
             *timer_id = i;
+            semGive(OS_timer_table_sem);
             return OS_SUCCESS;
         }
     }
    
+    semGive(OS_timer_table_sem);
     /* 
     ** The name was not found in the table,
     **  or it was, and the sem_id isn't valid anymore 
@@ -490,23 +527,29 @@ int32 OS_TimerGetIdByName (uint32 *timer_id, const char *timer_name)
 */
 int32 OS_TimerGetInfo (uint32 timer_id, OS_timer_prop_t *timer_prop)  
 {
-    /* 
-    ** Check to see that the id given is valid 
-    */
-    if (timer_id >= OS_MAX_TIMERS || OS_timer_table[timer_id].free == TRUE)
-    {
-       return OS_ERR_INVALID_ID;
-    }
-
     if (timer_prop == NULL)
     {
         return OS_INVALID_POINTER;
     }
+    /* 
+    ** Check to see that the id given is valid 
+    */
+    if (timer_id >= OS_MAX_TIMERS)
+    {
+       return OS_ERR_INVALID_ID;
+    }
+
+    semTake(OS_timer_table_sem,WAIT_FOREVER);
+
+    if (OS_timer_table[timer_id].free == TRUE)
+    {
+       semGive(OS_timer_table_sem);
+       return OS_ERR_INVALID_ID;
+    }
 
     /* 
-    ** put the info into the stucture 
+    ** put the info into the structure
     */
-    semTake(OS_timer_table_sem,WAIT_FOREVER);
 
     timer_prop ->creator       = OS_timer_table[timer_id].creator;
     strcpy(timer_prop-> name, OS_timer_table[timer_id].name);
@@ -519,4 +562,39 @@ int32 OS_TimerGetInfo (uint32 timer_id, OS_timer_prop_t *timer_prop)
     return OS_SUCCESS;
     
 } /* end OS_TimerGetInfo */
+
+/****************************************************************
+ * TIME BASE API
+ *
+ * This is not implemented by this OSAL, so return "OS_ERR_NOT_IMPLEMENTED"
+ * for all calls defined by this API.  This is necessary for forward
+ * compatibility (runtime code can check for this return code and use
+ * an alternative API where appropriate).
+ */
+
+int32 OS_TimeBaseCreate(uint32 *timer_id, const char *timebase_name, OS_TimerSync_t external_sync)
+{
+    return OS_ERR_NOT_IMPLEMENTED;
+}
+
+int32 OS_TimeBaseSet(uint32 timer_id, uint32 start_time, uint32 interval_time)
+{
+    return OS_ERR_NOT_IMPLEMENTED;
+}
+
+int32 OS_TimeBaseDelete(uint32 timer_id)
+{
+    return OS_ERR_NOT_IMPLEMENTED;
+}
+
+int32 OS_TimeBaseGetIdByName (uint32 *timer_id, const char *timebase_name)
+{
+    return OS_ERR_NOT_IMPLEMENTED;
+}
+
+int32 OS_TimerAdd(uint32 *timer_id, const char *timer_name, uint32 timebase_id, OS_ArgCallback_t  callback_ptr, void *callback_arg)
+{
+    return OS_ERR_NOT_IMPLEMENTED;
+}
+
 

@@ -75,6 +75,36 @@ void UT_os_teardown(const char* testSuiteName)
         g_logInfo.logFD = NULL;
     }
 #endif  /* !OS_USE_EMBEDDED_PRINTF */
+
+    OS_printf("\n%s HAS %d tests total.\n", testSuiteName, (int)g_logInfo.totalTstCnt);
+    OS_printf("%s PASSED %d tests.\n", testSuiteName, (int)g_logInfo.nPassed);
+    OS_printf("%s FAILED %d tests.\n", testSuiteName, (int)g_logInfo.nFailed);
+
+    if (g_logInfo.nMir > 0)
+    {
+        OS_printf("%s HAS %d tests requiring manual inspection.\n",
+                  testSuiteName, (int)g_logInfo.nMir);
+    }
+
+    if (g_logInfo.nUof > 0)
+    {
+        OS_printf("%s SKIPPED %d tests relating to OS-call-failure.\n",
+                  testSuiteName, (int)g_logInfo.nUof);
+    }
+
+    if (g_logInfo.nNa > 0)
+    {
+        OS_printf("%s SKIPPED %d tests not applicable to the platform.\n",
+                  testSuiteName, (int)g_logInfo.nNa);
+    }
+
+    if (g_logInfo.nTsf > 0)
+    {
+        OS_printf("%s SKIPPED %d tests failing test setup.\n",
+                  testSuiteName, (int)g_logInfo.nTsf);
+    }
+
+    OS_printf("\n");
 }
 
 /*--------------------------------------------------------------------------------*
@@ -162,51 +192,31 @@ void UT_os_set_return_code(UT_OsReturnCode_t* ret, int32 count, int32 value)
 **--------------------------------------------------------------------------------*/
 void UT_os_log_test_summaries(const char* testSuiteName)
 {
-    char* txtPtr = NULL;
-    char txtStr[UT_OS_LG_TEXT_LEN];
     const char* tstName = testSuiteName;
 
     if (tstName == NULL)
         tstName = " ";
 
-    txtPtr = "\n========================================================\n";
-    UT_OS_LOG_MACRO(txtPtr)
-    memset(txtStr, '\0', sizeof(txtStr));
-    UT_os_sprintf(txtStr, "%s TOTAL APIs: %d\n", tstName, (int)g_logInfo.apiCnt);
-    UT_OS_LOG_MACRO(txtStr)
-    memset(txtStr, '\0', sizeof(txtStr));
-    UT_os_sprintf(txtStr, "%s TOTAL TEST CASES: %d\n\n", tstName, (int)g_logInfo.totalTstCnt);
-    UT_OS_LOG_MACRO(txtStr)
-    memset(txtStr, '\0', sizeof(txtStr));
-    UT_os_sprintf(txtStr, "%s PASSED %3d tests.\n", tstName, (int)g_logInfo.nPassed);
-    UT_OS_LOG_MACRO(txtStr)
-    memset(txtStr, '\0', sizeof(txtStr));
-    UT_os_sprintf(txtStr, "%s FAILED %3d tests.\n", tstName, (int)g_logInfo.nFailed);
-    UT_OS_LOG_MACRO(txtStr)
+    UT_OS_LOG_MACRO("\n========================================================\n");
+    UT_OS_LOG_MACRO("%s TOTAL APIs: %d\n", tstName, (int)g_logInfo.apiCnt);
+    UT_OS_LOG_MACRO("%s TOTAL TEST CASES: %d\n\n", tstName, (int)g_logInfo.totalTstCnt);
+    UT_OS_LOG_MACRO("%s PASSED %3d tests.\n", tstName, (int)g_logInfo.nPassed);
+    UT_OS_LOG_MACRO("%s FAILED %3d tests.\n", tstName, (int)g_logInfo.nFailed);
 
-    memset(txtStr, '\0', sizeof(txtStr));
-    UT_os_sprintf(txtStr, "\n%s contains %2d tests that are untested OS-call-failure.\n",
+    UT_OS_LOG_MACRO("\n%s contains %2d tests that are untested OS-call-failure.\n",
                           tstName, (int)g_logInfo.nUof);
-    UT_OS_LOG_MACRO(txtStr)
-    memset(txtStr, '\0', sizeof(txtStr));
-    UT_os_sprintf(txtStr, "%s contains %2d tests that are manual-inspection-required.\n",
+    UT_OS_LOG_MACRO("%s contains %2d tests that are manual-inspection-required.\n",
                           tstName, (int)g_logInfo.nMir);
-    UT_OS_LOG_MACRO(txtStr)
-    memset(txtStr, '\0', sizeof(txtStr));
-    UT_os_sprintf(txtStr, "\n%s contains %2d tests that are not-applicable.\n",
+    UT_OS_LOG_MACRO("\n%s contains %2d tests that are not-applicable.\n",
                           tstName, (int)g_logInfo.nNa);
-    UT_OS_LOG_MACRO(txtStr)
 
     if (g_logInfo.nTsf > 0)
     {
-        memset(txtStr, '\0', sizeof(txtStr));
-        UT_os_sprintf(txtStr, "\n%s contains %2d tests that are test-setup-failure.\n",
+        UT_OS_LOG_MACRO("\n%s contains %2d tests that are test-setup-failure.\n",
                               tstName, (int)g_logInfo.nTsf);
-        UT_OS_LOG_MACRO(txtStr)
     }
 
-    txtPtr = "========================================================\n";
-    UT_OS_LOG_MACRO(txtPtr)
+    UT_OS_LOG_MACRO("========================================================\n")
 }
 
 /*--------------------------------------------------------------------------------*
@@ -215,9 +225,7 @@ void UT_os_log_test_summaries(const char* testSuiteName)
 void UT_os_log_test_results(const char* testSuiteName)
 {
     int32 i = 0, j = 0;
-    char* txtPtr = NULL;
     UT_OsApiInfo_t* apiPtr = NULL;
-    char txtStr[UT_OS_LG_TEXT_LEN];
     const char* tstName = testSuiteName;
 
     if (tstName == NULL)
@@ -225,29 +233,19 @@ void UT_os_log_test_results(const char* testSuiteName)
 
     if (g_logInfo.verboseLevel >= UT_OS_LOG_MODERATE)
     {
-        txtPtr = "\n--------------------------------------------------------\n";
-        UT_OS_LOG_MACRO(txtPtr)
-        memset(txtStr, '\0', sizeof(txtStr));
-        UT_os_sprintf(txtStr, "%s TOTAL APIs: %d\n", tstName, (int)g_logInfo.apiCnt);
-        UT_OS_LOG_MACRO(txtStr)
-        memset(txtStr, '\0', sizeof(txtStr));
-        UT_os_sprintf(txtStr, "%s TOTAL TEST CASES: %d\n", tstName, (int)g_logInfo.totalTstCnt);
-        UT_OS_LOG_MACRO(txtStr)
-        txtPtr = "--------------------------------------------------------";
-        UT_OS_LOG_MACRO(txtPtr)
+        UT_OS_LOG_MACRO("\n--------------------------------------------------------\n");
+        UT_OS_LOG_MACRO("%s TOTAL APIs: %d\n", tstName, (int)g_logInfo.apiCnt);
+        UT_OS_LOG_MACRO("%s TOTAL TEST CASES: %d\n", tstName, (int)g_logInfo.totalTstCnt);
+        UT_OS_LOG_MACRO("--------------------------------------------------------");
 
         for (i=0; i < g_logInfo.apiCnt; i++)
         {
             apiPtr = &(g_logInfo.apis[i]);
-            memset(txtStr, '\0', sizeof(txtStr));
-            UT_os_sprintf(txtStr, "\n    %s: %d\n", apiPtr->name, (int)apiPtr->tstCnt);
-            UT_OS_LOG_MACRO(txtStr)
+            UT_OS_LOG_MACRO("\n    %s: %d\n", apiPtr->name, (int)apiPtr->tstCnt);
             for (j=0; j < apiPtr->tstCnt; j++)
             {
-                memset(txtStr, '\0', sizeof(txtStr));
-                UT_os_sprintf(txtStr, "        %s [%s]\n", apiPtr->tests[j].name,
+                UT_OS_LOG_MACRO("        %s [%s]\n", apiPtr->tests[j].name,
                                       apiPtr->tests[j].result);
-                UT_OS_LOG_MACRO(txtStr)
             }
         }
     }
@@ -265,8 +263,7 @@ void UT_os_log_test_results(const char* testSuiteName)
 
     if (g_logInfo.verboseLevel != UT_OS_LOG_OFF)
     {
-        txtPtr = "\n\n";
-        UT_OS_LOG_MACRO(txtPtr);
+        UT_OS_LOG_MACRO("\n\n");
     }
 }
 
@@ -276,7 +273,6 @@ void UT_os_log_test_results(const char* testSuiteName)
 void UT_os_log_test_result_category(const char* catName, const char* catKey, uint32 nCases)
 {
     int32 i = 0, j = 0;
-    char* txtPtr = NULL;
     UT_OsApiInfo_t* apiPtr = NULL;
     const char* inCatKey = catKey;
     char txtStr[UT_OS_LG_TEXT_LEN];
@@ -290,13 +286,9 @@ void UT_os_log_test_result_category(const char* catName, const char* catKey, uin
 
     if (g_logInfo.verboseLevel >= UT_OS_LOG_MODERATE)
     {
-        txtPtr = "\n--------------------------------------------------------\n";
-        UT_OS_LOG_MACRO(txtPtr)
-        memset(txtStr, '\0', sizeof(txtStr));
-        UT_os_sprintf(txtStr, "  TOTAL TEST CASES %s -> %d\n", inCatName, (int)nCases);
-        UT_OS_LOG_MACRO(txtStr)
-        txtPtr = "--------------------------------------------------------\n";
-        UT_OS_LOG_MACRO(txtPtr)
+        UT_OS_LOG_MACRO("\n--------------------------------------------------------\n");
+        UT_OS_LOG_MACRO("  TOTAL TEST CASES %s -> %d\n", inCatName, (int)nCases);
+        UT_OS_LOG_MACRO("--------------------------------------------------------\n");
 
         for (i=0; i < g_logInfo.apiCnt; i++)
         {
@@ -306,9 +298,8 @@ void UT_os_log_test_result_category(const char* catName, const char* catKey, uin
                 if (strcmp(apiPtr->tests[j].result, inCatKey) == 0)
                 {
                     memset(txtStr, '\0', sizeof(txtStr));
-                    UT_os_sprintf(txtStr, "    %s [ ] %s - %s \n",
+                    UT_OS_LOG_MACRO("    %s [ ] %s - %s \n",
                                           inCatKey, apiPtr->name, apiPtr->tests[j].name);
-                    UT_OS_LOG_MACRO(txtStr)
                 }
             }
         }
@@ -321,40 +312,22 @@ void UT_os_log_test_result_category(const char* catName, const char* catKey, uin
 void UT_os_print_fdtable(const char* outputDesc)
 {
 #ifdef UT_VERBOSE
-    char* txtPtr = NULL;
-    char aLine[UT_OS_LG_TEXT_LEN], sVal[UT_OS_XS_TEXT_LEN];
-    uint32 j = 0, col0 = 1, col1 = 8, col2 = 14, col3 = 44, col4 = 52;
+    uint32 j;
 
     if (outputDesc)
-        UT_OS_LOG_MACRO(outputDesc)
+        UT_OS_LOG_MACRO("%s", outputDesc)
 
-    memset(aLine, ' ', sizeof(aLine));
-    memcpy(&aLine[col1], "FD", strlen("FD"));
-    memcpy(&aLine[col2], "PATH", strlen("PATH"));
-    memcpy(&aLine[col3-2], "USERID", strlen("USERID"));
-    memcpy(&aLine[col4-2], "VALID?", strlen("VALID?"));
-    aLine[col4+strlen("VALID?")] = '\0';
+    UT_OS_LOG_MACRO("\n----------------------------------------------------------\n")
+    UT_OS_LOG_MACRO("        %-6s%-30s%-8s%s", "FD", "PATH", "USERID", "VALID?")
+    UT_OS_LOG_MACRO("\n----------------------------------------------------------\n")
 
-    txtPtr = "\n----------------------------------------------------------\n";
-    UT_OS_LOG_MACRO(txtPtr)
-    UT_OS_LOG_MACRO(aLine)
-    txtPtr = "\n----------------------------------------------------------\n";
-    UT_OS_LOG_MACRO(txtPtr)
-
-    txtPtr = "\n";
     for (j=0; j < OS_MAX_NUM_OPEN_FILES; j++)
     {
-        memset(aLine, ' ', sizeof(aLine));
-
-        UT_OS_PRINT_FDTABLE_CONTENT_MACRO
-
-        aLine[col4+strlen(sVal)] = '\0';
-
-        UT_OS_LOG_MACRO(aLine)
-        UT_OS_LOG_MACRO(txtPtr)
+        /* UT_OS_PRINT_FDTABLE_CONTENT_MACRO */
+        UT_OS_LOG_MACRO("        %-6s%-30s%-8s%s\n", "FD", "PATH", "USERID", "VALID?")
     }
 
-    UT_OS_LOG_MACRO(txtPtr)
+    UT_OS_LOG_MACRO("\n")
 #endif  /* UT_VERBOSE */
 }
 
@@ -364,69 +337,34 @@ void UT_os_print_fdtable(const char* outputDesc)
 void UT_os_print_volumetable(const char* outputDesc)
 {
 #ifdef UT_VERBOSE
-    char* txtPtr = NULL;
-    char aLine[UT_OS_LG_TEXT_LEN], sVal[UT_OS_XS_TEXT_LEN];
-    uint32 j = 0, col0 = 1, col1 = 8, col2 = 24, col3 = 56;
-    uint32 col4 = 70, col5 = 88, col6 = 96, col7 = 104, col8 = 114;
+    int j;
 
     if (outputDesc)
-        UT_OS_LOG_MACRO(outputDesc)
+        UT_OS_LOG_MACRO("%s",outputDesc)
 
-    memset(aLine, ' ', sizeof(aLine));
-    memcpy(&aLine[col1], "DEVNAME", strlen("DEVNAME"));
-    memcpy(&aLine[col2], "PHYSDEV", strlen("PHYSDEV"));
-    memcpy(&aLine[col3], "VOLNAME", strlen("VOLNAME"));
-    memcpy(&aLine[col4], "MOUNTPNT", strlen("MOUNTPNT"));
-    memcpy(&aLine[col5-5], "VOLATILE?", strlen("VOLATILE?"));
-    memcpy(&aLine[col6-2], "FREE?", strlen("FREE?"));
-    memcpy(&aLine[col7-3], "MOUNTED?", strlen("MOUNTED?"));
-    memcpy(&aLine[col8-3], "BLOCKSIZE", strlen("BLOCKSIZE"));
-    aLine[col8+strlen("BLOCKSIZE")] = '\0';
+    UT_OS_LOG_MACRO("\n--------------------------------------------------------------")
+    UT_OS_LOG_MACRO("-------------------------------------------------------------\n")
+    UT_OS_LOG_MACRO(" %-8s%-16s%-32s%-14s%-18s%-8s%-8s%-10s", "DEVNAME", "PHYSDEV", "VOLNAME", "MOUNTPNT", "VOLATILE?","FREE?","MOUNTED?","BLOCKSIZE");
+    UT_OS_LOG_MACRO("\n--------------------------------------------------------------")
+    UT_OS_LOG_MACRO("-------------------------------------------------------------\n")
 
-    txtPtr = "\n--------------------------------------------------------------";
-    UT_OS_LOG_MACRO(txtPtr)
-    txtPtr = "-------------------------------------------------------------\n";
-    UT_OS_LOG_MACRO(txtPtr)
-    UT_OS_LOG_MACRO(aLine)
-    txtPtr = "\n--------------------------------------------------------------";
-    UT_OS_LOG_MACRO(txtPtr)
-    txtPtr = "-------------------------------------------------------------\n";
-    UT_OS_LOG_MACRO(txtPtr)
-
-    txtPtr = "\n";
     for (j=0; j < NUM_TABLE_ENTRIES; j++)
     {
-        memset(aLine, ' ', sizeof(aLine));
-
-        memset(sVal, '\0', sizeof(sVal));
-        UT_os_sprintf(sVal, "[%d]", (int)j);
-        memcpy(&aLine[col0], sVal, strlen(sVal));
-        memcpy(&aLine[col1], OS_VolumeTable[j].DeviceName, strlen(OS_VolumeTable[j].DeviceName));
-        memcpy(&aLine[col2], OS_VolumeTable[j].PhysDevName, strlen(OS_VolumeTable[j].PhysDevName));
-        memcpy(&aLine[col3], OS_VolumeTable[j].VolumeName, strlen(OS_VolumeTable[j].VolumeName));
-        memcpy(&aLine[col4], OS_VolumeTable[j].MountPoint, strlen(OS_VolumeTable[j].MountPoint));
-        memset(sVal, '\0', sizeof(sVal));
-        UT_os_sprintf(sVal, "%d", (int)OS_VolumeTable[j].VolatileFlag);
-        memcpy(&aLine[col5], sVal, strlen(sVal));
-        memset(sVal, '\0', sizeof(sVal));
-        UT_os_sprintf(sVal, "%d", (int)OS_VolumeTable[j].FreeFlag);
-        memcpy(&aLine[col6], sVal, strlen(sVal));
-        memset(sVal, '\0', sizeof(sVal));
-        UT_os_sprintf(sVal, "%d", (int)OS_VolumeTable[j].IsMounted);
-        memcpy(&aLine[col7], sVal, strlen(sVal));
-        memset(sVal, '\0', sizeof(sVal));
-        UT_os_sprintf(sVal, "%d", (int)OS_VolumeTable[j].BlockSize);
-        memcpy(&aLine[col8], sVal, strlen(sVal));
-
-        aLine[col8+strlen(sVal)] = '\0';
-
-        UT_OS_LOG_MACRO(aLine)
-        UT_OS_LOG_MACRO(txtPtr)
+        UT_OS_LOG_MACRO(" %-8s%-16s%-32s%-14s%-18d%-8d%-8d%-10d\n",
+                OS_VolumeTable[j].DeviceName,
+                OS_VolumeTable[j].PhysDevName,
+                OS_VolumeTable[j].VolumeName,
+                OS_VolumeTable[j].MountPoint,
+                (int)OS_VolumeTable[j].VolatileFlag,
+                (int)OS_VolumeTable[j].FreeFlag,
+                (int)OS_VolumeTable[j].IsMounted,
+                (int)OS_VolumeTable[j].BlockSize);
     }
 
-    UT_OS_LOG_MACRO(txtPtr)
+    UT_OS_LOG_MACRO("\n")
 #endif  /* UT_VERBOSE */
 }
+
 
 /*================================================================================*
 ** End of File: ut_os_stubs.c

@@ -47,6 +47,8 @@ void UT_os_setlocaltime_test(void);
 
 void UT_os_geterrorname_test(void);
 
+void UT_os_heapgetinfo_test(void);
+
 /*--------------------------------------------------------------------------------*/
 
 #endif  /* _UT_OSCORE_MISC_TEST_H_ */

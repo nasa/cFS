@@ -30,5 +30,19 @@ OS = posix
 ## BSP = genppc-vxworks6.4   -- vxWorks Power PC target
 ## BSP = mcf5235-rtems       -- RTEMS Coldfire evaluation board
 ## BSP = sis-rtems           -- RTEMS Sparc Instruction Simulator (GDB)
+## BSP = sparc-vxworks6.7    -- ut699 SPARC Leon3 development board
 ##---------------------------------------------------------
-BSP = pc-linux-ut
+BSP = pc-linux
+
+##---------------------------------------------------------
+## OSAL_M32 -- optional, build 32-bit images on 64-bit build machines
+##
+##     ** Need 32-bit images ??  **
+##     ** Have 64-bit images ??  **
+##     ** Uncomment this option. **
+##
+## If you are not using GCC, you may need to change -m32 to the
+## correct flag for your compiler. This flag may also be specified on
+## the "make" command line or in the shell environment.
+##---------------------------------------------------------
+# OSAL_M32 = -m32

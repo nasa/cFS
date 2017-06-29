@@ -60,7 +60,6 @@ void UT_os_setup_timerset_test(void);
 void UT_os_timercallback(uint32 timerId)
 {
     int deltaTime = 0;
-    char text[UT_OS_LG_TEXT_LEN];
     static int32 loopCnt = 0, res = 0;
     static uint32 prevIntervalTime = 0;
     static uint32 currIntervalTime = 0;
@@ -93,14 +92,10 @@ void UT_os_timercallback(uint32 timerId)
         if (g_logInfo.verboseLevel == UT_OS_LOG_EVERYTHING)
         {
         	UT_OS_LOG_MACRO("\n");
-            memset(text, '\0', sizeof(text));
-            UT_os_sprintf(text, "OS_TimerSet() - #4 Nominal [Output from timer callback func: ");
-            UT_OS_LOG_MACRO(text)
-            memset(text, '\0', sizeof(text));
-            UT_os_sprintf(text, "current_time=%d.%d, delta_time=%d, tolVal=%d, loopCnt=%d]\n",
+            UT_OS_LOG_MACRO("OS_TimerSet() - #4 Nominal [Output from timer callback func: ")
+            UT_OS_LOG_MACRO("current_time=%d.%d, delta_time=%d, tolVal=%d, loopCnt=%d]\n",
                           (int)currTime.seconds, (int)currTime.microsecs,
                           (int)deltaTime, (int)g_toleranceVal, (int)loopCnt);
-            UT_OS_LOG_MACRO(text)
         }
 
         if ((deltaTime > g_toleranceVal) && (loopCnt > 1))
@@ -116,6 +111,7 @@ void UT_os_timercallback(uint32 timerId)
         else
         {
             g_status = (res == 0) ? 1 : -1;
+
             /* slow the timer down so the main test thread can continue */
             res = OS_TimerSet(g_timerId, 1000, 500000);
         }
@@ -189,14 +185,42 @@ void UT_os_setup_timerset_test()
     g_timerNames[4] = "Set_Nominal";
 }
 
+/*--------------------------------------------------------------------------------*/
+/* The test logic must execute in a task for the timers to work properly. */ 
+void UT_timertest_task(void)
+{
+   OS_TaskRegister();
+
+   UT_os_init_timer_misc();
+
+   UT_os_setup_timercreate_test();
+   UT_os_timercreate_test();
+
+   UT_os_setup_timerdelete_test();
+   UT_os_timerdelete_test();
+
+   UT_os_setup_timergetidbyname_test();
+   UT_os_timergetidbyname_test();
+
+   UT_os_setup_timergetinfo_test();
+   UT_os_timergetinfo_test();
+
+   UT_os_setup_timerset_test();
+   UT_OS_LOG_MACRO("\n============================================\n")
+   UT_os_timerset_test();
+   UT_OS_LOG_MACRO("============================================\n")
+
+   UT_os_teardown("ut_ostimer");
+
+   OS_ApplicationShutdown(TRUE);
+   OS_ApplicationExit(g_logInfo.nFailed > 0);
+}
+
 /*--------------------------------------------------------------------------------*
 ** Main
 **--------------------------------------------------------------------------------*/
-#ifdef _OSAL_UNIT_TEST_
-   void OS_Application_Startup(void)
-#else
-   int main(int argc, char* argv[])
-#endif
+
+void OS_Application_Startup(void)
 {
     UT_os_setup(UT_OS_LOG_FILENAME);
 
@@ -209,28 +233,24 @@ void UT_os_setup_timerset_test()
 
     OS_API_Init();
 
-    UT_os_init_timer_misc();
+    /*
+    ** Create the test task.
+    */
+    {
+       uint32 task_id;
+       int32 status;
 
-    UT_os_setup_timercreate_test();
-    UT_os_timercreate_test();
-
-    UT_os_setup_timerdelete_test();
-    UT_os_timerdelete_test();
-
-    UT_os_setup_timergetidbyname_test();
-    UT_os_timergetidbyname_test();
-
-    UT_os_setup_timergetinfo_test();
-    UT_os_timergetinfo_test();
-
-    UT_os_setup_timerset_test();
-    UT_OS_LOG_MACRO("\n============================================\n")
-    UT_os_timerset_test();
-    UT_OS_LOG_MACRO("============================================\n")
-
-    UT_os_teardown("ut_ostimer");
-
-    return (0);
+       /*
+       ** Warning: Running test with a stack size less than 20K may result in issues/test failure
+       */
+       status = OS_TaskCreate( &task_id, "TimerTest", UT_timertest_task, NULL, 32*1024, 100, 0);
+       if ( status != OS_SUCCESS )
+       {
+          UT_OS_LOG_MACRO("Error creating Timer Test Task 2\n");
+          OS_ApplicationExit(status);
+       }
+       OS_IdleLoop();
+    }
 }
 
 /*================================================================================*

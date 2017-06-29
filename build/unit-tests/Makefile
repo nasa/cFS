@@ -1,3 +1,5 @@
+include ../osal-config.mak
+
 all:
 	make -C oscore-test 
 	make -C osloader-test 
@@ -10,7 +12,7 @@ all:
 clean:
 	make -C oscore-test clean
 	make -C osloader-test clean
-	make -C osloader-test -f Modules.mak clean 
+	make -C osloader-test -f Modules.mak clean
 	make -C osfilesys-test clean 
 	make -C osfile-test clean
 	make -C osnetwork-test clean

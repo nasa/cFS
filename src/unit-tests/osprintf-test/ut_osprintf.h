@@ -13,13 +13,13 @@
 */
 #include <string.h>
 #include <stdlib.h>
-#include "osprintf.h"
 
 /* printf Replacement Unit Test Compiler Flags
     - Define UT_SHOW_PASS in order to display passing tests; if undefined then
       only the failed tests are displayed.  In either case the total number of
       tests passes and failed are displayed
-    - Define UT_DO_FLOAT to test floating point printf's
+    - Define UT_NO_FLOAT to skip the tests for floating point printf's;
+      undefine to include these tests
     - Define UT_DO_OFFSET when compiling on the GHS target to perform tests to
       determine variable parameter offset values for the cFE variadic functions
     - Define OSP_GHS to compile on the GHS platform
@@ -31,11 +31,16 @@
 */
 
 #ifdef OS_USE_EMBEDDED_PRINTF
+#include "osprintf.h"
 #ifndef OSP_GHS
 int putchar(int);
 #endif
 #else
 #include <stdio.h>
+#endif
+
+#ifdef OSP_ARINC653
+#include "common_types.h"
 #endif
 
 /*
@@ -68,7 +73,7 @@ void UT_osprintf_lu(void);
 void UT_osprintf_lx(void);
 void UT_osprintf_lX(void);
 
-#ifdef UT_DO_FLOAT
+#ifndef UT_NO_FLOAT
 void UT_osprintf_f(void);
 void UT_osprintf_lf(void);
 void UT_osprintf_misc(void);

@@ -9,6 +9,7 @@
 **--------------------------------------------------------------------------------*/
 
 #include "ut_osloader_module_test.h"
+#include "ut_osloader_test_platforms.h"
 
 /*--------------------------------------------------------------------------------*
 ** Macros
@@ -125,54 +126,6 @@ UT_os_sample_test_exit_tag:
 #endif
 
 /*--------------------------------------------------------------------------------*
-** Syntax: OS_ModuleTableInit
-** Purpose: Initialize the tables that the OS API uses to keep track of information
-**          about objects
-** Parameters: To-be-filled-in
-** Returns: OS_ERROR on an unsuccessful inits
-**          OS_SUCCESS on a successful inits
-**--------------------------------------------------------------------------------*/
-void UT_os_module_table_init_test()
-{
-    UT_OsApiInfo_t apiInfo;
-    int32 res = 0, idx = 0;
-    const char* testDesc = NULL;
-
-    UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
-
-    /*-----------------------------------------------------*/
-    testDesc = "#1 Init-not-call-first - Manual inspection required";
-
-    UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_MIR)
-
-    /*-----------------------------------------------------*/
-    testDesc = "#2 OS-call-failure";
-
-    UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_UOF)
-
-    /*-----------------------------------------------------*/
-    testDesc = "#3 Nominal";
-
-    res = OS_ModuleTableInit();
-    if (res == OS_ERR_NOT_IMPLEMENTED)
-    {
-        testDesc = "API Not implemented";
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
-    }
-    else if (res == OS_SUCCESS)
-    {
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
-    }
-    else
-    {
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
-    }
-
-    UT_OS_SET_API_NAME_AND_TEST_COUNT_MACRO(apiInfo, "OS_ModuleTableInit", idx)
-    UT_OS_LOG_API_MACRO(apiInfo)
-}
-
-/*--------------------------------------------------------------------------------*
 ** Syntax: OS_ModuleLoad
 ** Purpose: Loads the new ELF object module into the RTOS
 ** Parameters: To-be-filled-in
@@ -199,7 +152,7 @@ void UT_os_module_load_test()
     /*-----------------------------------------------------*/
     testDesc = "API Not implemented";
 
-    res = OS_ModuleLoad(0, "TestModule","/cf/module.so");
+    res = OS_ModuleLoad(0, "TestModule", UT_OS_GENERIC_MODULE_NAME1);
     if (res == OS_ERR_NOT_IMPLEMENTED)
     {
         UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
@@ -209,7 +162,7 @@ void UT_os_module_load_test()
     /*-----------------------------------------------------*/
     testDesc = "#1 Null-pointer-arg-1";
 
-    res = OS_ModuleLoad(0, "TestModule", "/cf/module.so");
+    res = OS_ModuleLoad(0, "TestModule", UT_OS_GENERIC_MODULE_NAME1);
     if (res == OS_INVALID_POINTER)
         UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
     else
@@ -218,7 +171,7 @@ void UT_os_module_load_test()
     /*-----------------------------------------------------*/
     testDesc = "#2 Null-pointer-arg-2";
 
-    res = OS_ModuleLoad(&module_id, 0, "/cf/module.so");
+    res = OS_ModuleLoad(&module_id, 0, UT_OS_GENERIC_MODULE_NAME1);
     if (res == OS_INVALID_POINTER)
         UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
     else
@@ -242,7 +195,7 @@ void UT_os_module_load_test()
         memset(module_name, '\0', sizeof(module_name));
         UT_os_sprintf(module_name, "MODULE%d",i);
         memset(module_file_name, '\0', sizeof(module_file_name));
-        UT_os_sprintf(module_file_name, "/cf/MODULE%d.so",i);
+        UT_os_sprintf(module_file_name, UT_OS_SPECIFIC_MODULE_NAME, i);
         res = OS_ModuleLoad(&module_id, module_name, module_file_name);
         if ( res != OS_SUCCESS )
         {
@@ -255,7 +208,7 @@ void UT_os_module_load_test()
 
     if ( test_setup_invalid == 0 )
     {
-        res = OS_ModuleLoad(&module_id, "OneTooMany", "/cf/MODULE1.so");
+        res = OS_ModuleLoad(&module_id, "OneTooMany", UT_OS_GENERIC_MODULE_NAME2);
         if (res == OS_ERR_NO_FREE_IDS)
             UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
         else
@@ -263,16 +216,13 @@ void UT_os_module_load_test()
 
     }
     /* Reset test environment */
-    for ( i = 0; i< OS_MAX_MODULES; i++ )
-    {
-        res = OS_ModuleUnload(i); /* Ignore errors, does not matter here */
-    }
+    OS_DeleteAllObjects();
 
     /*-----------------------------------------------------*/
     testDesc = "#5 Duplicate-name";
 
     /* Setup */
-    res = OS_ModuleLoad(&module_id2, "DUPLICATE", "/cf/MODULE1.so");
+    res = OS_ModuleLoad(&module_id2, "DUPLICATE", UT_OS_GENERIC_MODULE_NAME2);
     if ( res != OS_SUCCESS )
     {
         testDesc = "#5 Duplicate-name - Module Load failed";
@@ -280,7 +230,7 @@ void UT_os_module_load_test()
     }
     else
     {
-        res = OS_ModuleLoad(&module_id, "DUPLICATE", "/cf/MODULE1.so");
+        res = OS_ModuleLoad(&module_id, "DUPLICATE", UT_OS_GENERIC_MODULE_NAME2);
         if (res == OS_ERR_NAME_TAKEN)
             UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
         else
@@ -298,7 +248,7 @@ void UT_os_module_load_test()
     /*-----------------------------------------------------*/
     testDesc = "#7 Nominal";
 
-    res = OS_ModuleLoad(&module_id, "Good", "/cf/MODULE1.so");
+    res = OS_ModuleLoad(&module_id, "Good", UT_OS_GENERIC_MODULE_NAME2);
     if ( res == OS_SUCCESS )
         UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
     else
@@ -357,7 +307,7 @@ void UT_os_module_unload_test()
     testDesc = "#3 Nominal";
 
     /* Setup */
-    res = OS_ModuleLoad(&module_id, "Good", "/cf/MODULE1.so");
+    res = OS_ModuleLoad(&module_id, "Good", UT_OS_GENERIC_MODULE_NAME2);
     if ( res != OS_SUCCESS )
     {
         testDesc = "#3 Nominal - Module Load failed";
@@ -391,7 +341,7 @@ void UT_os_module_info_test()
     int32              res = 0, idx = 0;
     const char*        testDesc = NULL;
     uint32             module_id;
-    OS_module_record_t module_info;
+    OS_module_prop_t   module_info;
 
     UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
 
@@ -427,7 +377,7 @@ void UT_os_module_info_test()
     testDesc = "#3 Nominal";
 
     /* Setup */
-    res = OS_ModuleLoad(&module_id, "Good", "/cf/MODULE1.so");
+    res = OS_ModuleLoad(&module_id, "Good", UT_OS_GENERIC_MODULE_NAME2);
     if ( res != OS_SUCCESS )
     {
         testDesc = "#3 Nominal - Module Load failed";

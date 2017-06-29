@@ -1,0 +1,65 @@
+<h1 id="operating-system-abstraction-layer-project">Operating System Abstraction Layer Project</h1>
+<div class="figure">
+<img src="./doc/OSAL-Logo.png" alt="OSAL Logo by Michael Cudmore" /><p class="caption">OSAL Logo by Michael Cudmore</p>
+</div>
+<p>The OS Abstraction Layer was originally devloped by the Flight Software Systems Branch at NASA Goddard Space Flight Center.</p>
+<h1 id="os-abstraction-layer-information">OS Abstraction Layer information:</h1>
+<p>This distribution contains:</p>
+<ol style="list-style-type: decimal">
+<li>The OS Abstraction Layer Library</li>
+<li>Tests and example applications</li>
+<li>for the following targets:
+<ul>
+<li>Generic PPC running vxWorks 6.x ( Tested on vxWorks 6.4 )</li>
+<li>Axiom m5235BCC Coldfire Evaluation board running the RTEMS 4.10 Operating System</li>
+<li>A PC running Linux ( Tested on CentOS 5.x and 6.x 32 bit )</li>
+<li>The sparc/sis simulator running RTEMS 4.10.2</li>
+</ul></li>
+<li>A directory structure and makefiles to manage it all.</li>
+</ol>
+<h1 id="getting-started">Getting Started:</h1>
+<p>See the document <em>doc/OSAL-Configuration-Guide.doc</em> for complete details.</p>
+<p>An easy way to get started is to use the Linux port and classic build:</p>
+<ol style="list-style-type: decimal">
+<li>Set the <em>OSAL_SRC</em> environment variable to point to the OSAL source code.
+<ul>
+<li>Running setvars.sh will set the variable for you ($source ./setvars.sh)</li>
+</ul></li>
+<li>Edit the <em>build/osal-config.mak</em> file and set the following options:
+<ul>
+<li>BSP - Set this to the board you are running on. For a PC running linux, use <em>pc-linux</em></li>
+<li>OS - Set this to the OS you are running. For a PC running linux, use <em>posix</em>.</li>
+<li>OSAL_M32 - Uncomment/Add this build variable for building 32-bit images using &quot;native&quot; GCC on a 64-bit X86 Linux platform</li>
+</ul></li>
+</ol>
+<p>Buiding on a PC running linux:</p>
+<pre><code>export OSAL_SRC = /home/acudmore/osal/src</code></pre>
+<p>In build/osal-config.mak:</p>
+<pre><code>OS=posix
+BSP=pc-linux
+
+Optional: OSAL_M32 = -m32 (Note: Usage of this flag may require an optional &#39;multilib&#39; (or similar) 
+package to be installed. Refer to your operating system and toolchain documentation for details, if 
+adding the appropriate flag causes your builds to fail due to (for example) missing 32-bit or 
+multilib related headers or libraries.) </code></pre>
+<p>Optional: Some Linux systems may require an additional linker option in src/bsp/pc-linux/make/link-rules.mak:</p>
+<pre><code>LDFLAGS ?= $(OSAL_M32) -export-dynamic
+
+If the symbol-api-test fails, then you need this option.</code></pre>
+<p>Now just type <em>make config; make</em> from the build directory and it should build the OSAL core files, tests, and sample applications for you. The binary for each application is in its own directory (i.e. build/examples/tasking-example/tasking-example.bin) You can switch to that directory and run it. You can also debug it using GDB.</p>
+<p>NOTE: Running on linux may require root or adjusting the posix message queue maximum sizes.</p>
+<p>The Embedded targets take a little more work to run, because they must be cross compiled and booted on the board. By copying a target, you should be able to come up with a new target.</p>
+<p>If you would like just the OSAL itself, just look in src/os/inc for the include files and src/os/<your os here> for the OSAL implementation.</p>
+<p>The API documentation is in the <em>doc</em> directory.</p>
+<p>There are two sets of tests: build/tests and build/unit-tests. To build and the unit tests, perform the build steps above then <em>make unit-tests</em> in the build directory.</p>
+<p>Instructions on how to use the newely supported cmake build system are provided in the OSAL Configuration Guide located in the <em>doc</em> directory.</p>
+<h1 id="contact-information">Contact Information:</h1>
+<pre><code>Alan Cudmore
+NASA Goddard Space Flight Center
+Code 582.0
+Greenbelt, MD 20771
+Alan.P.Cudmore@nasa.gov</code></pre>
+<h1 id="copyright-notice">Copyright notice:</h1>
+<p>Copyright United States Government as represented by the Administrator of the National Aeronautics and Space Administration</p>
+<h1 id="license-information">License information:</h1>
+<p>This software is licensed under NASAs Open Source Agreement. The release of the software is conditional upon the recipients acceptance of the Open Source Agreement. Please see the file: NASA_Open_Source_Agreement_1_3-OS_AbstractionLayer.txt</p>

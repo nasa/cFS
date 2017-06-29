@@ -344,7 +344,6 @@ void task_8(void)
     
     return; 
 
-    return; 
 } /* end task_8 */
  
 

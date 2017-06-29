@@ -487,7 +487,7 @@ void UT_os_openfile_test()
     /*-----------------------------------------------------*/
     testDesc = "API not implemented";
 
-    if (OS_open(NULL, OS_READ_WRITE, 644) == OS_FS_UNIMPLEMENTED)
+    if (OS_open(NULL, OS_READ_WRITE, 0644) == OS_FS_UNIMPLEMENTED)
     {
         UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
         goto UT_os_openfile_test_exit_tag;
@@ -496,7 +496,7 @@ void UT_os_openfile_test()
     /*-----------------------------------------------------*/
     testDesc = "#1 Null-pointer-arg";
 
-    if (OS_open(NULL, OS_READ_WRITE, 644) == OS_FS_ERR_INVALID_POINTER)
+    if (OS_open(NULL, OS_READ_WRITE, 0644) == OS_FS_ERR_INVALID_POINTER)
         UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
     else
         UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
@@ -504,7 +504,7 @@ void UT_os_openfile_test()
     /*-----------------------------------------------------*/
     testDesc = "#2 Invalid-path-arg";
 
-    if (OS_open(g_invalidPath, OS_READ_WRITE, 644) == OS_FS_ERR_PATH_INVALID)
+    if (OS_open(g_invalidPath, OS_READ_WRITE, 0644) == OS_FS_ERR_PATH_INVALID)
         UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
     else
         UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
@@ -512,7 +512,7 @@ void UT_os_openfile_test()
     /*-----------------------------------------------------*/
     testDesc = "#3 Path-too-long-arg";
 
-    if (OS_open(g_longPathName, OS_READ_WRITE, 644) == OS_FS_ERR_PATH_TOO_LONG)
+    if (OS_open(g_longPathName, OS_READ_WRITE, 0644) == OS_FS_ERR_PATH_TOO_LONG)
         UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
     else
         UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
@@ -520,7 +520,7 @@ void UT_os_openfile_test()
     /*-----------------------------------------------------*/
     testDesc = "#4 Name-too-long-arg";
 
-    if (OS_open(g_longFileName, OS_READ_WRITE, 644) == OS_FS_ERR_NAME_TOO_LONG)
+    if (OS_open(g_longFileName, OS_READ_WRITE, 0644) == OS_FS_ERR_NAME_TOO_LONG)
         UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
     else
         UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
@@ -530,7 +530,7 @@ void UT_os_openfile_test()
 
     memset(g_fNames[0], '\0', sizeof(g_fNames[0]));
     UT_os_sprintf(g_fNames[0], "%s/Open_InvPerm.txt", g_mntName);
-    res = OS_open(g_fNames[0], 123, 644);
+    res = OS_open(g_fNames[0], 123, 0644);
     if (res == OS_FS_ERROR)
         UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
     else
@@ -577,7 +577,7 @@ void UT_os_openfile_test()
     {
         for (i=0; i <= OS_MAX_NUM_OPEN_FILES; i++)
         {
-            g_fDescs[i] = OS_open(g_fNames[i], OS_WRITE_ONLY, 644);
+            g_fDescs[i] = OS_open(g_fNames[i], OS_WRITE_ONLY, 0644);
             if (g_fDescs[i] < 0)
                 break;
         }
@@ -618,8 +618,8 @@ void UT_os_openfile_test()
         goto UT_os_openfile_test_exit_tag;
     }
 
-    g_fDescs[5] = OS_open(g_fNames[5], OS_READ_WRITE, 644);
-    g_fDescs[6] = OS_open(g_fNames[6], OS_WRITE_ONLY, 644);
+    g_fDescs[5] = OS_open(g_fNames[5], OS_READ_WRITE, 0644);
+    g_fDescs[6] = OS_open(g_fNames[6], OS_WRITE_ONLY, 0644);
 
     UT_os_print_fdtable("FD TABLE _AFTER_ 2 FILE OPENINGS IN NOMINAL TEST FOR OS_open()");
 
@@ -792,7 +792,6 @@ void UT_os_readfile_test()
     int32 idx=0;
     UT_OsApiInfo_t apiInfo;
     const char* testDesc=NULL;
-    char text[UT_OS_LG_TEXT_LEN];
 
     UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
 
@@ -880,7 +879,7 @@ void UT_os_readfile_test()
         goto UT_os_readfile_test_exit_tag;
     }
 
-    g_fDescs[0] = OS_open(g_fNames[0], OS_READ_WRITE, 644);
+    g_fDescs[0] = OS_open(g_fNames[0], OS_READ_WRITE, 0644);
     if (g_fDescs[0] < 0)
     {
         testDesc = "#4 Nominal - File-open failed";
@@ -903,12 +902,8 @@ void UT_os_readfile_test()
     OS_close(g_fDescs[0]);
     OS_remove(g_fNames[0]);
 
-    memset(text, '\0', sizeof(text));
-    UT_os_sprintf(text, "OS_read() success test -- Write to file:\n\t%s\n", g_writeBuff);
-    UT_OS_LOG_MACRO(text)
-    memset(text, '\0', sizeof(text));
-    UT_os_sprintf(text, "OS_read() success test -- Read from file:\n\t%s\n", g_readBuff);
-    UT_OS_LOG_MACRO(text)
+    UT_OS_LOG_MACRO("OS_read() success test -- Write to file:\n\t%s\n", g_writeBuff);
+    UT_OS_LOG_MACRO("OS_read() success test -- Read from file:\n\t%s\n", g_readBuff);
 
 UT_os_readfile_test_exit_tag:
     UT_OS_SET_API_NAME_AND_TEST_COUNT_MACRO(apiInfo, "OS_read", idx)
@@ -972,7 +967,6 @@ void UT_os_writefile_test()
     int32 idx=0;
     UT_OsApiInfo_t apiInfo;
     const char* testDesc=NULL;
-    char text[UT_OS_LG_TEXT_LEN];
 
     UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
 
@@ -1059,7 +1053,7 @@ void UT_os_writefile_test()
         goto UT_os_writefile_test_exit_tag;
     }
 
-    g_fDescs[0] = OS_open(g_fNames[0], OS_READ_WRITE, 644);
+    g_fDescs[0] = OS_open(g_fNames[0], OS_READ_WRITE, 0644);
     if (g_fDescs[0] < 0)
     {
         testDesc = "#4 Nominal - File-open failed";
@@ -1082,12 +1076,8 @@ void UT_os_writefile_test()
     OS_close(g_fDescs[0]);
     OS_remove(g_fNames[0]);
 
-    memset(text, '\0', sizeof(text));
-    UT_os_sprintf(text, "OS_write() success test -- Write to file:\n\t%s\n", g_writeBuff);
-    UT_OS_LOG_MACRO(text)
-    memset(text, '\0', sizeof(text));
-    UT_os_sprintf(text, "OS_write() success test -- Read from file:\n\t%s\n", g_readBuff);
-    UT_OS_LOG_MACRO(text)
+    UT_OS_LOG_MACRO("OS_write() success test -- Write to file:\n\t%s\n", g_writeBuff);
+    UT_OS_LOG_MACRO("OS_write() success test -- Read from file:\n\t%s\n", g_readBuff);
 
 UT_os_writefile_test_exit_tag:
     UT_OS_SET_API_NAME_AND_TEST_COUNT_MACRO(apiInfo, "OS_write", idx)
@@ -1264,7 +1254,7 @@ void UT_os_chmodfile_test()
     /*-----------------------------------------------------*/
     testDesc = "API not implemented";
 
-    if (OS_chmod(NULL, 644) == OS_FS_UNIMPLEMENTED)
+    if (OS_chmod(NULL, 0644) == OS_FS_UNIMPLEMENTED)
     {
         UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
         goto UT_os_chmodfile_test_exit_tag;
@@ -2046,6 +2036,14 @@ void UT_os_movefile_test()
         goto UT_os_movefile_test_exit_tag;
     }
 
+    /* Close file before moving */
+    if (OS_close(g_fDescs[0]) != OS_FS_SUCCESS)
+    {
+        testDesc = "#6 Nominal - File-close failed";
+        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_TSF)
+        goto UT_os_movefile_test_exit_tag;
+    }
+
     if (OS_mv(g_fNames[0], g_fNames[1]) != OS_FS_SUCCESS)
     {
         UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
@@ -2059,7 +2057,6 @@ void UT_os_movefile_test()
         UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
 
     /* Reset test environment */
-    OS_close(g_fDescs[0]);
     OS_remove(g_fNames[1]);
 
 UT_os_movefile_test_exit_tag:
@@ -2121,8 +2118,8 @@ UT_os_movefile_test_exit_tag:
 void UT_os_outputtofile_test()
 {
     int32 idx=0;
-    char *envName=NULL;
     UT_OsApiInfo_t apiInfo;
+	char* cmd=NULL;
     const char* testDesc=NULL;
 
     UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
@@ -2177,9 +2174,8 @@ void UT_os_outputtofile_test()
         goto UT_os_outputtofile_test_exit_tag;
     }
 
-    UT_OS_GET_HOME_ENV_FOR_NOMINAL_SHELLOUTPUTTOFILE_MACRO
-
-    if (OS_ShellOutputToFile("echo $HOME", g_fDescs[0]) != OS_FS_SUCCESS)
+    cmd = "echo \"UT_os_outputtofile_test\"";
+    if (OS_ShellOutputToFile(cmd, g_fDescs[0]) != OS_FS_SUCCESS)
     {
         UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
         goto UT_os_outputtofile_test_exit_tag;
@@ -2200,7 +2196,7 @@ void UT_os_outputtofile_test()
         goto UT_os_outputtofile_test_exit_tag;
     }
 
-    if (strncmp(g_readBuff, envName, strlen(envName)) == 0)
+    if (UT_OS_OUTPUT_TO_FILE_SUCCESS_COND_MACRO)
         UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
     else
         UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
@@ -2538,7 +2534,7 @@ void UT_os_closeallfiles_test()
     g_fDescs[0] = OS_creat(g_fNames[0], OS_READ_WRITE);
     g_fDescs[1] = OS_creat(g_fNames[1], OS_READ_WRITE);
     g_fDescs[2] = OS_creat(g_fNames[2], OS_READ_WRITE);
-    if ((g_fDescs[0] < 0) || (g_fDescs[1] < 0) || (g_fDescs[1] < 0))
+    if ((g_fDescs[0] < 0) || (g_fDescs[1] < 0) || (g_fDescs[2] < 0))
     {
         testDesc = "#2 Nominal - File-create failed";
         UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_TSF)

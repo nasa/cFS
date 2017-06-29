@@ -9,6 +9,7 @@
 **--------------------------------------------------------------------------------*/
 
 #include "ut_oscore_misc_test.h"
+#include "ut_oscore_test_platforms.h"
 
 /*--------------------------------------------------------------------------------*
 ** Macros
@@ -233,7 +234,8 @@ void UT_os_printf_test()
     UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
 
     OS_printf_enable();
-    UT_OS_LOG_MACRO("OS_printf() - #1 Nominal [This is the expected output after API call]\n")
+    UT_OS_LOG_MACRO("OS_printf() - #1 Nominal [This is the expected stdout output after API call]\n")
+    OS_printf("OS_printf() - #1 Nominal [ This is the expected stdout output after API call]\n");
 
     UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, "#1 Nominal - Manual inspection required", UT_OS_MIR)
 
@@ -263,7 +265,8 @@ void UT_os_printfenable_test()
     OS_printf_disable();
 
     OS_printf_enable();
-    UT_OS_LOG_MACRO("OS_printf_enable() - #1 Nominal [This is the expected output after API call]\n")
+    UT_OS_LOG_MACRO("OS_printf_enable() - #1 Nominal [This is the expected stdout output after API call]\n")
+    OS_printf("OS_printf_enable() - #1 Nominal [This is the expected stdout output after API call]\n");
 
     UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, "#1 Nominal - Manual inspection required", UT_OS_MIR)
 
@@ -291,16 +294,19 @@ void UT_os_printfdisable_test()
     UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
 
     OS_printf_enable();
-    UT_OS_LOG_MACRO("OS_printf_disable() - #1 Nominal [This is the expected output before API call]\n")
+    UT_OS_LOG_MACRO("OS_printf_disable() - #1 Nominal [This is the expected stdout output before API call]\n")
+    OS_printf("OS_printf_disable() - #1 Nominal [This is the expected stdout output before API call]\n");
 
     OS_printf_disable();
-    UT_OS_LOG_MACRO("OS_printf_disable() - #1 Nominal [This is NOT the expected output after API call]\n")
+    UT_OS_LOG_MACRO("OS_printf_disable() - #1 Nominal [This is NOT the expected stdout output after API call]\n")
+    OS_printf("OS_printf_disable() - #1 Nominal [This is NOT the expected stdout output after API call]\n");
 
     UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, "#1 Nominal - Manual inspection required", UT_OS_MIR)
 
     /* Reset test environment */
     OS_printf_enable();
-    UT_OS_LOG_MACRO("OS_printf_disable() - #1 Nominal [This is the expected output after test reset]\n")
+    UT_OS_LOG_MACRO("OS_printf_disable() - #1 Nominal [This is the expected stdout output after test reset]\n")
+    OS_printf("OS_printf_disable() - #1 Nominal [This is the expected stdout output after test reset]\n");
 
     UT_OS_SET_API_NAME_AND_TEST_COUNT_MACRO(apiInfo, "OS_printf_disable", idx)
     UT_OS_LOG_API_MACRO(apiInfo)
@@ -458,8 +464,7 @@ void UT_os_getlocaltime_test()
     OS_time_t time_struct;
     UT_OsApiInfo_t apiInfo;
     const char* testDesc = NULL;
-    char text[UT_OS_LG_TEXT_LEN];
-    int32 res = 0, idx = 0, i = 0, j = 0;
+    int32 res = 0, idx = 0, i = 0;
 
     UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
 
@@ -496,13 +501,10 @@ void UT_os_getlocaltime_test()
         for (i=0; i < 5; i++)
         {
             UT_OS_LOG_MACRO("OS_GetLocalTime() - #3 Nominal ")
-            memset(text, '\0', sizeof(text));
-            UT_os_sprintf(text, "[Expecting output after API call to increase over time: %d.%d]\n",
-                                time_struct.seconds, time_struct.microsecs);
-            UT_OS_LOG_MACRO(text)
+            UT_OS_LOG_MACRO("[Expecting output after API call to increase over time: %ld.%ld]\n",
+                                (long)time_struct.seconds, (long)time_struct.microsecs);
 
-            for (j=0; j < 10000; j++) { }
-
+            UT_OS_WAIT_MACRO
             OS_GetLocalTime(&time_struct);
         }
 
@@ -555,8 +557,7 @@ void UT_os_setlocaltime_test()
     OS_time_t time_struct;
     UT_OsApiInfo_t apiInfo;
     const char* testDesc = NULL;
-    char text[UT_OS_LG_TEXT_LEN];
-    int32 res = 0, idx = 0, i = 0, j = 0;
+    int32 res = 0, idx = 0, i = 0;
 
     UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
 
@@ -590,19 +591,16 @@ void UT_os_setlocaltime_test()
     res = OS_GetLocalTime(&time_struct);
     if (res == OS_SUCCESS)
     {
-    	UT_os_printf("\n");
-		for (i=0; i < 5; i++)
-		{
-			UT_OS_LOG_MACRO("OS_SetLocalTime() - #3 Nominal ")
-			memset(text, '\0', sizeof(text));
-			UT_os_sprintf(text, "[Expecting output before API call to increase over time: %d.%d]\n",
-						        time_struct.seconds, time_struct.microsecs);
-            UT_OS_LOG_MACRO(text)
+        UT_os_printf("\n");
+        for (i=0; i < 5; i++)
+        {
+            UT_OS_LOG_MACRO("OS_SetLocalTime() - #3 Nominal ")
+			UT_OS_LOG_MACRO("[Expecting output before API call to increase over time: %ld.%ld]\n",
+						        (long)time_struct.seconds, (long)time_struct.microsecs);
 
-			for (j=0; j < 10000; j++) { }
-
-			OS_GetLocalTime(&time_struct);
-		}
+            UT_OS_WAIT_MACRO
+            OS_GetLocalTime(&time_struct);
+        }
     }
 
     memset(&time_struct, 0x00, sizeof(time_struct));
@@ -612,27 +610,22 @@ void UT_os_setlocaltime_test()
     res = OS_SetLocalTime(&time_struct);
     if (res == OS_SUCCESS)
     {
-    	memset(text, '\0', sizeof(text));
-        UT_os_sprintf(text, "OS_SetLocalTime() - #3 Nominal [New time set at %d.%d]\n",
-                            time_struct.seconds, time_struct.microsecs);
-        UT_OS_LOG_MACRO(text)
+    	UT_OS_LOG_MACRO("OS_SetLocalTime() - #3 Nominal [New time set at %ld.%ld]\n",
+                            (long)time_struct.seconds, (long)time_struct.microsecs);
 
         res = OS_GetLocalTime(&time_struct);
         if (res == OS_SUCCESS)
         {
-        	UT_os_printf("\n");
-			for (i=0; i < 5; i++)
-			{
-				UT_OS_LOG_MACRO("OS_SetLocalTime() - #3 Nominal ")
-		    	memset(text, '\0', sizeof(text));
-				UT_os_sprintf(text, "[Expecting output after API call to increase over time: %d.%d]\n",
-							        time_struct.seconds, time_struct.microsecs);
-				UT_OS_LOG_MACRO(text)
+            UT_os_printf("\n");
+            for (i=0; i < 5; i++)
+            {
+                UT_OS_LOG_MACRO("OS_SetLocalTime() - #3 Nominal ")
+				UT_OS_LOG_MACRO("[Expecting output after API call to increase over time: %ld.%ld]\n",
+							        (long)time_struct.seconds, (long)time_struct.microsecs);
 
-				for (j=0; j < 10000; j++) { }
-
-				OS_GetLocalTime(&time_struct);
-			}
+                UT_OS_WAIT_MACRO
+                OS_GetLocalTime(&time_struct);
+            }
         }
 
         testDesc = "#3 Nominal - Manual inspection required";
@@ -640,7 +633,8 @@ void UT_os_setlocaltime_test()
     }
     else
     {
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        /* Most likely it is a permission issue - no way to fix - but OK to ignore this failure */
+        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
     }
 
 UT_os_setlocaltime_test_exit_tag:
@@ -668,9 +662,9 @@ UT_os_setlocaltime_test_exit_tag:
 **        (a) OS_INVALID_POINTER
 ** -----------------------------------------------------
 ** Test #2: Nominal condition
-**   - Call this routine with valid argument
-**   - Expect the returned value to be
-**       (a) OS_SUCCESS
+**   1) Call this routine with valid argument
+**   2) Expect the returned value to be
+**        (a) OS_SUCCESS
 **--------------------------------------------------------------------------------*/
 void UT_os_geterrorname_test(void)
 {
@@ -701,22 +695,105 @@ void UT_os_geterrorname_test(void)
         UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
 
     /*-----------------------------------------------------*/
-    testDesc = "#2 Nominal";
+    testDesc = "#2 Undefined Error";
+
+    if (OS_GetErrorName(12345, &errNames[0]) == OS_ERROR)
+        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+    else
+        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+
+    /*-----------------------------------------------------*/
+    testDesc = "#3 Nominal";
 
     if ((OS_GetErrorName(OS_ERR_NAME_TOO_LONG, &errNames[0]) == OS_SUCCESS) &&
         (strcmp(errNames[0], "OS_ERR_NAME_TOO_LONG") == 0) &&
         (OS_GetErrorName(OS_ERR_NAME_TAKEN, &errNames[1]) == OS_SUCCESS) &&
         (strcmp(errNames[1], "OS_ERR_NAME_TAKEN") == 0) &&
         (OS_GetErrorName(OS_ERR_NO_FREE_IDS, &errNames[2]) == OS_SUCCESS) &&
-        (strcmp(errNames[2], "OS_ERR_NO_FREE_IDS") == 0) &&
-        (OS_GetErrorName(12345, &errNames[3]) == OS_ERROR) &&
-        (strcmp(errNames[3], "ERROR_UNKNOWN") == 0))
+        (strcmp(errNames[2], "OS_ERR_NO_FREE_IDS") == 0))
         UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
     else
         UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
 
 UT_os_geterrorname_test_exit_tag:
     UT_OS_SET_API_NAME_AND_TEST_COUNT_MACRO(apiInfo, "OS_GetErrorName", idx)
+    UT_OS_LOG_API_MACRO(apiInfo)
+}
+
+/*--------------------------------------------------------------------------------*
+** Syntax: int32 OS_HeapGetInfo(OS_heap_prop_t *heap_prop)
+** Purpose: Returns current info on the heap
+** Parameters: prop - out pointer to heap data
+** Returns: OS_INVALID_POINTER if the pointer passed in is null
+**          OS_SUCCESS if succeeded
+**          OS_ERROR if OS call failed
+**          OS_ERR_NOT_IMPLEMENTED if not implemented
+** -----------------------------------------------------
+** Test #0: Not-implemented condition
+**   1) Call this routine
+**   2) If the returned value is OS_ERR_NOT_IMPLEMENTED, then exit test
+**   3) Otherwise, continue
+** -----------------------------------------------------
+** Test #1: Null-pointer-argument condition
+**   1) Call this routine with a null-pointer argument
+**   2) Expect the returned value to be
+**        (a) OS_INVALID_POINTER
+** -----------------------------------------------------
+** Test #2: OS-call-failure condition
+**   1) Setup test to cause the OS call to fail inside this routine
+**   2) Call this routine
+**   3) Expect the returned value to be
+**        (a) OS_ERROR
+** -----------------------------------------------------
+** Test #3: Nominal condition
+**   1) Call this routine with valid argument
+**   2) Expect the returned value to be
+**        (a) OS_SUCCESS
+**--------------------------------------------------------------------------------*/
+void UT_os_heapgetinfo_test(void)
+{
+    UT_OsApiInfo_t apiInfo;
+    int32 res = 0, idx = 0;
+    OS_heap_prop_t heapProp;
+    const char* testDesc = NULL;
+
+    UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
+
+    /*-----------------------------------------------------*/
+    testDesc = "API not implemented";
+
+    res = OS_HeapGetInfo(&heapProp);
+    if (res == OS_ERR_NOT_IMPLEMENTED)
+    {
+        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
+        goto UT_os_heapgetinfo_test_exit_tag;
+    }
+
+    /*-----------------------------------------------------*/
+    testDesc = "#1 Null-pointer-arg";
+
+    res = OS_HeapGetInfo(NULL);
+    if (res == OS_INVALID_POINTER)
+        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+    else
+        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+
+    /*-----------------------------------------------------*/
+    testDesc = "#2 OS-call-failure";
+
+    UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_UOF)
+
+    /*-----------------------------------------------------*/
+    testDesc = "#3 Nominal";
+
+    res = OS_HeapGetInfo(&heapProp);
+    if (res == OS_SUCCESS)
+        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+    else
+        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+
+UT_os_heapgetinfo_test_exit_tag:
+    UT_OS_SET_API_NAME_AND_TEST_COUNT_MACRO(apiInfo, "OS_HeapGetInfo", idx)
     UT_OS_LOG_API_MACRO(apiInfo)
 }
 

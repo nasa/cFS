@@ -312,13 +312,7 @@ void UT_os_opendir_test()
     UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
 
     /*-----------------------------------------------------*/
-    testDesc = "API not implemented";
-
-    if ((int)OS_opendir(NULL) == OS_FS_UNIMPLEMENTED)
-    {
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
-        goto UT_os_opendir_test_exit_tag;
-    }
+    testDesc = "API not implemented - not applicable";
 
     /*-----------------------------------------------------*/
     testDesc = "#1 Null-pointer-arg";
@@ -537,13 +531,7 @@ void UT_os_readdir_test()
     strcpy(g_subdirNames[1], " ");
 
     /*-----------------------------------------------------*/
-    testDesc = "API not implemented";
-
-    if (OS_readdir(NULL) == OS_FS_UNIMPLEMENTED)
-    {
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
-        goto UT_os_readdir_test_exit_tag;
-    }
+    testDesc = "API not implemented - not applicable";
 
     /*-----------------------------------------------------*/
     testDesc = "#1 Null-pointer-arg";
@@ -672,7 +660,7 @@ void UT_os_rewinddir_test()
     strcpy(g_subdirNames[1], " ");
 
     /*-----------------------------------------------------*/
-    testDesc = "Not implemented";
+    testDesc = "API Not implemented - not applicable";
 
     /* Since this is a void function, we can't check if it's implemented. */
 

@@ -1,0 +1,12 @@
+
+ld < oscore_wb_UT.o
+
+main()
+
+unld "oscore_wb_UT.o"
+
+ld < oscore_wb_UT.o
+
+main() > ut_oscore_wb_log.txt
+
+unld "oscore_wb_UT.o"

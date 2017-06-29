@@ -42,5 +42,6 @@ depend::
 # in osal-config.mak
 #
 config::
-	cp -f ../src/bsp/$(BSP)/config/osconfig.h inc	
+	test -d inc || mkdir inc
+	cp -f ../src/bsp/$(BSP)/config/osconfig.h inc/osconfig.h
 

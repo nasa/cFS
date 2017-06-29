@@ -158,22 +158,43 @@
 /*
 ** Defines for File System Calls
 */
-#define OS_FS_SUCCESS                    0
-#define OS_FS_ERROR                    (-1)
-#define OS_FS_ERR_INVALID_POINTER      (-2) 
-#define OS_FS_ERR_PATH_TOO_LONG        (-3)
-#define OS_FS_ERR_NAME_TOO_LONG        (-4)
-#define OS_FS_UNIMPLEMENTED            (-5) 
-#define OS_FS_ERR_DRIVE_NOT_CREATED    (-6)
-#define OS_FS_ERR_DEVICE_NOT_FREE      (-7)
-#define OS_FS_ERR_PATH_INVALID         (-8)
-#define OS_FS_ERR_NO_FREE_FDS          (-9)
-#define OS_FS_ERR_INVALID_FD           (-10)
+/*
+ * NOTE - these values used to overlap with the
+ * other OSAPI error codes.  They now start at -100
+ * to avoid this overlap.
+ */
+#define OS_FS_ERR_PATH_TOO_LONG        (-103)
+#define OS_FS_ERR_NAME_TOO_LONG        (-104)
+#define OS_FS_ERR_DRIVE_NOT_CREATED    (-106)
+#define OS_FS_ERR_DEVICE_NOT_FREE      (-107)
+#define OS_FS_ERR_PATH_INVALID         (-108)
+
+
+/* 
+ * Map some codes used by the file API back to the generic counterparts 
+ * where there is overlap between them.  Do not duplicate error codes.
+ */
+#define OS_FS_SUCCESS                  OS_SUCCESS
+#define OS_FS_ERROR                    OS_ERROR
+#define OS_FS_ERR_INVALID_POINTER      OS_INVALID_POINTER
+#define OS_FS_ERR_NO_FREE_FDS          OS_ERR_NO_FREE_IDS
+#define OS_FS_ERR_INVALID_FD           OS_ERR_INVALID_ID
+#define OS_FS_UNIMPLEMENTED            OS_ERR_NOT_IMPLEMENTED
+
 
 /* This typedef is for the OS_FS_GetErrorName function, to ensure
- * everyone is making an array of the same length */
-
-typedef char os_fs_err_name_t[35];
+ * everyone is making an array of the same length
+ *
+ * Implementation note for developers:
+ *
+ * os_fs_err_name_t is now equivalent to the OSAL "os_err_name_t" typedef, 
+ * to preserve source code compatibility with anything using the OS_FS_GetErrorName api
+ *
+ * The sizes of strings in OSAL functions are built with os_fs_err_name_t's
+ * limits in mind.  Always check the uses of os_fs_err_name_t when changing
+ * os_err_name_t.
+ */
+typedef os_err_name_t os_fs_err_name_t;
 
 
 /*

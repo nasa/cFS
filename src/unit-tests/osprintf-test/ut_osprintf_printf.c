@@ -17,7 +17,7 @@ extern unsigned OS_printf_enabled;
 void UT_osprintf_printf(void)
 {
     /* Perform printf enabled test */
-    PRINTF("%s", "printf_test_string\n");
+    OS_printf("%s", "printf_test_string\n");
     UT_Report(UT_PASS,
               "PRINTF",
               "Output to console",
@@ -26,7 +26,7 @@ void UT_osprintf_printf(void)
 
     /* Perform printf disabled test */
     OS_printf_enabled = 0;
-    PRINTF("%s", "printf_test_string_disabled\n");
+    OS_printf("%s", "printf_test_string_disabled\n");
     UT_Report(UT_PASS,
               "PRINTF",
               "Output to console disabled",

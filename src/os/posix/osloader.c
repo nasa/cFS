@@ -29,6 +29,7 @@
 #include <unistd.h> /* close() */
 #include <string.h> /* memset() */
 #include <pthread.h>
+#include <signal.h>
 
 #include <dlfcn.h>
 
@@ -51,12 +52,27 @@ extern void   OS_InterruptSafeUnlock(pthread_mutex_t *lock, sigset_t *previous);
                                    GLOBAL DATA
 ****************************************************************************************/
 
+/*
+ * The "OS_module_internal_record_t" structure is used internally
+ * to the osloader module for keeping the state.  It is OS-specific
+ * and should not be directly used by external entities.
+ */
+typedef struct
+{
+   int                 free;
+   cpuaddr             entry_point;
+   void *              host_module_id;
+   char                filename[OS_MAX_PATH_LEN];
+   char                name[OS_MAX_API_NAME];
+
+} OS_module_internal_record_t;
+
 
 /*
 ** Need to define the OS Module table here. 
 ** osconfig.h will have the maximum number of loadable modules defined.
 */
-OS_module_record_t OS_module_table[OS_MAX_MODULES];
+OS_module_internal_record_t OS_module_table[OS_MAX_MODULES];
 
 /*
 ** The Mutex for protecting the above table
@@ -79,7 +95,6 @@ int32  OS_ModuleTableInit ( void )
       OS_module_table[i].free        = TRUE;
       OS_module_table[i].entry_point = 0; 
       OS_module_table[i].host_module_id = 0;
-      OS_module_table[i].addr.valid = FALSE;
       strcpy(OS_module_table[i].name,"");
       strcpy(OS_module_table[i].filename,"");
    }
@@ -114,10 +129,15 @@ int32  OS_ModuleTableInit ( void )
              
              The address of the symbol will be stored in the pointer that is passed in.
 ---------------------------------------------------------------------------------------*/
-int32 OS_SymbolLookup( uint32 *SymbolAddress, char *SymbolName )
+int32 OS_SymbolLookup( cpuaddr *SymbolAddress, const char *SymbolName )
 {
    const char   *dlError;           /*  Pointer to error string   */
-   uint32        Function;
+   void         *Function;
+
+   /*
+    * call dlerror() to clear any prior error that might have occured.
+    */
+   dlerror();
 
    /*
    ** Check parameters
@@ -130,14 +150,14 @@ int32 OS_SymbolLookup( uint32 *SymbolAddress, char *SymbolName )
    /*
    ** Lookup the entry point
    */
-   Function = (uint32 )dlsym((void *)0, SymbolName);
+   Function = dlsym((void *)0, SymbolName);
    dlError = dlerror();
    if( dlError )
    {
       return(OS_ERROR);
    }
 
-   *SymbolAddress = Function;
+   *SymbolAddress = (cpuaddr)Function;
    
    return(OS_SUCCESS);
     
@@ -154,7 +174,7 @@ int32 OS_SymbolLookup( uint32 *SymbolAddress, char *SymbolName )
              OS_INVALID_FILE  if the file could not be opened or written
              OS_SUCCESS if the symbol is found 
 ---------------------------------------------------------------------------------------*/
-int32 OS_SymbolTableDump ( char *filename, uint32 SizeLimit )
+int32 OS_SymbolTableDump ( const char *filename, uint32 SizeLimit )
 {
 
    return(OS_ERR_NOT_IMPLEMENTED);
@@ -179,7 +199,7 @@ int32 OS_SymbolTableDump ( char *filename, uint32 SizeLimit )
              OS_ERR_NAME_TAKEN if the name is in use
              OS_SUCCESS if the module is loaded successfuly
 ---------------------------------------------------------------------------------------*/
-int32 OS_ModuleLoad ( uint32 *module_id, char *module_name, char *filename )
+int32 OS_ModuleLoad ( uint32 *module_id, const char *module_name, const char *filename )
 {
    int         i;
    uint32      possible_moduleid;
@@ -269,15 +289,9 @@ int32 OS_ModuleLoad ( uint32 *module_id, char *module_name, char *filename )
    ** fill out the OS_module_table entry for this new module
    */
    OS_module_table[possible_moduleid].entry_point = 0; /* Only for certain targets */
-   OS_module_table[possible_moduleid].host_module_id = (uint32) function_lib;
+   OS_module_table[possible_moduleid].host_module_id = function_lib;
    strncpy(OS_module_table[possible_moduleid].filename , filename, OS_MAX_PATH_LEN);
    strncpy(OS_module_table[possible_moduleid].name , module_name, OS_MAX_API_NAME);
- 
-   /*
-   ** For now, do not store the module address information
-   ** Let the OS_ModuleInfo function fetch that information and return it.
-   */
-   OS_module_table[possible_moduleid].addr.valid = FALSE;
  
    /*
    ** Return the OSAPI Module ID
@@ -301,7 +315,6 @@ int32 OS_ModuleLoad ( uint32 *module_id, char *module_name, char *filename )
 int32 OS_ModuleUnload ( uint32 module_id )
 {
 
-   int         ReturnCode;
    const char *dlError;   
 
    /*
@@ -315,7 +328,7 @@ int32 OS_ModuleUnload ( uint32 module_id )
    /*
    ** Attempt to close/unload the module
    */ 
-   ReturnCode = dlclose((void *)OS_module_table[module_id].host_module_id);
+   dlclose((void *)OS_module_table[module_id].host_module_id);
    dlError = dlerror();
    if( dlError )
    {
@@ -339,7 +352,7 @@ int32 OS_ModuleUnload ( uint32 module_id )
              OS_INVALID_POINTER if the pointer to the ModuleInfo structure is invalid
              OS_SUCCESS if the module info was filled out successfuly 
 ---------------------------------------------------------------------------------------*/
-int32 OS_ModuleInfo ( uint32 module_id, OS_module_record_t *module_info )
+int32 OS_ModuleInfo ( uint32 module_id, OS_module_prop_t *module_info )
 {
 
    /*
@@ -362,7 +375,7 @@ int32 OS_ModuleInfo ( uint32 module_id, OS_module_record_t *module_info )
    ** Fill out the module info
    */
    module_info->entry_point = OS_module_table[module_id].entry_point;
-   module_info->host_module_id = OS_module_table[module_id].host_module_id;
+   module_info->host_module_id = (uint32)OS_module_table[module_id].host_module_id;
    strncpy(module_info->filename, OS_module_table[module_id].filename , OS_MAX_PATH_LEN);
    strncpy(module_info->name, OS_module_table[module_id].name, OS_MAX_API_NAME);
 

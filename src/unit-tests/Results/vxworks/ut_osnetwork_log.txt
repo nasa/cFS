@@ -1,0 +1,56 @@
+OSAL Unit Test Output File for osnetwork APIs
+
+========================================================
+ut_osnetwork TOTAL APIs: 2
+ut_osnetwork TOTAL TEST CASES: 6
+
+ut_osnetwork PASSED   4 tests.
+ut_osnetwork FAILED   0 tests.
+
+ut_osnetwork contains  2 tests that are untested OS-call-failure.
+ut_osnetwork contains  0 tests that are manual-inspection-required.
+
+ut_osnetwork contains  0 tests that are not-applicable.
+========================================================
+
+--------------------------------------------------------
+ut_osnetwork TOTAL APIs: 2
+ut_osnetwork TOTAL TEST CASES: 6
+--------------------------------------------------------
+    OS_NetworkGetID: 2
+        #1 OS-call-failure [_UOF_ ]
+        #2 Nominal [PASSED]
+
+    OS_NetworkGetHostName: 4
+        #1 Null-pointer-arg [PASSED]
+        #2 Zero-name-length-arg [PASSED]
+        #3 OS-call-failure [_UOF_ ]
+        #4 Nominal [PASSED]
+
+--------------------------------------------------------
+  TOTAL TEST CASES PASSED -> 4
+--------------------------------------------------------
+    PASSED [ ] OS_NetworkGetID - #2 Nominal 
+    PASSED [ ] OS_NetworkGetHostName - #1 Null-pointer-arg 
+    PASSED [ ] OS_NetworkGetHostName - #2 Zero-name-length-arg 
+    PASSED [ ] OS_NetworkGetHostName - #4 Nominal 
+
+--------------------------------------------------------
+  TOTAL TEST CASES FAILED -> 0
+--------------------------------------------------------
+
+--------------------------------------------------------
+  TOTAL TEST CASES MANUAL-INSPECTION-REQUIRED -> 0
+--------------------------------------------------------
+
+--------------------------------------------------------
+  TOTAL TEST CASES NOT-APPLICABLE -> 0
+--------------------------------------------------------
+
+--------------------------------------------------------
+  TOTAL TEST CASES UNTESTED-OS-CALL-FAILURE -> 2
+--------------------------------------------------------
+    _UOF_  [ ] OS_NetworkGetID - #1 OS-call-failure 
+    _UOF_  [ ] OS_NetworkGetHostName - #3 OS-call-failure 
+
+

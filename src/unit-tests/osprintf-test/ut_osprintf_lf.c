@@ -56,7 +56,7 @@ void UT_osprintf_lf(void)
     {
         /* Perform sprintf test */
         init_test();
-        SPRINTF(strg_buf, osp_tests[i].format, osp_tests[i].test_val);
+        sprintf(strg_buf, osp_tests[i].format, osp_tests[i].test_val);
         UT_Report(check_test(osp_tests[i].expected, strg_buf),
                   "SPRINTF",
                   osp_tests[i].description,
@@ -73,7 +73,7 @@ void UT_osprintf_lf(void)
 
         /* Perform snprintf test */
         init_test();
-        SNPRINTF(strg_buf, osp_tests[i].max_len,
+        snprintf(strg_buf, osp_tests[i].max_len,
                  osp_tests[i].format, osp_tests[i].test_val);
         UT_Report(check_test(trunc_buf, strg_buf),
                   "SNPRINTF",

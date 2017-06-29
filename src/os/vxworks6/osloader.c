@@ -39,6 +39,21 @@
 */
 #ifdef OS_INCLUDE_MODULE_LOADER
 
+/******************************************************************************
+ * Design Notes on table locking and mutex use in this file.
+ *
+ * With the current design, the OS_module_table has a matching
+ * OS_module_table_mut mutex that is used to lock the table for access.
+ * However, the table data is not accessed in a thread-safe manner in all
+ * of the methods below.  Locking an entire table to read/access a single
+ * entry in the table results in performance problems and deadlock
+ * conditions.  Therefore, in general, an entire table is locked primarily
+ * when a table entry is created or deleted.  WARNING: other
+ * patterns of multi-threaded table access via the OSAL API are not
+ * safely supported with the current implementation.
+ *
+ *****************************************************************************/
+
 /****************************************************************************************
                                      TYPEDEFS 
 ****************************************************************************************/
@@ -63,13 +78,30 @@ extern SYMTAB_ID sysSymTbl;
 /****************************************************************************************
                                    GLOBAL DATA
 ****************************************************************************************/
-int    OS_symbol_table_size = 0;
+int32    OS_symbol_table_size = 0;
+
+/*
+ * The "OS_module_internal_record_t" structure is used internally
+ * to the osloader module for keeping the state.  It is OS-specific
+ * and should not be directly used by external entities.
+ */
+typedef struct
+{
+   int                 free;
+   cpuaddr             entry_point;
+   uint32              host_module_id;
+   char                filename[OS_MAX_PATH_LEN];
+   char                name[OS_MAX_API_NAME];
+   OS_module_address_t addr;  /* Note, this can probably be removed, just wasting memory */
+
+} OS_module_internal_record_t;
+
 
 /*
 ** Need to define the OS Module table here. 
 ** osconfig.h will have the maximum number of loadable modules defined.
 */
-OS_module_record_t OS_module_table[OS_MAX_MODULES];
+OS_module_internal_record_t OS_module_table[OS_MAX_MODULES];
 
 /*
 ** The Mutex for protecting the above table
@@ -86,7 +118,7 @@ int    OS_sym_table_file_fd;
 ****************************************************************************************/
 int32  OS_ModuleTableInit ( void )
 {
-   int i;
+   uint32 i;
    
    /* 
    ** Initialize Module Table 
@@ -132,7 +164,7 @@ int32  OS_ModuleTableInit ( void )
              
              The address of the symbol will be stored in the pointer that is passed in.
 ---------------------------------------------------------------------------------------*/
-int32 OS_SymbolLookup( uint32 *SymbolAddress, char *SymbolName )
+int32 OS_SymbolLookup( cpuaddr *SymbolAddress, const char *SymbolName )
 {
    STATUS    vxStatus;
    SYM_TYPE  SymType;
@@ -149,12 +181,12 @@ int32 OS_SymbolLookup( uint32 *SymbolAddress, char *SymbolName )
    /*
    ** Lookup the entry point
    */
-   vxStatus = symFindByName ( sysSymTbl, SymbolName, &SymValue, &SymType );
+   vxStatus = symFindByName ( sysSymTbl, (char *)SymbolName, &SymValue, &SymType );
    if( vxStatus == ERROR )
    {
       return(OS_ERROR);
    }
-   *SymbolAddress = (uint32)SymValue;   
+   *SymbolAddress = (cpuaddr)SymValue;   
    
    return(OS_SUCCESS);
     
@@ -178,11 +210,17 @@ int32 OS_SymbolLookup( uint32 *SymbolAddress, char *SymbolName )
              
              The address of the symbol will be stored in the pointer that is passed in.
 ---------------------------------------------------------------------------------------*/
-BOOL  OS_SymTableIterator ( char *name, int val,  SYM_TYPE type,  int max_size, UINT16 group )
+BOOL  OS_SymTableIterator ( char *name, int val,  SYM_TYPE type,  int32 max_size, UINT16 group )
 {
    SymbolRecord_t symRecord;   
    int            status;
   
+
+   if (strlen(name) >= OS_MAX_SYM_LEN)
+   {
+       return(FALSE);
+   }
+
    /*
    ** Copy symbol name 
    */
@@ -197,7 +235,9 @@ BOOL  OS_SymTableIterator ( char *name, int val,  SYM_TYPE type,  int max_size, 
    ** Write entry in file
    */
    status = write(OS_sym_table_file_fd, (char *)&symRecord, sizeof(symRecord));
-   if ( status == -1 )
+   /* There is a problem if not all bytes were written OR if we get an error
+    * value, < 0. */
+   if ( status < (int)sizeof(symRecord) )
    {
        return(FALSE);
    }
@@ -231,11 +271,10 @@ BOOL  OS_SymTableIterator ( char *name, int val,  SYM_TYPE type,  int max_size, 
              OS_FS_ERR_PATH_INVALID  if the filename/path is invalid 
              OS_SUCCESS if the symbol is found 
 ---------------------------------------------------------------------------------------*/
-int32 OS_SymbolTableDump ( char *filename, uint32 SizeLimit )
+int32 OS_SymbolTableDump ( const char *filename, uint32 SizeLimit )
 {
    char   local_path_name[OS_MAX_LOCAL_PATH_LEN];
    int32  return_status;
-   SYMBOL *last_symbol;
 
    /*
    ** Check parameters
@@ -271,7 +310,7 @@ int32 OS_SymbolTableDump ( char *filename, uint32 SizeLimit )
       /*
       ** Iterate the symbol table
       */
-      last_symbol = symEach( sysSymTbl, (FUNCPTR)OS_SymTableIterator, SizeLimit );
+      (void) symEach( sysSymTbl, (FUNCPTR)OS_SymTableIterator, SizeLimit );
       close(OS_sym_table_file_fd);
       return_status = OS_SUCCESS;
    }
@@ -301,9 +340,9 @@ int32 OS_SymbolTableDump ( char *filename, uint32 SizeLimit )
              OS_SUCCESS if the module is loaded successfuly
 
 ---------------------------------------------------------------------------------------*/
-int32 OS_ModuleLoad ( uint32 *module_id, char *module_name, char *filename )
+int32 OS_ModuleLoad ( uint32 *module_id, const char *module_name, const char *filename )
 {
-   int         i;
+   uint32      i;
    uint32      possible_moduleid;
    char        translated_path[OS_MAX_LOCAL_PATH_LEN];
    int32       return_code;
@@ -319,6 +358,11 @@ int32 OS_ModuleLoad ( uint32 *module_id, char *module_name, char *filename )
          OS_printf("OSAL: Error, invalid parameters to OS_ModuleLoad\n");
       #endif
       return(OS_INVALID_POINTER);
+   }
+
+   if (strlen(module_name) >= OS_MAX_API_NAME)
+   {
+       return(OS_ERROR);
    }
   
    semTake(OS_module_table_mut,WAIT_FOREVER); 
@@ -361,7 +405,6 @@ int32 OS_ModuleLoad ( uint32 *module_id, char *module_name, char *filename )
    ** no other task can try to use it 
    */
    OS_module_table[possible_moduleid].free = FALSE ;
-   semGive(OS_module_table_mut);
  
    /*
    ** Translate the filename to the Host System
@@ -369,6 +412,8 @@ int32 OS_ModuleLoad ( uint32 *module_id, char *module_name, char *filename )
    return_code = OS_TranslatePath((const char *)filename, (char *)translated_path);
    if ( return_code != OS_SUCCESS )
    {
+      OS_module_table[possible_moduleid].free = TRUE ;
+      semGive(OS_module_table_mut);
       return(return_code);
    }
    /*
@@ -382,6 +427,7 @@ int32 OS_ModuleLoad ( uint32 *module_id, char *module_name, char *filename )
    if( fd < 0 )
    {
       OS_module_table[possible_moduleid].free = TRUE ;
+      semGive(OS_module_table_mut);
       #ifdef OS_DEBUG_PRINTF
          OS_printf("OSAL: Error, cannot open application file: %s\n",translated_path);
       #endif
@@ -401,6 +447,7 @@ int32 OS_ModuleLoad ( uint32 *module_id, char *module_name, char *filename )
    if( vxModuleId == NULL )
    {
       OS_module_table[possible_moduleid].free = TRUE ;
+      semGive(OS_module_table_mut);
       #ifdef OS_DEBUG_PRINTF
          OS_printf("OSAL: Error, cannot load module: %s\n",translated_path);
       #endif
@@ -433,6 +480,8 @@ int32 OS_ModuleLoad ( uint32 *module_id, char *module_name, char *filename )
    */
    OS_module_table[possible_moduleid].addr.valid = FALSE; 
  
+   semGive(OS_module_table_mut);
+
    /*
    ** Return the OSAL Module ID
    */
@@ -459,23 +508,33 @@ int32 OS_ModuleUnload ( uint32 module_id )
    /*
    ** Check the module_id
    */
-   if ( module_id >= OS_MAX_MODULES || OS_module_table[module_id].free == TRUE )
+   if ( module_id >= OS_MAX_MODULES )
    {
       return(OS_ERR_INVALID_ID);
    }
   
+   semTake(OS_module_table_mut,WAIT_FOREVER);
+
+   if ( OS_module_table[module_id].free == TRUE )
+   {
+      semGive(OS_module_table_mut);
+      return(OS_ERR_INVALID_ID);
+   }
+
    /*
    ** Attempt to close/unload the module
    */ 
    vxStatus = unldByModuleId((MODULE_ID )OS_module_table[module_id].host_module_id, 0);
    if ( vxStatus == ERROR )   
    {
+      semGive(OS_module_table_mut);
       #ifdef OS_DEBUG_PRINTF
          OS_printf("OSAL: Error, Cannot Close/Unload application file: %d\n",vxStatus);
       #endif
       return(OS_ERROR);
    }
    OS_module_table[module_id].free = TRUE ;
+   semGive(OS_module_table_mut);
    #ifdef OS_DEBUG_PRINTF
       OS_printf("OS_ModuleUnload: Object file unloaded OK\n");
    #endif
@@ -495,7 +554,7 @@ int32 OS_ModuleUnload ( uint32 module_id )
              OS_INVALID_POINTER if the pointer to the ModuleInfo structure is invalid
              OS_SUCCESS if the module info was filled out successfuly 
 ---------------------------------------------------------------------------------------*/
-int32 OS_ModuleInfo ( uint32 module_id, OS_module_record_t *module_info )
+int32 OS_ModuleInfo ( uint32 module_id, OS_module_prop_t *module_info )
 {
    MODULE_INFO  vxModuleInfo;
    STATUS       vxStatus;

@@ -75,7 +75,7 @@ int main()
     UT_osprintf_lx();
     UT_osprintf_lX();
 
-#ifdef UT_DO_FLOAT
+#ifndef UT_NO_FLOAT
     UT_osprintf_f();
     UT_osprintf_lf();
     UT_osprintf_misc();
@@ -90,6 +90,12 @@ int main()
 #ifdef UT_DO_OFFSET
     /* Calculate argument offsets for cFE variadic functions */
     UT_osprintf_CalcOffsets();
+#endif
+
+#ifndef OSP_ARINC653
+    /* Ensure everything gets written */
+    fflush(stdout);
+    fclose(UT_logfile);
 #endif
 
     return 0;
@@ -132,6 +138,7 @@ void UT_Text(char *out_text)
 {
 #ifdef OSP_ARINC653
     TUTF_print(out_text);
+    TUTF_print("\n");
 #else
     fprintf(UT_logfile, "%s", out_text);
     fflush(UT_logfile);
@@ -271,9 +278,31 @@ void UT_ReportFailures(void)
 #ifndef OSP_ARINC653
     printf("\nosprintf PASSED %d tests.\nosprintf FAILED %d tests.\n\n",
             ut_passed, ut_failed);
-
-    /* Ensure everything gets written */
-    fflush(stdout);
-    fclose(UT_logfile);
 #endif
 }
+
+#ifdef OSP_ARINC653
+/*
+** Stub function for OS_MutSemCreate()
+*/
+int32 OS_MutSemCreate(uint32 *mutex_id, const char *mutex_name, uint32 options)
+{
+    return 0;
+}
+
+/*
+** Stub function for OS_MutSemGive()
+*/
+int32 OS_MutSemGive(uint32 mutex_id)
+{
+    return 0;
+}
+
+/*
+** Stub function for OS_MutSemTake()
+*/
+int32 OS_MutSemTake(uint32 mutex_id)
+{
+    return 0;
+}
+#endif

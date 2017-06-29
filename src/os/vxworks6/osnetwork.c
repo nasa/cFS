@@ -51,37 +51,44 @@
 ****************************************************************************************/
 
 /*--------------------------------------------------------------------------------------
-    Name: OS_NetworkGetID
-    
-    Purpose: Gets the ID of the current Network 
+    Purpose: Get the Host ID from Networking
 
-    Returns: OS_ERROR if the  host id could not be found
-             a 32 bit host id if success
+    Returns: OS_ERR_NOT_IMPLEMENTED if OS_INCLUDE_NETWORK is not defined,
+             OS_ERROR if the current host name can not be retrieved,
+             OS_ERROR if the current host name is not in the host address table,
+             or the IPv4 address assigned to the current host in a 32-bit integer.
+
+    WARNING: OS_NetworkGetID is currently [[deprecated]] as its behavior is
+             unknown and not consistent across operating systems.
 ---------------------------------------------------------------------------------------*/
 
 int32 OS_NetworkGetID             (void)
 {
-  int    host_id = 0;
+  int   host_id = OS_ERR_NOT_IMPLEMENTED;
 
 #ifdef OS_INCLUDE_NETWORK
   int    retval;
-  char   host_name [OS_HOST_NAME_LEN];
+  char   host_name [OS_HOST_NAME_LEN] = "";
 
   retval = gethostname( host_name, OS_HOST_NAME_LEN);
-  if ( retval == -1 )
+  if ( retval == ERROR )
+  {
      return OS_ERROR;
+  }
 
   host_id = hostGetByName(host_name);
-  if (host_id == -1)
+  if (host_id == ERROR)
+  {
        return OS_ERROR;
-#endif  
- 
-  return (host_id);
-    
+  }
+#endif
+
+  return ((int32)host_id);
+
 }/* end OS_NetworkGetID */
 /*--------------------------------------------------------------------------------------
     Name: OS_NetworkGetHostName
-    
+
     Purpose: Gets the name of the current host
 
     Returns: OS_ERROR if the  host name could not be found
@@ -90,8 +97,8 @@ int32 OS_NetworkGetID             (void)
 
 int32 OS_NetworkGetHostName       (char *host_name, uint32 name_len)
 {
-   uint32 return_code = OS_ERROR;
-   
+   int32 return_code = OS_ERR_NOT_IMPLEMENTED;
+
    if ( host_name == NULL)
    {
       return_code = OS_INVALID_POINTER;
@@ -114,6 +121,11 @@ int32 OS_NetworkGetHostName       (char *host_name, uint32 name_len)
       {
          return_code = OS_SUCCESS;
       }
+   }
+#else
+   else
+   {
+	   /* do nothing, complete the 'else if' from above - MISRA */
    }
 #endif
 

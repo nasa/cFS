@@ -919,6 +919,15 @@ int32 OS_TranslatePath(const char *VirtualPath, char *LocalPath)
 --------------------------------------------------------------------------------------- */
 int32 OS_FS_GetErrorName(int32 error_num, os_fs_err_name_t * err_name)
 {
+    /*
+     * Implementation note for developers:
+     *
+     * The size of the string literals below (including the terminating null)
+     * must fit into os_fs_err_name_t.  Always check the string length when
+     * adding or modifying strings in this function.  If changing
+     * os_fs_err_name_t then confirm these strings will fit.
+     */
+
     os_fs_err_name_t local_name;
     int32            return_code;
 

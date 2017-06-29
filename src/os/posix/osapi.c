@@ -120,8 +120,11 @@
 
 /*
 ** The __USE_UNIX98 is for advanced pthread features on linux
+** (Doing this conditionally to avoid a warning in case it was already defined)
 */
+#ifndef __USE_UNIX98
 #define __USE_UNIX98
+#endif
 #include <pthread.h>
 
 /*
@@ -150,6 +153,8 @@
 
 #undef OS_DEBUG_PRINTF 
 
+#define OS_SHUTDOWN_MAGIC_NUMBER    0xABADC0DE
+
 /*
 ** Global data for the API
 */
@@ -167,8 +172,8 @@ typedef struct
     int       creator;
     uint32    stack_size;
     uint32    priority;
-    void     *delete_hook_pointer;
-}OS_task_record_t;
+    osal_task_entry  delete_hook_pointer;
+}OS_task_internal_record_t;
     
 #ifdef OSAL_SOCKET_QUEUE
 /* queues */
@@ -179,7 +184,7 @@ typedef struct
     uint32 max_size;
     char   name [OS_MAX_API_NAME];
     int    creator;
-}OS_queue_record_t;
+}OS_queue_internal_record_t;
 #else
 /* queues */
 typedef struct
@@ -189,7 +194,7 @@ typedef struct
     uint32 max_size;
     char   name [OS_MAX_API_NAME];
     int    creator;
-}OS_queue_record_t;
+}OS_queue_internal_record_t;
 #endif
 
 /* Binary Semaphores */
@@ -202,7 +207,7 @@ typedef struct
     int             creator;
     int             max_value;
     int             current_value;
-}OS_bin_sem_record_t;
+}OS_bin_sem_internal_record_t;
 
 /*Counting Semaphores */
 typedef struct
@@ -214,7 +219,7 @@ typedef struct
     int             creator;
     int             max_value;
     int             current_value;
-}OS_count_sem_record_t;
+}OS_count_sem_internal_record_t;
 
 /* Mutexes */
 typedef struct
@@ -223,17 +228,17 @@ typedef struct
     pthread_mutex_t id;
     char            name [OS_MAX_API_NAME];
     int             creator;
-}OS_mut_sem_record_t;
+}OS_mut_sem_internal_record_t;
 
 /* function pointer type */
 typedef void (*FuncPtr_t)(void);
 
 /* Tables where the OS object information is stored */
-OS_task_record_t    OS_task_table          [OS_MAX_TASKS];
-OS_queue_record_t   OS_queue_table         [OS_MAX_QUEUES];
-OS_bin_sem_record_t OS_bin_sem_table       [OS_MAX_BIN_SEMAPHORES];
-OS_count_sem_record_t OS_count_sem_table   [OS_MAX_COUNT_SEMAPHORES];
-OS_mut_sem_record_t OS_mut_sem_table       [OS_MAX_MUTEXES];
+OS_task_internal_record_t    OS_task_table          [OS_MAX_TASKS];
+OS_queue_internal_record_t   OS_queue_table         [OS_MAX_QUEUES];
+OS_bin_sem_internal_record_t OS_bin_sem_table       [OS_MAX_BIN_SEMAPHORES];
+OS_count_sem_internal_record_t OS_count_sem_table   [OS_MAX_COUNT_SEMAPHORES];
+OS_mut_sem_internal_record_t OS_mut_sem_table       [OS_MAX_MUTEXES];
 
 pthread_key_t    thread_key;
 
@@ -244,6 +249,7 @@ pthread_mutex_t OS_mut_sem_table_mut;
 pthread_mutex_t OS_count_sem_table_mut;
 
 uint32          OS_printf_enabled = TRUE;
+volatile uint32 OS_shutdown = FALSE;
 
 /*
 ** Local Function Prototypes
@@ -254,6 +260,16 @@ uint32  OS_FindCreator(void);
 int32   OS_PriorityRemap(uint32 InputPri);
 int     OS_InterruptSafeLock(pthread_mutex_t *lock, sigset_t *set, sigset_t *previous);
 void    OS_InterruptSafeUnlock(pthread_mutex_t *lock, sigset_t *previous);
+
+/*---------------------------------------------------------------------------------------
+   Name: OS_NoopSigHandler
+
+   Purpose: A POSIX signal handler that does nothing
+---------------------------------------------------------------------------------------*/
+static void  OS_NoopSigHandler (int signal)
+{
+}
+
 
 /*---------------------------------------------------------------------------------------
    Name: OS_API_Init
@@ -271,7 +287,49 @@ int32 OS_API_Init(void)
    int32               return_code = OS_SUCCESS;
    struct sched_param  param;
    int                 sched_policy;
-    
+   sigset_t            mask;
+
+   /*
+   ** Disable Signals to parent thread and therefore all
+   ** child threads create will block all signals
+   ** Note: Timers will not work in the application unless
+   **       threads are spawned in OS_Application_Startup.
+   */
+   sigfillset(&mask);
+
+   /*
+    * Keep these signals unblocked so the process can be interrupted
+    */
+   sigdelset(&mask, SIGINT);  /* CTRL+C */
+   sigdelset(&mask, SIGABRT); /* Abort */
+
+   /*
+    * One should not typically block ANY of the synchronous error
+    * signals, i.e. SIGSEGV, SIGFPE, SIGILL, SIGBUS
+    *
+    * The kernel generates these signals in response to hardware events
+    * and they get routed to the _specific thread_ that was executing when
+    * the problem occurred.
+    *
+    * While it is technically possible to block these signals, the result is
+    * undefined, and it makes debugging _REALLY_ hard.  If the kernel ever does
+    * send one it means there really is a major problem, best to listen to it,
+    * and not ignore it.
+    */
+   sigdelset(&mask, SIGSEGV); /* Segfault */
+   sigdelset(&mask, SIGILL);  /* Illegal instruction */
+   sigdelset(&mask, SIGBUS);  /* Bus Error */
+   sigdelset(&mask, SIGFPE);  /* Floating Point Exception */
+
+   sigprocmask(SIG_SETMASK, &mask, NULL);
+
+
+   /*
+   ** Install noop as the signal handler for SIGUP.
+   */
+   signal(SIGHUP, OS_NoopSigHandler);
+
+
     /* Initialize Task Table */
    
    for(i = 0; i < OS_MAX_TASKS; i++)
@@ -428,31 +486,162 @@ int32 OS_API_Init(void)
    return_code = OS_FS_Init();
 
    /*
-   ** Check to see if this application is running as root
-   **  It must be root in order to set the scheduling policy, stacks, and priorities of
-   **  the pthreads
+   ** Raise the priority of the current (main) thread so that subsequent
+   ** application initialization will complete.  This had previously been
+   ** done by the BSP and but it is moved here.
+   **
+   ** This will only work if the user owning this process has permission
+   ** to create real time threads.  Otherwise, the default priority will
+   ** be retained.
+   **
+   ** NOTE - previously this checked that (geteuid() == 0) before even
+   ** trying this, however that assumes that only uid 0 will be able to do
+   ** this, which is not necessarily true, some linuxes have fine-grained
+   ** permissions which could allow a non-root user to do this too.
    */
-   if (geteuid() != 0 )
+   ret = pthread_getschedparam(pthread_self(), &sched_policy, &param);
+   if (ret == 0)
    {
-      #ifdef OS_DEBUG_PRINTF
-         printf("OS_API_Init: Note: Not running as root. Task scheduling policy, stack sizes, or priorities will not be set\n");
-      #endif
+      sched_policy = SCHED_FIFO;
+      param.sched_priority = sched_get_priority_max(sched_policy);
+      ret = pthread_setschedparam(pthread_self(), sched_policy, &param);
+      if (ret != 0)
+      {
+#ifdef OS_DEBUG_PRINTF
+         printf("OS_API_Init: Could not set scheduleparam in main thread, error=%d\n",ret);
+#endif
+      }
    }
    else
    {
-       param.sched_priority = 50;
-       sched_policy = SCHED_FIFO;
-
-       return_code = pthread_setschedparam(pthread_self(), sched_policy, &param);
-       #ifdef OS_DEBUG_PRINTF
-          if (return_code != 0)
-          {
-             printf("OS_API_Init: Could not set scheduleparam in main thread\n");
-          }
-       #endif
+#ifdef OS_DEBUG_PRINTF
+      printf("OS_API_Init: Could not get scheduleparam in main thread, error=%d\n",ret);
+#endif
    }
+
+   return_code = OS_SUCCESS;
+
    return(return_code);
 }
+
+/*---------------------------------------------------------------------------------------
+   Name: OS_ApplicationExit
+
+   Purpose: Indicates that the OSAL application should exit and return control to the OS
+         This is intended for e.g. scripted unit testing where the test needs to end
+         without user intervention.  This function does not return.
+
+    NOTES: This exits the entire process including tasks that have been created.
+       It does not return.  Production embedded code typically would not ever call this.
+
+---------------------------------------------------------------------------------------*/
+void OS_ApplicationExit(int32 Status)
+{
+   if (Status == OS_SUCCESS)
+   {
+      exit(EXIT_SUCCESS);
+   }
+   else
+   {
+      exit(EXIT_FAILURE);
+   }
+}
+
+/*---------------------------------------------------------------------------------------
+   Name: OS_DeleteAllObjects
+
+   Purpose: This task will delete all objects allocated by this instance of OSAL
+            May be used during shutdown or by the unit tests to purge all state
+
+   returns: no value
+---------------------------------------------------------------------------------------*/
+void OS_DeleteAllObjects       (void)
+{
+    uint32 i;
+
+    for (i = 0; i < OS_MAX_TASKS; ++i)
+    {
+        OS_TaskDelete(i);
+    }
+    for (i = 0; i < OS_MAX_QUEUES; ++i)
+    {
+        OS_QueueDelete(i);
+    }
+    for (i = 0; i < OS_MAX_MUTEXES; ++i)
+    {
+        OS_MutSemDelete(i);
+    }
+    for (i = 0; i < OS_MAX_COUNT_SEMAPHORES; ++i)
+    {
+        OS_CountSemDelete(i);
+    }
+    for (i = 0; i < OS_MAX_BIN_SEMAPHORES; ++i)
+    {
+        OS_BinSemDelete(i);
+    }
+    for (i = 0; i < OS_MAX_TIMERS; ++i)
+    {
+        OS_TimerDelete(i);
+    }
+    for (i = 0; i < OS_MAX_MODULES; ++i)
+    {
+        OS_ModuleUnload(i);
+    }
+    for (i = 0; i < OS_MAX_NUM_OPEN_FILES; ++i)
+    {
+        OS_close(i);
+    }
+}
+
+
+/*---------------------------------------------------------------------------------------
+   Name: OS_IdleLoop
+
+   Purpose: Should be called after all initialization is done
+            This thread may be used to wait for and handle external events
+            Typically just waits forever until "OS_shutdown" flag becomes true.
+
+   returns: no value
+---------------------------------------------------------------------------------------*/
+void OS_IdleLoop()
+{
+   sigset_t mask;
+
+   /* All signals should be unblocked in this thread while suspended */
+   sigemptyset(&mask);
+
+   while (OS_shutdown != OS_SHUTDOWN_MAGIC_NUMBER)
+   {
+      /* Unblock signals and wait for something to occur */
+      sigsuspend(&mask);
+   }
+}
+
+
+/*---------------------------------------------------------------------------------------
+   Name: OS_ApplicationShutdown
+
+   Purpose: Indicates that the OSAL application should perform an orderly shutdown
+       of ALL tasks, clean up all resources, and exit the application.
+
+   returns: none
+
+---------------------------------------------------------------------------------------*/
+void OS_ApplicationShutdown(uint8 flag)
+{
+   if (flag == TRUE)
+   {
+      OS_shutdown = OS_SHUTDOWN_MAGIC_NUMBER;
+   }
+
+   /*
+    * Raise a signal that is unblocked in OS_IdleLoop(),
+    * which should break it out of the sigsuspend() call.
+    */
+   kill(getpid(), SIGHUP);
+}
+
+
 
 /*
 **********************************************************************************
@@ -478,7 +667,7 @@ int32 OS_API_Init(void)
 
 ---------------------------------------------------------------------------------------*/
 int32 OS_TaskCreate (uint32 *task_id, const char *task_name, osal_task_entry function_pointer,
-                      const uint32 *stack_pointer, uint32 stack_size, uint32 priority,
+                      uint32 *stack_pointer, uint32 stack_size, uint32 priority,
                       uint32 flags)
 {
     int                return_code = 0;
@@ -644,7 +833,7 @@ int32 OS_TaskCreate (uint32 *task_id, const char *task_name, osal_task_entry fun
     */
     return_code = pthread_create(&(OS_task_table[possible_taskid].id),
                                  &custom_attr,
-                                 function_pointer,
+                                 (void*(*)(void*))function_pointer,
                                  (void *)0);
     if (return_code != 0)
     {
@@ -1069,7 +1258,7 @@ int32 OS_TaskGetInfo (uint32 task_id, OS_task_prop_t *task_prop)
     returns: status
 ---------------------------------------------------------------------------------------*/
 
-int32 OS_TaskInstallDeleteHandler(void *function_pointer)
+int32 OS_TaskInstallDeleteHandler(osal_task_entry function_pointer)
 {
     uint32    task_id;
     sigset_t  previous;
@@ -1430,12 +1619,13 @@ int32 OS_QueueGet (uint32 queue_id, void *data, uint32 size, uint32 *size_copied
          *size_copied = 0;
          return OS_ERROR;
       }
-      
-      /*
-      ** If rv == 0, then the select timed out with no data
-      */
-      *size_copied = 0;
-      return(OS_QUEUE_TIMEOUT);
+      else {
+          /*
+          ** If rv == 0, then the select timed out with no data
+          */
+          *size_copied = 0;
+          return(OS_QUEUE_TIMEOUT);
+      }
      
    } /* END timeout */
 
@@ -1457,7 +1647,7 @@ int32 OS_QueueGet (uint32 queue_id, void *data, uint32 size, uint32 *size_copied
    Notes: The flags parameter is not used.  The message put is always configured to
             immediately return an error if the receiving message queue is full.
 ---------------------------------------------------------------------------------------*/
-int32 OS_QueuePut (uint32 queue_id, void *data, uint32 size, uint32 flags)
+int32 OS_QueuePut (uint32 queue_id, const void *data, uint32 size, uint32 flags)
 {
 
    struct sockaddr_in serva;
@@ -1876,7 +2066,7 @@ int32 OS_QueueGet (uint32 queue_id, void *data, uint32 size, uint32 *size_copied
  Notes: The flags parameter is not used.  The message put is always configured to
  immediately return an error if the receiving message queue is full.
  ---------------------------------------------------------------------------------------*/
-int32 OS_QueuePut (uint32 queue_id, void *data, uint32 size, uint32 flags)
+int32 OS_QueuePut (uint32 queue_id, const void *data, uint32 size, uint32 flags)
 {
     struct mq_attr  queueAttr;
     
@@ -2081,11 +2271,7 @@ int32 OS_BinSemCreate (uint32 *sem_id, const char *sem_name, uint32 sem_initial_
     /* 
     ** Check to make sure the value is 0 or 1 
     */
-    if (sem_initial_value < 0)
-    {
-        sem_initial_value = 0;
-    }
-    else if ( sem_initial_value > 1 )
+    if ( sem_initial_value > 1 )
     {
         sem_initial_value = 1;
     }
@@ -2602,10 +2788,6 @@ int32 OS_CountSemCreate (uint32 *sem_id, const char *sem_name, uint32 sem_initia
     /* 
     ** Check to make sure the value is between 0 and SEM_VALUE_MAX 
     */
-    if (sem_initial_value < 0)
-    {
-        sem_initial_value = 0;
-    }
     if ( sem_initial_value > SEM_VALUE_MAX )
     {
         return OS_INVALID_SEM_VALUE;
@@ -3880,6 +4062,15 @@ void OS_printf_enable(void)
 ---------------------------------------------------------------------------------------*/
 int32 OS_GetErrorName(int32 error_num, os_err_name_t * err_name)
 {
+    /*
+     * Implementation note for developers:
+     *
+     * The size of the string literals below (including the terminating null)
+     * must fit into os_err_name_t.  Always check the string length when
+     * adding or modifying strings in this function.  If changing os_err_name_t
+     * then confirm these strings will fit.
+     */
+
     os_err_name_t local_name;
     uint32        return_code = OS_SUCCESS;
 

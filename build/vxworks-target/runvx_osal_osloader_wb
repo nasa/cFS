@@ -1,0 +1,12 @@
+
+ld < osloader_wb_UT.o
+
+main()
+
+unld "osloader_wb_UT.o"
+
+ld < osloader_wb_UT.o
+
+main() > ut_osloader_wb_log.txt
+
+unld "osloader_wb_UT.o"

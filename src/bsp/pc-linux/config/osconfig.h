@@ -162,10 +162,58 @@
 */
 #define OS_MAX_SYM_LEN 64
 
+/*
+** This define sets the maximum number of time base objects
+** The limit depends on the underlying OS and the resources it offers, but in general
+** these are a limited resource and only a handful can be created.
+**
+** This is included as an example, for OSAL implementations that do not [yet] support
+** separate timebase objects, this directive will be ignored.  However, the OSAL unit
+** test stub code does require that this is defined.
+*/
+#define OS_MAX_TIMEBASES      5
 
 /*
-** This define sets the maximum number of timers available
+** This define sets the maximum number of user timers available
+** The limit here depends on whether the OSAL implementation uses limited resources
+** for a timer object; in the case of the newer "posix-ng" and "rtems-ng" variants,
+** the "timebase" allocates the OS resources and the timer does not use any additional
+** OS resources. Therefore this limit can be higher.
 */
 #define OS_MAX_TIMERS         5
+
+/*
+** This define sets the maximum number of open directories
+*/
+#define OS_MAX_NUM_OPEN_DIRS  4
+
+/*
+** This define sets the maximum depth of an OSAL message queue.  On some implementations this may
+** affect the overall OSAL memory footprint so it may be beneficial to set this limit according to
+** what the application actually needs.
+*/
+#define OS_QUEUE_MAX_DEPTH    50
+
+/*
+ * If OS_DEBUG_PRINTF is defined, this will enable the "OS_DEBUG" statements in the code
+ * This should be left disabled in a normal build as it may affect real time performance as
+ * well as producing extra console output.
+ */
+#undef OS_DEBUG_PRINTF
+
+/*
+ * If OSAL_DEBUG_PERMISSIVE_MODE is defined, this will enable features to make the
+ * OSAL library compatible with a non-root (normal user mode) environment.   In the PC-Linux/Posix
+ * build, this means:
+ *  - A message queue deeper than the maximum system limit will be silently truncated
+ *    to the maximum system limit (no error).
+ *  - If the user does not have permission to create elevated priority tasks, then the tasks will
+ *    be created at the default priority (no error).  Note this behavior can also be forced by the
+ *    OSAL_DEBUG_DISABLE_TASK_PRIORITIES macro below.
+ *
+ * Leaving this undefined will produce the default behavior, which is to return errors to the caller
+ * for these conditions.
+ */
+#define OSAL_DEBUG_PERMISSIVE_MODE
 
 #endif

@@ -73,10 +73,30 @@ typedef struct
 ****************************************************************************************/
 
 /*
+ * The "OS_module_internal_record_t" structure is used internally
+ * to the osloader module for keeping the state.  It is OS-specific
+ * and should not be directly used by external entities.
+ */
+typedef struct
+{
+   int                 free;
+   cpuaddr             entry_point;
+#ifdef OS_STATIC_LOADER
+   uint32                    host_module_id;
+#else
+   CexpModule                host_module_id;
+#endif
+   char                filename[OS_MAX_PATH_LEN];
+   char                name[OS_MAX_API_NAME];
+
+} OS_module_internal_record_t;
+
+
+/*
 ** Need to define the OS Module table here. 
 ** osconfig.h will have the maximum number of loadable modules defined.
 */
-OS_module_record_t OS_module_table[OS_MAX_MODULES];
+OS_module_internal_record_t OS_module_table[OS_MAX_MODULES];
 
 /*
 ** The Mutex for protecting the above table
@@ -110,7 +130,6 @@ int32  OS_ModuleTableInit ( void )
       OS_module_table[i].free        = TRUE;
       OS_module_table[i].entry_point = 0; 
       OS_module_table[i].host_module_id = 0;
-      OS_module_table[i].addr.valid = FALSE;
       strcpy(OS_module_table[i].name,"");
       strcpy(OS_module_table[i].filename,"");
    }
@@ -150,7 +169,7 @@ int32  OS_ModuleTableInit ( void )
              OS_SUCCESS if the symbol is found 
              OS_INVALID_POINTER if one of the pointers passed in are NULL 
 ---------------------------------------------------------------------------------------*/
-int32 OS_SymbolLookup( uint32 *SymbolAddress, char *SymbolName )
+int32 OS_SymbolLookup( cpuaddr *SymbolAddress, const char *SymbolName )
 {
 #ifdef OS_STATIC_LOADER
 
@@ -217,7 +236,7 @@ int32 OS_SymbolLookup( uint32 *SymbolAddress, char *SymbolName )
    /*
    ** Return the code start address and module ID back to the code
    */
-   *SymbolAddress = ( void *) cexpSymValue(CexpSymbol);
+   *SymbolAddress = (cpuaddr) cexpSymValue(CexpSymbol);
    
    return(OS_SUCCESS);
 
@@ -236,7 +255,7 @@ int32 OS_SymbolLookup( uint32 *SymbolAddress, char *SymbolName )
              OS_FS_ERR_PATH_INVALID  if the file and/or path is invalid 
              OS_SUCCESS if the file is written correctly 
 ---------------------------------------------------------------------------------------*/
-int32 OS_SymbolTableDump ( char *filename, uint32 SizeLimit )
+int32 OS_SymbolTableDump ( const char *filename, uint32 SizeLimit )
 {
 #ifdef OS_STATIC_LOADER
    char            local_path_name[OS_MAX_LOCAL_PATH_LEN];
@@ -346,7 +365,7 @@ int32 OS_SymbolTableDump ( char *filename, uint32 SizeLimit )
              OS_ERR_NAME_TAKEN if the name is in use
              OS_SUCCESS if the module is loaded successfuly 
 ---------------------------------------------------------------------------------------*/
-int32 OS_ModuleLoad ( uint32 *module_id, char *module_name, char *filename )
+int32 OS_ModuleLoad ( uint32 *module_id, const char *module_name, const char *filename )
 {
    int                       i;
    uint32                    possible_moduleid;
@@ -470,18 +489,12 @@ int32 OS_ModuleLoad ( uint32 *module_id, char *module_name, char *filename )
    OS_module_table[possible_moduleid].host_module_id = possible_moduleid;
 #else
    OS_module_table[possible_moduleid].entry_point = 0; /* Only for certain targets */
-   OS_module_table[possible_moduleid].host_module_id = (uint32) CexpModuleId;
+   OS_module_table[possible_moduleid].host_module_id = CexpModuleId;
 #endif
 
    strncpy(OS_module_table[possible_moduleid].filename , filename, OS_MAX_PATH_LEN);
    strncpy(OS_module_table[possible_moduleid].name , module_name, OS_MAX_API_NAME);
 
-   /*
-   ** For now, do not store the module address information
-   ** Let the OS_ModuleInfo function fetch that information and return it.
-   */
-   OS_module_table[possible_moduleid].addr.valid = FALSE; 
- 
    /*
    ** Return the OSAL Module ID
    */
@@ -549,7 +562,7 @@ int32 OS_ModuleUnload ( uint32 module_id )
              OS_ERR_INVALID_ID if the module ID is not valid
              OS_SUCCESS if the module info was filled out successfuly 
 ---------------------------------------------------------------------------------------*/
-int32 OS_ModuleInfo ( uint32 module_id, OS_module_record_t *module_info )
+int32 OS_ModuleInfo ( uint32 module_id, OS_module_prop_t *module_info )
 {
 
    /*
@@ -572,7 +585,7 @@ int32 OS_ModuleInfo ( uint32 module_id, OS_module_record_t *module_info )
    ** Fill out the module info
    */
    module_info->entry_point = OS_module_table[module_id].entry_point;
-   module_info->host_module_id = OS_module_table[module_id].host_module_id;
+   module_info->host_module_id = (uint32)OS_module_table[module_id].host_module_id;
    strncpy(module_info->filename, OS_module_table[module_id].filename , OS_MAX_PATH_LEN);
    strncpy(module_info->name, OS_module_table[module_id].name, OS_MAX_API_NAME);
 

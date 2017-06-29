@@ -275,7 +275,6 @@ void UT_os_core_tests()
 
 void UT_main()
 {
-    int32 osalRet=0;
     uint32 tId=0, stackPtr=0;
     RETURN_CODE_TYPE arincRet=NO_ERROR;
 
@@ -288,7 +287,7 @@ void UT_main()
 
     UT_os_apiinit_test();
 
-    osalRet = OS_TaskCreate(&tId, "ut_oscore",
+    OS_TaskCreate(&tId, "ut_oscore",
                             (osal_task_entry)&UT_os_core_tests,
                             &stackPtr, 0x2000, 110, 0);
 

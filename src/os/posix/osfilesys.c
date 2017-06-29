@@ -428,6 +428,10 @@ int32 OS_fsBlocksFree (const char *name)
    ** Translate the path
    */
    NameStatus = OS_TranslatePath(name, tmpFileName);
+   if (NameStatus != OS_FS_SUCCESS)
+   {
+      return OS_FS_ERROR;
+   }
    
    status = statvfs(tmpFileName, &stat_buf);
    
@@ -474,6 +478,10 @@ int32 OS_fsBytesFree (const char *name, uint64 *bytes_free)
    ** Translate the path
    */
    NameStatus = OS_TranslatePath(name, tmpFileName);
+   if (NameStatus != OS_FS_SUCCESS)
+   {
+      return OS_FS_ERROR;
+   }
 
    status = statvfs(tmpFileName, &stat_buf);
    if ( status == 0 )
@@ -571,8 +579,6 @@ int32 OS_TranslatePath(const char *VirtualPath, char *LocalPath)
     char devname [OS_MAX_PATH_LEN];
     char filename[OS_MAX_PATH_LEN];
     int  NumChars;
-    int  DeviceLen;
-    int  FilenameLen;
     int  i=0;
 
     /*
@@ -633,15 +639,12 @@ int32 OS_TranslatePath(const char *VirtualPath, char *LocalPath)
     /*
     ** copy over only the part that is the device name 
     */
-    strncpy(devname, VirtualPath, NumChars);
-    devname[NumChars] = '\0'; /* Truncate it with a NULL. */
-    DeviceLen = strlen(devname);
+    snprintf(devname, OS_MAX_PATH_LEN, "%*s", NumChars, VirtualPath);
     
     /*
     ** Copy everything after the devname as the path/filename
     */
-    strncpy(filename, &(VirtualPath[NumChars]), OS_MAX_PATH_LEN);
-    FilenameLen = strlen(filename);
+    snprintf(filename, OS_MAX_PATH_LEN, "%s", VirtualPath + NumChars);
     
 #ifdef OS_DEBUG_PRINTF 
     printf("VirtualPath: %s, Length: %d\n",VirtualPath, (int)strlen(VirtualPath));
@@ -699,6 +702,15 @@ int32 OS_TranslatePath(const char *VirtualPath, char *LocalPath)
 --------------------------------------------------------------------------------------- */
 int32 OS_FS_GetErrorName(int32 error_num, os_fs_err_name_t * err_name)
 {
+    /*
+     * Implementation note for developers:
+     *
+     * The size of the string literals below (including the terminating null)
+     * must fit into os_fs_err_name_t.  Always check the string length when
+     * adding or modifying strings in this function.  If changing
+     * os_fs_err_name_t then confirm these strings will fit.
+     */
+
     os_fs_err_name_t local_name;
     int32 return_code;
 

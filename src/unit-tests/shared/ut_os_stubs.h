@@ -11,6 +11,11 @@
 ** Includes
 **--------------------------------------------------------------------------------*/
 
+/* If the embedded printf is not being used, then stdio is required */
+#ifndef OS_USE_EMBEDDED_PRINTF
+#include <stdio.h>
+#endif
+
 #include <stdarg.h>
 
 #include <stdlib.h>
@@ -92,17 +97,17 @@
 /*--------------------------------------------------------------------------------*/
 
 #ifdef OS_USE_EMBEDDED_PRINTF
-#define UT_OS_LOG_MACRO(aVAR)  UT_os_printf(aVAR);
+#define UT_OS_LOG_MACRO(...)  UT_os_printf(__VA_ARGS__);
 #else
 #ifdef OS_LOG_TO_STDOUT_TOO
-#define UT_OS_LOG_MACRO(aVAR)     \
-    UT_os_printf(aVAR);           \
+#define UT_OS_LOG_MACRO(...)      \
+    UT_os_printf(__VA_ARGS__);    \
     if (g_logInfo.logFD != NULL)  \
-        fprintf(g_logInfo.logFD, aVAR);
+        fprintf(g_logInfo.logFD, __VA_ARGS__);
 #else
-#define UT_OS_LOG_MACRO(aVAR)    \
-    if (g_logInfo.logFD != NULL) \
-        fprintf(g_logInfo.logFD, aVAR);
+#define UT_OS_LOG_MACRO(...)      \
+    if (g_logInfo.logFD != NULL)  \
+        fprintf(g_logInfo.logFD, __VA_ARGS__);
 #endif  /* OS_LOG_TO_STDOUT_TOO */
 #endif /* OS_USE_EMBEDDED_PRINTF */
 

@@ -5,375 +5,88 @@
 #include "common_types.h"
 #include "osapi.h"
 #include "osal-core-test.h"
-
+#include "utassert.h"
+#include "uttest.h"
+#include "utbsp.h"
 
 /* OS Constructs */
 
-int TestTasks (void);
+void TestTasks (void);
 void InitializeTaskIds (void);
 void InitializeQIds (void);
 void InitializeBinIds(void);
 void InitializeMutIds(void);
-int TestQueues(void);
-int TestBinaries(void);
-int TestMutexes(void);
-int TestGetInfos(void);
+void TestQueues(void);
+void TestBinaries(void);
+void TestMutexes(void);
+void TestGetInfos(void);
 
 /* *************************************** MAIN ************************************** */
-
 void OS_Application_Startup(void)
 {
-    int status;
-    int totalfailures = 0;
-
-    OS_API_Init();
+    if (OS_API_Init() != OS_SUCCESS)
+    {
+        UtAssert_Abort("OS_API_Init() failed");
+    }
     
-    OS_printf("*********************************************************\n");
-    status = TestTasks();
-    OS_printf("Number of failures in TestTasks = %d\n",status);
-    totalfailures += status;
-    OS_printf("---------------------------------------------------------\n");
+    UtTest_Add(TestTasks, NULL, NULL, "TASK");
+    UtTest_Add(TestQueues, NULL, NULL, "MSGQ");
+    UtTest_Add(TestBinaries, NULL, NULL, "BSEM");
+    UtTest_Add(TestMutexes, NULL, NULL, "MSEM");
+    UtTest_Add(TestGetInfos, NULL, NULL, "INFO");
     
-    status = TestQueues();
-    OS_printf("Number of failures in TestQueues = %d\n", status);
-    totalfailures += status;
-    OS_printf("---------------------------------------------------------\n");
-
-    status = TestBinaries();
-    OS_printf("Number of failures in TestBinaries = %d\n",status);
-    totalfailures += status;
-    OS_printf("---------------------------------------------------------\n");
-
-    status = TestMutexes();
-    OS_printf("Number of failures in TestMutexes = %d\n",status);
-    totalfailures += status;
-    OS_printf("---------------------------------------------------------\n");
-
-    status = TestGetInfos();
-    OS_printf("Number of failures in TestGetInfos = %d\n",status);
-    totalfailures += status;
-   
-    OS_printf("*********************************************************\n");
-    OS_printf("Total Failures = %d\n",totalfailures);
-    OS_printf("*********************************************************\n");
-     
-    OS_printf("Test Complete: On a Desktop System, hit Control-C to return to command shell\n");
-
-    return;
-
 } /* end OS_Application Startup */
 
 
+typedef struct
+{
+   uint32 task_id;
+   uint32 task_stack[TASK_0_STACK_SIZE];
+} TestTaskData;
 /* ********************************************** TASKS******************************* */
-int TestTasks(void)
+void TestTasks(void)
 {
     int status;
-    int failTaskCreatecount = 0;
-    int failTaskDeletecount = 0;
-    int failGetIdcount = 0;
-    int totalfail = -999;
+    char taskname[OS_MAX_API_NAME];
+    int tasknum;
+    uint32 saved_task0_id;
+    static TestTaskData TaskData[OS_MAX_TASKS + 1];
     
    /* OS_TaskRegister(); */
 
-    /* Testing Creating up to OS_MAX_TASKS (20), plus one more */
-    InitializeTaskIds();
-    
-    status = OS_TaskCreate( &task_0_id, "Task 0", task_0, task_0_stack, 
-                            TASK_0_STACK_SIZE, TASK_0_PRIORITY, 0);
-    
-    OS_printf("Create Status = %d, Id = %d\n",status,task_0_id);
-    OS_printf("Status after creating this task: %d\n",status);
-    OS_printf("Id after creating this task: %d\n",task_0_id);
-    
-    
-    if (status != PASS)
-        failTaskCreatecount++;
-    
-    status = OS_TaskCreate( &task_1_id, "Task 1", task_1, task_1_stack, 
-                            TASK_1_STACK_SIZE, TASK_1_PRIORITY, 0);
-    
-    OS_printf("Create Status = %d, Id = %d\n",status,task_1_id);
-    OS_printf("Status after creating this task: %d\n",status);
-    OS_printf("Id after creating this task: %d\n",task_1_id);
-   
-    if (status != PASS)
-        failTaskCreatecount++;
+    /* Testing Creating up to OS_MAX_TASKS, plus one more */
+    memset(TaskData,0xFF,sizeof(TaskData));
+    for (tasknum = 0; tasknum < (OS_MAX_TASKS + 1); ++tasknum)
+    {
+       snprintf(taskname,sizeof(taskname), "Task %d", tasknum);
+       status = OS_TaskCreate( &TaskData[tasknum].task_id, taskname, task_0, TaskData[tasknum].task_stack,
+                               TASK_0_STACK_SIZE, (250 - OS_MAX_TASKS) + tasknum, 0);
 
-    status = OS_TaskCreate( &task_2_id, "Task 2", task_2, task_2_stack, 
-            TASK_2_STACK_SIZE, TASK_2_PRIORITY, 0);
-    
-    OS_printf("Create Status = %d, Id = %d\n",status,task_2_id);
-    OS_printf("Status after creating this task: %d\n",status);
-    OS_printf("Id after creating this task: %d\n",task_2_id);
-    
-    if (status != PASS)
-        failTaskCreatecount++;
+       UtDebug("Create %s Status = %d, Id = %d\n",taskname,(int)status,(int)TaskData[tasknum].task_id);
 
-    status = OS_TaskCreate( &task_3_id, "Task 3", task_3, task_3_stack, 
-            TASK_3_STACK_SIZE, TASK_3_PRIORITY, 0);
-   
-    OS_printf("Create Status = %d, Id = %d\n",status,task_3_id);
-    OS_printf("Status after creating this task: %d\n",status);
-    OS_printf("Id after creating this task: %d\n",task_3_id);    
+       UtAssert_True((tasknum < OS_MAX_TASKS && status == OS_SUCCESS) ||
+             (tasknum >= OS_MAX_TASKS && status != OS_SUCCESS), "OS_TaskCreate, nominal");
+    }
     
-    if (status != PASS)
-        failTaskCreatecount++;
+    /* Save off the task 0 ID for later */
+    saved_task0_id = TaskData[0].task_id;
 
-    status = OS_TaskCreate( &task_4_id, "Task 4", task_4, task_4_stack, 
-                            TASK_4_STACK_SIZE, TASK_4_PRIORITY, 0);
-    
-    OS_printf("Create Status = %d, Id = %d\n",status,task_4_id);
-    OS_printf("Status after creating this task: %d\n",status);
-    OS_printf("Id after creating this task: %d\n",task_4_id);    
-    
-    if (status != PASS)
-        failTaskCreatecount++;
-
-    status = OS_TaskCreate( &task_5_id, "Task 5", task_5, task_5_stack,
-                            TASK_5_STACK_SIZE, TASK_5_PRIORITY, 0);
-    
-    OS_printf("Create Status = %d, Id = %d\n",status,task_5_id);
-    OS_printf("Status after creating this task: %d\n",status);
-    OS_printf("Id after creating this task: %d\n",task_5_id);
-   
-    if (status != PASS)
-        failTaskCreatecount++;
-
-    status = OS_TaskCreate( &task_6_id, "Task 6", task_6, task_6_stack, 
-                            TASK_6_STACK_SIZE, TASK_6_PRIORITY, 0);
-    OS_printf("Create Status = %d, Id = %d\n",status,task_6_id);
-    OS_printf("Status after creating this task: %d\n",status);
-    OS_printf("Id after creating this task: %d\n",task_6_id);
-    
-    if (status != PASS)
-        failTaskCreatecount++;
-
-    status = OS_TaskCreate( &task_7_id, "Task 7", task_7, task_7_stack, 
-                            TASK_7_STACK_SIZE, TASK_7_PRIORITY, 0);
-   
-    OS_printf("Create Status = %d, Id = %d\n",status,task_7_id);
-    OS_printf("Status after creating this task: %d\n",status);
-    OS_printf("Id after creating this task: %d\n",task_7_id);
-    
-    if (status != PASS)
-        failTaskCreatecount++;
-
-    status = OS_TaskCreate( &task_8_id, "Task 8", task_8, task_8_stack, 
-                            TASK_8_STACK_SIZE, TASK_8_PRIORITY, 0);
-     
-     OS_printf("Create Status = %d, Id = %d\n",status,task_8_id);
-     OS_printf("Status after creating this task: %d\n",status);
-     OS_printf("Id after creating this task: %d\n",task_8_id);
-    
-    if (status != PASS)
-        failTaskCreatecount++;
-
-    status = OS_TaskCreate( &task_9_id, "Task 9", task_9, task_9_stack, 
-                            TASK_9_STACK_SIZE, TASK_9_PRIORITY, 0);
-    
-     OS_printf("Create Status = %d, Id = %d\n",status,task_9_id);
-     OS_printf("Status after creating this task: %d\n",status);
-     OS_printf("Id after creating this task: %d\n",task_9_id);
-    
-    if (status != PASS)
-        failTaskCreatecount++;
-
-    status = OS_TaskCreate( &task_10_id, "Task 10", task_10, task_10_stack, 
-                            TASK_10_STACK_SIZE, TASK_10_PRIORITY, 0);
-    
-      OS_printf("Create Status = %d, Id = %d\n",status,task_10_id);
-      OS_printf("Status after creating this task: %d\n",status);
-      OS_printf("Id after creating this task: %d\n",task_10_id);
-    
-    if (status != PASS)
-        failTaskCreatecount++;
-
-    status = OS_TaskCreate( &task_11_id, "Task 11", task_11, task_11_stack, 
-                            TASK_11_STACK_SIZE, TASK_11_PRIORITY, 0);
-    
-      OS_printf("Create Status = %d, Id = %d\n",status,task_11_id);
-      OS_printf("Status after creating this task: %d\n",status);
-      OS_printf("Id after creating this task: %d\n",task_11_id);
-    
-    
-    if (status != PASS)
-        failTaskCreatecount++;
-
-    status = OS_TaskCreate( &task_12_id, "Task 12", task_12, task_12_stack, 
-                            TASK_12_STACK_SIZE, TASK_12_PRIORITY, 0);
-
-     OS_printf("Create Status = %d, Id = %d\n",status,task_12_id);
-     OS_printf("Status after creating this task: %d\n",status);
-     OS_printf("Id after creating this task: %d\n",task_12_id);
-     
-    
-    if (status != PASS)
-        failTaskCreatecount++;
-
-    status = OS_TaskCreate( &task_13_id, "Task 13", task_13, task_13_stack, 
-                            TASK_13_STACK_SIZE, TASK_13_PRIORITY, 0);
-     
-     OS_printf("Create Status = %d, Id = %d\n",status,task_13_id);
-     OS_printf("Status after creating this task: %d\n",status);
-     OS_printf("Id after creating this task: %d\n",task_13_id);
-    
-    if (status != PASS)
-        failTaskCreatecount++;
-
-    status = OS_TaskCreate( &task_14_id, "Task 14", task_14, task_14_stack, 
-                            TASK_14_STACK_SIZE, TASK_14_PRIORITY, 0);
-    
-     OS_printf("Create Status = %d, Id = %d\n",status,task_14_id);
-     OS_printf("Status after creating this task: %d\n",status);
-     OS_printf("Id after creating this task: %d\n",task_14_id);
-   
-    if (status != PASS)
-        failTaskCreatecount++;
-        
-    status = OS_TaskCreate( &task_15_id, "Task 15", task_15, task_15_stack, 
-                            TASK_15_STACK_SIZE, TASK_15_PRIORITY, 0);
-    
-      OS_printf("Create Status = %d, Id = %d\n",status,task_15_id);
-      OS_printf("Status after creating this task: %d\n",status);
-      OS_printf("Id after creating this task: %d\n",task_15_id);
-    
-    if (status != PASS)
-        failTaskCreatecount++;
-
-
-    status = OS_TaskCreate( &task_16_id, "Task 16", task_16, task_16_stack, 
-                            TASK_16_STACK_SIZE, TASK_16_PRIORITY, 0);
-     
-      OS_printf("Create Status = %d, Id = %d\n",status,task_16_id);
-      OS_printf("Status after creating this task: %d\n",status);
-      OS_printf("Id after creating this task: %d\n",task_16_id);
-     
-    
-    if (status != PASS)
-        failTaskCreatecount++;
-
-
-    status = OS_TaskCreate( &task_17_id, "Task 17", task_17, task_17_stack, 
-                            TASK_17_STACK_SIZE, TASK_17_PRIORITY, 0);
-    
-      OS_printf("Create Status = %d, Id = %d\n",status,task_17_id);
-      OS_printf("Status after creating this task: %d\n",status);
-      OS_printf("Id after creating this task: %d\n",task_17_id);
-     
-    
-    if (status != PASS)
-        failTaskCreatecount++;
-
-    status = OS_TaskCreate( &task_18_id, "Task 18", task_18, task_18_stack, 
-                            TASK_18_STACK_SIZE, TASK_18_PRIORITY, 0);
-    
-      OS_printf("Create Status = %d, Id = %d\n",status,task_18_id);
-      OS_printf("Status after creating this task: %d\n",status);
-      OS_printf("Id after creating this task: %d\n",task_18_id);
-     
-    
-    if (status != PASS)
-        failTaskCreatecount++;
-
-    status = OS_TaskCreate( &task_19_id, "Task 19", task_19, task_19_stack, 
-                            TASK_19_STACK_SIZE, TASK_19_PRIORITY, 0);
-     
-      OS_printf("Create Status = %d, Id = %d\n",status,task_19_id);
-      OS_printf("Status after creating this task: %d\n",status);
-      OS_printf("Id after creating this task: %d\n",task_19_id);
-     
-    
-    if (status != PASS)
-        failTaskCreatecount++;
-
-    status = OS_TaskCreate( &task_20_id, "Task 20", task_20, task_20_stack, 
-                            TASK_20_STACK_SIZE, TASK_20_PRIORITY, 0);
-    
-      OS_printf("Create Status = %d, Id = %d\n",status,task_20_id);
-      OS_printf("Status after creating this task: %d\n",status);
-      OS_printf("Id after creating this task: %d\n",task_20_id);
-     
-    
-    if (status == PASS)
-        failTaskCreatecount++;
-    
     /* Testing the Deletions of all the tasks we have created */
-    
-    if (OS_TaskDelete(task_0_id) != PASS)
-        failTaskDeletecount++;
-        
-    
-    if (OS_TaskDelete(task_1_id) != PASS)
-        failTaskDeletecount++;
+    for (tasknum = 0; tasknum < (OS_MAX_TASKS + 1); ++tasknum)
+    {
+       snprintf(taskname,sizeof(taskname), "Task %d", tasknum);
+       status = OS_TaskDelete( TaskData[tasknum].task_id );
 
-    if (OS_TaskDelete(task_2_id) != PASS)
-        failTaskDeletecount++;
+       UtDebug("Delete Status = %d, Id = %d\n",(int)status,(int)TaskData[tasknum].task_id);
 
-    if (OS_TaskDelete(task_3_id) != PASS)
-        failTaskDeletecount++;
-    
-    if (OS_TaskDelete(task_4_id) != PASS)
-        failTaskDeletecount++;
-
-    if (OS_TaskDelete(task_5_id) != PASS)
-        failTaskDeletecount++;
-
-    if (OS_TaskDelete(task_6_id) != PASS)
-        failTaskDeletecount++;
-
-    if (OS_TaskDelete(task_7_id) != PASS)
-        failTaskDeletecount++;
-
-    if (OS_TaskDelete(task_8_id) != PASS)
-        failTaskDeletecount++;
-
-    if (OS_TaskDelete(task_9_id) != PASS)
-        failTaskDeletecount++;
-
-    if (OS_TaskDelete(task_10_id) != PASS)
-        failTaskDeletecount++;
-
-    if (OS_TaskDelete(task_11_id) != PASS)
-        failTaskDeletecount++;
-
-    if (OS_TaskDelete(task_12_id) != PASS)
-        failTaskDeletecount++;
-
-    if (OS_TaskDelete(task_13_id) != PASS)
-        failTaskDeletecount++;
-
-    if (OS_TaskDelete(task_14_id) != PASS)
-        failTaskDeletecount++;
-
-    if (OS_TaskDelete(task_15_id) != PASS)
-        failTaskDeletecount++;
-
-    if (OS_TaskDelete(task_16_id) != PASS)
-        failTaskDeletecount++;
-
-    if (OS_TaskDelete(task_17_id) != PASS)
-        failTaskDeletecount++;
-
-    if (OS_TaskDelete(task_18_id) != PASS)
-        failTaskDeletecount++;
-
-    if (OS_TaskDelete(task_19_id) != PASS)
-        failTaskDeletecount++;
-
-    /* This Task was never created successfully */
-    if (OS_TaskDelete(task_20_id) == PASS)
-        failTaskDeletecount++;
+       UtAssert_True((tasknum < OS_MAX_TASKS && status == OS_SUCCESS) ||
+             (tasknum >= OS_MAX_TASKS && status != OS_SUCCESS), "OS_TaskDelete, nominal");
+    }
     
     /* These next few tasks were deleted already, testing a "redelete" */
-    
-    if (OS_TaskDelete(task_1_id) == PASS)
-        failTaskDeletecount++;
-
-    if (OS_TaskDelete(task_2_id) == PASS)
-        failTaskDeletecount++;
-
-    if (OS_TaskDelete(task_3_id) == PASS)
-        failTaskDeletecount++;
+    UtAssert_True(OS_TaskDelete(TaskData[1].task_id) != OS_SUCCESS, "OS_TaskDelete, redelete 1");
+    UtAssert_True(OS_TaskDelete(TaskData[2].task_id) != OS_SUCCESS, "OS_TaskDelete, redelete 2");
+    UtAssert_True(OS_TaskDelete(TaskData[3].task_id) != OS_SUCCESS, "OS_TaskDelete, redelete 3");
 
     /* Creating some more tasks for testing name functions */
     
@@ -382,677 +95,349 @@ int TestTasks(void)
     /* Create Task 0 again */
     status = OS_TaskCreate( &task_0_id, "Task 0", task_0, task_0_stack, 
                             TASK_0_STACK_SIZE, TASK_0_PRIORITY, 0);
-      /*OS_printf("Create Status = %d, Id = %d\n",status,task_0_id); */
-    if (status != PASS)
-        failTaskCreatecount++;
+      /*UtDebug("Create Status = %d, Id = %d\n",status,task_0_id); */
+    UtAssert_True(status == OS_SUCCESS, "OS_TaskCreate, recreate 0");
     
   /* Try and create another "Task 0", should fail as we already have one named "Task 0" */
     status = OS_TaskCreate( &task_1_id, "Task 0", task_0, task_0_stack, 
                             TASK_0_STACK_SIZE, TASK_0_PRIORITY, 0);
-     /* OS_printf("Create Status = %d, Id = %d\n",status,task_1_id); */
-    if (status == PASS)
-        failTaskCreatecount++;
+    UtAssert_True(status != OS_SUCCESS, "OS_TaskCreate, dupe name 0");
 
     status = OS_TaskCreate( &task_2_id, "Task 2", task_2, task_2_stack,
                             TASK_2_STACK_SIZE, TASK_2_PRIORITY, 0);
-    /*  OS_printf("Create Status = %d, Id = %d\n",status,task_2_id); */
-    if (status != PASS)
-        failTaskCreatecount++;
+    /*  UtDebug("Create Status = %d, Id = %d\n",status,task_2_id); */
+    UtAssert_True(status == OS_SUCCESS, "OS_TaskCreate, recreate 2");
     
     status = OS_TaskCreate( &task_3_id, "Task 3", task_3, task_3_stack,
                             TASK_3_STACK_SIZE, TASK_3_PRIORITY, 0);
-    /*  OS_printf("Create Status = %d, Id = %d\n",status,task_3_id); */
-    if (status != PASS)
-        failTaskCreatecount++;
+    /*  UtDebug("Create Status = %d, Id = %d\n",status,task_3_id); */
+    UtAssert_True(status == OS_SUCCESS, "OS_TaskCreate, recreate 3");
+
 
     status = OS_TaskGetIdByName(&task_0_id, "Task 0");
-    /* OS_printf("Satus after Getting the id of \"Task 0\":%d,%d \n\n",status,task_0_id); */
+    /* UtDebug("Satus after Getting the id of \"Task 0\":%d,%d \n\n",status,task_0_id); */
     /*first newly created task should have id == 0*/
-    if (status != PASS || task_0_id != 0)    
-        failGetIdcount++;
+    UtAssert_True(status == OS_SUCCESS, "OS_TaskGetIdByName, Task 0");
     
     status = OS_TaskGetIdByName(&task_1_id, "Task 1");
-    /*OS_printf("Satus after Getting the id of \"Task 1\":%d,%d \n\n",status,task_1_id);*/
-    if (status == PASS)
-        failGetIdcount++;
+    /*UtDebug("Satus after Getting the id of \"Task 1\":%d,%d \n\n",status,task_1_id);*/
+    UtAssert_True(status != OS_SUCCESS, "OS_TaskGetIdByName, Task 1");
 
     status = OS_TaskGetIdByName(&task_2_id, "Task 2");
-    /* OS_printf("Satus after Getting the id of \"Task 2\":%d,%d \n\n",status,task_2_id);*/
-    if (status != PASS || task_2_id != 1)   
-        failGetIdcount++;
+    /* UtDebug("Satus after Getting the id of \"Task 2\":%d,%d \n\n",status,task_2_id);*/
+    UtAssert_True(status == OS_SUCCESS, "OS_TaskGetIdByName, Task 2");
     
     status = OS_TaskGetIdByName(&task_3_id, "Task 3");
-    /* OS_printf("Satus after Getting the id of \"Task 3\":%d,%d \n\n",status,task_3_id); */
-    if (status != PASS || task_3_id != 2)    
-        failGetIdcount++;
+    /* UtDebug("Satus after Getting the id of \"Task 3\":%d,%d \n\n",status,task_3_id); */
+    UtAssert_True(status == OS_SUCCESS, "OS_TaskGetIdByName, Task 3");
 
-    if (OS_TaskDelete(task_0_id) != PASS)
-        failTaskDeletecount++;
-    if (OS_TaskDelete(task_1_id) == PASS)
-        failTaskDeletecount++;
+#ifdef OSAL_OPAQUE_OBJECT_IDS
+    /*
+     * This should fail - verifies that ID re-use protections are working.
+     * This only works with the new OSALs
+     */
+    UtAssert_True(OS_TaskDelete(saved_task0_id) != OS_SUCCESS, "OS_TaskDelete, Old ID");
+#else
+    TaskData[0].task_id = saved_task0_id; /* squelch unused variable warning */
+#endif
+
+    UtAssert_True(OS_TaskDelete(task_0_id) == OS_SUCCESS, "OS_TaskDelete, Task 0");
+    UtAssert_True(OS_TaskDelete(task_1_id) != OS_SUCCESS, "OS_TaskDelete, Task 1");
+    UtAssert_True(OS_TaskDelete(task_2_id) == OS_SUCCESS, "OS_TaskDelete, Task 2");
+    UtAssert_True(OS_TaskDelete(task_3_id) == OS_SUCCESS, "OS_TaskDelete, Task 3");
     
-    if (OS_TaskDelete(task_2_id) != PASS)
-        failTaskDeletecount++;
-    
-    if (OS_TaskDelete(task_3_id) != PASS)
-        failTaskDeletecount++;
-    
-
-    if (failTaskCreatecount != 0)
-        OS_printf("Task Create Failed Count: %d\n", failTaskCreatecount);
-
-    if (failTaskDeletecount != 0)
-        OS_printf("Task Delete Failed Count: %d\n", failTaskDeletecount);
-
-
-    if (failGetIdcount != 0)
-        OS_printf("Task Get ID Failed Count: %d\n", failGetIdcount);
-
-    totalfail = failTaskCreatecount + failTaskDeletecount + failGetIdcount;
-    
-    return totalfail;
-
 }/* end TestTasks */
 
 
 /* ************************************************************************************ */
 
-int TestQueues(void)
+void TestQueues(void)
 {
     int status;
-    int failQCreatecount = 0;
-    int failQDeletecount = 0;
-    int failQGetIdcount = 0;
-    int totalfailures = 0;
+    char qname[OS_MAX_API_NAME];
+    int qnum;
+    uint32 saved_queue0_id;
+    static uint32 msgq_ids[OS_MAX_QUEUES + 1];
 
     InitializeQIds();
-    status = OS_QueueCreate( &msgq_0, "q 0", MSGQ_DEPTH, MSGQ_SIZE, 0);
-     /* OS_printf("Status after Creating q 0: %d,%d\n",status,msgq_0); */
-    if (status != PASS)
-        failQCreatecount++;
+    memset(msgq_ids,0xFF,sizeof(msgq_ids));
     
-    status = OS_QueueCreate( &msgq_1, "q 1", MSGQ_DEPTH, MSGQ_SIZE, 0);
-     /* OS_printf("Status after Creating q 1: %d,%d\n",status,msgq_1); */
-    if (status != PASS)
-        failQCreatecount++;
-    
-    status = OS_QueueCreate( &msgq_2, "q 2", MSGQ_DEPTH, MSGQ_SIZE, 0);
-     /* OS_printf("Status after Creating q 2: %d,%d\n",status,msgq_2); */
-    if (status != PASS)
-        failQCreatecount++;
-    
-    status = OS_QueueCreate( &msgq_3, "q 3", MSGQ_DEPTH, MSGQ_SIZE, 0);
-     /* OS_printf("Status after Creating q 3: %d,%d\n",status,msgq_3); */
-    if (status != PASS)
-        failQCreatecount++;
-    
-    status = OS_QueueCreate( &msgq_4, "q 4", MSGQ_DEPTH, MSGQ_SIZE, 0);
-     /* OS_printf("Status after Creating q 4: %d,%d\n",status,msgq_4); */
-    if (status != PASS)
-        failQCreatecount++;
-    
-    status = OS_QueueCreate( &msgq_5, "q 5", MSGQ_DEPTH, MSGQ_SIZE, 0);
-     /* OS_printf("Status after Creating q 5: %d,%d\n",status,msgq_5); */
-    if (status != PASS)
-        failQCreatecount++;
-    
-    status = OS_QueueCreate( &msgq_6, "q 6", MSGQ_DEPTH, MSGQ_SIZE, 0);
-     /* OS_printf("Status after Creating q 6: %d,%d\n",status,msgq_6); */
-    if (status != PASS)
-        failQCreatecount++;
-    
-    status = OS_QueueCreate( &msgq_7, "q 7", MSGQ_DEPTH, MSGQ_SIZE, 0);
-     /* OS_printf("Status after Creating q 7: %d,%d\n",status,msgq_7); */
-    if (status != PASS)
-        failQCreatecount++;
-    
-    status = OS_QueueCreate( &msgq_8, "q 8", MSGQ_DEPTH, MSGQ_SIZE, 0);
-     /* OS_printf("Status after Creating q 8: %d,%d\n",status,msgq_8); */
-    if (status != PASS)
-        failQCreatecount++;
+    for (qnum = 0; qnum < (OS_MAX_QUEUES + 1); ++qnum)
+    {
+       snprintf(qname,sizeof(qname),"q %d", qnum);
+       status = OS_QueueCreate( &msgq_ids[qnum], qname, MSGQ_DEPTH, MSGQ_SIZE, 0);
 
-    status = OS_QueueCreate( &msgq_9, "q 9", MSGQ_DEPTH, MSGQ_SIZE, 0);
-     /* OS_printf("Status after Creating q 9: %d,%d\n",status,msgq_9); */
-    if (status != PASS)
-        failQCreatecount++;
+       UtAssert_True((qnum < OS_MAX_QUEUES && status == OS_SUCCESS) ||
+             (qnum >= OS_MAX_QUEUES && status != OS_SUCCESS), "OS_QueueCreate, nominal");
+    }
     
-    /* This one should fail, it is queue number 11 */
-    status = OS_QueueCreate( &msgq_10, "q 10", MSGQ_DEPTH, MSGQ_SIZE, 0);
-     /* OS_printf("Status after Creating q 10: %d, %d\n",status,msgq_10); */
-    if (status == PASS)
-        failQCreatecount++;
-
-    
+    saved_queue0_id = msgq_ids[0];
  /*     Trying now to Delete all of the Queues created. */
     
-    status = OS_QueueDelete(msgq_0);
-     /* OS_printf("Status after Deleting q 0: %d\n",status); */
-    if (status != PASS)
-        failQDeletecount++;
+    for (qnum = 0; qnum < (OS_MAX_QUEUES + 1); ++qnum)
+    {
+       status = OS_QueueDelete( msgq_ids[qnum] );
 
-    status = OS_QueueDelete(msgq_1);
-     /* OS_printf("Status after Deleting q 1: %d\n",status); */
-    if (status != PASS)
-        failQDeletecount++;
-
-    status = OS_QueueDelete(msgq_2);
-     /* OS_printf("Status after Deleting q 2: %d\n",status); */
-    if (status != PASS)
-        failQDeletecount++;
-
-    status = OS_QueueDelete(msgq_3);
-     /* OS_printf("Status after Deleting q 3: %d\n",status); */
-    if (status != PASS)
-        failQDeletecount++;
-
-    status = OS_QueueDelete(msgq_4);
-     /* OS_printf("Status after Deleting q 4: %d\n",status); */
-    if (status != PASS)
-        failQDeletecount++;
-
-    status = OS_QueueDelete(msgq_5);
-     /* OS_printf("Status after Deleting q 5: %d\n",status); */
-    if (status != PASS)
-        failQDeletecount++;
-
-    status = OS_QueueDelete(msgq_6);
-     /* OS_printf("Status after Deleting q 6: %d\n",status); */
-    if (status != PASS)
-        failQDeletecount++;
-
-    status = OS_QueueDelete(msgq_7);
-     /* OS_printf("Status after Deleting q 7: %d\n",status); */
-    if (status != PASS)
-        failQDeletecount++;
-
-    status = OS_QueueDelete(msgq_8);
-     /* OS_printf("Status after Deleting q 8: %d\n",status); */
-    if (status != PASS)
-        failQDeletecount++;
-
-    status = OS_QueueDelete(msgq_9);
-     /* OS_printf("Status after Deleting q 9: %d\n",status); */
-    if (status != PASS)
-        failQDeletecount++;
-
-    /* This one should have never gotten created, so it */
-    /* shouldn't get deleted */
-    status = OS_QueueDelete(msgq_10);
-     /* OS_printf("Status after Deleting q 10: %d\n",status); */
-    if (status == PASS)
-        failQDeletecount++;
+       UtAssert_True((qnum < OS_MAX_QUEUES && status == OS_SUCCESS) ||
+             (qnum >= OS_MAX_QUEUES && status != OS_SUCCESS), "OS_QueueDelete, nominal");
+    }
 
 /*     Create Some more Queues for trying to get the id by name */
 
     InitializeQIds();
     status = OS_QueueCreate( &msgq_0, "q 0", MSGQ_DEPTH, MSGQ_SIZE, 0);
-     /* OS_printf("Status after Creating q 0: %d,%d\n",status,msgq_0);*/
-    if (status != PASS)
-        failQCreatecount++;
+     /* UtDebug("Status after Creating q 0: %d,%d\n",status,msgq_0);*/
+    UtAssert_True(status == OS_SUCCESS, "OS_QueueCreate, recreate 0");
     
     /* This one should fail */
     status = OS_QueueCreate( &msgq_1, "q 0", MSGQ_DEPTH, MSGQ_SIZE, 0);
-     /* OS_printf("Status after Creating q 0 again: %d,%d\n",status,msgq_1); */
-    if (status == PASS)
-        failQCreatecount++;
+     /* UtDebug("Status after Creating q 0 again: %d,%d\n",status,msgq_1); */
+    UtAssert_True(status != OS_SUCCESS, "OS_QueueCreate, dupe name 0");
     
     status = OS_QueueCreate( &msgq_2, "q 2", MSGQ_DEPTH, MSGQ_SIZE, 0);
-     /* OS_printf("Status after Creating q 2: %d,%d\n",status,msgq_2); */
-    if (status != PASS)
-        failQCreatecount++;
+     /* UtDebug("Status after Creating q 2: %d,%d\n",status,msgq_2); */
+    UtAssert_True(status == OS_SUCCESS, "OS_QueueCreate, recreate 2");
     
     status = OS_QueueCreate( &msgq_3, "q 3", MSGQ_DEPTH, MSGQ_SIZE, 0);
-     /* OS_printf("Status after Creating q 3: %d,%d\n",status,msgq_3); */
-    if (status != PASS)
-        failQCreatecount++;
+     /* UtDebug("Status after Creating q 3: %d,%d\n",status,msgq_3); */
+    UtAssert_True(status == OS_SUCCESS, "OS_QueueCreate, recreate 3");
 
-/*    
-* Now that the Queues are created, its time to see if we can find
-* the propper ID by the name of the queue;
-*/
+    /*
+     * Now that the Queues are created, its time to see if we can find
+     * the propper ID by the name of the queue;
+     */
     status = OS_QueueGetIdByName(&msgq_0,"q 0");
-    if (status != PASS || msgq_0 != 0)
-        failQGetIdcount++;
+    UtAssert_True(status == OS_SUCCESS, "OS_QueueGetIdByName, q 0");
 
     status = OS_QueueGetIdByName(&msgq_1,"q 1");
-    if (status == PASS)
-        failQGetIdcount++;
+    UtAssert_True(status != OS_SUCCESS, "OS_QueueGetIdByName, q 1");
 
     status = OS_QueueGetIdByName(&msgq_2,"q 2");
-    if (status != PASS || msgq_2 != 1)
-        failQGetIdcount++;
+    UtAssert_True(status == OS_SUCCESS, "OS_QueueGetIdByName, q 2");
 
     status = OS_QueueGetIdByName(&msgq_3,"q 3");
-    if (status != PASS || msgq_3 != 2)
-        failQGetIdcount++;
+    UtAssert_True(status == OS_SUCCESS, "OS_QueueGetIdByName, q 3");
+
+#ifdef OSAL_OPAQUE_OBJECT_IDS
+    /*
+     * This should fail - verifies that ID re-use protections are working.
+     */
+    status = OS_QueueDelete(saved_queue0_id);
+    UtAssert_True(status != OS_SUCCESS, "OS_QueueDelete, Old ID");
+#else
+    msgq_ids[0] = saved_queue0_id;
+#endif
 
     /* Time to Delete the Queues we just created */
 
     status = OS_QueueDelete(msgq_0);
-     /* OS_printf("Status after Deleting q 0 : %d\n",status); */
-    if (status != PASS)
-        failQDeletecount++;
+     /* UtDebug("Status after Deleting q 0 : %d\n",status); */
+    UtAssert_True(status == OS_SUCCESS, "OS_QueueDelete, q 0");
 
     status = OS_QueueDelete(msgq_1);
-     /* OS_printf("Status after Deleting q 1: %d\n",status); */
-    if (status == PASS)
-        failQDeletecount++;
+     /* UtDebug("Status after Deleting q 1: %d\n",status); */
+    UtAssert_True(status != OS_SUCCESS, "OS_QueueDelete, q 1");
 
     status = OS_QueueDelete(msgq_2);
-     /* OS_printf("Status after Deleting q 2: %d\n",status); */
-    if (status != PASS)
-        failQDeletecount++;
+     /* UtDebug("Status after Deleting q 2: %d\n",status); */
+    UtAssert_True(status == OS_SUCCESS, "OS_QueueDelete, q 2");
 
     status = OS_QueueDelete(msgq_3);
-     /* OS_printf("Status after Deleting q 3: %d\n",status); */
-    if (status != PASS)
-        failQDeletecount++;
+     /* UtDebug("Status after Deleting q 3: %d\n",status); */
+    UtAssert_True(status == OS_SUCCESS, "OS_QueueDelete, q 3");
     
-    totalfailures = failQCreatecount + failQDeletecount + failQGetIdcount;
-    
-    if (totalfailures != 0)
-    {
-        OS_printf("Queue Create Failed Count: %d\n",failQCreatecount);
-        OS_printf("Queue Delete Failed Count: %d\n",failQDeletecount);
-        OS_printf("Queue Get ID Failed Count: %d\n",failQGetIdcount);
-    }
-    
-    return totalfailures;
 }/* end TestQueues */
 
 /* *************************************************************************** */
-int TestBinaries(void)
+void TestBinaries(void)
 {
-    int failBinCreatecount = 0;
-    int failBinDeletecount = 0;
-    int failBinGetIdcount = 0;
-    int totalfailures = 0;
     int status;
-    InitializeBinIds();
+    char bname[OS_MAX_API_NAME];
+    int bnum;
+    uint32 saved_bin0_id;
+    static uint32 binsem_ids[OS_MAX_BIN_SEMAPHORES + 1];
 
-    status = OS_BinSemCreate( &bin_0,"Bin 0",1,0);
-    /*  OS_printf("Status after creating: %d,%d\n",status,bin_0); */ 
-    if (status != OS_SUCCESS)
-        failBinCreatecount++;
 
-    status = OS_BinSemCreate( &bin_1,"Bin 1",1,0);
-    /*  OS_printf("Status after creating: %d,%d\n",status,bin_1); */
-    if (status != OS_SUCCESS)
-        failBinCreatecount++;
+    memset(binsem_ids,0xFF,sizeof(binsem_ids));
 
-    status = OS_BinSemCreate( &bin_2,"Bin 2",1,0);
-      /* OS_printf("Status after creating: %d,%d\n",status,bin_2); */
-    if (status != OS_SUCCESS)
-        failBinCreatecount++;
+    for (bnum = 0; bnum < (OS_MAX_BIN_SEMAPHORES + 1); ++bnum)
+    {
+       snprintf(bname,sizeof(bname),"Bin %d", bnum);
+       status = OS_BinSemCreate( &binsem_ids[bnum], bname, 1, 0);
 
-    status = OS_BinSemCreate( &bin_3,"Bin 3",1,0);
-      /* OS_printf("Status after creating: %d,%d\n",status,bin_3); */
-    if (status != OS_SUCCESS)
-        failBinCreatecount++;
+       UtAssert_True((bnum < OS_MAX_BIN_SEMAPHORES && status == OS_SUCCESS) ||
+             (bnum >= OS_MAX_BIN_SEMAPHORES && status != OS_SUCCESS), "OS_BinSemCreate, nominal");
+    }
 
-    status = OS_BinSemCreate( &bin_4,"Bin 4",1,0);
-      /* OS_printf("Status after creating: %d,%d\n",status,bin_4); */
-    if (status != OS_SUCCESS)
-        failBinCreatecount++;
+    saved_bin0_id = binsem_ids[0];
 
-    status = OS_BinSemCreate( &bin_5,"Bin 5",1,0);
-      /* OS_printf("Status after creating: %d,%d\n",status,bin_5); */
-    if (status != OS_SUCCESS)
-        failBinCreatecount++;
+    for (bnum = 0; bnum < (OS_MAX_BIN_SEMAPHORES + 1); ++bnum)
+    {
+       status = OS_BinSemDelete( binsem_ids[bnum] );
 
-    status = OS_BinSemCreate( &bin_6,"Bin 6",1,0);
-      /* OS_printf("Status after creating: %d,%d\n",status,bin_6); */
-    if (status != OS_SUCCESS)
-        failBinCreatecount++;
+       UtAssert_True((bnum < OS_MAX_BIN_SEMAPHORES && status == OS_SUCCESS) ||
+             (bnum >= OS_MAX_BIN_SEMAPHORES && status != OS_SUCCESS), "OS_BinSemDelete, nominal");
+    }
 
-    status = OS_BinSemCreate( &bin_7,"Bin 7",1,0);
-      /* OS_printf("Status after creating: %d,%d\n",status,bin_7); */
-    if (status != OS_SUCCESS)
-        failBinCreatecount++;
-
-    status = OS_BinSemCreate( &bin_8,"Bin 8",1,0);
-      /* OS_printf("Status after creating: %d,%d\n",status,bin_8); */
-    if (status != OS_SUCCESS)
-        failBinCreatecount++;
-
-    status = OS_BinSemCreate( &bin_9,"Bin 9",1,0);
-      /* OS_printf("Status after creating: %d,%d\n",status,bin_9); */
-    if (status != OS_SUCCESS)
-        failBinCreatecount++;
-
-    status = OS_BinSemCreate( &bin_10,"Bin 10",1,0);
-      /* OS_printf("Status after creating: %d,%d\n",status,bin_10); */
-    if (status == OS_SUCCESS)
-        failBinCreatecount++;
-
-    status = OS_BinSemDelete(bin_0);
-      /* OS_printf("Status after deleteing:%d\n",status); */ 
-    if (status != OS_SUCCESS)
-        failBinDeletecount++;
-
-    status = OS_BinSemDelete(bin_1);
-      /* OS_printf("Status after deleteing:%d\n",status); */ 
-    if (status != OS_SUCCESS)
-        failBinDeletecount++;
-
-    status = OS_BinSemDelete(bin_2);
-      /* OS_printf("Status after deleteing:%d\n",status); */ 
-    if (status != OS_SUCCESS)
-        failBinDeletecount++;
-
-    status = OS_BinSemDelete(bin_3);
-      /* OS_printf("Status after deleteing:%d\n",status); */ 
-    if (status != OS_SUCCESS)
-        failBinDeletecount++;
-
-    status = OS_BinSemDelete(bin_4);
-      /* OS_printf("Status after deleteing:%d\n",status); */ 
-    if (status != OS_SUCCESS)
-        failBinDeletecount++;
-
-    status = OS_BinSemDelete(bin_5);
-      /* OS_printf("Status after deleteing:%d\n",status); */ 
-    if (status != OS_SUCCESS)
-        failBinDeletecount++;
-
-    status = OS_BinSemDelete(bin_6);
-      /* OS_printf("Status after deleteing:%d\n",status); */ 
-    if (status != OS_SUCCESS)
-        failBinDeletecount++;
-    status = OS_BinSemDelete(bin_7);
-      /* OS_printf("Status after deleteing:%d\n",status); */ 
-    if (status != OS_SUCCESS)
-        failBinDeletecount++;
-
-    status = OS_BinSemDelete(bin_8);
-      /* OS_printf("Status after deleteing:%d\n",status); */ 
-    if (status != OS_SUCCESS)
-        failBinDeletecount++;
-
-    status = OS_BinSemDelete(bin_9);
-      /* OS_printf("Status after deleteing:%d\n",status); */ 
-    if (status != OS_SUCCESS)
-        failBinDeletecount++;
-
-    status = OS_BinSemDelete(bin_10);
-      /* OS_printf("Status after deleteing:%d\n",status); */ 
-    if (status == OS_SUCCESS)
-        failBinDeletecount++;
-
-/*
-* Now Create a few extra semaphores
-*  to test  GetIdByName
-*/
-
+    /*
+     * Now Create a few extra semaphores
+     *  to test  GetIdByName
+     */
     InitializeBinIds();
     status = OS_BinSemCreate( &bin_0,"Bin 0",OS_SEM_FULL,0);
-    /* OS_printf("Status after creating: %d,%d\n",status,bin_0); */
-    if (status != OS_SUCCESS)
-        failBinCreatecount++;
+    /* UtDebug("Status after creating: %d,%d\n",status,bin_0); */
+    UtAssert_True(status == OS_SUCCESS, "OS_BinSemCreate, recreate 0");
 
     status = OS_BinSemCreate( &bin_1,"Bin 0",OS_SEM_FULL,0);
-    /* OS_printf("Status after creating: %d,%d\n",status,bin_1); */
-    if (status == OS_SUCCESS)
-        failBinCreatecount++;
+    /* UtDebug("Status after creating: %d,%d\n",status,bin_1); */
+    UtAssert_True(status != OS_SUCCESS, "OS_BinSemCreate, dupe name 0");
 
     status = OS_BinSemCreate( &bin_2,"Bin 2",OS_SEM_EMPTY,0);
-     /* OS_printf("Status after creating: %d,%d\n",status,bin_2);  */
-    if (status != OS_SUCCESS)
-        failBinCreatecount++;
+     /* UtDebug("Status after creating: %d,%d\n",status,bin_2);  */
+    UtAssert_True(status == OS_SUCCESS, "OS_BinSemCreate, recreate 2");
 
     status = OS_BinSemCreate( &bin_3,"Bin 3",OS_SEM_EMPTY,0);
-     /* OS_printf("Status after creating: %d,%d\n",status,bin_3); */
-    if (status != OS_SUCCESS)
-        failBinCreatecount++;
+     /* UtDebug("Status after creating: %d,%d\n",status,bin_3); */
+    UtAssert_True(status == OS_SUCCESS, "OS_BinSemCreate, recreate 3");
 
 
 
     
     status = OS_BinSemGetIdByName(&bin_0,"Bin 0");
-      /* OS_printf("Status after GETID: %d,%d\n",status,bin_0); */
-    if (status != OS_SUCCESS || bin_0 != 0)
-        failBinGetIdcount++;
+      /* UtDebug("Status after GETID: %d,%d\n",status,bin_0); */
+    UtAssert_True(status == OS_SUCCESS, "OS_BinSemGetIdByName, Bin 0");
     
     status = OS_BinSemGetIdByName(&bin_1,"Bin 1");
-     /* OS_printf("Status after GETID: %d,%d\n",status,bin_1); */
-
-    if (status == OS_SUCCESS)
-        failBinGetIdcount++;
+    /* UtDebug("Status after GETID: %d,%d\n",status,bin_1); */
+    UtAssert_True(status != OS_SUCCESS, "OS_BinSemGetIdByName, Bin 1");
     
     status = OS_BinSemGetIdByName(&bin_2,"Bin 2");
-    /* OS_printf("Status after GETID: %d,%d\n",status,bin_2); */ 
-
-    if (status != OS_SUCCESS || bin_2 != 1)
-        failBinGetIdcount++;
+    /* UtDebug("Status after GETID: %d,%d\n",status,bin_2); */
+    UtAssert_True(status == OS_SUCCESS, "OS_BinSemGetIdByName, Bin 2");
     
     status = OS_BinSemGetIdByName(&bin_3,"Bin 3");
-     /* OS_printf("Status after GETID: %d,%d\n",status,bin_3); */
-    if (status != OS_SUCCESS || bin_3 != 2)
-        failBinGetIdcount++;
-     
+     /* UtDebug("Status after GETID: %d,%d\n",status,bin_3); */
+    UtAssert_True(status == OS_SUCCESS, "OS_BinSemGetIdByName, Bin 3");
+
+#ifdef OSAL_OPAQUE_OBJECT_IDS
+    /*
+     * This should fail - verifies that ID re-use protections are working.
+     */
+    status = OS_BinSemDelete(saved_bin0_id);
+    UtAssert_True(status != OS_SUCCESS, "OS_BinSemDelete, Old ID");
+#else
+    binsem_ids[0] = saved_bin0_id;
+#endif
+
     status = OS_BinSemDelete(bin_0);
-     /* OS_printf("Status after deleteing:%d\n",status); */
-    if (status != OS_SUCCESS)
-        failBinDeletecount++;
+     /* UtDebug("Status after deleteing:%d\n",status); */
+    UtAssert_True(status == OS_SUCCESS, "OS_BinSemDelete, Bin 0");
 
     /* this one was never created */
     status = OS_BinSemDelete(bin_1);
-     /* OS_printf("Status after deleteing:%d\n",status); */
-    if (status == OS_SUCCESS)
-        failBinDeletecount++;
+     /* UtDebug("Status after deleteing:%d\n",status); */
+    UtAssert_True(status != OS_SUCCESS, "OS_BinSemDelete, Bin 1");
 
-    if (failBinCreatecount != 0)
-        OS_printf("Bin Sem Create Failed Count %d\n", failBinCreatecount);
-
-    if (failBinDeletecount != 0)
-        OS_printf("Bin Sem Delete Failed Count %d\n", failBinDeletecount);
-
-    if (failBinGetIdcount != 0)
-        OS_printf("Bin Sem Get ID Failed Count %d\n", failBinGetIdcount);
-
+    status = OS_BinSemDelete(bin_2);
+    UtAssert_True(status == OS_SUCCESS, "OS_BinSemDelete, Bin 2");
     
-    totalfailures = failBinCreatecount + failBinDeletecount + failBinGetIdcount;
-    
-    return totalfailures;
+    status = OS_BinSemDelete(bin_3);
+    UtAssert_True(status == OS_SUCCESS, "OS_BinSemDelete, Bin 3");
 
 }/* end TestBinaries */
 
 
 /* ************************************************************************************ */
-int TestMutexes(void)
+void TestMutexes(void)
 {
-    int failMutCreatecount = 0;
-    int failMutDeletecount = 0;
-    int failMutGetIdcount = 0;
-    int totalfailures = 0;
     int status;
+    char mname[OS_MAX_API_NAME];
+    int mnum;
+    uint32 saved_mut0_id;
+    static uint32 mutex_ids[OS_MAX_MUTEXES + 1];
+
+
+    memset(mutex_ids,0xFF,sizeof(mutex_ids));
+
+    for (mnum = 0; mnum < (OS_MAX_MUTEXES + 1); ++mnum)
+    {
+       snprintf(mname,sizeof(mname),"Mut %d", mnum);
+       status = OS_MutSemCreate( &mutex_ids[mnum], mname, 0);
+
+       UtAssert_True((mnum < OS_MAX_MUTEXES && status == OS_SUCCESS) ||
+             (mnum >= OS_MAX_MUTEXES && status != OS_SUCCESS), "OS_MutSemCreate, nominal");
+    }
     
-    InitializeMutIds();
+    saved_mut0_id = mutex_ids[0];
 
-    status = OS_MutSemCreate( &mut_0,"Mut 0",0);
-    /* OS_printf("Status after creating Mut 0: %d,%d\n",status,mut_0);  */
-    if (status != OS_SUCCESS)
-        failMutCreatecount++;
+    for (mnum = 0; mnum < (OS_MAX_MUTEXES + 1); ++mnum)
+    {
+       status = OS_MutSemDelete( mutex_ids[mnum] );
 
-    status = OS_MutSemCreate( &mut_1,"Mut 1",0);
-    /*  OS_printf("Status after creating Mut 1: %d,%d\n",status,mut_1);  */
-    if (status != OS_SUCCESS)
-        failMutCreatecount++;
+       UtAssert_True((mnum < OS_MAX_MUTEXES && status == OS_SUCCESS) ||
+             (mnum >= OS_MAX_MUTEXES && status != OS_SUCCESS), "OS_MutSemDelete, nominal");
+    }
 
-    status = OS_MutSemCreate( &mut_2,"Mut 2",0);
-    /*  OS_printf("Status after creating Mut 2: %d,%d\n",status,mut_2);  */
-    if (status != OS_SUCCESS)
-        failMutCreatecount++;
-
-    status = OS_MutSemCreate( &mut_3,"Mut 3",0);
-    /*  OS_printf("Status after creating Mut 3: %d,%d\n",status,mut_3); */
-    if (status != OS_SUCCESS)
-        failMutCreatecount++;
-
-    status = OS_MutSemCreate( &mut_4,"Mut 4",0);
-    /*  OS_printf("Status after creating Mut 4: %d,%d\n",status,mut_4);  */
-    if (status != OS_SUCCESS)
-        failMutCreatecount++;
-
-    status = OS_MutSemCreate( &mut_5,"Mut 5",0);
-    /*   OS_printf("Status after creating Mut 5: %d,%d\n",status,mut_5);  */
-    if (status != OS_SUCCESS)
-        failMutCreatecount++;
-
-    status = OS_MutSemCreate( &mut_6,"Mut 6",0);
-    /*  OS_printf("Status after creating Mut 6: %d,%d\n",status,mut_6);  */
-    if (status != OS_SUCCESS)
-        failMutCreatecount++;
-
-    status = OS_MutSemCreate( &mut_7,"Mut 7",0);
-    /*  OS_printf("Status after creating Mut 7: %d,%d\n",status,mut_7);  */
-    if (status != OS_SUCCESS)
-        failMutCreatecount++;
-
-    status = OS_MutSemCreate( &mut_8,"Mut 8",0);
-    /*  OS_printf("Status after creating Mut 8: %d,%d\n",status,mut_8);  */
-    if (status != OS_SUCCESS)
-        failMutCreatecount++;
-
-    status = OS_MutSemCreate( &mut_9,"Mut 9",0);
-    /*  OS_printf("Status after creating Mut 9: %d,%d\n",status,mut_9);  */
-    if (status != OS_SUCCESS)
-        failMutCreatecount++;
-
-    status = OS_MutSemCreate( &mut_10,"Mut 10",0);
-    /*  OS_printf("Status after creating Mut 10: %d,%d\n",status,mut_10);  */
-    if (status == OS_SUCCESS)
-        failMutCreatecount++;
-
-    status = OS_MutSemDelete(mut_0);
-    /*  OS_printf("Status after deleteing Mut 0:%d\n",status);   */
-    if (status != OS_SUCCESS)
-        failMutDeletecount++;
-
-    status = OS_MutSemDelete(mut_1);
-    /*  OS_printf("Status after deleteing Mut 1:%d\n",status);  */
-    if (status != OS_SUCCESS)
-        failMutDeletecount++;
-
-    status = OS_MutSemDelete(mut_2);
-    /*  OS_printf("Status after deleteing Mut 2:%d\n",status);  */
-    if (status != OS_SUCCESS)
-        failMutDeletecount++;
-
-    status = OS_MutSemDelete(mut_3);
-    /*  OS_printf("Status after deleteing Mut 3:%d\n",status);  */
-    if (status != OS_SUCCESS)
-        failMutDeletecount++;
-
-    status = OS_MutSemDelete(mut_4);
-    /*  OS_printf("Status after deleteing Mut 4:%d\n",status);  */
-    if (status != OS_SUCCESS)
-        failMutDeletecount++;
-
-    status = OS_MutSemDelete(mut_5);
-    /*  OS_printf("Status after deleteing Mut 5:%d\n",status);  */
-    if (status != OS_SUCCESS)
-        failMutDeletecount++;
-
-    status = OS_MutSemDelete(mut_6);
-    /*  OS_printf("Status after deleteing Mut 6:%d\n",status);  */
-    if (status != OS_SUCCESS)
-        failMutDeletecount++;
-
-    status = OS_MutSemDelete(mut_7);
-    /*  OS_printf("Status after deleteing Mut 7:%d\n",status);  */
-    if (status != OS_SUCCESS)
-        failMutDeletecount++;
-
-    status = OS_MutSemDelete(mut_8);
-    /*  OS_printf("Status after deleteing Mut 8:%d\n",status); */ 
-    if (status != OS_SUCCESS)
-        failMutDeletecount++;
-
-    status = OS_MutSemDelete(mut_9);
-    /*  OS_printf("Status after deleteing Mut 9:%d\n",status);  */
-    if (status != OS_SUCCESS)
-        failMutDeletecount++;
-
-    status = OS_MutSemDelete(mut_10);
-    /*  OS_printf("Status after deleteing Mut 10:%d\n",status); */
-    if (status == OS_SUCCESS)
-        failMutDeletecount++;
-/*
-* Now Create a few extra semaphores
-*  to test  GetIdByName
-*/
+    /*
+     * Now Create a few extra semaphores
+     *  to test  GetIdByName
+     */
     InitializeMutIds();
     status = OS_MutSemCreate( &mut_0,"Mut 0",0);
-    /*  OS_printf("Status after creating Mut 0: %d,%d\n",status,mut_0);  */
-    if (status != OS_SUCCESS)
-        failMutCreatecount++;
+    /*  UtDebug("Status after creating Mut 0: %d,%d\n",status,mut_0);  */
+    UtAssert_True(status == OS_SUCCESS, "OS_MutSemCreate, recreate 0");
 
     status = OS_MutSemCreate( &mut_1,"Mut 0",0);
-    /*  OS_printf("Status after creating Mut 0 again: %d,%d\n",status,mut_1); */
-    if (status == OS_SUCCESS)
-        failMutCreatecount++;
+    /*  UtDebug("Status after creating Mut 0 again: %d,%d\n",status,mut_1); */
+    UtAssert_True(status != OS_SUCCESS, "OS_MutSemCreate, dupe name 0");
 
     status = OS_MutSemCreate( &mut_2,"Mut 2",0);
-    /*  OS_printf("Status after creating Mut 2: %d,%d\n",status,mut_2); */
-    if (status != OS_SUCCESS)
-        failMutCreatecount++;
+    /*  UtDebug("Status after creating Mut 2: %d,%d\n",status,mut_2); */
+    UtAssert_True(status == OS_SUCCESS, "OS_MutSemCreate, recreate 2");
 
     status = OS_MutSemCreate( &mut_3,"Mut 3",0);
-    /*  OS_printf("Status after creating Mut 3: %d,%d\n",status,mut_3); */
-    if (status != OS_SUCCESS)
-        failMutCreatecount++;
+    /*  UtDebug("Status after creating Mut 3: %d,%d\n",status,mut_3); */
+    UtAssert_True(status == OS_SUCCESS, "OS_MutSemCreate, recreate 3");
 
     status = OS_MutSemGetIdByName(&mut_0,"Mut 0");
-    if (status != OS_SUCCESS || mut_0 != 0)
-        failMutGetIdcount++;
+    UtAssert_True(status == OS_SUCCESS, "OS_MutSemGetIdByName, Mut 0");
     
     status = OS_MutSemGetIdByName(&mut_1,"Mut 1");
-    if (status == OS_SUCCESS)
-        failMutGetIdcount++;
+    UtAssert_True(status != OS_SUCCESS, "OS_MutSemGetIdByName, Mut 1");
     
     status = OS_MutSemGetIdByName(&mut_2,"Mut 2");
-    if (status != OS_SUCCESS || mut_2 != 1)
-        failMutGetIdcount++;
+    UtAssert_True(status == OS_SUCCESS, "OS_MutSemGetIdByName, Mut 2");
     
     status = OS_MutSemGetIdByName(&mut_3,"Mut 3");
-    if (status != OS_SUCCESS || mut_3 != 2)
-        failMutGetIdcount++;
+    UtAssert_True(status == OS_SUCCESS, "OS_MutSemGetIdByName, Mut 3");
+
+#ifdef OSAL_OPAQUE_OBJECT_IDS
+    /*
+     * This should fail - verifies that ID re-use protections are working.
+     */
+    status = OS_MutSemDelete(saved_mut0_id);
+    UtAssert_True(status != OS_SUCCESS, "OS_MutSemDelete, Old ID");
+#else
+    mutex_ids[0] = saved_mut0_id;
+#endif
     
     status = OS_MutSemDelete(mut_0);
-    /*  OS_printf("Status after deleteing Mut 0:%d\n",status);  */
-    if (status != OS_SUCCESS)
-        failMutDeletecount++;
+    /*  UtDebug("Status after deleteing Mut 0:%d\n",status);  */
+    UtAssert_True(status == OS_SUCCESS, "OS_MutSemDelete, Mut 0");
 
     /* this one was never created*/
     status = OS_MutSemDelete(mut_1);
-    /*  OS_printf("Status after deleteing Mut 1:%d\n",status);  */
-    if (status == OS_SUCCESS)
-        failMutDeletecount++;
+    /*  UtDebug("Status after deleteing Mut 1:%d\n",status);  */
+    UtAssert_True(status != OS_SUCCESS, "OS_MutSemDelete, Mut 1");
 
     status = OS_MutSemDelete(mut_2);
-    /*  OS_printf("Status after deleteing Mut 2:%d\n",status);  */
-    if (status != OS_SUCCESS)
-        failMutDeletecount++;
+    /*  UtDebug("Status after deleteing Mut 2:%d\n",status);  */
+    UtAssert_True(status == OS_SUCCESS, "OS_MutSemDelete, Mut 2");
 
     status = OS_MutSemDelete(mut_3);
-    /*  OS_printf("Status after deleteing Mut 3:%d\n",status); */ 
-    if (status != OS_SUCCESS)
-        failMutDeletecount++;
+    /*  UtDebug("Status after deleteing Mut 3:%d\n",status); */
+    UtAssert_True(status == OS_SUCCESS, "OS_MutSemDelete, Mut 3");
   
-    if (failMutCreatecount != 0)
-        OS_printf("Mutex Create Failed Count %d\n", failMutCreatecount);
-
-    if (failMutDeletecount != 0)
-        OS_printf("Mutex Delete Failed Count %d\n", failMutDeletecount);
-
-    if (failMutGetIdcount != 0)
-        OS_printf("Mutex Get ID Failed Count %d\n", failMutGetIdcount);
-
-    totalfailures = failMutCreatecount + failMutDeletecount + failMutGetIdcount;
-    
-    return totalfailures;
-
 } /* end TestMutexes */
 
 
@@ -1105,20 +490,9 @@ void InitializeMutIds(void)
     return;
 } /* end InitializeMutIds */
 /* ***************************************************************************** */
-int TestGetInfos(void)
+void TestGetInfos(void)
 {
     int status;
-    int failTaskCreatecount = 0;
-    int failTaskDeletecount = 0;
-    int failQCreatecount = 0;
-    int failQDeletecount = 0;
-    int failBinCreatecount = 0;
-    int failBinDeletecount = 0;
-    int failMutCreatecount = 0;
-    int failMutDeletecount = 0;
-    int failGetInfocount = 0;
-    int totalfailures = 0;
-
     OS_task_prop_t      task_prop;
     OS_queue_prop_t     queue_prop;
     OS_bin_sem_prop_t   bin_prop;
@@ -1128,66 +502,49 @@ int TestGetInfos(void)
     
     status = OS_TaskCreate( &task_0_id, "Task 0", task_0, task_0_stack, 
                             TASK_0_STACK_SIZE, TASK_0_PRIORITY, 0);
-    if (status != PASS)
-        failTaskCreatecount++;
+    UtAssert_True(status == OS_SUCCESS, "OS_TaskCreate");
 
     status = OS_QueueCreate( &msgq_0, "q 0", MSGQ_DEPTH, MSGQ_SIZE, 0);
-     /* OS_printf("Status after Creating q 0: %d,%d\n",status,msgq_0); */
-    if (status != PASS)
-        failQCreatecount++;
+     /* UtDebug("Status after Creating q 0: %d,%d\n",status,msgq_0); */
+    UtAssert_True(status == OS_SUCCESS, "OS_QueueCreate");
 
     status = OS_BinSemCreate( &bin_0,"Bin 0",1,0);
-     /* OS_printf("Status after creating: %d,%d\n",status,bin_0); */
-    if (status != OS_SUCCESS)
-        failBinCreatecount++;
+     /* UtDebug("Status after creating: %d,%d\n",status,bin_0); */
+    UtAssert_True(status == OS_SUCCESS, "OS_BinSemCreate");
 
-  status = OS_MutSemCreate( &mut_0,"Mut 0",0);
-     /* OS_printf("Status after creating: %d,%d\n",status,mut_0); */
-    if (status != OS_SUCCESS)
-        failMutCreatecount++;
+    status = OS_MutSemCreate( &mut_0,"Mut 0",0);
+     /* UtDebug("Status after creating: %d,%d\n",status,mut_0); */
+    UtAssert_True(status == OS_SUCCESS, "OS_MutSemCreate");
 
     /* Next Step is to get the properties of the objects */
     
     status = OS_TaskGetInfo(task_0_id, &task_prop);
-    if (status != OS_SUCCESS)
-        failGetInfocount++;
+    UtAssert_True(status == OS_SUCCESS, "OS_TaskGetInfo");
+
     status = OS_QueueGetInfo(msgq_0, &queue_prop);
-    if (status != OS_SUCCESS)
-        failGetInfocount++;
+    UtAssert_True(status == OS_SUCCESS, "OS_QueueGetInfo");
 
     status = OS_BinSemGetInfo(bin_0, &bin_prop);
-    if (status != OS_SUCCESS)
-        failGetInfocount++;
+    UtAssert_True(status == OS_SUCCESS, "OS_BinSemGetInfo");
 
     status = OS_MutSemGetInfo(mut_0, &mut_prop);
-    if (status != OS_SUCCESS)
-        failGetInfocount++;
+    UtAssert_True(status == OS_SUCCESS, "OS_MutSemGetInfo");
 
-    if (OS_TaskDelete(task_0_id) != PASS)
-        failTaskDeletecount++;
+
+    status = OS_TaskDelete(task_0_id);
+    UtAssert_True(status == OS_SUCCESS, "OS_TaskDelete");
 
     status = OS_QueueDelete(msgq_0);
-     /* OS_printf("Status after Deleting q 0: %d\n",status); */
-    if (status != PASS)
-        failQDeletecount++;
-
+    UtAssert_True(status == OS_SUCCESS, "OS_QueueDelete");
+     /* UtDebug("Status after Deleting q 0: %d\n",status); */
     
     status = OS_BinSemDelete(bin_0);
-     /* OS_printf("Status after deleteing:%d\n",status); */
-    if (status != OS_SUCCESS)
-        failBinDeletecount++;
+     /* UtDebug("Status after deleteing:%d\n",status); */
+    UtAssert_True(status == OS_SUCCESS, "OS_BinSemDelete");
 
 
     status = OS_MutSemDelete(mut_0);
-     /* OS_printf("Status after deleteing:%d\n",status); */
-    if (status != OS_SUCCESS)
-        failMutDeletecount++;
-
-    totalfailures = failMutDeletecount +  failBinDeletecount  + failQDeletecount   + 
-                    failTaskDeletecount + failMutCreatecount  + failBinCreatecount + 
-                    failQCreatecount    + failTaskCreatecount + failGetInfocount;
-
-    return totalfailures;
-
+     /* UtDebug("Status after deleteing:%d\n",status); */
+    UtAssert_True(status == OS_SUCCESS, "OS_MutSemDelete");
 }
 

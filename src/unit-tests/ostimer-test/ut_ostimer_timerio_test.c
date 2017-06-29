@@ -31,6 +31,8 @@ extern char   g_longTimerName[OS_MAX_API_NAME+5];
 extern int32  g_skipTestCase;
 extern char*  g_skipTestCaseResult;
 
+UT_OS_TIMER_DECLARE_EXTRA_VARIABLES_MACRO
+
 /*--------------------------------------------------------------------------------*
 ** External function prototypes
 **--------------------------------------------------------------------------------*/
