@@ -1,0 +1,79 @@
+!==============================================================================
+!                Originator:      E. Uzo-Okoro
+!                Responsible SC:  Barbie Medina
+!                Responsible CSE: ??
+!                Rev:  Last Change: Nov 12, 2008  
+!
+!                    Telemetry Packet # nnnn (dec)
+!                 =================================
+!
+!       Packet Application ID: nnnn (Hex 'xxxx')
+!       Packet Title:  $sc $cpu SCH Telemetry Data Packet
+!       Packet Length:  ?? Bytes (Including 12 Bytes Of Header)
+!	Collect             Frequency:         SEC
+!
+!       REFERENCES:
+!
+!       NOTES:
+!
+!       HISTORY:
+!
+!  05NOV08     EUO           : Initial
+!
+!=============================================================================
+!
+#include "osconfig.h"
+!
+PACKET Pxxxx APID=nnnn, DESC="$sc $cpu SCH Telemetry Data Packet",
+                        STALE = 36
+#include "ccsds_header.rdl"
+!
+  UB   $sc_$cpu_SCH_CMDPC       	DESC="$sc $cpu SCH Command Processed Counter",
+                               		UNITS=Counts
+!
+  UB   $sc_$cpu_SCH_CMDEC 		DESC="$sc $cpu SCH Command Error Counter",
+                               		UNITS=Counts
+!
+  UB  $sc_$cpu_SCH_SYNCTOMET 		DESC="$sc $cpu SCH Status indicating whether slots are synched to MET"
+!
+  UB  $sc_$cpu_SCH_MAJORFRAMESOURCE 	DESC="$sc $cpu SCH Major Frame Signal source identifier"
+!
+  ULI  $sc_$cpu_SCH_ACTSUCCESSCTR	DESC="$sc $cpu SCH Number of successfully performed activities"
+!
+  ULI  $sc_$cpu_SCH_ACTFAILURECTR	DESC="$sc $cpu SCH Number of unsuccessful activities attempted"
+!
+  ULI  $sc_$cpu_SCH_SLOTPROCCTR 		DESC="$sc $cpu SCH Total # of Schedule Slots (Minor Frames) Processed"
+!
+  UI  $sc_$cpu_SCH_SKIPSLOTCTR		DESC="$sc $cpu SCH Number of times that a slot (minor frame) was skipped"
+!
+  UI  $sc_$cpu_SCH_MULTSLOTCTR		DESC="$sc $cpu SCH Number of times that multiple slots (minor frames) were processed in the same minor frame"
+!
+  UI  $sc_$cpu_SCH_SAMESLOTCTR		DESC="$sc $cpu SCH Number of times SCH woke up in the same slot as last time"
+!
+  UI  $sc_$cpu_SCH_BADTBLDATACTR	DESC="$sc $cpu SCH Number of times corrupted table entries were processed"
+!
+  UI  $sc_$cpu_SCH_TBLPASSVERIFYCTR	DESC="$sc $cpu SCH Number of times table loads successfully verified"
+!
+  UI  $sc_$cpu_SCH_TBLFAILVERIFYCTR	DESC="$sc $cpu SCH Number of times table loads unsuccessfully verified"
+!
+  ULI  $sc_$cpu_SCH_TBLPROCCTR 		DESC="$sc $cpu SCH Number of times Schedule Table has been processed"
+!
+  ULI  $sc_$cpu_SCH_VALIDMFCTR 		DESC="$sc $cpu SCH Number of valid Major Frame tones received"
+!
+  ULI  $sc_$cpu_SCH_MISSMFCTR 		DESC="$sc $cpu SCH Number of missing Major Frame tones"
+!
+  ULI  $sc_$cpu_SCH_UNEXPCTDMFCTR 	DESC="$sc $cpu SCH Number of unexpected Major Frame tones"
+!
+  UI  $sc_$cpu_SCH_MINORSINCETONE 	DESC="$sc $cpu SCH Number of Minor Frames since last Major Frame tone"
+!
+  UI  $sc_$cpu_SCH_NEXTSLOT 		DESC="$sc $cpu SCH Next Minor Frame to be processed"
+!
+  UI  $sc_$cpu_SCH_LASTSYNCMETSLOT	DESC="$sc $cpu SCH Slot number where Time Sync last occurred"
+!
+  UB  $sc_$cpu_SCH_IGNOREMF 		DESC="$sc $cpu SCH Major Frame too noisy to trust"
+!
+  UB  $sc_$cpu_SCH_UNEXPCTDMAJORFRAME DESC="$sc $cpu SCH Most Recent Major Frame signal was unexpected"
+!
+!  END                !END APPEND RECORD FUNCTION
+!
+END

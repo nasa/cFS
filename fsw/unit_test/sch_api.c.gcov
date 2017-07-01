@@ -1,0 +1,85 @@
+		
+		/*
+		** $Id: sch_api.c.gcov 1.1 2011/06/30 21:02:06EDT aschoeni Exp  $
+		**
+		** Purpose: This file contains api functions to modify and obtain the current
+		**          SCH Schedule Processing state.
+		** 
+		** Author:
+		**
+		** References: 
+		**
+		** $Log: sch_api.c.gcov  $
+		** Revision 1.1 2011/06/30 21:02:06EDT aschoeni 
+		** Initial revision
+		** Member added to project c:/MKSDATA/MKS-REPOSITORY/CFS-REPOSITORY/sch/fsw/unit_test/project.pj
+		** Revision 1.2 2011/06/30 15:47:01EDT aschoeni 
+		** added LibData
+		** Revision 1.1 2011/06/30 13:57:46EDT aschoeni 
+		** Initial revision
+		** Member added to project c:/MKSDATA/MKS-REPOSITORY/CFS-REPOSITORY/sch/fsw/src/project.pj
+		*/
+		
+		/*
+		** Includes
+		*/
+		
+		#include "sch_api.h"
+		#include "sch_apipriv.h"
+		#include "sch_platform_cfg.h"
+		
+		/*
+		** Exported data
+		*/
+		
+		SCH_LibData_t SCH_LibData;
+		
+		/*******************************************************************
+		**
+		** SCH_LibInit() -- Initializes the SCH Library
+		**
+		** NOTE: For complete prolog information, see 'sch_apipriv.h'.
+		********************************************************************/
+		void SCH_LibInit(void)
+           1    {
+           1        SCH_LibData.ProcessingDisabledCtr = SCH_LIB_DIS_CTR;
+		}
+		
+		/*******************************************************************
+		**
+		** SCH_EnableProcessing() -- Enables SCH schedule processing
+		**
+		** NOTE: For complete prolog information, see 'sch_api.h'.
+		********************************************************************/
+		void SCH_EnableProcessing(void)
+          13    {
+          13        if (SCH_LibData.ProcessingDisabledCtr > 0)
+		    {
+          13            SCH_LibData.ProcessingDisabledCtr--;
+		    }
+		}
+		
+		
+		/*******************************************************************
+		**
+		** SCH_DisableProcessing() -- Disables SCH schedule processing
+		**
+		** NOTE: For complete prolog information, see 'sch_api.h'.
+		********************************************************************/
+		void SCH_DisableProcessing(void)
+          13    {
+          13        SCH_LibData.ProcessingDisabledCtr++;
+		}
+		
+		
+		/*******************************************************************
+		**
+		** SCH_GetProcessingState() -- Obtains the current SCH schedule
+		**                             table processing state
+		**
+		** NOTE: For complete prolog information, see 'sch_api.h'.
+		********************************************************************/
+		boolean SCH_GetProcessingState(void)
+        5374    {
+        5374        return (SCH_LibData.ProcessingDisabledCtr == 0);
+		}

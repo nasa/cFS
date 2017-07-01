@@ -1,0 +1,44 @@
+#---------------------------------------------------------------------------
+# Each of the following assignment statements should have the documentation
+# mnemonic on the left followed by the mission specific telemetry mnemonic
+# on the right of the equals operator.
+#
+# FORMATTING DETAILS TO REMEMBER!
+# 1) ALIASES line MUST have "+=" as the operator
+# 2) There CANNOT be spaces around the "=" operator on assignment statements
+# 3) Each line, EXCEPT the last, MUST have the line continuation character "\"
+#    at the end
+# 4) NO comments, such as these, can be interspersed within the assignment
+#    statements
+# 5) If there are multiple mnemonics for a particular data point, they should
+#    be separated by the following ", \b \c " and enclosed in double quotes to 
+#    maintain proper formatting in the documentation.  For example:
+#        ES_RESET="$sc_$cpu_ES_ProcessorReset, \b \c $sc_$cpu_ES_PowerOnReset"
+#---------------------------------------------------------------------------
+ALIASES += \
+SCH_CMDPC=$sc_$cpu_SCH_CMDPC \
+SCH_CMDEC=$sc_$cpu_SCH_CMDEC \
+SCH_ACTSUCCESSCTR=$sc_$cpu_SCH_ActSuccessCtr \
+SCH_ACTFAILURECTR=$sc_$cpu_SCH_ActFailCtr \
+SCH_SLOTPROCCTR=$sc_$cpu_SCH_SlotProcCtr \
+SCH_SKIPSLOTCTR=$sc_$cpu_SCH_SlotSkipCtr \
+SCH_MULTSLOTCTR=$sc_$cpu_SCH_MultSlotCtr \
+SCH_SAMESLOTCTR=$sc_$cpu_SCH_SameSlotCtr \
+SCH_BADTBLDATACTR=$sc_$cpu_SCH_BadTblDataCtr \
+SCH_TBLPASSVERIFYCTR=$sc_$cpu_SCH_TblPassVerifyCtr \
+SCH_TBLFAILVERIFYCTR=$sc_$cpu_SCH_TblFailVerifyCtr \
+SCH_TBLPROCCTR=$sc_$cpu_SCH_TblProcCtr \
+SCH_VALIDMFCTR=$sc_$cpu_SCH_ValidMajorFrameCtr \
+SCH_MISSMFCTR=$sc_$cpu_SCH_MissedMajorFrameCtr \
+SCH_UNEXPCTDMFCTR=$sc_$cpu_SCH_UnexpectedMajorFrameCtr \
+SCH_MINORSINCETONE=$sc_$cpu_SCH_MinorFrameSinceTone \
+SCH_NEXTSLOT=$sc_$cpu_SCH_NextSlot \
+SCH_LASTSYNCMETSLOT=$sc_$cpu_SCH_LastSyncMETSlot \
+SCH_IGNOREMF=$sc_$cpu_SCH_IgnoreMajorFrame \
+SCH_UNEXPCTDMAJORFRAME=$sc_$cpu_SCH_UnexpectedMajorFrame \
+SCH_SYNCTOMET=$sc_$cpu_SCH_SyncToMET \
+SCH_MAJORFRAMESOURCE=$sc_$cpu_MajorFrameSource \
+SCH_SPARE1=$sc_$cpu_SCH_Spare1 \
+SCH_SPARE2=$sc_$cpu_SCH_Spare2 \
+SCH_ENTRYSTATES=$sc_$cpu_SCH_EntryStates \
+SCH_MSGIDS=$sc_$cpu_SCH_MsgIDs

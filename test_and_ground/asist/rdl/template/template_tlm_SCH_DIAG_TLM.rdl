@@ -1,0 +1,54 @@
+!==============================================================================
+!                Originator:      E. Uzo-Okoro
+!                Responsible SC:  Barbie Medina
+!                Responsible CSE: ??
+!                Rev:  Last Change: Nov 12, 2008  
+!
+!                    Telemetry Packet # nnnn (dec)
+!                 =================================
+!
+!       Packet Application ID: nnnn (Hex 'xxxx')
+!       Packet Title:  $sc $cpu SCH Diagnostic Telemetry Data Packet
+!       Packet Length:  ?? Bytes (Including 12 Bytes Of Header)
+!	Collect             Frequency:         SEC
+!
+!       REFERENCES:
+!
+!       NOTES:
+!
+!       HISTORY:
+!
+!  07NOV08     EUO           : Initial
+!
+!=============================================================================
+!
+#include "osconfig.h"
+#include "sch_platform_cfg.h"
+#include "sch_msgdefs.h"
+
+TYPES
+    UNION $sc_$cpu_SCH_State	DESC=""
+	UB StateAll	DESC="",mask=%xFF
+	UB State1	DESC="",mask=%xC0, DISCRETE, DRANGE=(0,1,2),
+			DLABEL=("Unused","Enabled","Disabled")
+	UB State2	DESC="",mask=%x30, DISCRETE, DRANGE=(0,1,2),
+			DLABEL=("Unused","Enabled","Disabled")
+	UB State3	DESC="",mask=%x0C, DISCRETE, DRANGE=(0,1,2),
+			DLABEL=("Unused","Enabled","Disabled")
+	UB State4	DESC="",mask=%x03, DISCRETE, DRANGE=(0,1,2),
+			DLABEL=("Unused","Enabled","Disabled")
+    END
+END_TYPES
+
+!
+PACKET Pxxxx APID=nnnn, DESC="$sc $cpu SCH Diagnostic Telemetry Data Packet",
+                        STALE = 36
+#include "ccsds_header.rdl"
+!
+  $sc_$cpu_SCH_State	$sc_$cpu_SCH_ENTRYSTATES[SCH_NUM_STATUS_BYTES_REQD] DESC="SCH Entry State consists of 2 bits for each entry"
+!
+  UI $sc_$cpu_SCH_MSGIDS[SCH_TABLE_ENTRIES] DESC="$sc $cpu SCH Message ID of msg associated with each entry"
+!
+!  END                !END APPEND RECORD FUNCTION
+!
+END

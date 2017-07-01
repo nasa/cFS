@@ -1,0 +1,2800 @@
+UTF Info: Task <SCH> added to Task Tbl.
+SysLog:1980-001-00:00:00.99999 ES Startup: SCH loaded and created
+UTF Info: App <SCH> added to App Tbl.
+***UTF SCH CMD PIPE TESTS START***
+
+UTF INFO: CFE_TBL_Register called for new table SCH.SCHED_DEF.
+UTF INFO: CFE_TBL_Register called for new table SCH.MSG_DEFS.
+Call to CFE_TBL_ValidateAccess returned 0
+Call to CFE_TBL_LoadFromFile returned 0
+DEBUG EVENT ID=31 Schedule table verify results -- good[8] bad[0] unused[492]
+INFO EVENT ID=36 SCH validation successful for Inactive 'SCH.SCHED_DEF'
+INFO EVENT ID=37 SCH Successfully Updated 'SCH.SCHED_DEF'
+Call to CFE_TBL_ValidateAccess returned 0
+Call to CFE_TBL_LoadFromFile returned 0
+DEBUG EVENT ID=33 Message tbl verify results - good[8] bad[0] unused[120]
+INFO EVENT ID=36 SCH validation successful for Inactive 'SCH.MSG_DEFS'
+INFO EVENT ID=37 SCH Successfully Updated 'SCH.MSG_DEFS'
+INFO EVENT ID=1 SCH Initialized. Version 0.0.0.0
+****Current Sim Time: 0.000000 **** Major Frame Signal
+> CMD: APID:0100 SEQ:0 LEN:8 FC:0 PKT:1900 c000 0001 0000 
+> CMD: APID:0104 SEQ:0 LEN:8 FC:0 PKT:1904 c000 0001 0000 
+
+! ***START SCH SB COMMAND TESTING***
+! ---------------------------------
+
+! Housekeeping Request @ 0.990-0
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+   Command Counter                   = 0
+   Command Error Counter             = 0
+   Schedule Activity Success Counter = 2
+   Schedule Activity Failure Counter = 0
+   Schedule Slots Processed Counter  = 99
+   Schedule Slots Skipped Counter    = 0
+   Multiple Schedule Slots Processed = 0
+   Same Slot Processed Counter       = 0
+   Bad Schedule Table Data Counter   = 0
+   Table Verification Success Ctr    = 2
+   Table Verification Failure Ctr    = 0
+   Table Pass Counter                = 0
+   Valid Major Frame Counter         = 1
+   Missed Major Frame Counter        = 0
+   Unexpected Major Frame Counter    = 0
+   Minor Frames Since Tone Counter   = 99
+   Next Minor Frame Number           = 99
+   Last Sync MET Slot Number         = 0
+   Major Frame is Ignored            = FALSE
+   Unexpected Major Frame Detected   = FALSE
+   Sync To MET                (0x00) = Minor Frame: NO,  Major Frame: NO
+
+! NOOP Command Test @ 0.990
+! Expect to see:
+!    EVENT ID=40 for each command
+! -----------------
+< CMD: APID:0095 SEQ:0 LEN:8 FC:0 PKT:1895 c000 0001 0000 
+INFO EVENT ID=40 NO-op command. Version 0.0.0.0
+< CMD: APID:0095 SEQ:0 LEN:8 FC:0 PKT:1895 c000 0001 0000 
+INFO EVENT ID=40 NO-op command. Version 0.0.0.0
+< CMD: APID:0095 SEQ:0 LEN:8 FC:0 PKT:1895 c000 0001 0000 
+INFO EVENT ID=40 NO-op command. Version 0.0.0.0
+< CMD: APID:0095 SEQ:0 LEN:8 FC:0 PKT:1895 c000 0001 0000 
+INFO EVENT ID=40 NO-op command. Version 0.0.0.0
+< CMD: APID:0095 SEQ:0 LEN:8 FC:0 PKT:1895 c000 0001 0000 
+INFO EVENT ID=40 NO-op command. Version 0.0.0.0
+
+! Housekeeping Request @ 0.990-1
+! Expect to see:
+!    Command Counter = 5
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+Changes in HK Pkt since last print out:
+   Command Counter                   = 5
+
+! NOOP Command With Invalid Length Test @ 0.990
+! Expect to see:
+!   EVENT ID=60
+! ---------------------------------------------
+< CMD: APID:0095 SEQ:0 LEN:14 FC:0 PKT:1895 c000 0007 0000 1234 ffff 7fff 
+ERROR EVENT ID=60 Cmd Msg with Bad length Rcvd: ID = 0x1895, CC = 0, Exp Len = 8, Len = 14
+
+! Housekeeping Request @ 0.990-2
+! Expect to see:
+!    Command Error Counter = 1
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+Changes in HK Pkt since last print out:
+   Command Error Counter             = 1
+
+! Housekeeping Request With Invalid Length Test @ 0.990
+! Expect to see:
+!    EVENT ID=60
+! ---------------------------------------------
+< CMD: APID:0096 SEQ:0 LEN:14 FC:0 PKT:1896 c000 0007 0000 1234 ffff 7fff 
+ERROR EVENT ID=60 Cmd Msg with Bad length Rcvd: ID = 0x1896, CC = 0, Exp Len = 8, Len = 14
+
+! Housekeeping Request @ 0.990-3
+! Expect to see:
+!    No Changes
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+Changes in HK Pkt since last print out:
+   NO CHANGES
+
+! Reset Counters Command Test
+! Expect to see:
+!    EVENT ID=41
+! ---------------------------
+< CMD: APID:0095 SEQ:0 LEN:8 FC:1 PKT:1895 c000 0001 0100 
+DEBUG EVENT ID=41 RESET command
+
+! Housekeeping Request @ 0.990-4
+! Expect to see:
+!    Command Counter                   = 0
+!    Command Error Counter             = 0
+!    Schedule Activity Success Counter = 0
+!    Schedule Activity Failure Counter = 0
+!    Schedule Slots Processed Counter  = 0
+!    Table Verification Success Ctr    = 0
+!    Valid Major Frame Counter         = 0
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+Changes in HK Pkt since last print out:
+   Command Counter                   = 0
+   Command Error Counter             = 0
+   Schedule Activity Success Counter = 0
+   Schedule Activity Failure Counter = 0
+   Schedule Slots Processed Counter  = 0
+   Table Verification Success Ctr    = 0
+   Valid Major Frame Counter         = 0
+
+! Reset Counters Command With Invalid Length Test
+! Expect to see:
+!    EVENT ID=60
+! -----------------------------------------------
+< CMD: APID:0095 SEQ:0 LEN:14 FC:1 PKT:1895 c000 0007 0100 1234 ffff 7fff 
+ERROR EVENT ID=60 Cmd Msg with Bad length Rcvd: ID = 0x1895, CC = 1, Exp Len = 8, Len = 14
+
+! Housekeeping Request @ 0.990-5
+! Expect to see:
+!    Command Error Counter = 1
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+Changes in HK Pkt since last print out:
+   Command Error Counter             = 1
+
+! Send Diagnostic Tlm Command
+! Expect to see:
+!    Initial configuration of Schedule Table:
+!      Slot  0 - Entry 0 - Enabled
+!      Slot  0 - Entry 4 - Enabled
+!      Slot  3 - Entry 1 - Disabled
+!      Slot  5 - Entry 0 - Enabled
+!      Slot  5 - Entry 1 - Enabled
+!      Slot 15 - Entry 0 - Disabled
+!      Slot 15 - Entry 1 - Disabled
+!    EVENT ID=47
+! -------------------------------------
+< CMD: APID:0095 SEQ:0 LEN:8 FC:7 PKT:1895 c000 0001 0700 
+SCH DIAGNOSTIC PKT:
+  Slot #       Entries
+                0             1             2             3             4
+            State MsgID   State MsgID   State MsgID   State MsgID   State MsgID
+      0       E   x1900     U   x0000     U   x0000     U   x0000     E   x1901
+      1       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+      2       D   x1902     U   x0000     U   x0000     U   x0000     U   x0000
+      3       U   x0000     D   x1903     U   x0000     U   x0000     U   x0000
+      4       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+      5       E   x1904     E   x1905     U   x0000     U   x0000     U   x0000
+      6       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+      7       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+      8       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+      9       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     10       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     11       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     12       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     13       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     14       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     15       D   x1906     D   x1907     U   x0000     U   x0000     U   x0000
+     16       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     17       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     18       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     19       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     20       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     21       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     22       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     23       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     24       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     25       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     26       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     27       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     28       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     29       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     30       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     31       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     32       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     33       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     34       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     35       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     36       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     37       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     38       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     39       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     40       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     41       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     42       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     43       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     44       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     45       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     46       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     47       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     48       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     49       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     50       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     51       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     52       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     53       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     54       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     55       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     56       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     57       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     58       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     59       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     60       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     61       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     62       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     63       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     64       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     65       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     66       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     67       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     68       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     69       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     70       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     71       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     72       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     73       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     74       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     75       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     76       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     77       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     78       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     79       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     80       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     81       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     82       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     83       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     84       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     85       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     86       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     87       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     88       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     89       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     90       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     91       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     92       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     93       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     94       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     95       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     96       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     97       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     98       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+     99       U   x0000     U   x0000     U   x0000     U   x0000     U   x0000
+
+DEBUG EVENT ID=47 Transmitting Diagnostic Message
+
+! Housekeeping Request @ 0.990-6
+! Expect to see:
+!    Command Counter = 1
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+Changes in HK Pkt since last print out:
+   Command Counter                   = 1
+
+! Enable Activity Command (Slot #2, Entry #0)
+! Expect to see:
+!    EVENT ID=42
+! -------------------------------------
+< CMD: APID:0095 SEQ:0 LEN:12 FC:2 PKT:1895 c000 0005 0200 0002 0000 
+DEBUG EVENT ID=42 ENABLE command: slot = 2, entry = 0
+
+! Process Schedule 1.000 - 1.990
+! Expect to see:
+!    APID 0100
+!    APID 0102
+!    APID 0104
+!    APID 0105
+! -------------------------------------
+****Current Sim Time: 1.000000 **** Major Frame Signal
+> CMD: APID:0100 SEQ:0 LEN:8 FC:0 PKT:1900 c000 0001 0000 
+> CMD: APID:0102 SEQ:0 LEN:8 FC:0 PKT:1902 c000 0001 0000 
+> CMD: APID:0104 SEQ:0 LEN:8 FC:0 PKT:1904 c000 0001 0000 
+> CMD: APID:0105 SEQ:0 LEN:8 FC:0 PKT:1905 c000 0001 0000 
+
+! Send Diagnostic Tlm Command
+! Expect to see:
+!    Slot 2 - Entry 0 - Disabled to Enabled
+!    EVENT ID=47
+! -------------------------------------
+< CMD: APID:0095 SEQ:0 LEN:8 FC:7 PKT:1895 c000 0001 0700 
+SCH DIAGNOSTIC PKT:
+   Diff from Previous: Slot: 2, Entry: 0, Old: D -> New: E, MsgID: 0x1902
+
+DEBUG EVENT ID=47 Transmitting Diagnostic Message
+
+! Housekeeping Request @ 1.990-0
+! Expect to see:
+!    Command Counter                   = 3
+!    Schedule Activity Success Counter = 4
+!    Schedule Activity Failure Counter = 0
+!    Schedule Slots Processed Counter  = 100
+!    Table Pass Counter                = 1
+!    Valid Major Frame Counter         = 1
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+Changes in HK Pkt since last print out:
+   Command Counter                   = 3
+   Schedule Activity Success Counter = 4
+   Schedule Activity Failure Counter = 0
+   Schedule Slots Processed Counter  = 100
+   Table Pass Counter                = 1
+   Valid Major Frame Counter         = 1
+
+! Enable Activity Command with Bad Slot # (Slot #100, Entry #0)
+! Expect to see:
+!    EVENT ID=50
+! -------------------------------------
+< CMD: APID:0095 SEQ:0 LEN:12 FC:2 PKT:1895 c000 0005 0200 0064 0000 
+ERROR EVENT ID=50 ENABLE cmd: invalid argument, slot=100 (<100), entry=0 (<5)
+
+! Send Diagnostic Tlm Command
+! Expect to see:
+!    No Differences
+!    EVENT ID=47
+! -------------------------------------
+< CMD: APID:0095 SEQ:0 LEN:8 FC:7 PKT:1895 c000 0001 0700 
+SCH DIAGNOSTIC PKT:
+   No Differences from Previous SCH Diagnostic Packet
+
+DEBUG EVENT ID=47 Transmitting Diagnostic Message
+
+! Housekeeping Request @ 1.990-1
+! Expect to see:
+!    Command Counter                   = 4
+!    Command Error Counter             = 2
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+Changes in HK Pkt since last print out:
+   Command Counter                   = 4
+   Command Error Counter             = 2
+
+! Enable Activity Command with Bad Entry # (Slot #2, Entry #5)
+! Expect to see:
+!    EVENT ID=50
+! -------------------------------------
+< CMD: APID:0095 SEQ:0 LEN:12 FC:2 PKT:1895 c000 0005 0200 0002 0005 
+ERROR EVENT ID=50 ENABLE cmd: invalid argument, slot=2 (<100), entry=5 (<5)
+
+! Send Diagnostic Tlm Command
+! Expect to see:
+!    No Differences
+!    EVENT ID=47
+! -------------------------------------
+< CMD: APID:0095 SEQ:0 LEN:8 FC:7 PKT:1895 c000 0001 0700 
+SCH DIAGNOSTIC PKT:
+   No Differences from Previous SCH Diagnostic Packet
+
+DEBUG EVENT ID=47 Transmitting Diagnostic Message
+
+! Housekeeping Request @ 1.990-2
+! Expect to see:
+!    Command Counter                   = 5
+!    Command Error Counter             = 3
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+Changes in HK Pkt since last print out:
+   Command Counter                   = 5
+   Command Error Counter             = 3
+
+! Enable Activity Command with Unused Activity (Slot #2, Entry #4)
+! Expect to see:
+!    EVENT ID=51
+! -------------------------------------
+< CMD: APID:0095 SEQ:0 LEN:12 FC:2 PKT:1895 c000 0005 0200 0002 0004 
+ERROR EVENT ID=51 ENABLE command: invalid state = 0, slot = 2, entry = 4
+
+! Send Diagnostic Tlm Command
+! Expect to see:
+!    No Differences
+!    EVENT ID=47
+! -------------------------------------
+< CMD: APID:0095 SEQ:0 LEN:8 FC:7 PKT:1895 c000 0001 0700 
+SCH DIAGNOSTIC PKT:
+   No Differences from Previous SCH Diagnostic Packet
+
+DEBUG EVENT ID=47 Transmitting Diagnostic Message
+
+! Housekeeping Request @ 1.990-3
+! Expect to see:
+!    Command Counter                   = 6
+!    Command Error Counter             = 4
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+Changes in HK Pkt since last print out:
+   Command Counter                   = 6
+   Command Error Counter             = 4
+
+! Enable Activity Command with Length Error
+! Expect to see:
+!    EVENT ID=60
+! -------------------------------------
+< CMD: APID:0095 SEQ:0 LEN:8 FC:2 PKT:1895 c000 0001 0200 
+ERROR EVENT ID=60 Cmd Msg with Bad length Rcvd: ID = 0x1895, CC = 2, Exp Len = 12, Len = 8
+
+! Send Diagnostic Tlm Command
+! Expect to see:
+!    No Differences
+!    EVENT ID=47
+! -------------------------------------
+< CMD: APID:0095 SEQ:0 LEN:8 FC:7 PKT:1895 c000 0001 0700 
+SCH DIAGNOSTIC PKT:
+   No Differences from Previous SCH Diagnostic Packet
+
+DEBUG EVENT ID=47 Transmitting Diagnostic Message
+
+! Housekeeping Request @ 1.990-4
+! Expect to see:
+!    Command Counter                   = 7
+!    Command Error Counter             = 5
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+Changes in HK Pkt since last print out:
+   Command Counter                   = 7
+   Command Error Counter             = 5
+
+! Disable Activity Command (Slot #2, Entry #0)
+! Expect to see:
+!    EVENT ID=43
+! -------------------------------------
+< CMD: APID:0095 SEQ:0 LEN:12 FC:3 PKT:1895 c000 0005 0300 0002 0000 
+DEBUG EVENT ID=43 DISABLE command: slot = 2, entry = 0
+
+! Process Schedule 2.000 - 2.990
+! Expect to see:
+!    APID:0100
+!    APID:0104
+! -------------------------------------
+****Current Sim Time: 2.000000 **** Major Frame Signal
+> CMD: APID:0100 SEQ:0 LEN:8 FC:0 PKT:1900 c000 0001 0000 
+> CMD: APID:0104 SEQ:0 LEN:8 FC:0 PKT:1904 c000 0001 0000 
+
+! Send Diagnostic Tlm Command
+! Expect to see:
+!    Slot 2 - Entry 0 - Enabled to Disabled
+!    EVENT ID=47
+! -------------------------------------
+< CMD: APID:0095 SEQ:0 LEN:8 FC:7 PKT:1895 c000 0001 0700 
+SCH DIAGNOSTIC PKT:
+   Diff from Previous: Slot: 2, Entry: 0, Old: E -> New: D, MsgID: 0x1902
+
+DEBUG EVENT ID=47 Transmitting Diagnostic Message
+
+! Housekeeping Request @ 2.990-0
+! Expect to see:
+!    Command Counter                   = 9
+!    Schedule Activity Success Counter = 6
+!    Schedule Activity Failure Counter = 0
+!    Schedule Slots Processed Counter  = 200
+!    Table Pass Counter                = 2
+!    Valid Major Frame Counter         = 2
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+Changes in HK Pkt since last print out:
+   Command Counter                   = 9
+   Schedule Activity Success Counter = 6
+   Schedule Activity Failure Counter = 0
+   Schedule Slots Processed Counter  = 200
+   Table Pass Counter                = 2
+   Valid Major Frame Counter         = 2
+
+! Send Diagnostic Tlm Command
+! Expect to see:
+!    No Differences
+!    EVENT ID=47
+! -------------------------------------
+< CMD: APID:0095 SEQ:0 LEN:8 FC:7 PKT:1895 c000 0001 0700 
+SCH DIAGNOSTIC PKT:
+   No Differences from Previous SCH Diagnostic Packet
+
+DEBUG EVENT ID=47 Transmitting Diagnostic Message
+
+! Disable Activity Command with Bad Slot # (Slot #100, Entry #0)
+! Expect to see:
+!    EVENT ID=52
+! -------------------------------------
+< CMD: APID:0095 SEQ:0 LEN:12 FC:3 PKT:1895 c000 0005 0300 0064 0000 
+ERROR EVENT ID=52 DISABLE cmd: invalid argument, slot=100 (<100), entry=0 (<5)
+
+! Housekeeping Request @ 2.990-1
+! Expect to see:
+!    Command Counter                   = 10
+!    Command Error Counter             = 6
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+Changes in HK Pkt since last print out:
+   Command Counter                   = 10
+   Command Error Counter             = 6
+
+! Disable Activity Command with Bad Entry # (Slot #2, Entry #5)
+! Expect to see:
+!    EVENT ID=52
+! -------------------------------------
+< CMD: APID:0095 SEQ:0 LEN:12 FC:3 PKT:1895 c000 0005 0300 0002 0005 
+ERROR EVENT ID=52 DISABLE cmd: invalid argument, slot=2 (<100), entry=5 (<5)
+
+! Send Diagnostic Tlm Command
+! Expect to see:
+!    No Differences
+!    EVENT ID=47
+! -------------------------------------
+< CMD: APID:0095 SEQ:0 LEN:8 FC:7 PKT:1895 c000 0001 0700 
+SCH DIAGNOSTIC PKT:
+   No Differences from Previous SCH Diagnostic Packet
+
+DEBUG EVENT ID=47 Transmitting Diagnostic Message
+
+! Housekeeping Request @ 2.990-2
+! Expect to see:
+!    Command Counter                   = 11
+!    Command Error Counter             = 7
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+Changes in HK Pkt since last print out:
+   Command Counter                   = 11
+   Command Error Counter             = 7
+
+! Disable Activity Command with Unused Activity (Slot #2, Entry #4)
+! Expect to see:
+!    EVENT ID=53
+! -------------------------------------
+< CMD: APID:0095 SEQ:0 LEN:12 FC:3 PKT:1895 c000 0005 0300 0002 0004 
+ERROR EVENT ID=53 DISABLE command: invalid state = 0, slot = 2, entry = 4
+
+! Send Diagnostic Tlm Command
+! Expect to see:
+!    No Differences
+!    EVENT ID=47
+! -------------------------------------
+< CMD: APID:0095 SEQ:0 LEN:8 FC:7 PKT:1895 c000 0001 0700 
+SCH DIAGNOSTIC PKT:
+   No Differences from Previous SCH Diagnostic Packet
+
+DEBUG EVENT ID=47 Transmitting Diagnostic Message
+
+! Housekeeping Request @ 2.990-3
+! Expect to see:
+!    Command Counter                   = 12
+!    Command Error Counter             = 8
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+Changes in HK Pkt since last print out:
+   Command Counter                   = 12
+   Command Error Counter             = 8
+
+! Disable Activity Command with Length Error
+! Expect to see:
+!    EVENT ID=60
+! -------------------------------------
+< CMD: APID:0095 SEQ:0 LEN:8 FC:3 PKT:1895 c000 0001 0300 
+ERROR EVENT ID=60 Cmd Msg with Bad length Rcvd: ID = 0x1895, CC = 3, Exp Len = 12, Len = 8
+
+! Send Diagnostic Tlm Command
+! Expect to see:
+!    No Differences
+!    EVENT ID=47
+! -------------------------------------
+< CMD: APID:0095 SEQ:0 LEN:8 FC:7 PKT:1895 c000 0001 0700 
+SCH DIAGNOSTIC PKT:
+   No Differences from Previous SCH Diagnostic Packet
+
+DEBUG EVENT ID=47 Transmitting Diagnostic Message
+
+! Housekeeping Request @ 2.990-4
+! Expect to see:
+!    Command Counter                   = 13
+!    Command Error Counter             = 9
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+Changes in HK Pkt since last print out:
+   Command Counter                   = 13
+   Command Error Counter             = 9
+
+! Enable Activity Group Command (Group #1, Multi-Group NONE)
+! Expect to see:
+!    EVENT ID=44
+! -------------------------------------
+< CMD: APID:0095 SEQ:0 LEN:12 FC:4 PKT:1895 c000 0005 0400 0000 0100 
+DEBUG EVENT ID=44 ENABLE GROUP command: match count = 2
+
+! Send Diagnostic Tlm Command
+! Expect to see:
+!    Slot  3 - Entry 1 - Disabled to Enabled
+!    Slot 15 - Entry 1 - Disabled to Enabled
+!    EVENT ID=47
+! -------------------------------------
+< CMD: APID:0095 SEQ:0 LEN:8 FC:7 PKT:1895 c000 0001 0700 
+SCH DIAGNOSTIC PKT:
+   Diff from Previous: Slot: 3, Entry: 1, Old: D -> New: E, MsgID: 0x1903
+   Diff from Previous: Slot: 15, Entry: 1, Old: D -> New: E, MsgID: 0x1907
+
+DEBUG EVENT ID=47 Transmitting Diagnostic Message
+
+! Process Schedule 3.000-3.990
+! Expect to see:
+!    APID:0100
+!    APID:0101
+!    APID:0104
+! -------------------------------------
+****Current Sim Time: 3.000000 **** Major Frame Signal
+> CMD: APID:0100 SEQ:0 LEN:8 FC:0 PKT:1900 c000 0001 0000 
+> CMD: APID:0101 SEQ:0 LEN:8 FC:0 PKT:1901 c000 0001 0000 
+> CMD: APID:0104 SEQ:0 LEN:8 FC:0 PKT:1904 c000 0001 0000 
+
+! Process Schedule 4.000-4.990
+! Expect to see:
+!    APID:0100
+!    APID:0103
+!    APID:0104
+! -------------------------------------
+****Current Sim Time: 4.000000 **** Major Frame Signal
+> CMD: APID:0100 SEQ:0 LEN:8 FC:0 PKT:1900 c000 0001 0000 
+> CMD: APID:0103 SEQ:0 LEN:8 FC:0 PKT:1903 c000 0001 0000 
+> CMD: APID:0104 SEQ:0 LEN:8 FC:0 PKT:1904 c000 0001 0000 
+
+! Corrupt Table - Message Index out of Range
+! Expect to see:
+!    Nothing yet (see below)
+! -------------------------------------
+
+! Process Schedule 5.000-5.990
+! Expect to see:
+!    APID:0100
+!    APID:0104
+!    EVENT ID=19 (x2)
+! -------------------------------------
+****Current Sim Time: 5.000000 **** Major Frame Signal
+> CMD: APID:0100 SEQ:0 LEN:8 FC:0 PKT:1900 c000 0001 0000 
+> CMD: APID:0104 SEQ:0 LEN:8 FC:0 PKT:1904 c000 0001 0000 
+ERROR EVENT ID=19 Corrupt data error (1): slot = 90, entry = 0
+ERROR EVENT ID=19 Corrupt data error (2): msg = 128, freq = 3, type = 1, rem = 0
+
+! Send Diagnostic Tlm Command
+! Expect to see:
+!    Slot 90 - Entry 0 - Unused to Disabled
+!    EVENT ID=47
+! -------------------------------------
+< CMD: APID:0095 SEQ:0 LEN:8 FC:7 PKT:1895 c000 0001 0700 
+SCH DIAGNOSTIC PKT:
+   Diff from Previous: Slot: 90, Entry: 0, Old: U -> New: D, MsgID: 0x0000
+
+DEBUG EVENT ID=47 Transmitting Diagnostic Message
+
+! Corrupt Table - Frequency = 0
+! Expect to see:
+!    Nothing yet (see below)
+! -------------------------------------
+
+! Process Schedule 6.000-6.990
+! Expect to see:
+!    APID:0100
+!    APID:0103
+!    APID:0104
+!    APID:0105
+!    EVENT ID=19 (x2)
+! -------------------------------------
+****Current Sim Time: 6.000000 **** Major Frame Signal
+> CMD: APID:0100 SEQ:0 LEN:8 FC:0 PKT:1900 c000 0001 0000 
+> CMD: APID:0103 SEQ:0 LEN:8 FC:0 PKT:1903 c000 0001 0000 
+> CMD: APID:0104 SEQ:0 LEN:8 FC:0 PKT:1904 c000 0001 0000 
+> CMD: APID:0105 SEQ:0 LEN:8 FC:0 PKT:1905 c000 0001 0000 
+ERROR EVENT ID=19 Corrupt data error (1): slot = 90, entry = 1
+ERROR EVENT ID=19 Corrupt data error (2): msg = 1, freq = 0, type = 1, rem = 0
+
+! Send Diagnostic Tlm Command
+! Expect to see:
+!    Slot 90 - Entry 1 - Unused to Disabled
+!    EVENT ID=47
+! -------------------------------------
+< CMD: APID:0095 SEQ:0 LEN:8 FC:7 PKT:1895 c000 0001 0700 
+SCH DIAGNOSTIC PKT:
+   Diff from Previous: Slot: 90, Entry: 1, Old: U -> New: D, MsgID: 0x1901
+
+DEBUG EVENT ID=47 Transmitting Diagnostic Message
+
+! Corrupt Table - Type != Send Message
+! Expect to see:
+!    Nothing yet (see below)
+! -------------------------------------
+
+! Process Schedule 7.000-7.990
+! Expect to see:
+!    APID:0100
+!    APID:0104
+!    APID:0107
+!    EVENT ID=19 (x2)
+! -------------------------------------
+****Current Sim Time: 7.000000 **** Major Frame Signal
+> CMD: APID:0100 SEQ:0 LEN:8 FC:0 PKT:1900 c000 0001 0000 
+> CMD: APID:0104 SEQ:0 LEN:8 FC:0 PKT:1904 c000 0001 0000 
+> CMD: APID:0107 SEQ:0 LEN:8 FC:0 PKT:1907 c000 0001 0000 
+ERROR EVENT ID=19 Corrupt data error (1): slot = 90, entry = 2
+ERROR EVENT ID=19 Corrupt data error (2): msg = 1, freq = 3, type = 2, rem = 0
+
+! Send Diagnostic Tlm Command
+! Expect to see:
+!    Slot 90 - Entry 2 - Unused to Disabled
+!    EVENT ID=47
+! -------------------------------------
+< CMD: APID:0095 SEQ:0 LEN:8 FC:7 PKT:1895 c000 0001 0700 
+SCH DIAGNOSTIC PKT:
+   Diff from Previous: Slot: 90, Entry: 2, Old: U -> New: D, MsgID: 0x1901
+
+DEBUG EVENT ID=47 Transmitting Diagnostic Message
+
+! Corrupt Table - Remainder = Frequency
+! Expect to see:
+!    Nothing yet (see below)
+! -------------------------------------
+
+! Process Schedule 8.000-8.990
+! Expect to see:
+!    APID:0100
+!    APID:0101
+!    APID:0103
+!    APID:0104
+!    EVENT ID=19 (x2)
+! -------------------------------------
+****Current Sim Time: 8.000000 **** Major Frame Signal
+> CMD: APID:0100 SEQ:0 LEN:8 FC:0 PKT:1900 c000 0001 0000 
+> CMD: APID:0101 SEQ:0 LEN:8 FC:0 PKT:1901 c000 0001 0000 
+> CMD: APID:0103 SEQ:0 LEN:8 FC:0 PKT:1903 c000 0001 0000 
+> CMD: APID:0104 SEQ:0 LEN:8 FC:0 PKT:1904 c000 0001 0000 
+ERROR EVENT ID=19 Corrupt data error (1): slot = 90, entry = 3
+ERROR EVENT ID=19 Corrupt data error (2): msg = 1, freq = 3, type = 1, rem = 3
+
+! Send Diagnostic Tlm Command
+! Expect to see:
+!    Slot 90 - Entry 3 - Unused to Disabled
+! -------------------------------------
+< CMD: APID:0095 SEQ:0 LEN:8 FC:7 PKT:1895 c000 0001 0700 
+SCH DIAGNOSTIC PKT:
+   Diff from Previous: Slot: 90, Entry: 3, Old: U -> New: D, MsgID: 0x1901
+
+DEBUG EVENT ID=47 Transmitting Diagnostic Message
+
+! Housekeeping Request @ 8.990-0
+! Expect to see:
+!    Command Counter                   = 19
+!    Schedule Activity Success Counter = 25
+!    Schedule Activity Failure Counter = 0
+!    Schedule Slots Processed Counter  = 800
+!    Bad Schedule Table Data Counter   = 4
+!    Table Pass Counter                = 8
+!    Valid Major Frame Counter         = 8
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+Changes in HK Pkt since last print out:
+   Command Counter                   = 19
+   Schedule Activity Success Counter = 25
+   Schedule Activity Failure Counter = 0
+   Schedule Slots Processed Counter  = 800
+   Bad Schedule Table Data Counter   = 4
+   Table Pass Counter                = 8
+   Valid Major Frame Counter         = 8
+
+! Enable Activity Group Command (Length Error)
+! Expect to see:
+!    EVENT ID=60
+! -------------------------------------
+< CMD: APID:0095 SEQ:0 LEN:8 FC:4 PKT:1895 c000 0001 0400 
+ERROR EVENT ID=60 Cmd Msg with Bad length Rcvd: ID = 0x1895, CC = 4, Exp Len = 12, Len = 8
+
+! Send Diagnostic Tlm Command
+! Expect to see:
+!    No Differences
+!    EVENT ID=47
+! -------------------------------------
+< CMD: APID:0095 SEQ:0 LEN:8 FC:7 PKT:1895 c000 0001 0700 
+SCH DIAGNOSTIC PKT:
+   No Differences from Previous SCH Diagnostic Packet
+
+DEBUG EVENT ID=47 Transmitting Diagnostic Message
+
+! Housekeeping Request @ 8.990-1
+! Expect to see:
+!    Command Counter                   = 20
+!    Command Error Counter             = 10
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+Changes in HK Pkt since last print out:
+   Command Counter                   = 20
+   Command Error Counter             = 10
+
+! Enable Activity Group Command (No Group Specified Error)
+! Expect to see:
+!    EVENT ID=54
+! -------------------------------------
+< CMD: APID:0095 SEQ:0 LEN:12 FC:4 PKT:1895 c000 0005 0400 0000 0000 
+ERROR EVENT ID=54 ENABLE GROUP command: invalid argument, no groups selected
+
+! Send Diagnostic Tlm Command
+! Expect to see:
+!    No Differences
+!    EVENT ID=47
+! -------------------------------------
+< CMD: APID:0095 SEQ:0 LEN:8 FC:7 PKT:1895 c000 0001 0700 
+SCH DIAGNOSTIC PKT:
+   No Differences from Previous SCH Diagnostic Packet
+
+DEBUG EVENT ID=47 Transmitting Diagnostic Message
+
+! Housekeeping Request @ 8.990-2
+! Expect to see:
+!    Command Counter                   = 21
+!    Command Error Counter             = 11
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+Changes in HK Pkt since last print out:
+   Command Counter                   = 21
+   Command Error Counter             = 11
+
+! Enable Activity Group Command (Group Not Found Error [Group #16])
+! Expect to see:
+!    EVENT ID=55
+! -------------------------------------
+< CMD: APID:0095 SEQ:0 LEN:12 FC:4 PKT:1895 c000 0005 0400 0000 1000 
+ERROR EVENT ID=55 ENABLE GROUP command: Neither Group 16 nor Multi-Group 0x000000 found
+
+! Send Diagnostic Tlm Command
+! Expect to see:
+!    No Differences
+!    EVENT ID=47
+! -------------------------------------
+< CMD: APID:0095 SEQ:0 LEN:8 FC:7 PKT:1895 c000 0001 0700 
+SCH DIAGNOSTIC PKT:
+   No Differences from Previous SCH Diagnostic Packet
+
+DEBUG EVENT ID=47 Transmitting Diagnostic Message
+
+! Housekeeping Request @ 8.990-3
+! Expect to see:
+!    Command Counter                   = 22
+!    Command Error Counter             = 12
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+Changes in HK Pkt since last print out:
+   Command Counter                   = 22
+   Command Error Counter             = 12
+
+! Enable Activity Group Command (Group NONE, Multi-Group 0101B)
+! Expect to see:
+!    EVENT ID=44
+! -------------------------------------
+< CMD: APID:0095 SEQ:0 LEN:12 FC:4 PKT:1895 c000 0005 0400 0005 0000 
+DEBUG EVENT ID=44 ENABLE GROUP command: match count = 4
+
+! Send Diagnostic Tlm Command
+! Expect to see:
+!    Slot 15 - Entry 0 - Disabled to Enabled
+!    EVENT ID=47
+! -------------------------------------
+< CMD: APID:0095 SEQ:0 LEN:8 FC:7 PKT:1895 c000 0001 0700 
+SCH DIAGNOSTIC PKT:
+   Diff from Previous: Slot: 15, Entry: 0, Old: D -> New: E, MsgID: 0x1906
+
+DEBUG EVENT ID=47 Transmitting Diagnostic Message
+
+! Process Schedule 9.000-9.990
+! Expect to see:
+!    APID:0100
+!    APID:0104
+! -------------------------------------
+****Current Sim Time: 9.000000 **** Major Frame Signal
+> CMD: APID:0100 SEQ:0 LEN:8 FC:0 PKT:1900 c000 0001 0000 
+> CMD: APID:0104 SEQ:0 LEN:8 FC:0 PKT:1904 c000 0001 0000 
+
+! Process Schedule 10.000-10.990
+! Expect to see:
+!    APID:0100
+!    APID:0103
+!    APID:0104
+!    APID:0106
+! -------------------------------------
+****Current Sim Time: 10.000000 **** Major Frame Signal
+> CMD: APID:0100 SEQ:0 LEN:8 FC:0 PKT:1900 c000 0001 0000 
+> CMD: APID:0103 SEQ:0 LEN:8 FC:0 PKT:1903 c000 0001 0000 
+> CMD: APID:0104 SEQ:0 LEN:8 FC:0 PKT:1904 c000 0001 0000 
+> CMD: APID:0106 SEQ:0 LEN:8 FC:0 PKT:1906 c000 0001 0000 
+
+! Housekeeping Request @ 10.990-0
+! Expect to see:
+!    Command Counter                   = 24
+!    Schedule Activity Success Counter = 31
+!    Schedule Activity Failure Counter = 0
+!    Schedule Slots Processed Counter  = 1000
+!    Table Pass Counter                = 10
+!    Valid Major Frame Counter         = 10
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+Changes in HK Pkt since last print out:
+   Command Counter                   = 24
+   Schedule Activity Success Counter = 31
+   Schedule Activity Failure Counter = 0
+   Schedule Slots Processed Counter  = 1000
+   Table Pass Counter                = 10
+   Valid Major Frame Counter         = 10
+
+! Enable Activity Group Command (Group Not Found Error [Multi-Group #1000B])
+! Expect to see:
+!    EVENT ID=44
+! -------------------------------------
+< CMD: APID:0095 SEQ:0 LEN:12 FC:4 PKT:1895 c000 0005 0400 0008 0000 
+DEBUG EVENT ID=44 ENABLE GROUP command: match count = 4
+
+! Send Diagnostic Tlm Command
+! Expect to see:
+!    Slot 90 - Entry 0 - Disabled to Enabled
+!    Slot 90 - Entry 1 - Disabled to Enabled
+!    Slot 90 - Entry 2 - Disabled to Enabled
+!    Slot 90 - Entry 3 - Disabled to Enabled
+!    EVENT ID=47
+! -------------------------------------
+< CMD: APID:0095 SEQ:0 LEN:8 FC:7 PKT:1895 c000 0001 0700 
+SCH DIAGNOSTIC PKT:
+   Diff from Previous: Slot: 90, Entry: 0, Old: D -> New: E, MsgID: 0x0000
+   Diff from Previous: Slot: 90, Entry: 1, Old: D -> New: E, MsgID: 0x1901
+   Diff from Previous: Slot: 90, Entry: 2, Old: D -> New: E, MsgID: 0x1901
+   Diff from Previous: Slot: 90, Entry: 3, Old: D -> New: E, MsgID: 0x1901
+
+DEBUG EVENT ID=47 Transmitting Diagnostic Message
+
+! Housekeeping Request @ 10.990-1
+! Expect to see:
+!    Command Counter                   = 26
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+Changes in HK Pkt since last print out:
+   Command Counter                   = 26
+
+! Disable Activity Group Command (Group #1, Multi-Group NONE)
+! Expect to see:
+!    EVENT ID=45
+! -------------------------------------
+< CMD: APID:0095 SEQ:0 LEN:12 FC:5 PKT:1895 c000 0005 0500 0000 0100 
+DEBUG EVENT ID=45 DISABLE GROUP command: match count = 2
+
+! Send Diagnostic Tlm Command
+! Expect to see:
+!    Slot  3 - Entry 1 - Enabled to Disabled
+!    Slot 15 - Entry 1 - Enabled to Disabled
+!    EVENT ID=47
+! -------------------------------------
+< CMD: APID:0095 SEQ:0 LEN:8 FC:7 PKT:1895 c000 0001 0700 
+SCH DIAGNOSTIC PKT:
+   Diff from Previous: Slot: 3, Entry: 1, Old: E -> New: D, MsgID: 0x1903
+   Diff from Previous: Slot: 15, Entry: 1, Old: E -> New: D, MsgID: 0x1907
+
+DEBUG EVENT ID=47 Transmitting Diagnostic Message
+
+! Process Schedule 11.000-11.990
+! Expect to see:
+!    APID:0100
+!    APID:0104
+!    APID:0105
+!    EVENT ID=19 (4x2)
+! -------------------------------------
+****Current Sim Time: 11.000000 **** Major Frame Signal
+> CMD: APID:0100 SEQ:0 LEN:8 FC:0 PKT:1900 c000 0001 0000 
+> CMD: APID:0104 SEQ:0 LEN:8 FC:0 PKT:1904 c000 0001 0000 
+> CMD: APID:0105 SEQ:0 LEN:8 FC:0 PKT:1905 c000 0001 0000 
+ERROR EVENT ID=19 Corrupt data error (1): slot = 90, entry = 0
+ERROR EVENT ID=19 Corrupt data error (2): msg = 128, freq = 3, type = 1, rem = 0
+ERROR EVENT ID=19 Corrupt data error (1): slot = 90, entry = 1
+ERROR EVENT ID=19 Corrupt data error (2): msg = 1, freq = 0, type = 1, rem = 0
+ERROR EVENT ID=19 Corrupt data error (1): slot = 90, entry = 2
+ERROR EVENT ID=19 Corrupt data error (2): msg = 1, freq = 3, type = 2, rem = 0
+ERROR EVENT ID=19 Corrupt data error (1): slot = 90, entry = 3
+ERROR EVENT ID=19 Corrupt data error (2): msg = 1, freq = 3, type = 1, rem = 3
+
+! Process Schedule 12.000-12.990
+! Expect to see:
+!    APID:0100
+!    APID:0104
+! -------------------------------------
+****Current Sim Time: 12.000000 **** Major Frame Signal
+> CMD: APID:0100 SEQ:0 LEN:8 FC:0 PKT:1900 c000 0001 0000 
+> CMD: APID:0104 SEQ:0 LEN:8 FC:0 PKT:1904 c000 0001 0000 
+
+! Process Schedule 13.000-13.990
+! Expect to see:
+!    APID:0100
+!    APID:0101
+!    APID:0104
+! -------------------------------------
+****Current Sim Time: 13.000000 **** Major Frame Signal
+> CMD: APID:0100 SEQ:0 LEN:8 FC:0 PKT:1900 c000 0001 0000 
+> CMD: APID:0101 SEQ:0 LEN:8 FC:0 PKT:1901 c000 0001 0000 
+> CMD: APID:0104 SEQ:0 LEN:8 FC:0 PKT:1904 c000 0001 0000 
+
+! Process Schedule 14.000-14.990
+! Expect to see:
+!    APID:0100
+!    APID:0104
+! -------------------------------------
+****Current Sim Time: 14.000000 **** Major Frame Signal
+> CMD: APID:0100 SEQ:0 LEN:8 FC:0 PKT:1900 c000 0001 0000 
+> CMD: APID:0104 SEQ:0 LEN:8 FC:0 PKT:1904 c000 0001 0000 
+
+! Housekeeping Request @ 14.990-0
+! Expect to see:
+!    Command Counter                   = 28
+!    Schedule Activity Success Counter = 41
+!    Schedule Activity Failure Counter = 0
+!    Schedule Slots Processed Counter  = 1400
+!    Bad Schedule Table Data Counter   = 8
+!    Table Pass Counter                = 14
+!    Valid Major Frame Counter         = 14
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+Changes in HK Pkt since last print out:
+   Command Counter                   = 28
+   Schedule Activity Success Counter = 41
+   Schedule Activity Failure Counter = 0
+   Schedule Slots Processed Counter  = 1400
+   Bad Schedule Table Data Counter   = 8
+   Table Pass Counter                = 14
+   Valid Major Frame Counter         = 14
+
+! Disable Activity Group Command (Length Error)
+! Expect to see:
+!    EVENT ID=60
+! -------------------------------------
+< CMD: APID:0095 SEQ:0 LEN:8 FC:5 PKT:1895 c000 0001 0500 
+ERROR EVENT ID=60 Cmd Msg with Bad length Rcvd: ID = 0x1895, CC = 5, Exp Len = 12, Len = 8
+
+! Send Diagnostic Tlm Command
+! Expect to see:
+!    Slot 90 - Entry 0 - Enabled to Disabled
+!    Slot 90 - Entry 1 - Enabled to Disabled
+!    Slot 90 - Entry 2 - Enabled to Disabled
+!    Slot 90 - Entry 3 - Enabled to Disabled
+!    EVENT ID=47
+! -------------------------------------
+< CMD: APID:0095 SEQ:0 LEN:8 FC:7 PKT:1895 c000 0001 0700 
+SCH DIAGNOSTIC PKT:
+   Diff from Previous: Slot: 90, Entry: 0, Old: E -> New: D, MsgID: 0x0000
+   Diff from Previous: Slot: 90, Entry: 1, Old: E -> New: D, MsgID: 0x1901
+   Diff from Previous: Slot: 90, Entry: 2, Old: E -> New: D, MsgID: 0x1901
+   Diff from Previous: Slot: 90, Entry: 3, Old: E -> New: D, MsgID: 0x1901
+
+DEBUG EVENT ID=47 Transmitting Diagnostic Message
+
+! Housekeeping Request @ 14.990-1
+! Expect to see:
+!    Command Counter                   = 29
+!    Command Error Counter             = 13
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+Changes in HK Pkt since last print out:
+   Command Counter                   = 29
+   Command Error Counter             = 13
+
+! Disable Activity Group Command (No Group Specified Error)
+! Expect to see:
+!    EVENT ID=56
+! -------------------------------------
+< CMD: APID:0095 SEQ:0 LEN:12 FC:5 PKT:1895 c000 0005 0500 0000 0000 
+ERROR EVENT ID=56 DISABLE GROUP command: invalid argument, no groups selected
+
+! Send Diagnostic Tlm Command
+! Expect to see:
+!    No Differences
+!    EVENT ID=47
+! -------------------------------------
+< CMD: APID:0095 SEQ:0 LEN:8 FC:7 PKT:1895 c000 0001 0700 
+SCH DIAGNOSTIC PKT:
+   No Differences from Previous SCH Diagnostic Packet
+
+DEBUG EVENT ID=47 Transmitting Diagnostic Message
+
+! Housekeeping Request @ 14.990-2
+! Expect to see:
+!    Command Counter                   = 30
+!    Command Error Counter             = 14
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+Changes in HK Pkt since last print out:
+   Command Counter                   = 30
+   Command Error Counter             = 14
+
+! Disable Activity Group Command (Group Not Found Error [Group #16])
+! Expect to see:
+!    EVENT ID=57
+! -------------------------------------
+< CMD: APID:0095 SEQ:0 LEN:12 FC:5 PKT:1895 c000 0005 0500 0000 1000 
+ERROR EVENT ID=57 DISABLE GROUP command: Neither Group 16 nor Multi-Group 0x000000 found
+
+! Send Diagnostic Tlm Command
+! Expect to see:
+!    No Differences
+!    EVENT ID=47
+! -------------------------------------
+< CMD: APID:0095 SEQ:0 LEN:8 FC:7 PKT:1895 c000 0001 0700 
+SCH DIAGNOSTIC PKT:
+   No Differences from Previous SCH Diagnostic Packet
+
+DEBUG EVENT ID=47 Transmitting Diagnostic Message
+
+! Housekeeping Request @ 14.990-3
+! Expect to see:
+!    Command Counter                   = 31
+!    Command Error Counter             = 15
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+Changes in HK Pkt since last print out:
+   Command Counter                   = 31
+   Command Error Counter             = 15
+
+! Disable Activity Group Command (Group NONE, Multi-Group 0101B)
+! Expect to see:
+!    EVENT ID=45
+! -------------------------------------
+< CMD: APID:0095 SEQ:0 LEN:12 FC:5 PKT:1895 c000 0005 0500 0005 0000 
+DEBUG EVENT ID=45 DISABLE GROUP command: match count = 4
+
+! Send Diagnostic Tlm Command
+! Expect to see:
+!    Slot  0 - Entry 0 - Enabled to Disabled
+!    Slot  0 - Entry 4 - Enabled to Disabled
+!    Slot  5 - Entry 0 - Enabled to Disabled
+!    Slot 15 - Entry 0 - Enabled to Disabled
+!    EVENT ID=47
+! -------------------------------------
+< CMD: APID:0095 SEQ:0 LEN:8 FC:7 PKT:1895 c000 0001 0700 
+SCH DIAGNOSTIC PKT:
+   Diff from Previous: Slot: 0, Entry: 0, Old: E -> New: D, MsgID: 0x1900
+   Diff from Previous: Slot: 0, Entry: 4, Old: E -> New: D, MsgID: 0x1901
+   Diff from Previous: Slot: 5, Entry: 0, Old: E -> New: D, MsgID: 0x1904
+   Diff from Previous: Slot: 15, Entry: 0, Old: E -> New: D, MsgID: 0x1906
+
+DEBUG EVENT ID=47 Transmitting Diagnostic Message
+
+! Process Schedule 15.000-15.990
+! Expect to see:
+!    Nothing
+! -------------------------------------
+****Current Sim Time: 15.000000 **** Major Frame Signal
+
+! Enable Activity Command (Slot #0, Entry #0)
+! Expect to see:
+!    EVENT ID=42
+! -------------------------------------
+< CMD: APID:0095 SEQ:0 LEN:12 FC:2 PKT:1895 c000 0005 0200 0000 0000 
+DEBUG EVENT ID=42 ENABLE command: slot = 0, entry = 0
+
+! Send Diagnostic Tlm Command
+! Expect to see:
+!    Slot 0 - Entry 0 - Disabled to Enabled
+!    EVENT ID=47
+! -------------------------------------
+< CMD: APID:0095 SEQ:0 LEN:8 FC:7 PKT:1895 c000 0001 0700 
+SCH DIAGNOSTIC PKT:
+   Diff from Previous: Slot: 0, Entry: 0, Old: D -> New: E, MsgID: 0x1900
+
+DEBUG EVENT ID=47 Transmitting Diagnostic Message
+
+! Process Schedule 16.000-16.990
+! Expect to see:
+!    APID:0100
+!    APID:0105
+!  An Early Major Frame
+!    EVENT ID=17
+! -------------------------------------
+****Current Sim Time: 16.000000 **** Major Frame Signal
+> CMD: APID:0100 SEQ:0 LEN:8 FC:0 PKT:1900 c000 0001 0000 
+> CMD: APID:0105 SEQ:0 LEN:8 FC:0 PKT:1905 c000 0001 0000 
+****Current Sim Time: 16.490000 **** Major Frame Signal
+ERROR EVENT ID=17 Slots skipped: slot = 49, count = 51
+
+! Housekeeping Request @ "16.490/17.000 secs" (skipped time)
+! Expect to see:
+!    Command Counter                   = 35
+!    Schedule Activity Success Counter = 43
+!    Schedule Activity Failure Counter = 0
+!    Schedule Slots Processed Counter  = 1550
+!    Schedule Slots Skipped Counter    = 1
+!    Table Pass Counter                = 17
+!    Valid Major Frame Counter         = 17
+!    Unexpected Major Frame Counter    = 1
+!    Minor Frames Since Tone Counter   = 0
+!    Next Minor Frame Number           = 49
+!    Unexpected Major Frame Detected   = TRUE
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+Changes in HK Pkt since last print out:
+   Command Counter                   = 35
+   Schedule Activity Success Counter = 43
+   Schedule Activity Failure Counter = 0
+   Schedule Slots Processed Counter  = 1550
+   Schedule Slots Skipped Counter    = 1
+   Table Pass Counter                = 17
+   Valid Major Frame Counter         = 17
+   Unexpected Major Frame Counter    = 1
+   Minor Frames Since Tone Counter   = 0
+   Next Minor Frame Number           = 49
+   Unexpected Major Frame Detected   = TRUE
+
+! End "Skipped" command processing - Process Schedule "16.990"
+! Expect to see:
+!    APID:0100
+! -------------------------------------
+> CMD: APID:0100 SEQ:0 LEN:8 FC:0 PKT:1900 c000 0001 0000 
+
+! Disable Activity Group Command (Group Not Found Error [Multi-Group #1000B])
+! Expect to see:
+!    EVENT ID=45
+! -------------------------------------
+< CMD: APID:0095 SEQ:0 LEN:12 FC:5 PKT:1895 c000 0005 0500 0008 0000 
+DEBUG EVENT ID=45 DISABLE GROUP command: match count = 4
+
+! Send Diagnostic Tlm Command
+! Expect to see:
+!    No Differences
+!    EVENT ID=47
+! -------------------------------------
+< CMD: APID:0095 SEQ:0 LEN:8 FC:7 PKT:1895 c000 0001 0700 
+SCH DIAGNOSTIC PKT:
+   No Differences from Previous SCH Diagnostic Packet
+
+DEBUG EVENT ID=47 Transmitting Diagnostic Message
+
+! Housekeeping Request @ 17.990 secs
+! Expect to see:
+!    Command Counter                   = 37
+!    Schedule Activity Success Counter = 44
+!    Schedule Activity Failure Counter = 0
+!    Schedule Slots Processed Counter  = 1649
+!    Minor Frames Since Tone Counter   = 99
+!    Next Minor Frame Number           = 99
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+Changes in HK Pkt since last print out:
+   Command Counter                   = 37
+   Schedule Activity Success Counter = 44
+   Schedule Activity Failure Counter = 0
+   Schedule Slots Processed Counter  = 1649
+   Minor Frames Since Tone Counter   = 99
+   Next Minor Frame Number           = 99
+
+! Process Schedule
+! Expect to see:
+!    APID:0100
+! -------------------------------------
+****Current Sim Time: 18.000000 **** Major Frame Signal
+> CMD: APID:0100 SEQ:0 LEN:8 FC:0 PKT:1900 c000 0001 0000 
+
+! Housekeeping Request @ 18.990 secs (Major Frame back in Sync)
+! Expect to see:
+!    Schedule Activity Success Counter = 45
+!    Schedule Activity Failure Counter = 0
+!    Schedule Slots Processed Counter  = 1749
+!    Table Pass Counter                = 18
+!    Valid Major Frame Counter         = 18
+!    Unexpected Major Frame Detected   = FALSE
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+Changes in HK Pkt since last print out:
+   Schedule Activity Success Counter = 45
+   Schedule Activity Failure Counter = 0
+   Schedule Slots Processed Counter  = 1749
+   Table Pass Counter                = 18
+   Valid Major Frame Counter         = 18
+   Unexpected Major Frame Detected   = FALSE
+
+! Process Schedule (should see APID 100) (Early Major Frame Signal)
+! Expect to see:
+!    APID:0100
+!    EVENT ID=18 (x5)
+! -------------------------------------
+****Current Sim Time: 19.000000 **** Major Frame Signal
+> CMD: APID:0100 SEQ:0 LEN:8 FC:0 PKT:1900 c000 0001 0000 
+****Current Sim Time: 19.750000 **** Major Frame Signal
+INFO EVENT ID=18 Multiple slots processed: slot = 75, count = 5
+INFO EVENT ID=18 Multiple slots processed: slot = 80, count = 5
+INFO EVENT ID=18 Multiple slots processed: slot = 85, count = 5
+INFO EVENT ID=18 Multiple slots processed: slot = 90, count = 5
+INFO EVENT ID=18 Multiple slots processed: slot = 95, count = 5
+
+! Housekeeping Request @ "19.750/20.000 secs" (rushed time)
+! Expect to see:
+!    Schedule Activity Success Counter = 46
+!    Schedule Activity Failure Counter = 0
+!    Schedule Slots Processed Counter  = 1849
+!    Multiple Schedule Slots Processed = 5
+!    Table Pass Counter                = 19
+!    Valid Major Frame Counter         = 20
+!    Unexpected Major Frame Counter    = 2
+!    Minor Frames Since Tone Counter   = 4
+!    Unexpected Major Frame Detected   = TRUE
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+Changes in HK Pkt since last print out:
+   Schedule Activity Success Counter = 46
+   Schedule Activity Failure Counter = 0
+   Schedule Slots Processed Counter  = 1849
+   Multiple Schedule Slots Processed = 5
+   Table Pass Counter                = 19
+   Valid Major Frame Counter         = 20
+   Unexpected Major Frame Counter    = 2
+   Minor Frames Since Tone Counter   = 4
+   Unexpected Major Frame Detected   = TRUE
+
+! Process Schedule (Early Major Frame Signal - Ignored)
+! Expect to see:
+!    EVENT ID=18
+!    APID:0100
+!    EVENT ID=18
+!    EVENT ID=21
+! -------------------------------------
+INFO EVENT ID=18 Multiple slots processed: slot = 0, count = 5
+> CMD: APID:0100 SEQ:0 LEN:8 FC:0 PKT:1900 c000 0001 0000 
+INFO EVENT ID=18 Multiple slots processed: slot = 5, count = 2
+****Current Sim Time: 20.250000 **** Major Frame Signal
+ERROR EVENT ID=21 Major Frame Sync too noisy (Slot 25). Disabling synchronization.
+
+! Housekeeping Request @ 20.990
+! Expect to see:
+!    Schedule Activity Success Counter = 47
+!    Schedule Activity Failure Counter = 0
+!    Schedule Slots Processed Counter  = 1949
+!    Multiple Schedule Slots Processed = 7
+!    Table Pass Counter                = 20
+!    Unexpected Major Frame Counter    = 3
+!    Minor Frames Since Tone Counter   = 99
+!    Last Sync MET Slot Number         = 25
+!    Major Frame is Ignored            = TRUE
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+Changes in HK Pkt since last print out:
+   Schedule Activity Success Counter = 47
+   Schedule Activity Failure Counter = 0
+   Schedule Slots Processed Counter  = 1949
+   Multiple Schedule Slots Processed = 7
+   Table Pass Counter                = 20
+   Unexpected Major Frame Counter    = 3
+   Minor Frames Since Tone Counter   = 99
+   Last Sync MET Slot Number         = 25
+   Major Frame is Ignored            = TRUE
+
+! Process Schedule 
+! Expect to see:
+!    APID:0100
+!    APID:0105
+! -------------------------------------
+****Current Sim Time: 21.000000 **** Major Frame Signal
+> CMD: APID:0100 SEQ:0 LEN:8 FC:0 PKT:1900 c000 0001 0000 
+> CMD: APID:0105 SEQ:0 LEN:8 FC:0 PKT:1905 c000 0001 0000 
+
+! Housekeeping Request @ 21.990
+! Expect to see:
+!    Schedule Activity Success Counter = 49
+!    Schedule Activity Failure Counter = 0
+!    Schedule Slots Processed Counter  = 2049
+!    Table Pass Counter                = 21
+!    Missed Major Frame Counter        = 1
+!    Last Sync MET Slot Number         = 0
+!    Unexpected Major Frame Detected   = FALSE
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+Changes in HK Pkt since last print out:
+   Schedule Activity Success Counter = 49
+   Schedule Activity Failure Counter = 0
+   Schedule Slots Processed Counter  = 2049
+   Table Pass Counter                = 21
+   Missed Major Frame Counter        = 1
+   Last Sync MET Slot Number         = 0
+   Unexpected Major Frame Detected   = FALSE
+
+! Enable Sync Command 
+! Expect to see:
+!    EVENT ID=46
+! -------------------------------------
+< CMD: APID:0095 SEQ:0 LEN:8 FC:6 PKT:1895 c000 0001 0600 
+DEBUG EVENT ID=46 Major Frame Synchronization Enabled
+
+! Housekeeping Request
+! Expect to see:
+!    Command Counter                   = 38
+!    Major Frame is Ignored            = FALSE
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+Changes in HK Pkt since last print out:
+   Command Counter                   = 38
+   Major Frame is Ignored            = FALSE
+
+! Enable Sync Command (Length Error)
+! Expect to see:
+!    EVENT ID=60
+! -------------------------------------
+< CMD: APID:0095 SEQ:0 LEN:10 FC:6 PKT:1895 c000 0003 0600 0102 
+ERROR EVENT ID=60 Cmd Msg with Bad length Rcvd: ID = 0x1895, CC = 6, Exp Len = 8, Len = 10
+
+! Housekeeping Request
+! Expect to see:
+!    Command Error Counter             = 16
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+Changes in HK Pkt since last print out:
+   Command Error Counter             = 16
+
+! Send Diagnostic Tlm Command (Length Error)
+! Expect to see:
+!    EVENT ID=60
+! -------------------------------------
+< CMD: APID:0095 SEQ:0 LEN:10 FC:7 PKT:1895 c000 0003 0700 0102 
+ERROR EVENT ID=60 Cmd Msg with Bad length Rcvd: ID = 0x1895, CC = 7, Exp Len = 8, Len = 10
+
+! Process Schedule
+! Expect to see:
+!    APID:0100
+! -------------------------------------
+****Current Sim Time: 22.000000 **** Major Frame Signal
+> CMD: APID:0100 SEQ:0 LEN:8 FC:0 PKT:1900 c000 0001 0000 
+
+! Housekeeping Request @ 22.990
+! Expect to see:
+!    Command Error Counter             = 17
+!    Schedule Activity Success Counter = 50
+!    Schedule Activity Failure Counter = 0
+!    Schedule Slots Processed Counter  = 2149
+!    Table Pass Counter                = 22
+!    Valid Major Frame Counter         = 21
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+Changes in HK Pkt since last print out:
+   Command Error Counter             = 17
+   Schedule Activity Success Counter = 50
+   Schedule Activity Failure Counter = 0
+   Schedule Slots Processed Counter  = 2149
+   Table Pass Counter                = 22
+   Valid Major Frame Counter         = 21
+
+! Process Schedule @ 23.000
+! Expect to see:
+!    APID:0100
+! -------------------------------------
+****Current Sim Time: 23.000000 **** Major Frame Signal
+> CMD: APID:0100 SEQ:0 LEN:8 FC:0 PKT:1900 c000 0001 0000 
+
+! Process Schedule @ 24.000
+! Expect to see:
+!    APID:0100
+! -------------------------------------
+****Current Sim Time: 24.000000 **** Major Frame Signal
+> CMD: APID:0100 SEQ:0 LEN:8 FC:0 PKT:1900 c000 0001 0000 
+
+! Process Schedule @ 25.000
+! Expect to see:
+!    APID:0100
+! -------------------------------------
+****Current Sim Time: 25.000000 **** Major Frame Signal
+> CMD: APID:0100 SEQ:0 LEN:8 FC:0 PKT:1900 c000 0001 0000 
+
+! Process Schedule @ 26.000
+! Expect to see:
+!    APID:0100
+!    APID:0105
+! -------------------------------------
+****Current Sim Time: 26.000000 **** Major Frame Signal
+> CMD: APID:0100 SEQ:0 LEN:8 FC:0 PKT:1900 c000 0001 0000 
+> CMD: APID:0105 SEQ:0 LEN:8 FC:0 PKT:1905 c000 0001 0000 
+
+! Process Schedule @ 27.000 (Major Frame disappears)
+! Expect to see:
+!    APID:0100
+! -------------------------------------
+> CMD: APID:0100 SEQ:0 LEN:8 FC:0 PKT:1900 c000 0001 0000 
+
+! Housekeeping Request @ 27.990
+! Expect to see:
+!    Schedule Activity Success Counter = 56
+!    Schedule Activity Failure Counter = 0
+!    Schedule Slots Processed Counter  = 2649
+!    Table Pass Counter                = 27
+!    Valid Major Frame Counter         = 25
+!    Missed Major Frame Counter        = 2
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+Changes in HK Pkt since last print out:
+   Schedule Activity Success Counter = 56
+   Schedule Activity Failure Counter = 0
+   Schedule Slots Processed Counter  = 2649
+   Table Pass Counter                = 27
+   Valid Major Frame Counter         = 25
+   Missed Major Frame Counter        = 2
+
+! Process Schedule @ 28.000
+! Expect to see:
+!    APID:0100
+! -------------------------------------
+> CMD: APID:0100 SEQ:0 LEN:8 FC:0 PKT:1900 c000 0001 0000 
+
+! Housekeeping Request @ 28.990
+! Expect to see:
+!    Schedule Activity Success Counter = 57
+!    Schedule Activity Failure Counter = 0
+!    Schedule Slots Processed Counter  = 2749
+!    Table Pass Counter                = 28
+!    Missed Major Frame Counter        = 3
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+Changes in HK Pkt since last print out:
+   Schedule Activity Success Counter = 57
+   Schedule Activity Failure Counter = 0
+   Schedule Slots Processed Counter  = 2749
+   Table Pass Counter                = 28
+   Missed Major Frame Counter        = 3
+
+! Process Schedule @ 29.000
+! Expect to see:
+!    APID:0100
+! -------------------------------------
+> CMD: APID:0100 SEQ:0 LEN:8 FC:0 PKT:1900 c000 0001 0000 
+
+! Housekeeping Request @ 29.990
+! Expect to see:
+!    Schedule Activity Success Counter = 58
+!    Schedule Activity Failure Counter = 0
+!    Schedule Slots Processed Counter  = 2849
+!    Table Pass Counter                = 29
+!    Missed Major Frame Counter        = 4
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+Changes in HK Pkt since last print out:
+   Schedule Activity Success Counter = 58
+   Schedule Activity Failure Counter = 0
+   Schedule Slots Processed Counter  = 2849
+   Table Pass Counter                = 29
+   Missed Major Frame Counter        = 4
+
+! Process Schedule @ 30.000
+! Expect to see:
+!    APID:0100
+! -------------------------------------
+> CMD: APID:0100 SEQ:0 LEN:8 FC:0 PKT:1900 c000 0001 0000 
+
+! Housekeeping Request @ 30.990
+! Expect to see:
+!    Schedule Activity Success Counter = 59
+!    Schedule Activity Failure Counter = 0
+!    Schedule Slots Processed Counter  = 2949
+!    Table Pass Counter                = 30
+!    Missed Major Frame Counter        = 5
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+Changes in HK Pkt since last print out:
+   Schedule Activity Success Counter = 59
+   Schedule Activity Failure Counter = 0
+   Schedule Slots Processed Counter  = 2949
+   Table Pass Counter                = 30
+   Missed Major Frame Counter        = 5
+
+! Process Schedule @ 31.000
+! Expect to see:
+!    APID:0100
+!    APID:0105
+! -------------------------------------
+> CMD: APID:0100 SEQ:0 LEN:8 FC:0 PKT:1900 c000 0001 0000 
+> CMD: APID:0105 SEQ:0 LEN:8 FC:0 PKT:1905 c000 0001 0000 
+
+! Housekeeping Request @ 31.990
+! Expect to see:
+!    Schedule Activity Success Counter = 61
+!    Schedule Activity Failure Counter = 0
+!    Schedule Slots Processed Counter  = 3049
+!    Table Pass Counter                = 31
+!    Missed Major Frame Counter        = 6
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+Changes in HK Pkt since last print out:
+   Schedule Activity Success Counter = 61
+   Schedule Activity Failure Counter = 0
+   Schedule Slots Processed Counter  = 3049
+   Table Pass Counter                = 31
+   Missed Major Frame Counter        = 6
+
+! Process Schedule @ 32.000 (Major Frame Signal Re-appears)
+! Expect to see:
+!    APID:0100
+!    EVENT ID=17
+! -------------------------------------
+> CMD: APID:0100 SEQ:0 LEN:8 FC:0 PKT:1900 c000 0001 0000 
+****Current Sim Time: 32.500000 **** Major Frame Signal
+ERROR EVENT ID=17 Slots skipped: slot = 50, count = 50
+
+! Housekeeping Request @ 32.500/33.000 secs (skipped time)
+! Expect to see:
+!    Schedule Activity Success Counter = 62
+!    Schedule Activity Failure Counter = 0
+!    Schedule Slots Processed Counter  = 3100
+!    Schedule Slots Skipped Counter    = 2
+!    Table Pass Counter                = 33
+!    Valid Major Frame Counter         = 26
+!    Missed Major Frame Counter        = 7
+!    Unexpected Major Frame Counter    = 4
+!    Minor Frames Since Tone Counter   = 0
+!    Next Minor Frame Number           = 50
+!    Unexpected Major Frame Detected   = TRUE
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+Changes in HK Pkt since last print out:
+   Schedule Activity Success Counter = 62
+   Schedule Activity Failure Counter = 0
+   Schedule Slots Processed Counter  = 3100
+   Schedule Slots Skipped Counter    = 2
+   Table Pass Counter                = 33
+   Valid Major Frame Counter         = 26
+   Missed Major Frame Counter        = 7
+   Unexpected Major Frame Counter    = 4
+   Minor Frames Since Tone Counter   = 0
+   Next Minor Frame Number           = 50
+   Unexpected Major Frame Detected   = TRUE
+
+! End "Skipped" command processing - Process Schedule
+! Expect to see:
+!    APID:0100
+! -------------------------------------
+> CMD: APID:0100 SEQ:0 LEN:8 FC:0 PKT:1900 c000 0001 0000 
+
+! Attempt to load Bad SDT with Garbage Entry
+! Expect to see:
+!    Call to CFE_TBL_ValidateAccess returned 0
+!    Call to CFE_TBL_LoadFromFile returned 0
+!    Call to CFE_TBL_LoadWorkingBuffer returns 0
+! --------------------
+Loading Corrupt Table Image: /cf/apps/sch_def_schtbl1.tbl
+Call to CFE_TBL_ValidateAccess returned 0
+Call to CFE_TBL_LoadFromFile returned 0
+Call to CFE_TBL_LoadWorkingBuffer returns 0
+
+! Housekeeping Request @ 33.990 secs
+! Expect to see:
+!    Schedule Activity Success Counter = 63
+!    Schedule Activity Failure Counter = 0
+!    Schedule Slots Processed Counter  = 3199
+!    Minor Frames Since Tone Counter   = 99
+!    Next Minor Frame Number           = 99
+
+!    EVENT ID=30
+!    EVENT ID=31
+!    EVENT ID=96
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+Changes in HK Pkt since last print out:
+   Schedule Activity Success Counter = 63
+   Schedule Activity Failure Counter = 0
+   Schedule Slots Processed Counter  = 3199
+   Minor Frames Since Tone Counter   = 99
+   Next Minor Frame Number           = 99
+ERROR EVENT ID=30 Schedule tbl verify error - idx[0] ena[1] typ[1] fre[1] rem[0] msg[0] grp[0x00000001]
+DEBUG EVENT ID=31 Schedule table verify results -- good[7] bad[2] unused[491]
+ERROR EVENT ID=96 SCH validation failed for Inactive 'SCH.SCHED_DEF', Status=0xFFFFFFFB
+
+! Process Schedule @ 34.000
+! Expect to see:
+!    APID:0100
+! -------------------------------------
+****Current Sim Time: 34.000000 **** Major Frame Signal
+> CMD: APID:0100 SEQ:0 LEN:8 FC:0 PKT:1900 c000 0001 0000 
+
+! Attempt to load Bad SDT with bad Enable State
+! Expect to see:
+!    Call to CFE_TBL_ValidateAccess returned 0
+!    Call to CFE_TBL_LoadFromFile returned 0
+!    Call to CFE_TBL_LoadWorkingBuffer returns 0
+! --------------------
+Loading Corrupt Table Image: /cf/apps/sch_def_schtbl2.tbl
+Call to CFE_TBL_ValidateAccess returned 0
+Call to CFE_TBL_LoadFromFile returned 0
+Call to CFE_TBL_LoadWorkingBuffer returns 0
+
+! Housekeeping Request @ 34.990
+! Expect to see:
+!    Schedule Activity Success Counter = 64
+!    Schedule Activity Failure Counter = 0
+!    Schedule Slots Processed Counter  = 3299
+!    Table Verification Failure Ctr    = 1
+!    Table Pass Counter                = 34
+!    Valid Major Frame Counter         = 27
+!    Unexpected Major Frame Detected   = FALSE
+
+!    EVENT ID=30
+!    EVENT ID=31
+!    EVENT ID=96
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+Changes in HK Pkt since last print out:
+   Schedule Activity Success Counter = 64
+   Schedule Activity Failure Counter = 0
+   Schedule Slots Processed Counter  = 3299
+   Table Verification Failure Ctr    = 1
+   Table Pass Counter                = 34
+   Valid Major Frame Counter         = 27
+   Unexpected Major Frame Detected   = FALSE
+ERROR EVENT ID=30 Schedule tbl verify error - idx[252] ena[10] typ[1] fre[1] rem[0] msg[0] grp[0x00000000]
+DEBUG EVENT ID=31 Schedule table verify results -- good[8] bad[1] unused[491]
+ERROR EVENT ID=96 SCH validation failed for Inactive 'SCH.SCHED_DEF', Status=0xFFFFFFFA
+
+! Process Schedule @ 35.000
+! Expect to see:
+!    APID:0100
+! -------------------------------------
+****Current Sim Time: 35.000000 **** Major Frame Signal
+> CMD: APID:0100 SEQ:0 LEN:8 FC:0 PKT:1900 c000 0001 0000 
+
+! Attempt to load Bad SDT with Frequency = 0
+! Expect to see:
+!    Call to CFE_TBL_ValidateAccess returned 0
+!    Call to CFE_TBL_LoadFromFile returned 0
+!    Call to CFE_TBL_LoadWorkingBuffer returns 0
+! --------------------
+Loading Corrupt Table Image: /cf/apps/sch_def_schtbl3.tbl
+Call to CFE_TBL_ValidateAccess returned 0
+Call to CFE_TBL_LoadFromFile returned 0
+Call to CFE_TBL_LoadWorkingBuffer returns 0
+
+! Housekeeping Request @ 35.990
+! Expect to see:
+!    Schedule Activity Success Counter = 65
+!    Schedule Activity Failure Counter = 0
+!    Schedule Slots Processed Counter  = 3399
+!    Table Verification Failure Ctr    = 2
+!    Table Pass Counter                = 35
+!    Valid Major Frame Counter         = 28
+
+!    EVENT ID=30
+!    EVENT ID=31
+!    EVENT ID=96
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+Changes in HK Pkt since last print out:
+   Schedule Activity Success Counter = 65
+   Schedule Activity Failure Counter = 0
+   Schedule Slots Processed Counter  = 3399
+   Table Verification Failure Ctr    = 2
+   Table Pass Counter                = 35
+   Valid Major Frame Counter         = 28
+ERROR EVENT ID=30 Schedule tbl verify error - idx[278] ena[1] typ[1] fre[0] rem[0] msg[0] grp[0x00000000]
+DEBUG EVENT ID=31 Schedule table verify results -- good[8] bad[1] unused[491]
+ERROR EVENT ID=96 SCH validation failed for Inactive 'SCH.SCHED_DEF', Status=0xFFFFFFFE
+
+! Process Schedule @ 36.000
+! Expect to see:
+!    APID:0100
+!    APID:0105
+! -------------------------------------
+****Current Sim Time: 36.000000 **** Major Frame Signal
+> CMD: APID:0100 SEQ:0 LEN:8 FC:0 PKT:1900 c000 0001 0000 
+> CMD: APID:0105 SEQ:0 LEN:8 FC:0 PKT:1905 c000 0001 0000 
+
+! Attempt to load Bad SDT with Remainder = Frequency
+! Expect to see:
+!    Call to CFE_TBL_ValidateAccess returned 0
+!    Call to CFE_TBL_LoadFromFile returned 0
+!    Call to CFE_TBL_LoadWorkingBuffer returns 0
+! --------------------
+Loading Corrupt Table Image: /cf/apps/sch_def_schtbl4.tbl
+Call to CFE_TBL_ValidateAccess returned 0
+Call to CFE_TBL_LoadFromFile returned 0
+Call to CFE_TBL_LoadWorkingBuffer returns 0
+
+! Housekeeping Request @ 36.990
+! Expect to see:
+!    Schedule Activity Success Counter = 67
+!    Schedule Activity Failure Counter = 0
+!    Schedule Slots Processed Counter  = 3499
+!    Table Verification Failure Ctr    = 3
+!    Table Pass Counter                = 36
+!    Valid Major Frame Counter         = 29
+
+!    EVENT ID=30
+!    EVENT ID=31
+!    EVENT ID=96
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+Changes in HK Pkt since last print out:
+   Schedule Activity Success Counter = 67
+   Schedule Activity Failure Counter = 0
+   Schedule Slots Processed Counter  = 3499
+   Table Verification Failure Ctr    = 3
+   Table Pass Counter                = 36
+   Valid Major Frame Counter         = 29
+ERROR EVENT ID=30 Schedule tbl verify error - idx[254] ena[1] typ[1] fre[2] rem[2] msg[0] grp[0x00000000]
+DEBUG EVENT ID=31 Schedule table verify results -- good[8] bad[1] unused[491]
+ERROR EVENT ID=96 SCH validation failed for Inactive 'SCH.SCHED_DEF', Status=0xFFFFFFFD
+
+! Process Schedule @ 37.000
+! Expect to see:
+!    APID:0100
+! -------------------------------------
+****Current Sim Time: 37.000000 **** Major Frame Signal
+> CMD: APID:0100 SEQ:0 LEN:8 FC:0 PKT:1900 c000 0001 0000 
+
+! Attempt to load Bad SDT with Type != Send Msg
+! Expect to see:
+!    Call to CFE_TBL_ValidateAccess returned 0
+!    Call to CFE_TBL_LoadFromFile returned 0
+!    Call to CFE_TBL_LoadWorkingBuffer returns 0
+! --------------------
+Loading Corrupt Table Image: /cf/apps/sch_def_schtbl5.tbl
+Call to CFE_TBL_ValidateAccess returned 0
+Call to CFE_TBL_LoadFromFile returned 0
+Call to CFE_TBL_LoadWorkingBuffer returns 0
+
+! Housekeeping Request @ 37.990
+! Expect to see:
+!    Schedule Activity Success Counter = 68
+!    Schedule Activity Failure Counter = 0
+!    Schedule Slots Processed Counter  = 3599
+!    Table Verification Failure Ctr    = 4
+!    Table Pass Counter                = 37
+!    Valid Major Frame Counter         = 30
+
+!    EVENT ID=30
+!    EVENT ID=31
+!    EVENT ID=96
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+Changes in HK Pkt since last print out:
+   Schedule Activity Success Counter = 68
+   Schedule Activity Failure Counter = 0
+   Schedule Slots Processed Counter  = 3599
+   Table Verification Failure Ctr    = 4
+   Table Pass Counter                = 37
+   Valid Major Frame Counter         = 30
+ERROR EVENT ID=30 Schedule tbl verify error - idx[255] ena[1] typ[6] fre[2] rem[0] msg[0] grp[0x00000000]
+DEBUG EVENT ID=31 Schedule table verify results -- good[8] bad[1] unused[491]
+ERROR EVENT ID=96 SCH validation failed for Inactive 'SCH.SCHED_DEF', Status=0xFFFFFFFC
+
+! Process Schedule @ 38.000
+! Expect to see:
+!    APID:0100
+! -------------------------------------
+****Current Sim Time: 38.000000 **** Major Frame Signal
+> CMD: APID:0100 SEQ:0 LEN:8 FC:0 PKT:1900 c000 0001 0000 
+
+! Attempt to load Bad SDT with Msg Index > Max
+! Expect to see:
+!    Call to CFE_TBL_ValidateAccess returned 0
+!    Call to CFE_TBL_LoadFromFile returned 0
+!    Call to CFE_TBL_LoadWorkingBuffer returns 0
+! --------------------
+Loading Corrupt Table Image: /cf/apps/sch_def_schtbl6.tbl
+Call to CFE_TBL_ValidateAccess returned 0
+Call to CFE_TBL_LoadFromFile returned 0
+Call to CFE_TBL_LoadWorkingBuffer returns 0
+
+! Housekeeping Request @ 38.990
+! Expect to see:
+!    Schedule Activity Success Counter = 69
+!    Schedule Activity Failure Counter = 0
+!    Schedule Slots Processed Counter  = 3699
+!    Table Verification Failure Ctr    = 5
+!    Table Pass Counter                = 38
+!    Valid Major Frame Counter         = 31
+
+!    EVENT ID=30
+!    EVENT ID=31
+!    EVENT ID=96
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+Changes in HK Pkt since last print out:
+   Schedule Activity Success Counter = 69
+   Schedule Activity Failure Counter = 0
+   Schedule Slots Processed Counter  = 3699
+   Table Verification Failure Ctr    = 5
+   Table Pass Counter                = 38
+   Valid Major Frame Counter         = 31
+ERROR EVENT ID=30 Schedule tbl verify error - idx[256] ena[1] typ[1] fre[2] rem[0] msg[128] grp[0x00000000]
+DEBUG EVENT ID=31 Schedule table verify results -- good[8] bad[1] unused[491]
+ERROR EVENT ID=96 SCH validation failed for Inactive 'SCH.SCHED_DEF', Status=0xFFFFFFFB
+
+! Process Schedule @ 39.000
+! Expect to see:
+!    APID:0100
+! -------------------------------------
+****Current Sim Time: 39.000000 **** Major Frame Signal
+> CMD: APID:0100 SEQ:0 LEN:8 FC:0 PKT:1900 c000 0001 0000 
+
+! Attempt to load Bad MDT with Garbage
+! Expect to see:
+!    Call to CFE_TBL_ValidateAccess returned 0
+!    Call to CFE_TBL_LoadFromFile returned 0
+!    Call to CFE_TBL_LoadWorkingBuffer returns 0
+! --------------------
+Loading Corrupt Table Image: /cf/apps/sch_def_msgtbl7.tbl
+Call to CFE_TBL_ValidateAccess returned 0
+Call to CFE_TBL_LoadFromFile returned 0
+Call to CFE_TBL_LoadWorkingBuffer returns 0
+
+! Housekeeping Request @ 39.990
+! Expect to see:
+!    Schedule Activity Success Counter = 70
+!    Schedule Activity Failure Counter = 0
+!    Schedule Slots Processed Counter  = 3799
+!    Table Verification Failure Ctr    = 6
+!    Table Pass Counter                = 39
+!    Valid Major Frame Counter         = 32
+
+!    EVENT ID=30
+!    EVENT ID=31
+!    EVENT ID=96
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+Changes in HK Pkt since last print out:
+   Schedule Activity Success Counter = 70
+   Schedule Activity Failure Counter = 0
+   Schedule Slots Processed Counter  = 3799
+   Table Verification Failure Ctr    = 6
+   Table Pass Counter                = 39
+   Valid Major Frame Counter         = 32
+ERROR EVENT ID=32 Message tbl verify err - idx[20] mid[0x1897] len[7] buf[0]
+DEBUG EVENT ID=33 Message tbl verify results - good[8] bad[1] unused[119]
+ERROR EVENT ID=96 SCH validation failed for Inactive 'SCH.MSG_DEFS', Status=0xFFFFFFFF
+
+! Process Schedule @ 40.000
+! Expect to see:
+!    APID:0100
+! -------------------------------------
+****Current Sim Time: 40.000000 **** Major Frame Signal
+> CMD: APID:0100 SEQ:0 LEN:8 FC:0 PKT:1900 c000 0001 0000 
+
+! Attempt to load Bad MDT with Msg ID > Max Allowed
+! Expect to see:
+!    Call to CFE_TBL_ValidateAccess returned 0
+!    Call to CFE_TBL_LoadFromFile returned 0
+!    Call to CFE_TBL_LoadWorkingBuffer returns 0
+! --------------------
+Loading Corrupt Table Image: /cf/apps/sch_def_msgtbl8.tbl
+Call to CFE_TBL_ValidateAccess returned 0
+Call to CFE_TBL_LoadFromFile returned 0
+Call to CFE_TBL_LoadWorkingBuffer returns 0
+
+! Housekeeping Request @ 40.990
+! Expect to see:
+!    Schedule Activity Success Counter = 71
+!    Schedule Activity Failure Counter = 0
+!    Schedule Slots Processed Counter  = 3899
+!    Table Verification Failure Ctr    = 7
+!    Table Pass Counter                = 40
+!    Valid Major Frame Counter         = 33
+
+!    EVENT ID=30
+!    EVENT ID=31
+!    EVENT ID=96
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+Changes in HK Pkt since last print out:
+   Schedule Activity Success Counter = 71
+   Schedule Activity Failure Counter = 0
+   Schedule Slots Processed Counter  = 3899
+   Table Verification Failure Ctr    = 7
+   Table Pass Counter                = 40
+   Valid Major Frame Counter         = 33
+ERROR EVENT ID=32 Message tbl verify err - idx[21] mid[0x2001] len[8] buf[0]
+DEBUG EVENT ID=33 Message tbl verify results - good[8] bad[1] unused[119]
+ERROR EVENT ID=96 SCH validation failed for Inactive 'SCH.MSG_DEFS', Status=0xFFFFFFFD
+
+! Process Schedule @ 41.000
+! Expect to see:
+!    APID:0100
+!    APID:0105
+! -------------------------------------
+****Current Sim Time: 41.000000 **** Major Frame Signal
+> CMD: APID:0100 SEQ:0 LEN:8 FC:0 PKT:1900 c000 0001 0000 
+> CMD: APID:0105 SEQ:0 LEN:8 FC:0 PKT:1905 c000 0001 0000 
+
+! Attempt to load Bad MDT with Msg Len > Max Allowed
+! Expect to see:
+!    Call to CFE_TBL_ValidateAccess returned 0
+!    Call to CFE_TBL_LoadFromFile returned 0
+!    Call to CFE_TBL_LoadWorkingBuffer returns 0
+! --------------------
+Loading Corrupt Table Image: /cf/apps/sch_def_msgtbl9.tbl
+Call to CFE_TBL_ValidateAccess returned 0
+Call to CFE_TBL_LoadFromFile returned 0
+Call to CFE_TBL_LoadWorkingBuffer returns 0
+
+! Housekeeping Request @ 41.990
+! Expect to see:
+!    Schedule Activity Success Counter = 73
+!    Schedule Activity Failure Counter = 0
+!    Schedule Slots Processed Counter  = 3999
+!    Table Verification Failure Ctr    = 8
+!    Table Pass Counter                = 41
+!    Valid Major Frame Counter         = 34
+
+!    EVENT ID=32
+!    EVENT ID=33
+!    EVENT ID=96
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+Changes in HK Pkt since last print out:
+   Schedule Activity Success Counter = 73
+   Schedule Activity Failure Counter = 0
+   Schedule Slots Processed Counter  = 3999
+   Table Verification Failure Ctr    = 8
+   Table Pass Counter                = 41
+   Valid Major Frame Counter         = 34
+ERROR EVENT ID=32 Message tbl verify err - idx[22] mid[0x1908] len[135] buf[0]
+DEBUG EVENT ID=33 Message tbl verify results - good[8] bad[1] unused[119]
+ERROR EVENT ID=96 SCH validation failed for Inactive 'SCH.MSG_DEFS', Status=0xFFFFFFFE
+
+! SB SendMsg Error
+! -----------------------------------------
+UTF Info: Return value for CFE SB Api #4 set to ca000007
+
+! Process Schedule @ 42.000
+! Expect to see:
+!    EVENT ID=20
+! -------------------------------------
+****Current Sim Time: 42.000000 **** Major Frame Signal
+ERROR EVENT ID=20 Activity error: slot = 0, entry = 0, err = 0xCA000007
+
+! Clear SB SendMsg Error
+! -----------------------------------------
+UTF Info: Return code for CFE SB Api #4 returned to default
+
+! Housekeeping Request @ 42.990
+! Expect to see:
+!    Schedule Slots Processed Counter  = 4099
+!    Table Verification Failure Ctr    = 9
+!    Table Pass Counter                = 42
+!    Valid Major Frame Counter         = 35
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+Changes in HK Pkt since last print out:
+   Schedule Slots Processed Counter  = 4099
+   Table Verification Failure Ctr    = 9
+   Table Pass Counter                = 42
+   Valid Major Frame Counter         = 35
+
+! Invalid Command ID Tests
+! Expect to see:
+!    EVENT ID=58 (x5)
+! --------------------------------------------
+< CMD: APID:0095 SEQ:0 LEN:8 FC:9 PKT:1895 c000 0001 0900 
+ERROR EVENT ID=58 Invalid command code: ID = 0x1895, CC = 9
+< CMD: APID:0095 SEQ:0 LEN:8 FC:10 PKT:1895 c000 0001 0a00 
+ERROR EVENT ID=58 Invalid command code: ID = 0x1895, CC = 10
+< CMD: APID:0095 SEQ:0 LEN:8 FC:11 PKT:1895 c000 0001 0b00 
+ERROR EVENT ID=58 Invalid command code: ID = 0x1895, CC = 11
+< CMD: APID:0095 SEQ:0 LEN:8 FC:12 PKT:1895 c000 0001 0c00 
+ERROR EVENT ID=58 Invalid command code: ID = 0x1895, CC = 12
+< CMD: APID:0095 SEQ:0 LEN:8 FC:13 PKT:1895 c000 0001 0d00 
+ERROR EVENT ID=58 Invalid command code: ID = 0x1895, CC = 13
+
+! Housekeeping Request
+! Expect to see:
+!    Command Error Counter             = 22
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+Changes in HK Pkt since last print out:
+   Command Error Counter             = 22
+
+! Invalid Message ID Test
+! Expect to see:
+!    EVENT ID=59
+! --------------------------------------------
+< CMD: APID:07ff SEQ:0 LEN:8 FC:1 PKT:ffff c000 0001 0100 
+ERROR EVENT ID=59 Msg with Invalid message ID Rcvd -- ID = 0xFFFF
+
+! Housekeeping Request
+! Expect to see:
+!    No Changes
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+Changes in HK Pkt since last print out:
+   NO CHANGES
+
+! SB error\app exit test
+! Expect to see:
+!    EVENT ID=2
+! -----------------------------------------
+UTF Info: Return value for CFE SB Api #5 set to ca000006
+< CMD: APID:0095 SEQ:0 LEN:8 FC:0 PKT:1895 c000 0001 0000 
+CRITICAL EVENT ID=2 SCH App: terminating, err = 0xCA000006
+SysLog:1980-001-00:00:42.99000 SCH App terminating, err = 0xCA000006
+SysLog:1980-001-00:00:42.99000 Application SCH called CFE_ES_ExitApp
+***UTF SCH CMD PIPE TESTS END***
+
+***UTF SCH APP POOR TIMER TESTS BEGIN***
+
+UTF Info: Return code for CFE SB Api #5 returned to default
+UTF Info: Overwriting ES Task Table Record[0]
+SysLog:1980-001-00:00:00.56000 ES Startup: SCH loaded and created
+UTF Info: App <SCH> added to App Tbl.
+
+
+Flywheeling Major Frame and Poor Minor Frame Timer 
+-------------------------------------------------- 
+UTF Info: Return value for CFE TIME Api #0 set to 4000
+UTF INFO: CFE_TBL_Register called for new table SCH.SCHED_DEF.
+UTF INFO: CFE_TBL_Register called for new table SCH.MSG_DEFS.
+Call to CFE_TBL_ValidateAccess returned 0
+Call to CFE_TBL_LoadFromFile returned 0
+DEBUG EVENT ID=31 Schedule table verify results -- good[8] bad[0] unused[492]
+INFO EVENT ID=36 SCH validation successful for Inactive 'SCH.SCHED_DEF'
+INFO EVENT ID=37 SCH Successfully Updated 'SCH.SCHED_DEF'
+Call to CFE_TBL_ValidateAccess returned 0
+Call to CFE_TBL_LoadFromFile returned 0
+DEBUG EVENT ID=33 Message tbl verify results - good[8] bad[0] unused[120]
+INFO EVENT ID=36 SCH validation successful for Inactive 'SCH.MSG_DEFS'
+INFO EVENT ID=37 SCH Successfully Updated 'SCH.MSG_DEFS'
+INFO EVENT ID=13 OS Timer Accuracy (102 > reqd 101 usec) requires Minor Frame MET sync
+INFO EVENT ID=1 SCH Initialized. Version 0.0.0.0
+****Current Sim Time: 1.000000 **** Major Frame Signal
+> CMD: APID:0100 SEQ:0 LEN:8 FC:0 PKT:1900 c000 0001 0000 
+> CMD: APID:0104 SEQ:0 LEN:8 FC:0 PKT:1904 c000 0001 0000 
+DEBUG EVENT ID=16 Slot did not increment: slot = 56
+INFO EVENT ID=18 Multiple slots processed: slot = 57, count = 2
+INFO EVENT ID=18 Multiple slots processed: slot = 62, count = 4
+
+! ***START SCH SB COMMAND TESTING***
+! ---------------------------------
+
+! Housekeeping Request @ 1.990
+! Expect to see:
+!    Command Counter                   = 0
+!    Command Error Counter             = 0
+!    Schedule Activity Success Counter = 2
+!    Schedule Activity Failure Counter = 0
+!    Schedule Slots Processed Counter  = 99
+!    Schedule Slots Skipped Counter    = 0
+!    Multiple Schedule Slots Processed = 1
+!    Same Slot Processed Counter       = 1
+!    Bad Schedule Table Data Counter   = 0
+!    Table Verification Success Ctr    = 2
+!    Table Verification Failure Ctr    = 0
+!    Table Pass Counter                = 0
+!    Valid Major Frame Counter         = 0
+!    Missed Major Frame Counter        = 0
+!    Unexpected Major Frame Counter    = 0
+!    Sync To MET                (0x05) = Minor Frame: YES, Major Frame: YES
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+Changes in HK Pkt since last print out:
+   Command Counter                   = 0
+   Command Error Counter             = 0
+   Schedule Activity Success Counter = 2
+   Schedule Activity Failure Counter = 0
+   Schedule Slots Processed Counter  = 99
+   Schedule Slots Skipped Counter    = 0
+   Multiple Schedule Slots Processed = 2
+   Same Slot Processed Counter       = 1
+   Bad Schedule Table Data Counter   = 0
+   Table Verification Success Ctr    = 2
+   Table Verification Failure Ctr    = 0
+   Table Pass Counter                = 0
+   Valid Major Frame Counter         = 0
+   Missed Major Frame Counter        = 0
+   Unexpected Major Frame Counter    = 0
+   Sync To MET                (0x05) = Minor Frame: YES, Major Frame: YES
+
+! Process Schedule @ 2.000
+! Expect to see:
+!    APID:0100
+!    APID:0104
+!    APID:0105
+! -------------------------------------
+> CMD: APID:0100 SEQ:0 LEN:8 FC:0 PKT:1900 c000 0001 0000 
+> CMD: APID:0104 SEQ:0 LEN:8 FC:0 PKT:1904 c000 0001 0000 
+> CMD: APID:0105 SEQ:0 LEN:8 FC:0 PKT:1905 c000 0001 0000 
+INFO EVENT ID=18 Multiple slots processed: slot = 62, count = 4
+
+! Housekeeping Request @ 2.990
+! Expect to see:
+!    Schedule Activity Success Counter = 5
+!    Schedule Activity Failure Counter = 0
+!    Schedule Slots Processed Counter  = 199
+!    Table Pass Counter                = 1
+!    Missed Major Frame Counter        = 1
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+Changes in HK Pkt since last print out:
+   Schedule Activity Success Counter = 5
+   Schedule Activity Failure Counter = 0
+   Schedule Slots Processed Counter  = 199
+   Multiple Schedule Slots Processed = 3
+   Table Pass Counter                = 1
+   Missed Major Frame Counter        = 1
+
+! Process Schedule @ 3.000
+! Expect to see:
+!    APID:0100
+!    APID:0104
+! -------------------------------------
+****Current Sim Time: 3.000000 **** Major Frame Signal
+> CMD: APID:0100 SEQ:0 LEN:8 FC:0 PKT:1900 c000 0001 0000 
+> CMD: APID:0104 SEQ:0 LEN:8 FC:0 PKT:1904 c000 0001 0000 
+INFO EVENT ID=18 Multiple slots processed: slot = 62, count = 4
+
+! Housekeeping Request @ 3.990
+! Expect to see:
+!    Schedule Activity Success Counter = 7
+!    Schedule Activity Failure Counter = 0
+!    Schedule Slots Processed Counter  = 299
+!    Table Pass Counter                = 2
+!    Missed Major Frame Counter        = 2
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+Changes in HK Pkt since last print out:
+   Schedule Activity Success Counter = 7
+   Schedule Activity Failure Counter = 0
+   Schedule Slots Processed Counter  = 299
+   Multiple Schedule Slots Processed = 4
+   Table Pass Counter                = 2
+   Missed Major Frame Counter        = 2
+
+! Process Schedule @ 4.000
+! Expect to see:
+!    APID:0100
+!    APID:0101
+!    APID:0104
+! -------------------------------------
+****Current Sim Time: 4.000000 **** Major Frame Signal
+> CMD: APID:0100 SEQ:0 LEN:8 FC:0 PKT:1900 c000 0001 0000 
+> CMD: APID:0101 SEQ:0 LEN:8 FC:0 PKT:1901 c000 0001 0000 
+> CMD: APID:0104 SEQ:0 LEN:8 FC:0 PKT:1904 c000 0001 0000 
+INFO EVENT ID=18 Multiple slots processed: slot = 62, count = 4
+
+! Housekeeping Request @ 4.990
+! Expect to see:
+!    Schedule Activity Success Counter = 10
+!    Schedule Activity Failure Counter = 0
+!    Schedule Slots Processed Counter  = 399
+!    Table Pass Counter                = 3
+!    Missed Major Frame Counter        = 3
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+Changes in HK Pkt since last print out:
+   Schedule Activity Success Counter = 10
+   Schedule Activity Failure Counter = 0
+   Schedule Slots Processed Counter  = 399
+   Multiple Schedule Slots Processed = 5
+   Table Pass Counter                = 3
+   Missed Major Frame Counter        = 3
+
+! Process Schedule @ 5.000
+! Expect to see:
+!    APID:0100
+!    APID:0104
+! -------------------------------------
+****Current Sim Time: 5.000000 **** Major Frame Signal
+> CMD: APID:0100 SEQ:0 LEN:8 FC:0 PKT:1900 c000 0001 0000 
+> CMD: APID:0104 SEQ:0 LEN:8 FC:0 PKT:1904 c000 0001 0000 
+INFO EVENT ID=18 Multiple slots processed: slot = 62, count = 4
+
+! Housekeeping Request @ 5.990
+! Expect to see:
+!    Schedule Activity Success Counter = 12
+!    Schedule Activity Failure Counter = 0
+!    Schedule Slots Processed Counter  = 499
+!    Table Pass Counter                = 4
+!    Missed Major Frame Counter        = 4
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+Changes in HK Pkt since last print out:
+   Schedule Activity Success Counter = 12
+   Schedule Activity Failure Counter = 0
+   Schedule Slots Processed Counter  = 499
+   Multiple Schedule Slots Processed = 6
+   Table Pass Counter                = 4
+   Missed Major Frame Counter        = 4
+
+! Process Schedule @ 6.000
+! Expect to see:
+!    APID:0100
+!    APID:0104
+! -------------------------------------
+****Current Sim Time: 6.000000 **** Major Frame Signal
+> CMD: APID:0100 SEQ:0 LEN:8 FC:0 PKT:1900 c000 0001 0000 
+> CMD: APID:0104 SEQ:0 LEN:8 FC:0 PKT:1904 c000 0001 0000 
+INFO EVENT ID=18 Multiple slots processed: slot = 62, count = 4
+
+! Housekeeping Request @ 6.990
+! Expect to see:
+!    Schedule Activity Success Counter = 14
+!    Schedule Activity Failure Counter = 0
+!    Schedule Slots Processed Counter  = 599
+!    Table Pass Counter                = 5
+!    Missed Major Frame Counter        = 5
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+Changes in HK Pkt since last print out:
+   Schedule Activity Success Counter = 14
+   Schedule Activity Failure Counter = 0
+   Schedule Slots Processed Counter  = 599
+   Multiple Schedule Slots Processed = 7
+   Table Pass Counter                = 5
+   Missed Major Frame Counter        = 5
+
+! SB error\app exit test
+! Expect to see:
+!    EVENT ID=2
+! -----------------------------------------
+UTF Info: Return value for CFE SB Api #5 set to ca000006
+< CMD: APID:0095 SEQ:0 LEN:8 FC:0 PKT:1895 c000 0001 0000 
+CRITICAL EVENT ID=2 SCH App: terminating, err = 0xCA000006
+SysLog:1980-001-00:00:06.99000 SCH App terminating, err = 0xCA000006
+SysLog:1980-001-00:00:06.99000 Application SCH called CFE_ES_ExitApp
+UTF Info: Return code for CFE TIME Api #0 returned to default
+UTF Info: Return code for CFE SB Api #5 returned to default
+UTF Info: Overwriting ES Task Table Record[0]
+SysLog:1980-001-00:00:00.99999 ES Startup: SCH loaded and created
+UTF Info: App <SCH> added to App Tbl.
+
+
+Flywheeling Major Frame After startup and Poor Minor Frame Timer 
+---------------------------------------------------------------- 
+UTF INFO: CFE_TBL_Register called for new table SCH.SCHED_DEF.
+UTF INFO: CFE_TBL_Register called for new table SCH.MSG_DEFS.
+Call to CFE_TBL_ValidateAccess returned 0
+Call to CFE_TBL_LoadFromFile returned 0
+DEBUG EVENT ID=31 Schedule table verify results -- good[8] bad[0] unused[492]
+INFO EVENT ID=36 SCH validation successful for Inactive 'SCH.SCHED_DEF'
+INFO EVENT ID=37 SCH Successfully Updated 'SCH.SCHED_DEF'
+Call to CFE_TBL_ValidateAccess returned 0
+Call to CFE_TBL_LoadFromFile returned 0
+DEBUG EVENT ID=33 Message tbl verify results - good[8] bad[0] unused[120]
+INFO EVENT ID=36 SCH validation successful for Inactive 'SCH.MSG_DEFS'
+INFO EVENT ID=37 SCH Successfully Updated 'SCH.MSG_DEFS'
+INFO EVENT ID=13 OS Timer Accuracy (102 > reqd 101 usec) requires Minor Frame MET sync
+INFO EVENT ID=1 SCH Initialized. Version 0.0.0.0
+****Current Sim Time: 0.430000 **** Major Frame Signal
+> CMD: APID:0100 SEQ:0 LEN:8 FC:0 PKT:1900 c000 0001 0000 
+> CMD: APID:0104 SEQ:0 LEN:8 FC:0 PKT:1904 c000 0001 0000 
+INFO EVENT ID=18 Multiple slots processed: slot = 19, count = 4
+
+! ***START SCH SB COMMAND TESTING***
+! ---------------------------------
+
+! Housekeeping Request @ 1.330
+! Expect to see:
+!    Schedule Activity Success Counter = 2
+!    Schedule Activity Failure Counter = 0
+!    Schedule Slots Processed Counter  = 99
+!    Multiple Schedule Slots Processed = 0
+!    Same Slot Processed Counter       = 0
+!    Table Pass Counter                = 0
+!    Valid Major Frame Counter         = 1
+!    Missed Major Frame Counter        = 0
+!    Last Sync MET Slot Number         = 43
+!    Sync To MET                (0x01) = Minor Frame: YES, Major Frame: NO
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+Changes in HK Pkt since last print out:
+   Schedule Activity Success Counter = 2
+   Schedule Activity Failure Counter = 0
+   Schedule Slots Processed Counter  = 99
+   Multiple Schedule Slots Processed = 1
+   Same Slot Processed Counter       = 0
+   Table Pass Counter                = 0
+   Valid Major Frame Counter         = 1
+   Missed Major Frame Counter        = 0
+   Last Sync MET Slot Number         = 43
+   Sync To MET                (0x01) = Minor Frame: YES, Major Frame: NO
+
+! Process Schedule @ 1.430
+! Expect to see:
+!    APID:0100
+!    APID:0104
+!    APID:0105
+
+!    EVENT ID=16
+! -------------------------------------
+****Current Sim Time: 1.430000 **** Major Frame Signal
+> CMD: APID:0100 SEQ:0 LEN:8 FC:0 PKT:1900 c000 0001 0000 
+> CMD: APID:0104 SEQ:0 LEN:8 FC:0 PKT:1904 c000 0001 0000 
+> CMD: APID:0105 SEQ:0 LEN:8 FC:0 PKT:1905 c000 0001 0000 
+DEBUG EVENT ID=16 Slot did not increment: slot = 13
+INFO EVENT ID=18 Multiple slots processed: slot = 14, count = 2
+INFO EVENT ID=18 Multiple slots processed: slot = 19, count = 4
+
+! Housekeeping Request @ 2.330
+! Expect to see:
+!    Schedule Activity Success Counter = 5
+!    Schedule Activity Failure Counter = 0
+!    Schedule Slots Processed Counter  = 199
+!    Multiple Schedule Slots Processed = 1
+!    Same Slot Processed Counter       = 1
+!    Table Pass Counter                = 1
+!    Valid Major Frame Counter         = 2
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+Changes in HK Pkt since last print out:
+   Schedule Activity Success Counter = 5
+   Schedule Activity Failure Counter = 0
+   Schedule Slots Processed Counter  = 199
+   Multiple Schedule Slots Processed = 3
+   Same Slot Processed Counter       = 1
+   Table Pass Counter                = 1
+   Valid Major Frame Counter         = 2
+
+! Process Schedule
+! Expect to see:
+!    APID:0100
+!    APID:0104
+! -------------------------------------
+> CMD: APID:0100 SEQ:0 LEN:8 FC:0 PKT:1900 c000 0001 0000 
+> CMD: APID:0104 SEQ:0 LEN:8 FC:0 PKT:1904 c000 0001 0000 
+INFO EVENT ID=18 Multiple slots processed: slot = 19, count = 4
+
+! Housekeeping Request
+! Expect to see:
+!    Schedule Activity Success Counter = 7
+!    Schedule Activity Failure Counter = 0
+!    Schedule Slots Processed Counter  = 299
+!    Table Pass Counter                = 2
+!    Missed Major Frame Counter        = 1
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+Changes in HK Pkt since last print out:
+   Schedule Activity Success Counter = 7
+   Schedule Activity Failure Counter = 0
+   Schedule Slots Processed Counter  = 299
+   Multiple Schedule Slots Processed = 4
+   Table Pass Counter                = 2
+   Missed Major Frame Counter        = 1
+
+! Process Schedule
+! Expect to see:
+!    APID:0100
+!    APID:0101
+!    APID:0104
+! -------------------------------------
+****Current Sim Time: 3.430000 **** Major Frame Signal
+> CMD: APID:0100 SEQ:0 LEN:8 FC:0 PKT:1900 c000 0001 0000 
+> CMD: APID:0101 SEQ:0 LEN:8 FC:0 PKT:1901 c000 0001 0000 
+> CMD: APID:0104 SEQ:0 LEN:8 FC:0 PKT:1904 c000 0001 0000 
+INFO EVENT ID=18 Multiple slots processed: slot = 19, count = 4
+
+! Start CFE TIME Flywheeling
+! Expect to see:
+
+! -------------------------------------
+UTF Error: Invalid ApiIndex 10 passed to UTF_CFE_TIME_Set_Api_Return_Code
+
+! Housekeeping Request
+! Expect to see:
+!    Schedule Activity Success Counter = 10
+!    Schedule Activity Failure Counter = 0
+!    Schedule Slots Processed Counter  = 399
+!    Table Pass Counter                = 3
+!    Valid Major Frame Counter         = 3
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+Changes in HK Pkt since last print out:
+   Schedule Activity Success Counter = 10
+   Schedule Activity Failure Counter = 0
+   Schedule Slots Processed Counter  = 399
+   Multiple Schedule Slots Processed = 5
+   Table Pass Counter                = 3
+   Valid Major Frame Counter         = 3
+
+! Process Schedule @ 4.430
+! Expect to see:
+!    APID:0100
+!    APID:0104
+! -------------------------------------
+****Current Sim Time: 4.430000 **** Major Frame Signal
+> CMD: APID:0100 SEQ:0 LEN:8 FC:0 PKT:1900 c000 0001 0000 
+> CMD: APID:0104 SEQ:0 LEN:8 FC:0 PKT:1904 c000 0001 0000 
+INFO EVENT ID=18 Multiple slots processed: slot = 19, count = 4
+
+! Housekeeping Request @ 5.330
+! Expect to see:
+!    Schedule Activity Success Counter = 12
+!    Schedule Activity Failure Counter = 0
+!    Schedule Slots Processed Counter  = 499
+!    Table Pass Counter                = 4
+!    Missed Major Frame Counter        = 2
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+Changes in HK Pkt since last print out:
+   Schedule Activity Success Counter = 12
+   Schedule Activity Failure Counter = 0
+   Schedule Slots Processed Counter  = 499
+   Multiple Schedule Slots Processed = 6
+   Table Pass Counter                = 4
+   Valid Major Frame Counter         = 4
+
+! Process Schedule @ 5.430
+! Expect to see:
+
+! -------------------------------------
+****Current Sim Time: 5.430000 **** Major Frame Signal
+> CMD: APID:0100 SEQ:0 LEN:8 FC:0 PKT:1900 c000 0001 0000 
+> CMD: APID:0104 SEQ:0 LEN:8 FC:0 PKT:1904 c000 0001 0000 
+INFO EVENT ID=18 Multiple slots processed: slot = 19, count = 4
+
+! Housekeeping Request @ 6.330
+! Expect to see:
+!    Schedule Activity Success Counter = 14
+!    Schedule Activity Failure Counter = 0
+!    Schedule Slots Processed Counter  = 599
+!    Table Pass Counter                = 5
+!    Missed Major Frame Counter        = 3
+! --------------------
+< CMD: APID:0096 SEQ:0 LEN:8 FC:0 PKT:1896 c000 0001 0000 
+SCH HOUSEKEEPING PKT:
+Changes in HK Pkt since last print out:
+   Schedule Activity Success Counter = 14
+   Schedule Activity Failure Counter = 0
+   Schedule Slots Processed Counter  = 599
+   Multiple Schedule Slots Processed = 7
+   Table Pass Counter                = 5
+   Valid Major Frame Counter         = 5
+
+! SB error\app exit test
+! Expect to see:
+!    EVENT ID=2
+! -----------------------------------------
+UTF Info: Return value for CFE SB Api #5 set to ca000006
+< CMD: APID:0095 SEQ:0 LEN:8 FC:0 PKT:1895 c000 0001 0000 
+CRITICAL EVENT ID=2 SCH App: terminating, err = 0xCA000006
+SysLog:1980-001-00:00:06.42000 SCH App terminating, err = 0xCA000006
+SysLog:1980-001-00:00:06.42000 Application SCH called CFE_ES_ExitApp
+UTF Info: Return code for CFE TIME Api #0 returned to default
+***UTF SCH APP POOR TIMER TESTS END***
+
+***UTF SCH APP INIT TESTS START***
+
+
+Test App Init Error conditions 
+-------------------------------
+UTF Info: Return value for CFE ES Api #2 set to c4000001
+Test Init with GetAppID Failure 
+! Expect to see:
+!   SysLog:1980-001-00:00:06.42000 SCH App: Unable to obtain own AppID, RC=0xC4000001
+!   SysLog:1980-001-00:00:06.42000 CFE_ES_RunLoop Error: Cannot get AppID for the caller: RC = C4000001
+------------------------------- 
+SysLog:1980-001-00:00:06.42000 SCH App: Unable to obtain own AppID, RC=0xC4000001
+SysLog:1980-001-00:00:06.42000 CFE_ES_RunLoop Error: Cannot get AppID for the caller: RC = C4000001
+SysLog:1980-001-00:00:06.42000 SCH App terminating, err = 0xC4000001
+
+UTF Info: Return code for CFE ES Api #2 returned to default
+Test Init with SDT Registration Failure 
+! Expect to see:
+!   EVENT ID=7
+--------------------------------------- 
+ERROR EVENT ID=7 Error Registering SDT, RC=0xCC000003
+CRITICAL EVENT ID=2 SCH App: terminating, err = 0xCC000003
+SysLog:1980-001-00:00:06.42000 SCH App terminating, err = 0xCC000003
+SysLog:1980-001-00:00:06.42000 Application SCH called CFE_ES_ExitApp
+
+Test Init with MDT Registration Failure 
+! Expect to see:
+!   EVENT ID=8
+--------------------------------------- 
+ERROR EVENT ID=8 Error Registering MDT, RC=0xCC000003
+CRITICAL EVENT ID=2 SCH App: terminating, err = 0xCC000003
+SysLog:1980-001-00:00:06.42000 SCH App terminating, err = 0xCC000003
+SysLog:1980-001-00:00:06.42000 Application SCH called CFE_ES_ExitApp
+
+Test Init with SDT Load Failure 
+! Expect to see:
+!   EVENT ID=9
+------------------------------- 
+ERROR EVENT ID=9 Error (RC=0xCC000008) Loading SDT with /cf/apps/sch_def_schtbl.tbl
+CRITICAL EVENT ID=2 SCH App: terminating, err = 0xCC000008
+SysLog:1980-001-00:00:06.42000 SCH App terminating, err = 0xCC000008
+SysLog:1980-001-00:00:06.42000 Application SCH called CFE_ES_ExitApp
+
+Test Init with MDT Load Failure 
+! Expect to see:
+!   EVENT ID=10
+------------------------------- 
+ERROR EVENT ID=10 Error (RC=0xCC000008) Loading MDT with /cf/apps/sch_def_msgtbl.tbl
+CRITICAL EVENT ID=2 SCH App: terminating, err = 0xCC000008
+SysLog:1980-001-00:00:06.42000 SCH App terminating, err = 0xCC000008
+SysLog:1980-001-00:00:06.42000 Application SCH called CFE_ES_ExitApp
+
+Test Init with SDT GetAddress Failure 
+! Expect to see:
+!   EVENT ID=11
+------------------------------------- 
+Call to CFE_TBL_ValidateAccess returned 0
+Call to CFE_TBL_LoadFromFile returned 0
+DEBUG EVENT ID=31 Schedule table verify results -- good[8] bad[0] unused[492]
+INFO EVENT ID=36 SCH validation successful for Inactive 'SCH.SCHED_DEF'
+INFO EVENT ID=37 SCH Successfully Updated 'SCH.SCHED_DEF'
+Call to CFE_TBL_ValidateAccess returned 0
+Call to CFE_TBL_LoadFromFile returned 0
+DEBUG EVENT ID=33 Message tbl verify results - good[8] bad[0] unused[120]
+INFO EVENT ID=36 SCH validation successful for Inactive 'SCH.MSG_DEFS'
+INFO EVENT ID=37 SCH Successfully Updated 'SCH.MSG_DEFS'
+ERROR EVENT ID=11 Error Acquiring Tbl Ptrs (RC=0xCC000009)
+CRITICAL EVENT ID=2 SCH App: terminating, err = 0xCC000009
+SysLog:1980-001-00:00:06.42000 SCH App terminating, err = 0xCC000009
+SysLog:1980-001-00:00:06.42000 Application SCH called CFE_ES_ExitApp
+
+Test Init with MDT GetAddress Failure 
+! Expect to see:
+!   EVENT ID=11
+------------------------------- 
+Call to CFE_TBL_ValidateAccess returned 0
+Call to CFE_TBL_LoadFromFile returned 0
+DEBUG EVENT ID=31 Schedule table verify results -- good[8] bad[0] unused[492]
+INFO EVENT ID=36 SCH validation successful for Inactive 'SCH.SCHED_DEF'
+INFO EVENT ID=37 SCH Successfully Updated 'SCH.SCHED_DEF'
+Call to CFE_TBL_ValidateAccess returned 0
+Call to CFE_TBL_LoadFromFile returned 0
+DEBUG EVENT ID=33 Message tbl verify results - good[8] bad[0] unused[120]
+INFO EVENT ID=36 SCH validation successful for Inactive 'SCH.MSG_DEFS'
+INFO EVENT ID=37 SCH Successfully Updated 'SCH.MSG_DEFS'
+ERROR EVENT ID=11 Error Acquiring Tbl Ptrs (RC=0xCC000009)
+CRITICAL EVENT ID=2 SCH App: terminating, err = 0xCC000009
+SysLog:1980-001-00:00:06.42000 SCH App terminating, err = 0xCC000009
+SysLog:1980-001-00:00:06.42000 Application SCH called CFE_ES_ExitApp
+
+UTF Info: Return value for CFE EVS Api #0 set to c2000003
+Test Init with EVS Registration Failure 
+! Expect to see:
+!   SysLog: SCH App: Error Registering For Event Services, RC=0xC2000003
+--------------------------------------- 
+SysLog:1980-001-00:00:06.42000 SCH App: Error Registering For Event Services, RC=0xC2000003
+CRITICAL EVENT ID=2 SCH App: terminating, err = 0xC2000003
+SysLog:1980-001-00:00:06.42000 SCH App terminating, err = 0xC2000003
+SysLog:1980-001-00:00:06.42000 Application SCH called CFE_ES_ExitApp
+
+UTF Info: Return code for CFE EVS Api #0 returned to default
+UTF Info: Return value for CFE SB Api #0 set to ca000004
+Test Init with Create Pipe Failure 
+! Expect to see:
+!   EVENT ID=3
+---------------------------------- 
+ERROR EVENT ID=3 Error Creating SB Pipe, RC=0xCA000004
+CRITICAL EVENT ID=2 SCH App: terminating, err = 0xCA000004
+SysLog:1980-001-00:00:06.42000 SCH App terminating, err = 0xCA000004
+SysLog:1980-001-00:00:06.42000 Application SCH called CFE_ES_ExitApp
+
+UTF Info: Return code for CFE SB Api #0 returned to default
+Test Init with HK Request Subscribe Failure 
+! Expect to see:
+!   EVENT ID=4
+------------------------------------------- 
+ERROR EVENT ID=4 Error Subscribing to HK Request(MID=0x1896), RC=0xCA000009
+CRITICAL EVENT ID=2 SCH App: terminating, err = 0xCA000009
+SysLog:1980-001-00:00:06.42000 SCH App terminating, err = 0xCA000009
+SysLog:1980-001-00:00:06.42000 Application SCH called CFE_ES_ExitApp
+
+Test Init with SCH Cmd Subscribe Failure 
+! Expect to see:
+!   EVENT ID=5
+---------------------------------------- 
+ERROR EVENT ID=5 Error Subscribing to GND CMD(MID=0x1895), RC=0xCA000009
+CRITICAL EVENT ID=2 SCH App: terminating, err = 0xCA000009
+SysLog:1980-001-00:00:06.42000 SCH App terminating, err = 0xCA000009
+SysLog:1980-001-00:00:06.42000 Application SCH called CFE_ES_ExitApp
+
+UTF Info: Return value for OSTIMER Api #0 set to ffffffff
+Test Init with OS_TimerCreate Failure 
+! Expect to see:
+!   EVENT ID=12
+------------------------------------- 
+Call to CFE_TBL_ValidateAccess returned 0
+Call to CFE_TBL_LoadFromFile returned 0
+DEBUG EVENT ID=31 Schedule table verify results -- good[8] bad[0] unused[492]
+INFO EVENT ID=36 SCH validation successful for Inactive 'SCH.SCHED_DEF'
+INFO EVENT ID=37 SCH Successfully Updated 'SCH.SCHED_DEF'
+Call to CFE_TBL_ValidateAccess returned 0
+Call to CFE_TBL_LoadFromFile returned 0
+DEBUG EVENT ID=33 Message tbl verify results - good[8] bad[0] unused[120]
+INFO EVENT ID=36 SCH validation successful for Inactive 'SCH.MSG_DEFS'
+INFO EVENT ID=37 SCH Successfully Updated 'SCH.MSG_DEFS'
+ERROR EVENT ID=12 Error creating Timer (RC=0xFFFFFFFF)
+CRITICAL EVENT ID=2 SCH App: terminating, err = 0xFFFFFFFF
+SysLog:1980-001-00:00:06.42000 SCH App terminating, err = 0xFFFFFFFF
+SysLog:1980-001-00:00:06.42000 Application SCH called CFE_ES_ExitApp
+
+UTF Info: Return code for OSTIMER Api #0 returned to default
+Test Init with OS_BinSemCreate Failure 
+! Expect to see:
+!   EVENT ID=15
+-------------------------------------- 
+Call to CFE_TBL_ValidateAccess returned 0
+Call to CFE_TBL_LoadFromFile returned 0
+DEBUG EVENT ID=31 Schedule table verify results -- good[8] bad[0] unused[492]
+INFO EVENT ID=36 SCH validation successful for Inactive 'SCH.SCHED_DEF'
+INFO EVENT ID=37 SCH Successfully Updated 'SCH.SCHED_DEF'
+Call to CFE_TBL_ValidateAccess returned 0
+Call to CFE_TBL_LoadFromFile returned 0
+DEBUG EVENT ID=33 Message tbl verify results - good[8] bad[0] unused[120]
+INFO EVENT ID=36 SCH validation successful for Inactive 'SCH.MSG_DEFS'
+INFO EVENT ID=37 SCH Successfully Updated 'SCH.MSG_DEFS'
+BinSemCreate Parameter failure
+ERROR EVENT ID=15 Error creating Main Loop Timing Semaphore (RC=0xFFFFFFFF)
+CRITICAL EVENT ID=2 SCH App: terminating, err = 0xFFFFFFFF
+SysLog:1980-001-00:00:06.42000 SCH App terminating, err = 0xFFFFFFFF
+SysLog:1980-001-00:00:06.42000 Application SCH called CFE_ES_ExitApp
+
+UTF Info: Return value for CFE TIME Api #1 set to ce000003
+Test Init with CFE_TIME_RegisterSynchCallback Failure 
+! Expect to see:
+!   EVENT ID=14
+----------------------------------------------------- 
+Call to CFE_TBL_ValidateAccess returned 0
+Call to CFE_TBL_LoadFromFile returned 0
+DEBUG EVENT ID=31 Schedule table verify results -- good[8] bad[0] unused[492]
+INFO EVENT ID=36 SCH validation successful for Inactive 'SCH.SCHED_DEF'
+INFO EVENT ID=37 SCH Successfully Updated 'SCH.SCHED_DEF'
+Call to CFE_TBL_ValidateAccess returned 0
+Call to CFE_TBL_LoadFromFile returned 0
+DEBUG EVENT ID=33 Message tbl verify results - good[8] bad[0] unused[120]
+INFO EVENT ID=36 SCH validation successful for Inactive 'SCH.MSG_DEFS'
+INFO EVENT ID=37 SCH Successfully Updated 'SCH.MSG_DEFS'
+INFO EVENT ID=1 SCH Initialized. Version 0.0.0.0
+ERROR EVENT ID=14 Error initializing Timers (RC=0xCE000003)
+CRITICAL EVENT ID=2 SCH App: terminating, err = 0xCE000003
+SysLog:1980-001-00:00:06.42000 SCH App terminating, err = 0xCE000003
+SysLog:1980-001-00:00:06.42000 Application SCH called CFE_ES_ExitApp
+
+UTF Info: Return code for CFE TIME Api #1 returned to default
+***UTF SCH APP INIT TESTS END***
+

@@ -1,0 +1,838 @@
+/**
+  \mainpage
+  <UL>
+    <LI> \subpage cfsschrevhist
+    <LI> \subpage cfsschintro
+    <LI> \subpage cfsschovr
+    <LI> \subpage cfsschopr
+    <LI> \subpage cfsschreq
+    <LI> \subpage cfsschdg
+    <LI> \subpage cfsschcmds
+    <LI> \subpage cfsschtlm
+    <LI> \subpage cfsschtbl
+    <LI> \subpage cfsschcfg
+    <LI> \subpage cfsschcons
+    <LI> \subpage cfsschfaqs
+    <LI> \subpage sch_events.h "CFS Scheduler Event Message Reference" <BR>
+  </UL>
+
+**/
+
+/**
+  \page cfsschrevhist CFS Scheduler User's Guide Revision History
+
+  \verbatim  
+  $Log: cfs_sch.dox  $
+  Revision 1.3 2011/07/01 18:07:26EDT aschoeni 
+  Added information on schedule disable and enable, and customization, moving table information from deployment to tables section
+  Revision 1.2 2011/07/01 15:01:22EDT aschoeni 
+  Fixed requirements section, and changed FM to SCH in the introduction.
+  Revision 1.1 2009/04/16 21:46:46EDT dkobe 
+  Initial revision
+  Member added to project c:/MKSDATA/MKS-REPOSITORY/CFS-REPOSITORY/sch/docs/dox_src/detailed_design/project.pj
+  Revision 1.2 2009/03/27 00:33:59EDT dkobe 
+  Updated User's Guide
+  Revision 1.1 2009/03/03 14:35:32EST dkobe 
+  Initial revision
+  Member added to project c:/MKSDATA/MKS-REPOSITORY/CFS-REPOSITORY/sch/docs/dox_src/users_guide/project.pj
+  \endverbatim
+  
+  Prev: \ref index "SCH Table of Contents" <BR>
+  Next: \ref cfsschintro
+**/
+
+/**
+  \page cfsschintro CFS Scheduler Introduction
+
+  <H2> Scope </H2>
+
+  This document provides a complete specification for the commands and telemetry associated
+  with the CFS Scheduler (SCH) application software.  The document is intended primarily 
+  for users of the software (operations personal, test engineers, and maintenance personnel).  
+  The last section of the document, the deployment guide section, is intended for mission 
+  developers when deploying and configuring the SCH application software for a mission 
+  flight software build environment. 
+
+  <H2> Applicable Documents </H2>
+
+  <TABLE BORDER="1" CELLPADDING="2" WIDTH="60%">
+  <TR><TD WIDTH="20%"> <B>Document ID</B> </TD> 
+      <TD WIDTH="40%"> <B>Document Title</B> </TD>
+  <TR><TD WIDTH="20%"> TBD       </TD> 
+      <TD WIDTH="40%"> CFS Scheduler Application Requirements Document </TD>
+  <TR><TD WIDTH="20%"> TBD       </TD> 
+      <TD WIDTH="40%"> CFS Scheduler Heritage Analysis Document </TD>
+  <TR><TD WIDTH="20%"> TBD       </TD> 
+      <TD WIDTH="40%"> CFS Scheduler Design Document </TD>
+  <TR><TD WIDTH="20%"> TBD       </TD> 
+      <TD WIDTH="40%"> <I>Need Reference to OSAL Document</I> </TD>
+  </TABLE>
+
+
+  <H2> Acronyms </H2>
+
+  <TABLE BORDER="1" CELLPADDING="2" WIDTH="60%">
+  <TR><TD WIDTH="20%"> <B>Acronym</B> </TD> <TD WIDTH="40%"> <B>Description</B>                       </TD>
+  <TR><TD WIDTH="20%"> API     </TD> <TD WIDTH="40%"> Application Programming Interface               </TD>
+  <TR><TD WIDTH="20%"> ATP     </TD> <TD WIDTH="40%"> Absolute Time Processor                         </TD>
+  <TR><TD WIDTH="20%"> ATS     </TD> <TD WIDTH="40%"> Absolute Time tagged command Sequence           </TD>
+  <TR><TD WIDTH="20%"> CCSDS   </TD> <TD WIDTH="40%"> Consultative Committee for Space Data Systems   </TD>
+  <TR><TD WIDTH="20%"> C&DH    </TD> <TD WIDTH="40%"> Command and Data Handling                       </TD>
+  <TR><TD WIDTH="20%"> CFE     </TD> <TD WIDTH="40%"> Core Flight Executive                           </TD>
+  <TR><TD WIDTH="20%"> CFS     </TD> <TD WIDTH="40%"> Core Flight System                              </TD>
+  <TR><TD WIDTH="20%"> CI      </TD> <TD WIDTH="40%"> Command Ingest                                  </TD>
+  <TR><TD WIDTH="20%"> Cmd     </TD> <TD WIDTH="40%"> Command                                         </TD>
+  <TR><TD WIDTH="20%"> CPU     </TD> <TD WIDTH="40%"> Central Processing Unit                         </TD>
+  <TR><TD WIDTH="20%"> EDAC    </TD> <TD WIDTH="40%"> Error Detection and Correction                  </TD>
+  <TR><TD WIDTH="20%"> FDS     </TD> <TD WIDTH="40%"> Flight Data System                              </TD>
+  <TR><TD WIDTH="20%"> FM      </TD> <TD WIDTH="40%"> File Manager                                    </TD>
+  <TR><TD WIDTH="20%"> FSW     </TD> <TD WIDTH="40%"> Flight Software                                 </TD>
+  <TR><TD WIDTH="20%"> GN&C    </TD> <TD WIDTH="40%"> Guidance Navigation & Control                   </TD>
+  <TR><TD WIDTH="20%"> GSFC    </TD> <TD WIDTH="40%"> Goddard Space Flight Center                     </TD>
+  <TR><TD WIDTH="20%"> HK      </TD> <TD WIDTH="40%"> Housekeeping                                    </TD>
+  <TR><TD WIDTH="20%"> HW, H/W </TD> <TD WIDTH="40%"> Hardware                                        </TD>
+  <TR><TD WIDTH="20%"> ICD     </TD> <TD WIDTH="40%"> Interface Control Document                      </TD>
+  <TR><TD WIDTH="20%"> ISR     </TD> <TD WIDTH="40%"> Interrupt Service Routine                       </TD>
+  <TR><TD WIDTH="20%"> OS      </TD> <TD WIDTH="40%"> Operating System                                </TD>
+  <TR><TD WIDTH="20%"> OSAL    </TD> <TD WIDTH="40%"> Operating System Abstraction Layer              </TD>
+  <TR><TD WIDTH="20%"> Pkts    </TD> <TD WIDTH="40%"> Packets                                         </TD>
+  <TR><TD WIDTH="20%"> RAM     </TD> <TD WIDTH="40%"> Random-Access Memory                            </TD>
+  <TR><TD WIDTH="20%"> RTOS    </TD> <TD WIDTH="40%"> Real Time Operating System                      </TD>
+  <TR><TD WIDTH="20%"> RTP     </TD> <TD WIDTH="40%"> Relative Time Processor                         </TD>
+  <TR><TD WIDTH="20%"> RTS     </TD> <TD WIDTH="40%"> Relative Time tagged command Sequence           </TD>
+  <TR><TD WIDTH="20%"> SB      </TD> <TD WIDTH="40%"> Software Bus Service                            </TD>
+  <TR><TD WIDTH="20%"> SBC     </TD> <TD WIDTH="40%"> Single Board Computer                           </TD>
+  <TR><TD WIDTH="20%"> SC      </TD> <TD WIDTH="40%"> Stored Commands task                            </TD>
+  <TR><TD WIDTH="20%"> SW, S/W </TD> <TD WIDTH="40%"> Software                                        </TD>
+  <TR><TD WIDTH="20%"> TBD     </TD> <TD WIDTH="40%"> To Be Determined                                </TD>
+  <TR><TD WIDTH="20%"> TBL     </TD> <TD WIDTH="40%"> Table                                           </TD>
+  <TR><TD WIDTH="20%"> TDM     </TD> <TD WIDTH="40%"> Time Data Multiplex                             </TD>
+  <TR><TD WIDTH="20%"> TLM     </TD> <TD WIDTH="40%"> Telemetry                                       </TD>
+  <TR><TD WIDTH="20%"> UTC     </TD> <TD WIDTH="40%"> Universal time code                             </TD>
+  </TABLE>
+
+  Prev: \ref cfsschrevhist <BR>
+  Next: \ref cfsschovr
+**/
+
+/**
+  \page cfsschovr CFS Scheduler Overview
+  
+  The Scheduler (SCH) Application provides an operator with a method of generating messages
+  on board the spacecraft at pre-determined timing intervals.  This provides the operator and/or
+  flight software systems engineer with a mechanism to configure the flight software to operate
+  in a Time Division Multiplexed (TDM) fashion with deterministic behavior.  The TDM major frame is defined
+  by the Major Time Synchronization Signal used by the cFE TIME Services (typically 1 Hz) and the
+  Minor Frame timing is defined using an \link #SCH_TOTAL_SLOTS SCH Configuration Parameter \endlink
+  that identifies the number of Minor Frame Slots that are executed within each Major Frame.
+  
+  In each Minor Frame, SCH creates up to #SCH_ENTRIES_PER_SLOT messages, as they
+  are defined by the operator, and sends them to any Applications that have requested the messages
+  via a subscription with the <A HREF="../cfe/cfesbovr.html">cFE Software Bus (SB)</A>.
+  
+  SCH is typically used to drive the generation of CFS Application's Housekeeping packets and the
+  collection/generation of other telemetry data.
+    
+  \section SCH Design Overview 
+  
+  SCH is a time driven, single threaded application. A context diagram for the SCH Application is
+  shown below:
+  
+  \image html CFS_SCH_Context.jpg "SCH Context Diagram" 
+  
+  In the default design, it automatically associates itself with the 
+  <A HREF="../cfe/cfe__time_8h.html#e13a973062a2174417e4a30465a12146"> Major Frame Synchronization Signal</A> 
+  tied to the <A HREF="../cfe/cfetimeovr.html">cFE TIME Service (TIME)</A>.  It also creates an OSAL 
+  timer that it uses for doing Minor Frame Timing.  Once all applications have successfully started or a
+  user defined timeout has expired, SCH will begin to process the Schedule Definition Table (SDT).  Each
+  entry in the table identifies the Major/Minor Frame that a message, as defined in the Message Definition
+  Table (MDT), will be generated and placed on the cFE Software Bus.
+  
+  Prev: \ref cfsschintro <BR>
+  Next: \ref cfsschopr
+**/
+
+/**
+  \page cfsschopr CFS Scheduler Operation
+  
+  The SCH Application has an operational interface consisting of eight commands, two tables and two
+  different telemetry messages.
+  
+  \section cfsschoprtbls SCH Tables
+   
+  The two tables are the Schedule Definition Table (SDT) and the Message Definition Table (MDT).
+  
+  The tables, combined, define the behavior of the SCH Application while it is running.  The
+  SDT contains information identifying which messages are to be sent and when and the MDT contains
+  definitions of the messages that are to be sent.  Since the SDT references the contents of the
+  MDT, it is imperative that the operator update these tables carefully to prevent unexpected
+  and potentially disruptive behavior from the SCH Application.  The simplest method to prevent
+  these problems is to replace the default table images for these tables (the filenames are
+  specified using the SCH platform configuration parameters #SCH_SCHEDULE_FILENAME and
+  #SCH_MESSAGE_FILENAME) and to restart the SCH Application.
+  
+  The contents and structure of the tables can be found at \ref cfsschtbl.
+  
+  \section cfsschoprenadis Enable/Disable SCH Activities
+  
+  The command interface for the SCH Application provides Enable/Disable commands for either
+  Enabling/Disabling individual activities in the SDT or for Enabling/Disabling entire groups
+  of activities.  When the activities are defined in the SDT, they can be assigned both a
+  Group Number and/or a Multi-Group Identifier.  A group number typically identifies a single
+  set of activities that are very closely related, if not identical.  An example of a single
+  group could be the messages used to notify Memory Dwell when to examine and log the contents
+  of the memory addresses.  A Multi-Group Identifier can be used to combine individual activities
+  and groups of activities into a larger group.  For example, one could assign individual groups
+  to activities associated with each experiment and then combine all the experiment groups into
+  a single Multi-Group.  This allows all experiment message traffic to be suspended/restarted
+  with a single command.
+  
+  \section cfsschoprdiag SCH Diagnostic Packet
+  
+  If the operator wishes to know the current configuration of the activities defined by the 
+  SDT and the MDT without dumping the tables and analyzing their contents, they have the 
+  \link #SCH_SEND_DIAG_TLM_CC Send Diagnostic Packet \endlink command at their disposal.  This
+  command forces the generation of an SCH Diagnostic Packet that contains the current state
+  (Enabled/Disabled) of each activity in the SDT and also indicates the Message IDs associated
+  with each activity in the table.
+  
+  \section cfsschoprnoop Command Interface Verification and SCH Application Version Information
+  
+  The command interface also includes a \link #SCH_NOOP_CC SCH No-op command \endlink.  This command
+  is useful for verifying that the command interface to the SCH Application is working.  It also
+  causes an \link #SCH_NOOP_CMD_EID Event Message \endlink to be generated that contains the
+  SCH Application's version information.  It should also be noted that the version information can
+  also be obtained when the Application starts up.  After SCH has successfully initialized itself,
+  an \link #SCH_INITSTATS_INF_EID Event Message \endlink is generated that indicates successful
+  initialization and also includes the Application's version information.  Both of these event
+  messages are 'Informational' and are NOT filtered by default.
+  
+  \section cfsschoprmfsync Major Frame Synchronization
+  
+  The SCH Application requires a stable Major Frame Synchronization signal (typically a 1Hz signal)
+  to maintain a reliable performance of the activities defined in the SDT.  If the Major Frame 
+  Synchronization signal is determined to be too noisy (i.e. - Occurs outside the expected window,
+  see #SCH_SYNC_SLOT_DRIFT_WINDOW, for two consecutive major frames), then the signal is automatically
+  ignored and the SCH Application continues to run off of the Minor Frame Synchronization signal.
+  Once an operator has determined that the Major Frame Synchronization signal is stable, the
+  operator can use the \link #SCH_ENABLE_SYNC_CC Enable Sync Command \endlink to re-enable the
+  SCH Application's alignment to the Major Frame signal.
+  
+  \section cfsschoprhk SCH Housekeeping Telemetry
+  
+  The SCH Application generates a \link #SCH_HkPacket_t Housekeeping Telemetry Message \endlink
+  whenever scheduled to do so by the SDT.  The message contains command counters (both successful
+  and unsuccessful) that indicate whether outside commands have been received.  The operator can
+  use these telemetry points to verify the receipt and processing of commands.  The operator can
+  reset these counters using the \link #SCH_RESET_CC Reset Command \endlink.
+  
+  The SCH Housekeeping telemetry also contains statistics that are useful for monitoring the
+  execution of the SCH Application.  These statistics indicate the number of Activities performed,
+  number of times problems have been encountered, number of times the SCH Application has detected
+  synchronization issues, etc.  Each telemetry point is discussed in detail below:
+  
+  <TABLE>
+  <TR><TD>
+  Command Counter
+  </TD><TD>
+  \anchor SCHHK_CmdCounter 
+  The \link #SCH_HkPacket_t.CmdCounter Command Counter \endlink is incremented upon receipt of any
+  valid command message.  A command message is considered valid when it meets the following criteria: <BR>
+  <UL>
+    <LI> The Message ID in the Message Header is #SCH_CMD_MID <BR>
+    <LI> The Length of the Message is the correct length for the command <BR>
+    <LI> Each command has specific criteria for validation relating to the command parameters
+         for that particular command <BR>
+  </UL>
+  
+  \b NOTE: The \link #SCH_HkPacket_t.CmdCounter Command Counter \endlink is NOT 
+  incremented upon receipt of a \link #SCH_SEND_HK_MID SCH Housekeeping Request \endlink message.
+  
+  \b NOTE: This counter can be reset to zero using the \link #SCH_RESET_CC Reset Counters Command \endlink.
+  </TD></TR>
+  
+  <TR><TD>
+  Command Error Counter
+  </TD><TD>
+  \anchor SCHHK_ErrCounter
+  The \link #SCH_HkPacket_t.ErrCounter Command Error Counter \endlink is incremented whenever any
+  of the conditions specified above for the \link #SCH_HkPacket_t.CmdCounter Command Counter \endlink
+  are not met.
+  
+  \b NOTE: This counter can be reset to zero using the \link #SCH_RESET_CC Reset Counters Command \endlink.
+  </TD></TR>
+  
+  <TR><TD>
+  Activity Success Counter
+  </TD><TD>
+  \anchor SCHHK_ScheduleActivitySuccessCount 
+  The \link #SCH_HkPacket_t.ScheduleActivitySuccessCount Activity Success Counter \endlink is
+  incremented each time an Activity in the Schedule Definition Table is successfully performed.
+  
+  \b NOTE: This counter can be reset to zero using the \link #SCH_RESET_CC Reset Counters Command \endlink.
+  </TD></TR>
+  
+  <TR><TD>
+  Activity Failure Counter
+  </TD><TD>
+  \anchor SCHHK_ScheduleActivityFailureCount 
+  The \link #SCH_HkPacket_t.ScheduleActivityFailureCount Activity Failure Counter \endlink
+  is incremented whenever an error occurs while processing an Activity defined in the
+  Schedule Definition Table.  Currently, the only possible Activity type is sending a
+  message.  Therefore, the only possible causes of errors are those that are reported by
+  the cFE Software Bus when processing an #CFE_SB_SendMsg API call.
+  
+  \b NOTE: This counter can be reset to zero using the \link #SCH_RESET_CC Reset Counters Command \endlink.
+  </TD></TR>
+  
+  <TR><TD>
+  Processed Counter
+  </TD><TD>
+  \anchor SCHHK_SlotsProcessedCount Slots 
+  The \link #SCH_HkPacket_t.SlotsProcessedCount Slots Processed Counter \endlink is incremented
+  each time a slot (i.e. Minor Frame) in the Schedule Definition Table is processed.
+  
+  \b NOTE: This counter can be reset to zero using the \link #SCH_RESET_CC Reset Counters Command \endlink.
+  </TD></TR>
+  
+  <TR><TD>
+  Skipped Slots Counter
+  </TD><TD>
+  \anchor SCHHK_SkippedSlotsCount 
+  The \link #SCH_HkPacket_t.SkippedSlotsCount Skipped Slots Counter \endlink is incremented by
+  one whenever one or more slots in the Schedule Definition Table are skipped in an attempt by
+  the Scheduler Application to stay synchronized with the Major Frame signal.
+  
+  \b NOTE: The counter does not represent the number of slots skipped, but rather, the number of
+  times one or more slots are skipped.
+  
+  \b NOTE: This counter can be reset to zero using the \link #SCH_RESET_CC Reset Counters Command \endlink.
+  </TD></TR>
+  
+  <TR><TD>
+  Multiple Slots Executed Counter
+  </TD><TD>
+  \anchor SCHHK_MultipleSlotsCount 
+  The \link #SCH_HkPacket_t.MultipleSlotsCount Multiple Slots Executed Counter \endlink is
+  incremented by one whenever two or more slots are executed during a single Minor Frame
+  wake-up.  This is an indication that the Scheduler Application has fallen behind a little
+  bit and is attempting to catch up rather than skipping Activities in the Schedule Definition
+  Table.
+  
+  \b NOTE: This counter does not represent the number of slots executed, but rather, the number of
+  times two or more slots have been executed in one Minor Frame wake-up.
+  
+  \b NOTE: This counter can be reset to zero using the \link #SCH_RESET_CC Reset Counters Command \endlink.
+  </TD></TR>
+  
+  <TR><TD>
+  Same Slot Counter
+  </TD><TD>
+  \anchor SCHHK_SameSlotCount 
+  The \link #SCH_HkPacket_t.SameSlotCount Same Slot Counter \endlink is incremented whenever
+  the Scheduler Application is woken up by the Minor Frame signal and it finds itself in the
+  same slot as the previous Minor Frame.  This only happens when the Scheduler Application is
+  being run on a platform that does not have an accurate timer for driving the Minor Frame
+  signals.  During initialization, the Scheduler Application attempts to allocate a hardware
+  timer to drive the Minor Frame Signal.  If the board does not have a timer with sufficient
+  accuracy, the Scheduler Application then also uses the subseconds of the Mission Elapsed 
+  Time to help maintain timing as well as it can.  This can lead to the same slot being
+  processed more than once in a row.  The Scheduler Application will try its best to compensate
+  for this situation.
+  
+  \b NOTE: This counter can be reset to zero using the \link #SCH_RESET_CC Reset Counters Command \endlink.
+  </TD></TR>
+  
+  <TR><TD>
+  Bad Table Data Counter
+  </TD><TD>
+  \anchor SCHHK_BadTableDataCount 
+  The \link #SCH_HkPacket_t.BadTableDataCount Bad Table Data Counter \endlink is incremented
+  whenever the Scheduler Application detects a malformed Activity definition in the Schedule
+  Definition Table.  This can only happen if the Schedule Definition Table has become
+  corrupted in memory since the same validation checks are performed before the table is
+  accepted on a load.
+  
+  \b NOTE: This counter can be reset to zero using the \link #SCH_RESET_CC Reset Counters Command \endlink.
+  </TD></TR>
+
+  <TR><TD>
+  Table Verify Success Counter
+  </TD><TD>
+  \anchor SCHHK_TableVerifySuccessCount 
+  The \link #SCH_HkPacket_t.TableVerifySuccessCount Table Verify Success Counter \endlink
+  is incremented whenever the Scheduler Application is requested to verify the contents of
+  a potential table load (for either the Scheduler Definition Table or the Message Definition
+  Table) and the contents are found to meet all the requirements.
+  
+  \b NOTE: This counter can be reset to zero using the \link #SCH_RESET_CC Reset Counters Command \endlink.
+  </TD></TR>
+
+  <TR><TD>
+  Table Verify Failure Counter
+  </TD><TD>
+  \anchor SCHHK_TableVerifyFailureCount 
+  The \link #SCH_HkPacket_t.TableVerifyFailureCount Table Verify Failure Counter \endlink is
+  incremented whenever the Scheduler Application is requested to verify the contents of a
+  potential table load (for either the Schedule Definition Table or the Message Definition
+  Table) and at least one error is detected in the specified table image.
+  
+  \b NOTE: This counter can be reset to zero using the \link #SCH_RESET_CC Reset Counters Command \endlink.
+  </TD></TR>
+
+  <TR><TD>
+  Table Pass Counter
+  </TD><TD>
+  \anchor SCHHK_TablePassCount 
+  The \link #SCH_HkPacket_t.TablePassCount Table Pass Counter \endlink is incremented whenever
+  the Scheduler Application has either processed the last slot in the Schedule Definition Table
+  or has skipped the end of the table during a Major Frame Synchronization.  This counter is
+  used, internally, by the Scheduler Application to determine the Major Frame cycle number that
+  is used by Activities that run at a frequency less than 1 Hz.  For example, any Activity that
+  is defined to run every 2 seconds, would only be performed when this counter is an even number.
+  </TD></TR>
+
+  <TR><TD>
+  Valid Major Frame Counter
+  </TD><TD>
+  \anchor SCHHK_ValidMajorFrameCount 
+  The \link #SCH_HkPacket_t.ValidMajorFrameCount Valid Major Frame Counter \endlink is incremented
+  whenever the Scheduler Application receives a Major Frame Signal during the window that the
+  Scheduler Application is expecting to receive such a signal.
+  
+  \b NOTE: This counter can be reset to zero using the \link #SCH_RESET_CC Reset Counters Command \endlink.
+  </TD></TR>
+
+  <TR><TD>
+  Missed Major Frame Counter
+  </TD><TD>
+  \anchor SCHHK_MissedMajorFrameCount 
+  The \link #SCH_HkPacket_t.MissedMajorFrameCount Missed Major Frame Counter \endlink is incremented
+  whenever the Scheduler Application does not receive a Major Frame Signal during the window that it
+  expects to see the signal.
+  
+  \b NOTE: This counter can be reset to zero using the \link #SCH_RESET_CC Reset Counters Command \endlink.
+  </TD></TR>
+
+  <TR><TD>
+  Unexpected Major Frame Counter
+  </TD><TD>
+  \anchor SCHHK_UnexpectedMajorFrameCount 
+  The \link #SCH_HkPacket_t.UnexpectedMajorFrameCount Unexpected Major Frame Counter \endlink is
+  incremented whenever the Scheduler Application receives a Major Frame Signal outside the window
+  when it expects to receive the signal.
+  
+  \b NOTE: This counter can be reset to zero using the \link #SCH_RESET_CC Reset Counters Command \endlink.
+  </TD></TR>
+  
+  <TR><TD>
+  Minor Frames Since Tone
+  </TD><TD>
+  \anchor SCHHK_MinorFramesSinceTone 
+  The \link #SCH_HkPacket_t.MinorFramesSinceTone Minor Frames Since Tone \endlink identifies how
+  many Minor Frame signals have been received since the last Major Frame signal.  Typically, this
+  number should remain static in telemetry since the Scheduler Application Housekeeping will always
+  happen during the same Minor Frame.  However, if the Scheduler Application becomes out of sync with
+  the Major Frame and ignores the Major Frame, this value could indicate the amount of drift that
+  has occurred.
+  </TD></TR>
+  
+  <TR><TD>
+  Next Slot Number
+  </TD><TD>
+  \anchor SCHHK_NextSlotNumber 
+  The \link #SCH_HkPacket_t.NextSlotNumber Next Slot Number \endlink identifies what Slot (i.e. - 
+  Minor Frame) is to be executed on the next Minor Frame signal.  Typically, this number should
+  remain static in telemetry since the Scheduler Application's housekeeping is generated by a
+  message coming from the schedule.
+  </TD></TR>
+  
+  <TR><TD>
+  Last Sync MET Slot
+  </TD><TD>
+  \anchor SCHHK_LastSyncMETSlot 
+  The \link #SCH_HkPacket_t.LastSyncMETSlot Last Sync MET Slot \endlink indicates which MET slot
+  the most recent Major Frame signal occurred.  If the Scheduler Application is synchronized to
+  MET, then this value should always be zero.  Otherwise, it can help identify how much of a
+  shift there is from the MET subseconds to the Major Frame signal.
+  </TD></TR>
+  
+  <TR><TD>
+  Ignore Major Frame Flag
+  </TD><TD>
+  \anchor SCHHK_IgnoreMajorFrame 
+  The \link #SCH_HkPacket_t.IgnoreMajorFrame Ignore Major Frame Flag \endlink is set to TRUE
+  whenever the Scheduler Application has determined that the Major Frame signal is noisy and
+  cannot be trusted.  To reset this flag, the operator will need to have a stable Major Frame
+  signal and issue the \link #SCH_ENABLE_SYNC_CC Enable Major Frame Synchronization \endlink
+  command.
+  </TD></TR>
+  
+  <TR><TD>
+  Unexpected Major Frame Flag
+  </TD><TD>
+  \anchor SCHHK_UnexpectedMajorFrame 
+  The \link #SCH_HkPacket_t.UnexpectedMajorFrame Unexpected Major Frame Flag \endlink is set
+  to TRUE whenever the Scheduler Application receives a Major Frame signal outside the expected
+  Major Frame signal window.
+  </TD></TR>
+  
+  <TR><TD>
+  Sync To MET Flag
+  </TD><TD>
+  \anchor SCHHK_SyncToMET 
+  The \link #SCH_HkPacket_t.SyncToMET Sync To MET Flag \endlink is set to TRUE when the Scheduler
+  Application has determined, during initialization, that the accuracy of the Minor Frame timer
+  is inadequate to maintain an accurate Minor Frame signal.  The Scheduler Application will use
+  the MET to determine which slots in the Schedule Definition Table are to be executed whenever
+  it does receive the Minor Frame signal.
+  </TD></TR>
+  
+  <TR><TD>
+  Major Frame Source
+  </TD><TD>
+  \anchor SCHHK_MajorFrameSource 
+  The \link #SCH_HkPacket_t.MajorFrameSource Major Frame Source \endlink can have one of three
+  possible values.  When equal to #SCH_MF_SOURCE_NONE, the Scheduler Application is still 
+  initializing.  When equal to #SCH_MF_SOURCE_CFE_TIME, then the Major Frame is being obtained 
+  from the cFE TIME service.  When equal to #SCH_MF_SOURCE_MINOR_FRAME_TIMER, the Major Frame
+  signal from cFE TIME service has not been received and the Major Frame is being deduced by
+  counting the number of consecutive Minor Frame signals. 
+  </TD></TR></TABLE>
+  
+  
+  Next: \ref cfsschreq <BR>
+  Prev: \ref cfsschovr 
+**/
+
+/**
+  \page cfsschreq CFS Scheduler Requirements
+
+    The following is the main SCH subsystem requirement. Detailed requirements can be found in the Scheduler Application Requirements Document.  
+    
+    CFS-400: The FSW shall support a table driven Time Division Multiplexed (TDM) Input/Output Scheme for scheduling system activities.<BR>
+    
+  Next: \ref cfsschdg <BR>
+  Prev: \ref cfsschopr 
+**/
+
+/**
+  \page cfsschdg  CFS Scheduler Deployment Guide
+  
+  In order to successfully integrate the Scheduler Application into a system, the cFE must
+  first be configured to allow for the following: <BR>
+  
+  <UL>
+    <LI> The <A HREFPre="../cfe/cfesbovr.html"> CFE Software Bus</A> must be configured
+         to have sufficient Pipe resources to allocate one pipe to SCH (see #CFE_SB_MAX_PIPES)
+         with a pipe depth as specified by #SCH_PIPE_DEPTH <BR>
+    <LI> The <A HREFPre="../cfe/cfetblovr.html"> CFE Table Services</A> must be configured
+         to allow SCH to have two single buffered tables (see #CFE_TBL_MAX_NUM_TABLES) <BR>
+    <LI> The <A HREFPre="../cfe/cfetblovr.html"> CFE Table Services</A> must be configured
+         to allow for Single Buffered Tables as large as the largest of the SCH Schedule 
+         Definition Table and the Message Definition Table.  The Schedule Definition Table's
+         size can be determined with the following equation: <BR><BR>
+           SDT Size (in bytes) = #SCH_TOTAL_SLOTS * #SCH_ENTRIES_PER_SLOT * 12 (sizeof one SDT record)<BR><BR>
+         The size of the Message Definition Table can be determined with the following equation:<BR><BR>
+           MDT Size (in bytes) = #SCH_MAX_MSG_WORDS * #SCH_MAX_MESSAGES <BR><BR>
+    <LI> The \link #SCH_SEND_HK_MID SCH Housekeeping Request Message \endlink needs to be
+         put into the SCH Schedule Definition Table and the SCH Message Definition Table
+         in order to notify SCH when the SCH Housekeeping message should be generated <BR>
+    <LI> The default SCH Schedule Definition Table (location specified by the #SCH_SCHEDULE_FILENAME
+         configuration parameter) must be available before the SCH is started <BR>
+    <LI> The default SCH Message Definition Table (location specified by the #SCH_MESSAGE_FILENAME
+         configuration parameter) must be available before the SCH is started <BR>
+  </UL>
+
+  <H3>Scheduler Timing Customization</H3>
+  The Scheduler application contains the file \c sch_custom.c which can be adapted to take advantage of
+  platform specific functionality concerning Major Frame timing, Minor Frame timing, and current slot
+  determiniation. While no changes are required to this file for SCH to be functional, it may be possible
+  to obtain better accuracy or increase processing efficiency by modifying the contents. <BR>
+
+  This customizable section of code includes four required functions for interface purposes:
+  <UL>
+    <LI> #SCH_CustomEarlyInit
+    <LI> #SCH_CustomLateInit
+    <LI> #SCH_CustomGetCurrentSlotNumber
+    <LI> #SCH_CustomCleanup
+  </UL>
+
+  It also contains two important local functions that act as interrupt handlers:
+  <UL>
+    <LI> #SCH_MajorFrameCallback
+    <LI> #SCH_MinorFrameCallback
+  </UL>
+  These Callback functions should not require significant modification if just changing the timing source. It is very
+  important to note, however, that SCH_MinorFrameCallback currently assumes that it is using a timing function similar to
+  #OS_TimerSet that allows both a first and a subsequent repeated time setting. If a time setting function that only allows
+  a single time to be set is used, a further case must be added that will allow the #SCH_SHORT_SLOT_PERIOD to be set back
+  to #SCH_NORMAL_SLOT_PERIOD on the next minor frame call if the major frame is no longer being used. <BR>
+
+  <H3>Stopping/Starting Scheduler During Critical Activities</H3>
+  The Scheduler application has an associated Scheduler Library that can be used to enable and disable schedule processing
+  if #SCH_LIB_PRESENCE is set to 1 (if it is set to 0, the library is not used, and does not even need to exist). The library
+  consists of three APIs:
+  <UL>
+    <LI> #SCH_EnableProcessing 
+    <LI> #SCH_DisableProcessing
+    <LI> #SCH_GetProcessingState
+  </UL>
+  SCH_EnableProcessing must be called as many times as SCH_DisableProcessing has previously been called to re-enable processing.
+  Note that while processing is disabled, SCH will not respond to ground commands.
+    
+  Next: \ref cfsschcmds <BR>
+  Prev: \ref cfsschreq 
+**/
+
+/**
+  \page cfsschcmds CFS Scheduler Commands
+
+  <TABLE BORDER="1" CELLPADDING="2" WIDTH="60%" ALIGN="CENTER">
+  <TR><TD WIDTH="20%" ALIGN="CENTER"> <B>\ref cfsschtlm</B> </TD> 
+      <TD WIDTH="20%" ALIGN="CENTER"> <B>\ref cfsschtbl</B></TD>
+      <TD WIDTH="20%" ALIGN="CENTER"> <B>\ref cfsschcfg</B></TD>
+  </TABLE>
+  
+  The following is a list of Commands that are processed by the CFS 
+  Scheduler Application. 
+
+**/
+
+/**
+  \page cfsschtlm  CFS Scheduler Telemetry
+
+  <TABLE BORDER="1" CELLPADDING="2" WIDTH="60%" ALIGN="CENTER">
+  <TR><TD WIDTH="20%" ALIGN="CENTER"> <B>\ref cfsschcmds</B> </TD> 
+      <TD WIDTH="20%" ALIGN="CENTER"> <B>\ref cfsschtbl</B></TD>
+      <TD WIDTH="20%" ALIGN="CENTER"> <B>\ref cfsschcfg</B></TD>
+  </TABLE>
+  
+  The following are telemetry packets generated by the CFS Scheduler 
+  Application.
+
+**/
+
+/**
+  \page cfsschtbl CFS Scheduler Table Definitions
+
+  <TABLE BORDER="1" CELLPADDING="2" WIDTH="60%" ALIGN="CENTER">
+  <TR><TD WIDTH="20%" ALIGN="CENTER"> <B>\ref cfsschcmds</B></TD>
+      <TD WIDTH="20%" ALIGN="CENTER"> <B>\ref cfsschtlm</B> </TD> 
+      <TD WIDTH="20%" ALIGN="CENTER"> <B>\ref cfsschcfg</B></TD>
+  </TABLE>
+
+  The following are the tables that are used by the CFS Scheduler Application. 
+
+  <H3>Schedule Definition Table (SDT)</H3>
+  
+  Each entry in the Schedule Definition Table has the following structure:<BR>
+  
+  \verbatim
+  typedef struct
+  {
+    uint8    EnableState;          /* State may be SCH_UNUSED, SCH_ENABLED, SCH_DISABLED */
+    uint8    Type;                 /* Activity Type may be SCH_ACTIVITY_NONE or SCH_ACTIVITY_SEND_MSG */
+    uint16   Frequency;            /* Number of seconds between Activity execution */
+    uint16   Remainder;            /* Seconds offset to perform Activity */
+    uint16   MessageIndex;         /* Byte index into Message Definition Table */
+    uint32   GroupData;            /* Group and Multi-Group membership definitions */
+  } SCH_ScheduleEntry_t;
+  \endverbatim
+  
+  The first element, \c EnableState, identifies whether the specified Activity is currently 
+  \link #SCH_UNUSED unspecified \endlink (i.e. - unused), \link #SCH_ENABLED Enabled \endlink
+  (i.e. - the Activity will be acted upon once SCH has loaded the table), or 
+  \link #SCH_DISABLED Disabled \endlink (i.e. - the Activity will NOT be acted upon once 
+  SCH has loaded the table).
+  
+  The second element, \c Type, specifies whether the Activity is to \link #SCH_ACTIVITY_SEND_MSG 
+  send a message \endlink or to do \link #SCH_ACTIVITY_NONE nothing \endlink.  This
+  parameter can be used for future expansion of Activity types that may be added at a later date.
+  
+  The third element, \c Frequency, specifies the number of Major Frames that need to occur between
+  Activity processing.  For example, if set equal to one (1), the specified Activity will occur 
+  each time SCH processes the table.  If set equal to two (2), the specified Activity will occur 
+  every other time SCH processes the table, etc.
+  
+  The fourth element, \c Remainder, specifies how many Major Frames need to occur BEFORE the first time
+  the Activity will be processed.  This value must be less than the \c Frequency term specified above.
+  This term allows the user to stagger events that occur on a common frequency to spread the CPU load
+  over time.  For example, if there are two activities whose \c Frequency element is two, one of the
+  activity's \c Remainder is a zero (0) and the other is a one (1), then each Activity would occur on
+  the second the other does not.
+  
+  The fifth element, \c MessageIndex, indicates which message entry in the Message Definition Table (see
+  below) is to be transmitted when this Activity is processed.
+  
+  The last element, \c GroupData, allows the user to assign the Activity a Group identifier and to
+  also designate the item as belonging to one or more groups of groups.  The \c GroupData element
+  has two bit-fields that are of interest.  The bit structure is shown below: <BR><BR>
+  
+  <table border="1" width="100%">
+	<tr>
+		<td>
+		<b>MSB</b></td>
+		<td colspan="30">&nbsp;
+		<td>
+		<b>LSB</b></td>
+	</tr>
+	<tr>
+		<td width="20"><b>31</b></td>
+		<td><b>30</b></td> <td><b>29</b></td> <td><b>28</b></td> <td><b>27</b></td>
+		<td><b>26</b></td> <td><b>25</b></td> <td><b>24</b></td> <td><b>23</b></td>
+		<td><b>22</b></td> <td><b>21</b></td> <td><b>20</b></td> <td><b>19</b></td>
+		<td><b>18</b></td> <td><b>17</b></td> <td><b>16</b></td> <td><b>15</b></td>
+		<td><b>14</b></td> <td><b>13</b></td> <td><b>12</b></td> <td><b>11</b></td>
+		<td><b>10</b></td> <td><b>09</b></td> <td><b>08</b></td> <td><b>07</b></td>
+		<td><b>06</b></td> <td><b>05</b></td> <td><b>04</b></td> <td><b>03</b></td>
+		<td><b>02</b></td> <td><b>01</b></td> <td><b>00</b></td>
+	</tr>
+	<tr>
+		<td colspan="8">
+		<b>Group # (1-255)</b></td>
+		<td colspan="24">
+		<b>Multi-Group Bit Mask</b></td>
+	</tr>
+  </table>
+  
+  A Group Number, ranging from 1-255 (zero if no group ID is wanted), can be assigned to any number
+  of Activities.  When that group number is used in a \link #SCH_ENABLE_GROUP_CC Group Enable/Disable 
+  Command \endlink, all the Activities with that group number will have their enable/disable status 
+  changed simultaneously.
+  
+  Similarly, individual bits in the Multi-Group Bit Mask can be set to one.  A bit mask setting one
+  or more of these bits used in an \link #SCH_ENABLE_GROUP_CC Group Enable/Disable Command \endlink 
+  will cause all Activities with a similar bit set to have their enable/disable status changed 
+  simultaneously.  This essentially allows the user to make a group of groups and to treat them as 
+  a single group in a command.
+  
+  If the user wishes to leave a spot empty in the table, ALL fields must be set to zero.  Any values
+  in any field will cause the table to be rejected as corrupt.
+  
+  A sample Schedule Definition Table can be found in the \c tables sub-directory for the SCH App.
+  This sample Schedule Definition Table defines a default configuration for a complete CFS system.
+  The user will be required to uncomment out those CFS Applications they wish to include in their
+  configuration.
+  
+  <H3>Message Definition Table (MDT)</H3>
+ 
+  \verbatim
+  typedef struct
+  {
+    uint16   MessageBuffer[SCH_MAX_MSG_WORDS]; /* Packed Messages */
+
+  } SCH_MessageEntry_t;
+  \endverbatim
+  
+  The Message Definition Table is simply an array of fixed length byte arrays (i.e. - a two
+  dimensional byte array).  The number of rows in the array is defined by the configuration
+  parameter #SCH_MAX_MESSAGES.  The size of each row is defined by the configuration parameter
+  #SCH_MAX_MSG_WORDS.  Each row can contain the binary definition of a single message the user
+  wishes SCH to output on the Software Bus.  The first row cannot be used because it would map
+  to the "Unused" parameter of zero in the Schedule Definition Table.  The index for each following
+  row is what needs to be specified in the Schedule Definition Table as the \c MessageIndex to
+  assign the message to the appropriate Activity.
+  
+  A sample Message Definition Table can be found in the \c tables sub-directory for the SCH App.
+  This sample Message Definition Table contains default messages used for a complete CFS system.
+  In order to use the sample Message Definition Table for a full up CFS system, the message
+  definitions must be uncommented out.
+   
+**/
+
+/**
+  \page cfsschcfg CFS Scheduler Configuration Parameters
+
+  <TABLE BORDER="1" CELLPADDING="2" WIDTH="60%" ALIGN="CENTER">
+  <TR><TD WIDTH="20%" ALIGN="CENTER"> <B>\ref cfsschcmds</B></TD>
+      <TD WIDTH="20%" ALIGN="CENTER"> <B>\ref cfsschtlm</B> </TD> 
+      <TD WIDTH="20%" ALIGN="CENTER"> <B>\ref cfsschtbl</B></TD>
+  </TABLE>
+  
+  The following are configuration parameters used to configure the CFS 
+  Scheduler Application either for each platform or for a mission 
+  as a whole.
+
+**/
+
+/**
+  \page cfsschcons CFS Scheduler Constraints
+
+  The Scheduler Application will fail on startup if the following conditions are not met: <BR>
+  
+  <UL>
+    <LI> Unable to create a Software Bus Pipe  <BR>
+    <LI> Unable to subscribe to the SCH Command Message  <BR>
+    <LI> Unable to subscribe to the SCH Housekeeping Request Message  <BR>
+    <LI> Unable to register for cFE Event Services  <BR>
+    <LI> Unable to register the Schedule Definition Table with cFE Table Services  <BR>
+    <LI> Unable to register the Message Definition Table with cFE Table Services  <BR>
+    <LI> Unable to load the Schedule Definition Table with a defaut table file  <BR>
+    <LI> Unable to load the Message Definition Table with a defaut table file  <BR>
+    <LI> Unable to acquire pointers to the Schedule and Message Definition Tables  <BR>
+    <LI> Unable to create a Minor Frame Timer via OSAL  <BR>
+    <LI> Unable to create a Semaphore via OSAL  <BR>
+    <LI> Unable to register for the Major Frame signal via cFE TIME Services  <BR>
+  </UL>
+  
+  Each one of these conditions will generate a unique event message and will cause the SCH
+  Application to terminate before processing any of the Schedule Definition Table.
+    
+  Next: \ref cfsschfaqs <BR>
+  Prev: \ref cfsschcfg 
+**/
+
+/**
+  \page cfsschfaqs CFS Scheduler Frequently Asked Questions
+
+    <H1> Timing Concerns </H1>
+         <B> (Q)
+            What does the 'OS Timer Accuracy (%d > reqd %d usec) requires Minor Frame MET sync'
+            event message mean when I see it on startup?
+         </B> <BR> <BR> <I>
+            The Scheduler Application determines what kind of accuracy it requires from a Minor
+            Frame timer based on the number of slots in a Major Frame and the length of a Major
+            Frame.  When it attempts to create a Minor Frame timer via the OSAL, it requests a
+            timer with this required accuracy.  If the OSAL is unable to provide a timer with
+            the appropriate accuracy, SCH will generate this event message identifying what
+            accuracy it requested and what accuracy was provided.  SCH will attempt to run as
+            best as it can with the degraded performance of its Minor Frame timer.  SCH will
+            compensate by using the MET timer from TIME services to determine which Minor Frames
+            it needs to process on each wake-up.  It will inevitably be required to process 
+            multiple Minor Frames during a single Minor Frame wake-up due to drift caused by
+            the poor Minor Frame accuracy.  This may produce a certain level of inconsistency
+            to tests run and re-run on the same processor.
+            
+            To solve the problem, the board or board support package must be enhanced to provide
+            a Minor Frame timer with the necessary accuracy.  OR, the user must reduce the number
+            of Minor Frames in a Major Frame so that Minor Frames can be consistently performed
+            on a Minor Frame wake-up.
+         </I>
+            
+         <B> (Q)
+            Why does it take an inordinate amount of time for SCH to begin processing following
+            a reboot?
+         </B> <BR> <BR> <I>
+            There are two possible causes for this.  First, the SCH Application does not begin
+            processing the Schedule Definition Table until all Applications specified in the 
+            startup script have been loaded, started and have completed their initialization.
+            By waiting for all other Applications to reach a starting point where they are
+            capable of processing messages, a variety of error messages caused by messages being
+            issued by the SCH Application before the associated Application is ready to receive
+            them.  If there is an Application in the startup script that fails to start correctly,
+            the SCH Application will wait for the configuration specified #SCH_STARTUP_SYNC_TIMEOUT
+            period before it assumes as many startup Applications have started that are going to
+            start.
+            
+            Another possibility is the time spent waiting for the first Major Frame signal from
+            the cFE.  The SCH Application is configured via the #SCH_STARTUP_PERIOD parameter to
+            wait a certain amount of time following the successful startup of the Applications
+            specified in the startup script to wait for the first Major Frame signal.  If the signal
+            does not manage to appear within the specified timeout, the SCH Application will use
+            the Minor Frame timer to generate an appropriate Major Frame signal.
+         </I>
+
+  Prev: \ref cfsschcons 
+**/
+  

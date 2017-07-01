@@ -1,0 +1,150 @@
+;
+; File:
+;   $Id: sch_utf_hk.in 1.1 2008/10/16 15:10:19EDT dkobe Exp  $
+;
+; Purpose: 
+;   This is the command input file used to unit test the 
+;   CFS Scheduler (SCH) Application.
+;
+;   This file is used in conjunction with the utf_test_mm.c
+;   unit test driver and handles high level testing of command 
+;   processing through the SCH application's software bus pipe.
+; 
+;   These tests assume the following Message and Command ID
+;   settings in the SCH code:
+;
+;    SCH_CMD_MID      = 0x1895    
+;    SCH_SEND_HK_MID  = 0x1896
+;
+;   $Log: sch_utf_hk.in  $
+;   Revision 1.1 2008/10/16 15:10:19EDT dkobe 
+;   Initial revision
+;   Member added to project c:/MKSDATA/MKS-REPOSITORY/CFS-REPOSITORY/sch/fsw/unit_test/project.pj
+; 
+*
+*! ***START SCH SB COMMAND TESTING***
+*! ---------------------------------
+*
+*! Housekeeping Request @ 1.990
+*! Expect to see:
+*!    Command Counter                   = 0
+*!    Command Error Counter             = 0
+*!    Schedule Activity Success Counter = 2
+*!    Schedule Activity Failure Counter = 0
+*!    Schedule Slots Processed Counter  = 99
+*!    Schedule Slots Skipped Counter    = 0
+*!    Multiple Schedule Slots Processed = 1
+*!    Same Slot Processed Counter       = 1
+*!    Bad Schedule Table Data Counter   = 0
+*!    Table Verification Success Ctr    = 2
+*!    Table Verification Failure Ctr    = 0
+*!    Table Pass Counter                = 0
+*!    Valid Major Frame Counter         = 0
+*!    Missed Major Frame Counter        = 0
+*!    Unexpected Major Frame Counter    = 0
+*!    Sync To MET                (0x05) = Minor Frame: YES, Major Frame: YES
+*! --------------------
+1896 C000 0001 0000    ; Housekeeping Request
+*
+*! Process Schedule @ 2.000
+*! Expect to see:
+*!    APID:0100
+*!    APID:0104
+*!    APID:0105
+*! -------------------------------------
+!
+*
+*! Housekeeping Request @ 2.990
+*! Expect to see:
+*!    Schedule Activity Success Counter = 5
+*!    Schedule Activity Failure Counter = 0
+*!    Schedule Slots Processed Counter  = 199
+*!    Table Pass Counter                = 1
+*!    Missed Major Frame Counter        = 1
+*! --------------------
+1896 C000 0001 0000    ; Housekeeping Request
+*
+*! Process Schedule @ 3.000
+*! Expect to see:
+*!    APID:0100
+*!    APID:0104
+*! -------------------------------------
+!
+*
+*! Housekeeping Request @ 3.990
+*! Expect to see:
+*!    Schedule Activity Success Counter = 7
+*!    Schedule Activity Failure Counter = 0
+*!    Schedule Slots Processed Counter  = 299
+*!    Table Pass Counter                = 2
+*!    Missed Major Frame Counter        = 2
+*! --------------------
+1896 C000 0001 0000    ; Housekeeping Request
+*
+*! Process Schedule @ 4.000
+*! Expect to see:
+*!    APID:0100
+*!    APID:0101
+*!    APID:0104
+*! -------------------------------------
+!
+*
+*! Housekeeping Request @ 4.990
+*! Expect to see:
+*!    Schedule Activity Success Counter = 10
+*!    Schedule Activity Failure Counter = 0
+*!    Schedule Slots Processed Counter  = 399
+*!    Table Pass Counter                = 3
+*!    Missed Major Frame Counter        = 3
+*! --------------------
+1896 C000 0001 0000    ; Housekeeping Request
+*
+*! Process Schedule @ 5.000
+*! Expect to see:
+*!    APID:0100
+*!    APID:0104
+*! -------------------------------------
+!
+*
+*! Housekeeping Request @ 5.990
+*! Expect to see:
+*!    Schedule Activity Success Counter = 12
+*!    Schedule Activity Failure Counter = 0
+*!    Schedule Slots Processed Counter  = 499
+*!    Table Pass Counter                = 4
+*!    Missed Major Frame Counter        = 4
+*! --------------------
+1896 C000 0001 0000    ; Housekeeping Request
+*
+*! Process Schedule @ 6.000
+*! Expect to see:
+*!    APID:0100
+*!    APID:0104
+*! -------------------------------------
+!
+*
+*! Housekeeping Request @ 6.990
+*! Expect to see:
+*!    Schedule Activity Success Counter = 14
+*!    Schedule Activity Failure Counter = 0
+*!    Schedule Slots Processed Counter  = 599
+*!    Table Pass Counter                = 5
+*!    Missed Major Frame Counter        = 5
+*! --------------------
+1896 C000 0001 0000    ; Housekeeping Request
+;
+; Force CFE_SB_RcvMsg to return CFE_SB_PIPE_RD_ERR 
+; that will exit app (SHOULD BE LAST IN SCRIPT)
+:
+; Note: Need to issue a command after setting the return
+; value to make the return happen
+*
+*! SB error\app exit test
+*! Expect to see:
+*!    EVENT ID=2
+*! -----------------------------------------
+@ SET_SB_RETURN_CODE 5 0xca000006
+1895 C000 0001 0000    ; NOOP Command
+*
+*! ***END SCH SB COMMAND TESTING***
+*-------------------------------
