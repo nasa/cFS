@@ -1,0 +1,39 @@
+#---------------------------------------------------------------------------
+# Each of the following assignment statements should have the documentation
+# mnemonic on the left followed by the mission specific telemetry mnemonic
+# on the right of the equals operator.
+#
+# FORMATTING DETAILS TO REMEMBER!
+# 1) ALIASES line MUST have "+=" as the operator
+# 2) There CANNOT be spaces around the "=" operator on assignment statements
+# 3) NO comments, such as these, can be interspersed within the assignment
+#    statements
+# 4) If there are multiple mnemonics for a particular data point, they should
+#    be separated by the following ", \b \c " and enclosed in double quotes to 
+#    maintain proper formatting in the documentation.  For example:
+#        ES_RESET="$sc_$cpu_ES_ProcessorReset, \b \c $sc_$cpu_ES_PowerOnReset"
+#---------------------------------------------------------------------------
+ALIASES += \
+DS_CMDPC=$sc_$cpu_DS_CMDPC \
+DS_CMDEC=$sc_$cpu_DS_CMDEC \
+DS_DISABLEDPKTCNT=$sc_$cpu_DS_DisabledPktCnt \
+DS_IGNOREDPKTCNT=$sc_$cpu_DS_IgnoredPktCnt \
+DS_FILTEREDPKTCNT=$sc_$cpu_DS_FilteredPktCnt \
+DS_PASSEDPKTCNT=$sc_$cpu_DS_PassedPktCnt \
+DS_FILEWRITECNT=$sc_$cpu_DS_FileWriteCnt \
+DS_FILEWRITEERRCNT=$sc_$cpu_DS_FileWriteErrCnt \
+DS_FILEUPDCNT=$sc_$cpu_DS_FileUpdCnt \
+DS_FILEUPDERRCNT=$sc_$cpu_DSFileUpdErrCnt \
+DS_DESTLOADCNT=$sc_$cpu_DS_DestLoadCnt \
+DS_DESTPTRERRCNT=$sc_$cpu_DS_DestPtrErrCnt \
+DS_FILTERLOADCNT=$sc_$cpu_DS_FilterLoadCnt \
+DS_FILTERPTRERRCNT=$sc_$cpu_DS_FilterPtrErrCnt \
+DS_APPENASTATE=$sc_$cpu_DS_AppEnaState \
+DS_FILESTATE=$sc_$cpu_DS_FileState \
+DS_FILEAGE=$sc_$cpu_DS_FileState[].FileAge \
+DS_FILESIZE=$sc_$cpu_DS_FileState[].FileSize \
+DS_FILERATE=$sc_$cpu_DS_FileState[].FileRate \
+DS_FILESEQ=$sc_$cpu_DS_FileState[].FileSeq \
+DS_ENABLESTATE=$sc_$cpu_DS_FileState[].EnableState \
+DS_OPENSTATE=$sc_$cpu_DS_FileState[].OpenState \
+DS_FILENAME=$sc_$cpu_DS_FileState[].FileName

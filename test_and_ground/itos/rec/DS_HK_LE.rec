@@ -1,0 +1,51 @@
+CfeTelemetryPacket FSW_DS_HkPkt
+{
+    applyWhen={FieldInRange{field=applicationId, range=0xB8}}
+
+    U1 DS_Command_Counter {generateMnemonic="no"}
+    U1 DS_Command_ERROR_COUNTER {generateMnemonic="no"}
+    U1 DS_DestTblLoadCounter {generateMnemonic="no"}
+    U1 DS_DestTblErrCounter {generateMnemonic="no"}
+    U1 DS_FilterTblLoadCounter {generateMnemonic="no"}
+    U1 DS_FilterTblErrCounter {generateMnemonic="no"}
+    U1 DS_AppEnableState {generateMnemonic="no"}
+    U1 DS_Spare {generateMnemonic="no"}
+
+    U21 DS_FileWriteCounter {generateMnemonic="no"}
+    U21 DS_FileWriteErrCounter {generateMnemonic="no"}
+    U21 DS_FileUpdateCounter {generateMnemonic="no"}
+    U21 DS_FileUpdateErrCounter {generateMnemonic="no"}
+
+    U4321 DS_DisabledPktCounter {generateMnemonic="no"}
+    U4321 DS_IgnoredPktCounter {generateMnemonic="no"}
+    U4321 DS_FilteredPktCounter {generateMnemonic="no"}
+    U4321 DS_PassedPktCounter {generateMnemonic="no"}
+  
+ }
+
+/* Define the mnemonics */
+
+D FSW_DS_HkPkt_packet_time {sourceFields={FSW_DS_HkPkt.time}}
+U FSW_DS_CMDPC {sourceFields={FSW_DS_HkPkt.DS_Command_Counter} }
+U FSW_DS_CMDEC {sourceFields={FSW_DS_HkPkt.DS_Command_ERROR_COUNTER} }
+U FSW_DS_DisabledPktCtr {sourceFields={FSW_DS_HkPkt.DS_DisabledPktCounter} }
+U FSW_DS_IgnoredPktCtr {sourceFields={FSW_DS_HkPkt.DS_IgnoredPktCounter} }
+U FSW_DS_FilteredPktCtr {sourceFields={FSW_DS_HkPkt.DS_FilteredPktCounter} }
+U FSW_DS_PassedPktCtr {sourceFields={FSW_DS_HkPkt.DS_PassedPktCounter} }
+U FSW_DS_FileWriteCtr {sourceFields={FSW_DS_HkPkt.DS_FileWriteCounter} }
+U FSW_DS_FileWriteErrCtr {sourceFields={FSW_DS_HkPkt.DS_FileWriteErrCounter} }
+U FSW_DS_FileUpdCtr {sourceFields={FSW_DS_HkPkt.DS_FileUpdateCounter} }
+U FSW_DS_FileUpdErrCtr {sourceFields={FSW_DS_HkPkt.DS_FileUpdateErrCounter} }
+U FSW_DS_DestTblLoadCtr {sourceFields={FSW_DS_HkPkt.DS_DestTblLoadCounter} }
+U FSW_DS_DestTblErrCtr {sourceFields={FSW_DS_HkPkt.DS_DestTblErrCounter} }
+U FSW_DS_FilterTblLoadCtr {sourceFields={FSW_DS_HkPkt.DS_FilterTblLoadCounter} }
+U FSW_DS_FilterTblErrCtr {sourceFields={FSW_DS_HkPkt.DS_FilterTblErrCounter} }
+U FSW_DS_APPENASTATE {sourceFields={FSW_DS_HkPkt.DS_AppEnableState} conversion=FSW_DS_AppEnableState_CONVERSION }
+
+DiscreteConversion FSW_DS_AppEnableState_CONVERSION
+{
+	Dsc OFF {range=0, bgColor=black, fgColor=green}
+	Dsc ON {range=1, bgColor=black, fgColor=green}
+}
+
+

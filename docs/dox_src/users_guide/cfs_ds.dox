@@ -1,0 +1,329 @@
+/**
+    \mainpage CFS Data Storage (DS) User's Guide    
+
+       <UL>
+           <LI> \subpage cfsdsrevhist
+           <LI> \subpage cfsdsintro
+           <LI> \subpage cfsdsovr
+           <LI> \subpage cfsdsopr
+           <LI> \subpage cfsdsreq
+           <LI> \subpage cfsdsdg
+           <LI> \subpage cfsdscmds
+           <LI> \subpage cfsdstlm
+           <LI> \subpage cfsdstbl
+           <LI> \subpage cfsdscfg
+           <LI> \subpage cfsdscons
+           <LI> \subpage cfsdsfaqs
+           <LI> \subpage ds_events.h "CFS Data Storage Event Message Reference" <BR>
+       </UL>
+**/
+
+/**
+  \page cfsdsrevhist CFS Data Storage User's Guide Revision History
+
+  \verbatim  
+  $Log: cfs_ds.dox  $
+  Revision 1.1 2015/07/25 00:44:16EDT rperera 
+  Initial revision
+  Member added to project /CFS-APPs-PROJECT/ds/docs/dox_src/users_guide/project.pj
+  Revision 1.5 2015/01/20 17:38:01EST sstrege 
+  Updated  CFS Data Storage Table Definitions section
+  Revision 1.4 2011/01/06 09:22:02EST wmoleski 
+  Changes for DS 2.1.1.0
+  Revision 1.3 2010/10/14 09:21:48EDT wmoleski 
+  Added text to the DS User's Guide sections that did not have anything written in them.
+  Revision 1.2 2010/03/29 09:47:40EDT wmoleski 
+  Updated doxygen files for Users Guide
+  Revision 1.1 2009/04/17 14:06:23EDT dkobe 
+  Initial revision
+  Member added to project c:/MKSDATA/MKS-REPOSITORY/CFS-REPOSITORY/ds/docs/dox_src/users_guide/project.pj
+  Revision 1.1 2009/04/17 13:55:13EDT dkobe 
+  Initial revision
+  Member added to project c:/MKSDATA/MKS-REPOSITORY/MKS-CFE-PROJECT/fsw/cfe-apps/template/docs/dox_src/detailed_design/project.pj
+  \endverbatim
+  
+  Next: \ref cfsdsintro
+**/
+
+/**
+	\page cfsdsintro CFS Data Storage Introduction
+	
+  <H2> Scope </H2>
+
+  This document provides a complete specification for the commands and telemetry associated
+  with the CFS Data Storage (DS) application software.  The document is intended primarily 
+  for users of the software (operations personal, test engineers, and maintenance personnel).  
+  The last section of the document, the deployment guide section, is intended for mission 
+  developers when deploying and configuring the FM application software for a mission 
+  flight software build environment. 
+
+  <H2> Applicable Documents </H2>
+
+  <TABLE BORDER="1" CELLPADDING="2" WIDTH="60%">
+  <TR><TD WIDTH="20%"> <B>Document ID</B> </TD> 
+      <TD WIDTH="40%"> <B>Document Title</B> </TD>
+  <TR><TD WIDTH="20%"> 582-2008-008 </TD> 
+      <TD WIDTH="40%"> CFS Data Storage Application Requirements Document </TD>
+  <TR><TD WIDTH="20%"> TBD       </TD> 
+      <TD WIDTH="40%"> CFS Data Storage Heritage Analysis Document </TD>
+  <TR><TD WIDTH="20%"> TBD       </TD> 
+      <TD WIDTH="40%"> CFS Data Storage Design Document </TD>
+  </TABLE>
+
+
+  <H2> Acronyms </H2>
+
+  <TABLE BORDER="1" CELLPADDING="2" WIDTH="60%">
+  <TR><TD WIDTH="20%"> <B>Acronym</B> </TD> <TD WIDTH="40%"> <B>Description</B>                       </TD>
+  <TR><TD WIDTH="20%"> DS    </TD> <TD WIDTH="40%"> CFS Data Storage                                       </TD>
+  <TR><TD WIDTH="20%"> API     </TD> <TD WIDTH="40%"> Application Programming Interface               </TD>
+  <TR><TD WIDTH="20%"> ATP     </TD> <TD WIDTH="40%"> Absolute Time Processor                         </TD>
+  <TR><TD WIDTH="20%"> ATS     </TD> <TD WIDTH="40%"> Absolute Time tagged command Sequence           </TD>
+  <TR><TD WIDTH="20%"> CCSDS   </TD> <TD WIDTH="40%"> Consultative Committee for Space Data Systems   </TD>
+  <TR><TD WIDTH="20%"> C&DH    </TD> <TD WIDTH="40%"> Command and Data Handling                       </TD>
+  <TR><TD WIDTH="20%"> CFE     </TD> <TD WIDTH="40%"> Core Flight Executive                           </TD>
+  <TR><TD WIDTH="20%"> CFS     </TD> <TD WIDTH="40%"> Core Flight System                              </TD>
+  <TR><TD WIDTH="20%"> CI      </TD> <TD WIDTH="40%"> Command Ingest                                  </TD>
+  <TR><TD WIDTH="20%"> Cmd     </TD> <TD WIDTH="40%"> Command                                         </TD>
+  <TR><TD WIDTH="20%"> CPU     </TD> <TD WIDTH="40%"> Central Processing Unit                         </TD>
+  <TR><TD WIDTH="20%"> EDAC    </TD> <TD WIDTH="40%"> Error Detection and Correction                  </TD>
+  <TR><TD WIDTH="20%"> FDS     </TD> <TD WIDTH="40%"> Flight Data System                              </TD>
+  <TR><TD WIDTH="20%"> FM      </TD> <TD WIDTH="40%"> File Manager                                    </TD>
+  <TR><TD WIDTH="20%"> FSW     </TD> <TD WIDTH="40%"> Flight Software                                 </TD>
+  <TR><TD WIDTH="20%"> GN&C    </TD> <TD WIDTH="40%"> Guidance Navigation & Control                   </TD>
+  <TR><TD WIDTH="20%"> GSFC    </TD> <TD WIDTH="40%"> Goddard Space Flight Center                     </TD>
+  <TR><TD WIDTH="20%"> HK      </TD> <TD WIDTH="40%"> Housekeeping                                    </TD>
+  <TR><TD WIDTH="20%"> HW, H/W </TD> <TD WIDTH="40%"> Hardware                                        </TD>
+  <TR><TD WIDTH="20%"> ICD     </TD> <TD WIDTH="40%"> Interface Control Document                      </TD>
+  <TR><TD WIDTH="20%"> ISR     </TD> <TD WIDTH="40%"> Interrupt Service Routine                       </TD>
+  <TR><TD WIDTH="20%"> OS      </TD> <TD WIDTH="40%"> Operating System                                </TD>
+  <TR><TD WIDTH="20%"> OSAL    </TD> <TD WIDTH="40%"> Operating System Abstraction Layer              </TD>
+  <TR><TD WIDTH="20%"> Pkts    </TD> <TD WIDTH="40%"> Packets                                         </TD>
+  <TR><TD WIDTH="20%"> RAM     </TD> <TD WIDTH="40%"> Random-Access Memory                            </TD>
+  <TR><TD WIDTH="20%"> RTOS    </TD> <TD WIDTH="40%"> Real Time Operating System                      </TD>
+  <TR><TD WIDTH="20%"> RTP     </TD> <TD WIDTH="40%"> Relative Time Processor                         </TD>
+  <TR><TD WIDTH="20%"> RTS     </TD> <TD WIDTH="40%"> Relative Time tagged command Sequence           </TD>
+  <TR><TD WIDTH="20%"> SB      </TD> <TD WIDTH="40%"> Software Bus Service                            </TD>
+  <TR><TD WIDTH="20%"> SBC     </TD> <TD WIDTH="40%"> Single Board Computer                           </TD>
+  <TR><TD WIDTH="20%"> SC      </TD> <TD WIDTH="40%"> Stored Commands task                            </TD>
+  <TR><TD WIDTH="20%"> SW, S/W </TD> <TD WIDTH="40%"> Software                                        </TD>
+  <TR><TD WIDTH="20%"> TBD     </TD> <TD WIDTH="40%"> To Be Determined                                </TD>
+  <TR><TD WIDTH="20%"> TBL     </TD> <TD WIDTH="40%"> Table                                           </TD>
+  <TR><TD WIDTH="20%"> TDM     </TD> <TD WIDTH="40%"> Time Data Multiplex                             </TD>
+  <TR><TD WIDTH="20%"> TLM     </TD> <TD WIDTH="40%"> Telemetry                                       </TD>
+  <TR><TD WIDTH="20%"> UTC     </TD> <TD WIDTH="40%"> Universal time code                             </TD>
+  </TABLE>
+
+  Next: \ref cfsdsovr <BR>
+  Prev: \ref cfsdsrevhist
+**/
+
+/**
+  \page cfsdsovr CFS Data Storage Overview
+	
+  The CFS DS application is responsible for storing messages in files. These files are generally stored on a storage device such as a solid state recorder but they could be stored on any file system. Another application such as CFDP must be used in order to transfer the files created by DS to the ground. The DS software context diagram is shown in Figure DS-1.
+
+  \image html CFS_DS_Context.jpg "Figure DS-1: Software Context Diagram" <BR>
+
+  During initialization, DS subscribes to messages from other applications as defined in the Data Storage Filter Table. The Scheduler applicaiton (SCH) sends periodic commands to DS as defined in the SCH Schedule Table which requests housekeeping from DS (note that a mission must define this request in the SCH table). Ground commands come from the Command Ingest task (CI). Messages are routed to DS by the cFE SB application. DS learns of ground updates to the DS tables throught the cFE Table Services application.
+
+  DS defines two tables:
+  <ol><li>Filter Table - for each message ID, specifies filter scheme, filter parametes and which file or files to write the message to. Note that each message can be written to a maximum of #DS_FILTERS_PER_PACKET destination files.</li>
+
+  <li>File Table - specifies information about each destination file.</li></ol>
+
+  Next: \ref cfsdsopr <BR>
+  Prev: \ref cfsdsintro
+**/
+
+/**
+  \page cfsdsopr CFS Data Storage Operation
+  
+  When DS receives a message that passes the filtering algorithm, the message is stored in a file or files based upon the File Table information for that message ID. Once a message is stored, the DS Housekeeping packet displays information about the open file. Each houskeeping cycle, DS evaluates the open files to determine if their age has been exceeded. If this determination is true, the file is closed by the DS application. Also, each time a message is to be stored, DS determines if the message will fit in the open file. If the determination is false, the open file will be closed and a new file created containing the message. A minimum of one message will be stored each file.
+   
+  <h2>Filtering</h2>
+  Filtering is based upon message IDs. The Filter Table determines what messages DS will store. The DS application supports two types of filtering:
+ <ol><li>Sequence number based filtering</li>
+     <li>Time based filtering.</li>
+ </ol>
+ Each filtering type relies on three filter factors, N, X, and O where N of X messages will be stored starting at offset O.
+  <h3>Sequence based Filtering</h3>
+  This type of filtering uses the packet sequence number to determine if the message should be filtered or not. If X is greated than zero, the message shall be stored if and only if the sequence number modulo X is less than N. For example, N=4, X=6 and O=2 will store 4 of 6 messages starting at offset 2.
+  <h3>Time based Filtering</h3>
+  This type of filtering uses the spacecraft time code found in the CCSDS packet secondary header. Fifteen bits out of the 64-bit CCSDS time code field are used. The constructed 15-bit time stamp used for DS filtering consists of the 11 Least Significant Bits (LSB) of the seconds field and the 4 Most Significant Bits (MSB) of the sub-seconds field. Messages will be stored if and only if the constructed 15-bit time stamp modulo X is less than N. This type of filtering is rare in that the N value must be set to the desired 15-bit time stamp which is hard to specify. Testing used simulated values for the spacecraft time code.
+
+  Next: \ref cfsdsreq <BR>
+  Prev: \ref cfsdsovr
+**/
+
+/**
+  \page cfsdsreq CFS Data Storage Requirements
+    
+  For detailed DS requirements, please see the "Core Flight System (CFS) Data
+  Storage Application Requirements" Document Number:582-2008-008
+   
+  Next: \ref cfsdsdg <BR>
+  Prev: \ref cfsdsopr 
+**/
+
+/**
+  \page cfsdsdg  CFS Data Storage Deployment Guide
+  
+  To integrate the DS application, follow the CFS App Integration Guide.
+  Also, be sure to set up the configuration parameters and message IDs for
+  the platform.
+
+  <h2>Move File Capability</h2>
+  If the DS_MOVE_FILES configuration parameter is set to TRUE, the telemetry
+  database, Destination File table load images and the File Table display page
+  require changes. The Destination File Table rdl file uses the DS_MOVE_FILES
+  definition in the ds_platform_cfg.h file. However, in order to get the 
+  required parameter included in telemetry, this configuration parameter must be
+  set to 1 rather than TRUE. The table images must include this parameter in
+  order to load successfully and the display page must be modified to display
+  this parameter.
+
+  Next: \ref cfsdscmds <BR>
+  Prev: \ref cfsdsreq
+**/
+
+/**
+  \page cfsdscmds CFS Data Storage Commands
+
+  Next: \ref cfsdstlm <BR>
+  Prev: \ref cfsdsdg <BR>
+
+  <TABLE BORDER="1" CELLPADDING="2" WIDTH="60%" ALIGN="CENTER">
+  <TR><TD WIDTH="20%" ALIGN="CENTER"> <B>\ref cfsdstlm</B> </TD> 
+      <TD WIDTH="20%" ALIGN="CENTER"> <B>\ref cfsdstbl</B></TD>
+      <TD WIDTH="20%" ALIGN="CENTER"> <B>\ref cfsdscfg</B></TD>
+  </TABLE>
+  
+  The following is a list of Commands that are processed by the CFS Data Storage Application. 
+
+**/
+
+/**
+  \page cfsdstlm  CFS Data Storage Telemetry
+
+  Next: \ref cfsdstbl <BR>
+  Prev: \ref cfsdscmds <BR>
+
+  <TABLE BORDER="1" CELLPADDING="2" WIDTH="60%" ALIGN="CENTER">
+  <TR><TD WIDTH="20%" ALIGN="CENTER"> <B>\ref cfsdscmds</B> </TD> 
+      <TD WIDTH="20%" ALIGN="CENTER"> <B>\ref cfsdstbl</B></TD>
+      <TD WIDTH="20%" ALIGN="CENTER"> <B>\ref cfsdscfg</B></TD>
+  </TABLE>
+  
+  The following are telemetry packets generated by the CFS Data Storage 
+  Application.
+
+**/
+
+/**
+  \page cfsdstbl CFS Data Storage Table Definitions
+
+  Next: \ref cfsdscfg <BR>
+  Prev: \ref cfsdstlm <BR>
+
+  <TABLE BORDER="1" CELLPADDING="2" WIDTH="60%" ALIGN="CENTER">
+  <TR><TD WIDTH="20%" ALIGN="CENTER"> <B>\ref cfsdscmds</B></TD>
+      <TD WIDTH="20%" ALIGN="CENTER"> <B>\ref cfsdstlm</B> </TD> 
+      <TD WIDTH="20%" ALIGN="CENTER"> <B>\ref cfsdscfg</B></TD>
+  </TABLE>
+  
+  <BR><BR>
+  <H2>Destination File Table</H2> 
+
+  The Destination File Table is defined by #DS_DestFileTable_t. This table 
+  contains a description and #DS_DEST_FILE_CNT entries. Each entry is defined by
+  #DS_DestFileEntry_t and described below.
+      <ol><li>Pathname - The path portion of the filename</li>
+      <li>BaseName - The optional base portion of the filename</li>
+      <li>Extension - The extension portion of the filename</li>
+      <li>FileNameType - The filename type #DS_BY_COUNT or #DS_BY_TIME</li>
+      <li>EnableState - The state of this entry #DS_ENABLED or #DS_DISABLED</li>
+      <li>MaxFileSize - The maximum number of bytes to store in this file</li>
+      <li>MaxFileAge - The number of seconds that this file remains open</li>
+      <li>SequenceCount - The sequence count portion of the filename if the file type is #DS_BY_COUNT</li></ol>
+
+  <BR><BR>
+  <H2>Filter Table</H2> 
+
+  The Filter Table is defined by #DS_FilterTable_t. This table contains a 
+  description and #DS_PACKETS_IN_FILTER_TABLE entries. Each entry is defined by
+  #DS_PacketEntry_t. Each Packet entry contains the Message ID for DS to store
+  and #DS_FILTERS_PER_PACKET entries defined by #DS_FilterParms_t. These entries
+  are described below.
+      <ol><li>FileTableIndex - The zero based index into the Destination File table</li>
+      <li>FilterType - The type of filter used by this entry #DS_BY_COUNT or #DS_BY_TIME</li>
+      <li>Algorithm_N - The N argument passed into the Filter algorithm</li>
+      <li>Algorithm_X - The X argument passed into the Filter algorithm</li>
+      <li>Algorithm_O - The O argument passed into the Filter algorithm</li></ol>
+
+  <BR><BR>
+
+  The Data Storage (DS) application attempts to load the File and Filter Tables from DS_DEF_DEST_FILENAME and DS_DEF_FILTER_FILENAME upon startup. 
+  If the load fails for either of these tables, DS will still start in the mode of operation as defined by the DS_DEF_ENABLE_STATE configuration 
+  parameter.  If this configuration parameter is set to ENABLED mode and either the File and/or Filter Table failed to load, DS will not store any 
+  messages until both tables are loaded with valid data. This can be accomplished by using the cFE Table Services commands after creating a table 
+  load image file and uploading it to the spacecraft's file system.  Until both tables are loaded with valid data, DS will increment the 
+  #DS_IGNOREDPKTCNT for each received packet that is discarded. 
+
+**/
+
+/**
+  \page cfsdscfg CFS Data Storage Configuration Parameters
+
+  Next: \ref cfsdscons <BR>
+  Prev: \ref cfsdstbl <BR>
+
+  <TABLE BORDER="1" CELLPADDING="2" WIDTH="60%" ALIGN="CENTER">
+  <TR><TD WIDTH="20%" ALIGN="CENTER"> <B>\ref cfsdscmds</B></TD>
+      <TD WIDTH="20%" ALIGN="CENTER"> <B>\ref cfsdstlm</B> </TD> 
+      <TD WIDTH="20%" ALIGN="CENTER"> <B>\ref cfsdstbl</B></TD>
+  </TABLE>
+  
+  The following are configuration parameters used to configure the CFS Data Storage
+  Application either for each platform or for a mission as a whole.
+
+**/
+
+/**
+  \page cfsdscons CFS Data Storage Operational Constraints
+
+  The Data Storage (DS) application attempts to load the File and Filter Tables from DS_DEF_DEST_FILENAME and DS_DEF_FILTER_FILENAME upon startup. 
+  If the load fails for either of these tables, DS will still start in the mode of operation as defined by the DS_DEF_ENABLE_STATE configuration 
+  parameter.  If this configuration parameter is set to ENABLED mode and either the File and/or Filter Table failed to load, DS will not store any 
+  messages until both tables are loaded with valid data. This can be accomplished by using the cFE Table Services commands after creating a table 
+  load image file and uploading it to the spacecraft's file system.  Until both tables are loaded with valid data, DS will increment the 
+  #DS_IGNOREDPKTCNT for each received packet that is discarded.
+
+  Next: \ref cfsdsfaqs <BR>
+  Prev: \ref cfsdscfg
+**/
+
+/**
+  \page cfsdsfaqs CFS Data Storage Frequently Asked Questions
+
+  <B> (Q) How do I determine what message IDs are to be stored?
+  </B> <BR> <BR> <I>
+     The Message IDs to be stored are specified in the Filter Table. To determine what these are, you must dump the filter table. This can be done by displaying the Filter Table display page and clicking the Refresh button.
+  </I>
+  
+  <B> (Q) Where are my files being stored?
+  </B> <BR> <BR> <I>
+     The locations of the files are determined by the File Table entry that the message ID is associated with. The Filter table indicates what File index is being used to store that message IDs data. To trace the message ID to the File entry, both tables must be dumped. This can be done by displaying the File and Filter Table display pages and clicking the Refresh buttons on each page.
+  </I>
+  
+  <B> (Q) How are my files named?
+  </B> <BR> <BR> <I>
+     The files are named as follows:<BR><BR>
+     path + base + [time/seq characters] + extension.<BR><BR>
+     If the file is a Sequence based file, the sequence characters will be based upon the next sequence number. For example, if path = /ram and base = seq and extension = .dat, the file would be named /ram/seq00000100.dat<BR>
+     If the file is time based, the characters will be in the form YYYYDDDHHMMSS. For example if the file was created on day 123 at 14:15:22 using path = /ram, base = tim and extension = .dat, the file would be named /ram/tim2010123141522.dat <BR> <BR>
+     The path, base and extension can be determined by looking in the File Table for the appropriate entry. Finally, the entire length of the filename must not exceed the length specified by the #OS_MAX_PATH_LEN configuration parameter.
+  </I>
+  
+  Prev: \ref cfsdscons
+**/
