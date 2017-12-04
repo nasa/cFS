@@ -1,13 +1,7 @@
 ###############################################################################
 # File: CFS Application Makefile 
 #
-# $Id: Makefile 1.5 2011/06/30 15:30:48EDT aschoeni Exp  $
-#
-# $Log: Makefile  $
-# Revision 1.5 2011/06/30 15:30:48EDT aschoeni 
-# add custom functionality
-# Revision 1.4 2009/07/09 11:41:17EDT rmcgraw 
-# DCR8291:1 Changed CFE_MISSION_INC to CFS_MISSION_INC and added log if needed
+# $Id: Makefile 1.2 2017/06/21 15:28:59EDT mdeschu Exp  $
 #
 ###############################################################################
 #

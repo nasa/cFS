@@ -1,10 +1,10 @@
 core Flight System (cFS) Scheduler Application (SCH) 
 Open Source Release Readme
 
-SCH Release 2.2.0 
+SCH Release 2.2.1 
 
 Date: 
-February 27, 2015
+July 5, 2017
 
 Introduction:
   The Scheduler application (SCH) is a core Flight System (cFS) application 
@@ -27,12 +27,12 @@ Introduction:
   The SCH application is written in C and depends on the cFS Operating System 
   Abstraction Layer (OSAL) and cFE components.  To build and run the SCH
   application, follow the cFS Deployment Guide instructions contained in 
-  cFE-6.4.1-OSS-release/docs.  There is additional SCH application specific 
+  cFE-6.5.0a-OSS-release/docs.  There is additional SCH application specific 
   configuration information contained in the application user's guide
-  available in cfs-sch-2.2.0-OSS-release/docs/users_guide
+  available in cfs-sch-2.2.1-OSS-release/docs/users_guide
   
   There are also "Quick start" instructions provided in 
-  cFE-6.4.1-OSS-release/cfe-OSS-readme.txt   
+  cFE-6.5.0a-OSS-release/cfe-OSS-readme.txt   
   
   The OSAL is available at http://sourceforge.net/projects/osal/ and 
   github.com/nasa/
@@ -44,21 +44,21 @@ Introduction:
  
  
 Software Included:
-  Scheduler application (SCH) 2.2.0
+  Scheduler application (SCH) 2.2.1
   
  
 Software Required:
 
- Operating System Abstraction Layer 4.1.1 or higher can be 
+ Operating System Abstraction Layer 4.2.0 or higher can be 
  obtained at http://sourceforge.net/projects/osal or 
  github.com/nasa/osal
  
- core Flight Executive 6.4.1 or higher can be obtained at
+ core Flight Executive 6.5.0 or higher can be obtained at
  http://sorceforge.net/projects/coreflightexec
 
   
 Runtime Targets Supported:
-   The "out of the box" targets in the cFE 6.4.1 distribution include:
+   The "out of the box" targets in the cFE 6.5.0 distribution include:
      1. 32 bit x86 Linux ( CentOS 6.x )
      2. Motorola MCP750 PowerPC vxWorks 6.4
 

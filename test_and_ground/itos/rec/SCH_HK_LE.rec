@@ -1,0 +1,61 @@
+CfeTelemetryPacket FSW_SCH_HkPkt
+{
+    applyWhen={FieldInRange{field=applicationId, range=0x97}}
+
+    U1 SCH_CmdCounter {generateMnemonic="no"}
+    U1 SCH_ErrCounter {generateMnemonic="no"}
+
+    U1 SCH_SyncToMET {generateMnemonic="no"}
+    U1 SCH_MajorFrameSource {generateMnemonic="no"}
+ 
+    U4321 SCH_ScheduleActivitySuccessCount {generateMnemonic="no"}
+    U4321 SCH_ScheduleActivityFailureCount {generateMnemonic="no"}
+    U4321 SCH_SlotsProcessedCount {generateMnemonic="no"}
+
+    U21 SCH_SkippedSlotsCount {generateMnemonic="no"}
+    U21 SCH_MultipleSlotsCount {generateMnemonic="no"}
+    U21 SCH_SameSlotCount {generateMnemonic="no"}
+    U21 SCH_BadTableDataCount {generateMnemonic="no"}
+    U21 SCH_TableVerifySuccessCount {generateMnemonic="no"}
+    U21 SCH_TableVerifyFailureCount {generateMnemonic="no"}
+
+    U4321 SCH_TablePassCount {generateMnemonic="no"}
+    U4321 SCH_ValidMajorFrameCount {generateMnemonic="no"}
+    U4321 SCH_MissedMajorFrameCount {generateMnemonic="no"}
+    U4321 SCH_UnexpectedMajorFrameCount {generateMnemonic="no"}
+
+    U21 SCH_MinorFramesSinceTone {generateMnemonic="no"}
+    U21 SCH_NextSlotNumber {generateMnemonic="no"}
+    U21 SCH_LastSyncMETSlot {generateMnemonic="no"}
+
+    I1 SCH_IgnoreMajorFrame {generateMnemonic="no"}
+    I1 SCH_UnexpectedMajorFrame {generateMnemonic="no"}
+
+}
+
+/* Define the mnemonics */
+D FSW_SCH_HkPkt_packet_time {sourceFields={FSW_SCH_HkPkt.time}}
+U FSW_SCH_CMDPC {sourceFields={FSW_SCH_HkPkt.SCH_CmdCounter}}
+U FSW_SCH_CMDEC {sourceFields={FSW_SCH_HkPkt.SCH_ErrCounter}}
+U FSW_SCH_ScheduleActivitySuccessCount {sourceFields={FSW_SCH_HkPkt.SCH_ScheduleActivitySuccessCount}}
+U FSW_SCH_ScheduleActivityFailureCount {sourceFields={FSW_SCH_HkPkt.SCH_ScheduleActivityFailureCount}}
+U FSW_SCH_SlotsProcessedCount {sourceFields={FSW_SCH_HkPkt.SCH_SlotsProcessedCount}}
+U FSW_SCH_SkippedSlotsCount {sourceFields={FSW_SCH_HkPkt.SCH_SkippedSlotsCount}}
+U FSW_SCH_MultipleSlotsCount {sourceFields={FSW_SCH_HkPkt.SCH_MultipleSlotsCount}}
+U FSW_SCH_SameSlotCount {sourceFields={FSW_SCH_HkPkt.SCH_SameSlotCount}}
+U FSW_SCH_BadTableDataCount {sourceFields={FSW_SCH_HkPkt.SCH_BadTableDataCount}}
+U FSW_SCH_TableVerifySuccessCount {sourceFields={FSW_SCH_HkPkt.SCH_TableVerifySuccessCount}}
+U FSW_SCH_TableVerifyFailureCount {sourceFields={FSW_SCH_HkPkt.SCH_TableVerifyFailureCount}}
+U FSW_SCH_TablePassCount {sourceFields={FSW_SCH_HkPkt.SCH_TablePassCount}}
+U FSW_SCH_ValidMajorFrameCount {sourceFields={FSW_SCH_HkPkt.SCH_ValidMajorFrameCount}}
+U FSW_SCH_MissedMajorFrameCount {sourceFields={FSW_SCH_HkPkt.SCH_MissedMajorFrameCount}}
+U FSW_SCH_UnexpectedMajorFrameCount {sourceFields={FSW_SCH_HkPkt.SCH_UnexpectedMajorFrameCount}}
+U FSW_SCH_MinorFramesSinceTone {sourceFields={FSW_SCH_HkPkt.SCH_MinorFramesSinceTone}}
+U FSW_SCH_NextSlotNumber {sourceFields={FSW_SCH_HkPkt.SCH_NextSlotNumber}}
+U FSW_SCH_LastSyncMETSlot {sourceFields={FSW_SCH_HkPkt.SCH_LastSyncMETSlot}}
+I FSW_SCH_IgnoreMajorFrame {sourceFields={FSW_SCH_HkPkt.SCH_IgnoreMajorFrame}}
+I FSW_SCH_UnexpectedMajorFrame {sourceFields={FSW_SCH_HkPkt.SCH_UnexpectedMajorFrame}}
+U FSW_SCH_SyncToMET {sourceFields={FSW_SCH_HkPkt.SCH_SyncToMET}}
+U FSW_SCH_MajorFrameSource {sourceFields={FSW_SCH_HkPkt.SCH_MajorFrameSource}}
+
+

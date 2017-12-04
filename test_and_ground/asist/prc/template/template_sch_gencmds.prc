@@ -14,18 +14,18 @@ PROC $sc_$cpu_sch_gencmds
 ;		Valid Command Counter and generate an event message.
 ;    SCH1001	Upon receipt of a Reset command, SCH shall reset the following
 ;		housekeeping variables to a value of zero:
-;		a)	Valid Ground Command Counter
-;		b)	Ground Command Rejected Counter
-;		e)	Valid commands sent by the SCH APP
-;		f)	Commands sent by SCH APP that were reported as erroneous
-;			by the Software Bus
-;		g)	Number of Slots (minor frames) processed
-;		h)	Number of Times Slots skipped
-;		i)	Number of Times Multiple Slots processed
-;		j)	Number of times that SCH woke up in the same slot as
-;			last time
-;		k)	Number of bad entries found in the Scheduler table
-;			(indication of corrupted table)
+;		  a) Valid Ground Command Counter
+;		  b) Ground Command Rejected Counter
+;		  e) Valid commands sent by the SCH APP
+;		  f) Commands sent by SCH APP that were reported as erroneous
+;		     by the Software Bus
+;		  g) Number of Slots (minor frames) processed
+;		  h) Number of Times Slots skipped
+;		  i) Number of Times Multiple Slots processed
+;		  j) Number of times that SCH woke up in the same slot as
+;		     last time
+;		  k) Number of bad entries found in the Scheduler table
+;		    (indication of corrupted table)
 ;    SCH1002	For all SCH commands, if the length contained in the message
 ;		header is not equal to the expected length, SCH shall reject the
 ;		command and issue an event message.
@@ -37,35 +37,35 @@ PROC $sc_$cpu_sch_gencmds
 ;		an error event message.
 ;    SCH8000	SCH shall generate a housekeeping message containing the
 ;		following:
-;		a)	Valid Ground Command Counter
-;		b)	Ground Command Rejected Counter
-;		e)	Valid commands sent by the SCH APP
-;		f)	Commands sent by SCH APP that were reported as erroneous
-;			by the Software Bus
-;		g)	Number of Slots processed
-;		h)	Number of Times Slots skipped
-;		i)	Number of Times Multiple Slots processed
-;		j)	Number of times that SCH woke up in the same slot as
-;			last time
-;		k)	Number of bad entries found in the Scheduler table
-;			(indication of corrupted table)
-;		l)	Synchronization Status (flywheeling)
+;		  a) Valid Ground Command Counter
+;		  b) Ground Command Rejected Counter
+;		  e) Valid commands sent by the SCH APP
+;		  f) Commands sent by SCH APP that were reported as erroneous
+;		     by the Software Bus
+;		  g) Number of Slots processed
+;		  h) Number of Times Slots skipped
+;		  i) Number of Times Multiple Slots processed
+;		  j) Number of times that SCH woke up in the same slot as
+;		     last time
+;		  k) Number of bad entries found in the Scheduler table
+;		     (indication of corrupted table)
+;		  l) Synchronization Status (flywheeling)
 ;    SCH9000	Upon any Initialization of the SCH Application (cFE Power On,
 ;		cFE Processor Reset or SCH Application Reset), SCH shall
 ;		initialize the following data to Zero:
-;		a)	Valid Ground Command Counter
-;		b)	Ground Command Rejected Counter
-;		e)	Valid commands sent by the SCH APP
-;		f)	Commands sent by SCH APP that were reported as erroneous
-;			by the Software Bus
-;		g)	Number of Slots processed
-;		h)	Number of Times Slots skipped
-;		i)	Number of Times Multiple Slots processed
-;		j)	Number of times that SCH woke up in the same slot as
-;			last time
-;		k)	Number of bad entries found in the Scheduler table
-;			(indication of corrupted table)
-;		l)	Synchronization Status (not flywheeling)
+;		  a) Valid Ground Command Counter
+;		  b) Ground Command Rejected Counter
+;		  e) Valid commands sent by the SCH APP
+;		  f) Commands sent by SCH APP that were reported as erroneous
+;		     by the Software Bus
+;		  g) Number of Slots processed
+;		  h) Number of Times Slots skipped
+;		  i) Number of Times Multiple Slots processed
+;		  j) Number of times that SCH woke up in the same slot as
+;		     last time
+;		  k) Number of bad entries found in the Scheduler table
+;		     (indication of corrupted table)
+;		  l) Synchronization Status (not flywheeling)
 ;    SCH9001	Upon any Initialization, the SCH Application shall inhibit
 ;		processing of the Schedule Definition Table until the cFE
 ;		indicates that all of the applications have started. 
@@ -79,16 +79,17 @@ PROC $sc_$cpu_sch_gencmds
 ;	None.
 ;
 ;  Change History
-;
 ;	Date		   Name			Description
-;	01/09/09	Ezinne Uzo-Okoro	Original Procedure.
-;	03/15/10	Walt Moleski		Cleaned up comments that did not
-;						contain line breaks and updated
-;						to handle 0-based arrays
-;	07/28/11	Walt Moleski		Added variables for App Name and
-;						ram directory
-;	08/02/12	Walt Moleski		Added code to look for the 
-;						Scheduler app executing.
+;	01/09/09	Ezinne Uzo-Okoro  Original Procedure.
+;	03/15/10	Walt Moleski	  Cleaned up comments that did not
+;					  contain line breaks and updated to
+;					  handle 0-based arrays
+;	07/28/11	Walt Moleski	  Added variables for App Name and
+;					  ram directory
+;	08/02/12	Walt Moleski	  Added code to look for the 
+;					  Scheduler app executing.
+;       06/13/17        W. Moleski        Updated to use CPU1 for commanding and;                                         added a hostCPU variable for the
+;                                         utility procs to connect to the proper;                                         host.
 ;
 ;  Arguments
 ;	None.
@@ -157,26 +158,27 @@ local cmdCtr, errcnt
 local SCHAppName = "SCH"
 local SCHLabAppName = "SCH_LAB_APP"
 local ramDir = "RAM:0"
+local hostCPU = "$CPU"
 
 write ";*********************************************************************"
 write ";  Step 1.0:  Initialize the CPU for this test. "
 write ";*********************************************************************"
-write ";  Step 1.1:  Command a Power-On Reset on $CPU. "
+write ";  Step 1.1:  Command a Power-On Reset. "
 write ";********************************************************************"
 /$SC_$CPU_ES_POWERONRESET
 wait 10
 
 close_data_center
-wait 75
+wait 60
 
-cfe_startup $CPU
+cfe_startup {hostCPU}
 wait 5
 
 write ";*********************************************************************"
 write ";  Step 1.2: Determine if the SCH_LAB application is running. If so,  "
 write ";  we must delete it in order to start the SCH application. "
 write ";**********************************************************************"
-s get_file_to_cvt (ramDir,"cfe_es_app_info.log","$sc_$cpu_es_app_info.log","$CPU")
+s get_file_to_cvt (ramDir,"cfe_es_app_info.log","$sc_$cpu_es_app_info.log",hostCPU)
 
 local found_app = FALSE
 
@@ -232,7 +234,7 @@ else
   s $SC_$CPU_sch_sdtloadfile
   s $SC_$CPU_sch_mdtloadfile
 
-  s load_start_app (SCHAppName,"$CPU","SCH_AppMain")
+  s load_start_app (SCHAppName,hostCPU,"SCH_AppMain")
 
   ; Wait for app startup events
   ut_tlmwait  $SC_$CPU_find_event[2].num_found_messages, 1
@@ -253,12 +255,6 @@ endif
 ;;; CPU1 is the default
 stream1 = x'0897'
 
-if ("$CPU" = "CPU2") then
-  stream1 = x'0997'
-elseif ("$CPU" = "CPU3") then
-  stream1 = x'0A97'
-endif
-
 write "Sending command to add subscription for SCH HK packet."
 /$SC_$CPU_TO_ADDPACKET Stream=stream1 Pkt_Size=x'0' Priority=x'0' Reliability=x'1' Buflimit=x'4'
 wait 10
@@ -270,7 +266,7 @@ write ";**********************************************************************"
 ut_setupevents "$SC", "$CPU", "CFE_ES", CFE_ES_START_INF_EID, "INFO", 1
 ut_setupevents "$SC", "$CPU", "TST_SCH", TST_SCH_INITSTATS_INF_EID, "INFO", 2
                                                                                 
-s load_start_app ("TST_SCH","$CPU","TST_SCH_AppMain")
+s load_start_app ("TST_SCH",hostCPU,"TST_SCH_AppMain")
                                                                                 
 ; Wait for app startup events
 ut_tlmwait  $SC_$CPU_find_event[2].num_found_messages, 1
@@ -289,12 +285,6 @@ endif
 ;;; CPU1 is the default
 stream1 = x'0936'
 
-if ("$CPU" = "CPU2") then
-  stream1 = x'0A36'
-elseif ("$CPU" = "CPU3") then
-  stream1 = x'0B36'
-endif
-                                                                                
 write "Sending command to add subscription for TST_SCH HK packet."
 /$SC_$CPU_TO_ADDPACKET Stream=stream1 Pkt_Size=x'0' Priority=x'0' Reliability=x'1' Buflimit=x'4'
 wait 10
@@ -329,12 +319,6 @@ local hkPktId
 ;; Set the HK packet ID based upon the cpu being used
 ;; CPU1 is the default
 hkPktId = "p097"
-
-if ("$CPU" = "CPU2") then
-  hkPktId = "p197"
-elseif ("$CPU" = "CPU3") then
-  hkPktId = "p297"
-endif
 
 ;; Verify the HK Packet is getting generated by waiting for the
 ;; sequencecount to increment twice
@@ -432,12 +416,6 @@ errcnt = $SC_$CPU_SCH_CMDEC + 1
 ;;; CPU1 is the default
 rawcmd = "1895C000000200B2"
 
-if ("$CPU" = "CPU2") then
-  rawcmd = "1995C000000200B2"
-elseif ("$CPU" = "CPU3") then
-  rawcmd = "1A95C000000200B2"
-endif
-
 ut_sendrawcmd "$SC_$CPU_SCH", (rawcmd)
 
 ut_tlmwait $SC_$CPU_SCH_CMDEC, {errcnt}
@@ -477,6 +455,22 @@ if ($SC_$CPU_SCH_CMDEC = 0) then
   wait 5
 endif
 
+;; Need to check for other items to see if they are non-zero
+;; the easiest is to have TST_SCH set these to non-zero
+;; Setup for the expected event
+ut_setupevents "$SC","$CPU","TST_SCH",TST_SCH_SETCOUNTERS_INF_EID,"INFO",1
+/$SC_$CPU_TST_SCH_SetCounters
+wait 5
+
+local oldGoodActs = $SC_$CPU_SCH_ActSuccessCtr
+local oldMultiSlot = $SC_$CPU_SCH_MULTSLOTCTR
+
+;; Verify that all the counters are now non-zero
+write "Multi Slots Processed = ", $SC_$CPU_SCH_MULTSLOTCTR
+write "Same Slot = ", $SC_$CPU_SCH_SAMESLOTCTR
+write "Successful Activities =  ", $SC_$CPU_SCH_ACTSUCCESSCTR
+write "Bad Table Entries = ", $SC_$CPU_SCH_BADTBLDATACTR
+
 ;; Setup for the expected event
 ut_setupevents "$SC", "$CPU", {SCHAppName}, SCH_RESET_CMD_EID, "DEBUG", 1
 
@@ -503,12 +497,65 @@ else
   ut_setrequirements SCH_1001, "F"
 endif
 
+;; Check that this is < old value
+if ($SC_$CPU_SCH_ActSuccessCtr < oldGoodActs) then
+  write "<*> Passed (1001) - Successful Activities Counter was reset."
+  ut_setrequirements SCH_1001, "P"
+else
+  write "<!> Failed (1001) - Successful Activities Counter does not appear to have reset. Previous value = ",oldGoodActs,"; Current value = ",$SC_$CPU_SCH_ActSuccessCtr
+  ut_setrequirements SCH_1001, "F"
+endif
+
 if ($SC_$CPU_num_found_messages = 1) THEN
   write "<*> Passed (1001) - Event message ",$SC_$CPU_find_event[1].eventid, " received"
   ut_setrequirements SCH_1001, "P"
 else
   write "<!> Failed (1001) - Event message ",$SC_$CPU_evs_eventid," received. Expected Event message ",SCH_RESET_CMD_EID, "."
   ut_setrequirements SCH_1001, "F"
+endif
+
+ut_tlmwait $SC_$CPU_SCH_ActFailureCtr, 0
+if (UT_TW_Status = UT_Success) then
+  write "<*> Passed (1001;1004) - Failed Activities Counter was reset."
+  ut_setrequirements SCH_1001, "P"
+  ut_setrequirements SCH_1004, "P"
+else
+  write "<!> Failed (1001;1004) - Failed Activities Counter was NOT reset. Value = ",$SC_$CPU_SCH_ACTFAILURECTR
+  ut_setrequirements SCH_1001, "F"
+  ut_setrequirements SCH_1004, "F"
+endif
+
+;; Check that this is < old value
+if ($SC_$CPU_SCH_MultSlotCtr < oldMultiSlot) then
+  write "<*> Passed (1001;1004) - Multiple Slot Counter was reset."
+  ut_setrequirements SCH_1001, "P"
+  ut_setrequirements SCH_1004, "P"
+else
+  write "<!> Failed (1001;1004) - Multiple Slot Counter was NOT reset. Value = ",$SC_$CPU_SCH_MULTSLOTCTR
+  ut_setrequirements SCH_1001, "F"
+  ut_setrequirements SCH_1004, "F"
+endif
+
+ut_tlmwait $SC_$CPU_SCH_SameSlotCtr, 0
+if (UT_TW_Status = UT_Success) then
+  write "<*> Passed (1001;1004) - Same Slot Counter was reset."
+  ut_setrequirements SCH_1001, "P"
+  ut_setrequirements SCH_1004, "P"
+else
+  write "<!> Failed (1001;1004) - Same Slot Counter was NOT reset. Value = ",$SC_$CPU_SCH_SAMESLOTCTR
+  ut_setrequirements SCH_1001, "F"
+  ut_setrequirements SCH_1004, "F"
+endif
+
+ut_tlmwait $SC_$CPU_SCH_BadTblDataCtr, 0
+if (UT_TW_Status = UT_Success) then
+  write "<*> Passed (1001;1004) - Bad Table Data Counter was reset."
+  ut_setrequirements SCH_1001, "P"
+  ut_setrequirements SCH_1004, "P"
+else
+  write "<!> Failed (1001;1004) - Bad Table Data Counter was NOT reset. Value = ",$SC_$CPU_SCH_BadTblDataCtr
+  ut_setrequirements SCH_1001, "F"
+  ut_setrequirements SCH_1004, "F"
 endif
 
 wait 5
@@ -522,12 +569,6 @@ errcnt = $SC_$CPU_SCH_CMDEC + 1
 
 ;;; CPU1 is the default
 rawcmd = "1895C000000201B3"
-
-if ("$CPU" = "CPU2") then
-  rawcmd = "1995C000000201B3"
-elseif ("$CPU" = "CPU3") then
-  rawcmd = "1A95C000000201B3"
-endif
 
 ut_sendrawcmd "$SC_$CPU_SCH", (rawcmd)
 
@@ -562,12 +603,6 @@ errcnt = $SC_$CPU_SCH_CMDEC + 1
 ;;; CPU1 is the default
 rawcmd = "1895c00000010f"
 
-if ("$CPU" = "CPU2") then
-  rawcmd = "1995c00000010f"
-elseif ("$CPU" = "CPU3") then
-  rawcmd = "1a95c00000010f"
-endif
-
 ut_sendrawcmd "$SC_$CPU_SCH", (rawcmd)
 
 ut_tlmwait $SC_$CPU_SCH_CMDEC, {errcnt}
@@ -596,9 +631,9 @@ write ";*********************************************************************"
 wait 10
 
 close_data_center
-wait 75
-                                                                                
-cfe_startup $CPU
+wait 60
+
+cfe_startup {hostCPU}
 wait 5
 
 write "**** Requirements Status Reporting"
@@ -615,6 +650,6 @@ drop ut_requirement ; clear global variables
 drop ut_req_array_size ; clear global variables
 
 write ";*********************************************************************"
-write ";  End procedure $SC_$CPU_sch_gencmds                                   "
+write ";  End procedure $SC_$CPU_sch_gencmds                                 "
 write ";*********************************************************************"
 ENDPROC

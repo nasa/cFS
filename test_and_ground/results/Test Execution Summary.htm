@@ -1,0 +1,2031 @@
+
+
+
+
+
+
+
+
+
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Test Execution Summary</title>
+    <style type="text/css" media="screen">
+p {margin-top:0in; margin-bottom:.0001pt; margin-left:0in; margin-right:0in;}
+ul, ol  {margin-top:0in; margin-bottom:.0001pt; margin-left:0in; margin-right:0in;}
+body, table { font-family: Arial, Helvetica, Tahoma; font-size: 9pt; }
+table.display { font-family: Arial, Helvetica, Tahoma; font-size: 9pt; width: 100%;}
+table.display2 { font-family: Arial, Helvetica, Tahoma; font-size: 9pt; width: 95%;}
+.display td, .display2 td { vertical-align: top; font-size: 9pt;}
+table.list { font-family: Arial, Helvetica, Tahoma; font-size: 9pt; width: 95%; border-width: 1px; border-style: solid; border-color: #333399; border-collapse: collapse; padding: 5px 5px 5px 5px; }
+.list th { color: #000000; background-color: #F9F9E3; border-width: 1px; border-style: solid; border-color: #333399; }
+.list td { background-color: #F9F7F7; vertical-align: top; border-width: 1px; border-style: solid; border-color: #333399; padding: 5px 5px 5px 5px; }
+table.list2 { font-family: Arial, Helvetica, Tahoma; font-size: 9pt; border-width: 0px; border-style: solid; border-color: #333399; padding: 0px 0px 0px 0px; }
+.list2 th { font-size: 11pt; color: #333399; text-align: left; text-decoration: underline; background-color: #FFFFFF; padding: 2px 2px 2px 2px; }
+.list2 td { background-color: #FFFFFF; vertical-align: top; padding: 2px 2px 2px 2px; }
+table.list3 { font-family: Arial, Helvetica, Tahoma; font-size: 9pt; width: 100%; border-width: 1px; border-style: solid; border-color: #333399; border-collapse: collapse; padding: 0px 0px 0px 0px; }
+.list3 th { color: #000000; background-color: #ECECEC; border-width: 1px 0px 1px 0px; border-style: solid; border-color: #333399; padding: 5px 5px 5px 5px; }
+.list3 td { background-color: #F9F7F7; vertical-align: top; border-style: solid; border-color: #333399; border-width: 1px 0px 1px 0px; padding: 5px 5px 5px 5px; }
+td.logo { width: 10%; }
+.border { border-width: 0px; border-style: solid; border-color: #333399; padding: 2px 2px 2px 2px; }
+.center { text-align: center; }
+.right { text-align: right; }
+.nowrap { white-space: nowrap; }
+.title { font-size: 16pt; color: #333399; font-weight: bold; text-align: center; }
+.date { font-size: 10pt; color: #333399; font-weight: bold; text-align: right; }
+.header { font-size: 11pt; color: #000000; text-align: center; }
+.footer { font-size: 9pt; color: #999999; text-align: left; }
+.heading1 { font-size: 11pt; color: #000000; font-weight: bold; background-color: #F6E78C; }
+.heading2 { font-size: 11pt; color: #333399; font-weight: bold; background-color: #F6E78C; }
+.heading3 { font-size: 11pt; color: #000000; font-weight: bold; background-color: #E6E6CB; }
+.heading4 { font-size: 11pt; color: #333399; font-weight: bold; background-color: #E6E6CB; }
+.heading5 { font-size: 11pt; color: #000000; font-weight: bold; background-color: #CFCF9D; }
+.heading6 { font-size: 11pt; color: #333399; font-weight: bold; background-color: #CFCF9D; }
+.heading7 { font-size: 15pt; color: #000000; font-weight: bold; background-color: #CFCF9D; }
+.heading8 { font-size: 10pt; color: #000000; font-weight: bold; text-align: center; background-color: #F5EFCA; }
+.heading9 { font-size: 10pt; color: #000000; font-weight: bold; background-color: #F6E78C; }
+.grouping1 { font-size: 10pt; color: #333399; font-weight: bold; background-color: #CFCF9D; }
+.grouping2 { font-size: 10pt; color: #000000; font-weight: bold; background-color: #CFCF9D; }
+.grouping3 { font-size: 9pt; color: #333399; font-weight: bold; background-color: #E6E6CB; }
+.odd_row { background-color: #F8F3F7; }
+.even_row { background-color: #FFFBFF; }
+.level1 { background-color: #FFEFF7; padding: 2px 2px 2px 2px; }
+.level2 { background-color: #F7E7EF; padding: 2px 2px 2px 2px; }
+.level2_indent { background-color: #F7E7EF; padding: 2px 2px 2px 12px; }
+.level3 { background-color: #EFDFE7; padding: 2px 2px 2px 2px; }
+.level3_indent { background-color: #EFDFE7; padding: 2px 2px 2px 22px; }
+.level4 { background-color: #E7D7DF; padding: 2px 2px 2px 2px; }
+.level4_indent { background-color: #E7D7DF; padding: 2px 2px 2px 32px; }
+.level5 { background-color: #DFCFD7; padding: 2px 2px 2px 2px; }
+.level5_indent { background-color: #DFCFD7; padding: 2px 2px 2px 42px; }
+.level6 { background-color: #D1BFC8; padding: 2px 2px 2px 2px; }
+.level6_indent { background-color: #D1BFC8; padding: 2px 2px 2px 52px; }
+.level7 { background-color: #C2B0B9; padding: 2px 2px 2px 2px; }
+.level7_indent { background-color: #C2B0B9; padding: 2px 2px 2px 62px; }
+.level8 { background-color: #B0A0A8; padding: 2px 2px 2px 2px; }
+.level8_indent { background-color: #B0A0A8; padding: 2px 2px 2px 72px; }
+.indent_transparent { padding: 0px 0px 0px 12px }
+.context_backward_level4_indent { background-color: #E7D7DF; padding: 2px 2px 2px 2px; }
+.context_backward_level3_indent { background-color: #EFDFE7; padding: 2px 2px 2px 12px; }
+.context_backward_level2_indent { background-color: #F7E7EF; padding: 2px 2px 2px 22px; }
+.context_backward_level1_indent { background-color: #FFEFF7; padding: 2px 2px 2px 32px; }
+.context { color: #333399; font-weight: bold; background-color: #FFFFFF; border-style: solid; border-color: #000000; border-width: 1px; padding: 2px 2px 2px 2px; }
+.context_indent { color: #333399; font-weight: bold; background-color: #FFFFFF; border-style: solid; border-color: #000000; border-width: 1px; padding: 2px 2px 2px 42px; }
+.context_forward_level1_indent { background-color: #FFEFF7; padding: 2px 2px 2px 52px; }
+.context_forward_level2_indent { background-color: #F7E7EF; padding: 2px 2px 2px 62px; }
+.context_forward_level3_indent { background-color: #EFDFE7; padding: 2px 2px 2px 72px; }
+.context_forward_level4_indent { background-color: #E7D7DF; padding: 2px 2px 2px 82px; }
+.document_level1 { background-color: #FFFFFF; padding: 2px 2px 2px 2px; }
+.document_level2 { background-color: #FFFFFF; padding: 2px 2px 2px 12px; }
+.document_level3 { background-color: #FFFFFF; padding: 2px 2px 2px 22px; }
+.document_level4 { background-color: #FFFFFF; padding: 2px 2px 2px 32px; }
+.underline { text-decoration: underline; }
+.bold { color: #000000; font-weight: bold; }
+.bold_large { font-size: 12pt; color: #000000; font-weight: bold; }
+.bold_very_large { font-size: 14pt; color: #000000; font-weight: bold; }
+.bold_italic { color: #000000; font-weight: bold; font-style: italic; }
+.bold_underline { color: #000000; font-weight: bold; text-decoration: underline; }
+.bold_color { color: #333399; font-weight: bold; }
+.bold_color_large { font-size: 12pt; color: #333399; font-weight: bold; }
+.bold_color_italic { color: #333399; font-weight: bold; font-style: italic; }
+.bold_color_underline { color: #333399; font-weight: bold; text-decoration: underline; }
+.bold_color_underline_large { font-size: 11pt; color: #333399; font-weight: bold; text-decoration: underline; }
+.hr_default { height:1px; width:100%; color: #000000; background:#000000; }
+.calendar_no_date_cell { background-color: #F3F3F3; }
+</style>
+
+    <style type="text/css" media="print">
+p {margin-top:0in; margin-bottom:.0001pt; margin-left:0in; margin-right:0in;}
+ul, ol  {margin-top:0in; margin-bottom:.0001pt; margin-left:0in; margin-right:0in;}
+thead { display: table-header-group; }
+tfoot { display: table-footer-group; }
+tbody { display:table-row-group; }
+body, table { font-family: Arial, Helvetica, Tahoma; font-size: 9pt; }
+table.display { font-family: Arial, Helvetica, Tahoma; font-size: 9pt; width: 100%;}
+table.display2 { font-family: Arial, Helvetica, Tahoma; font-size: 9pt; width: 95%;}
+.display td, .display2 td { vertical-align: top; font-size: 9pt;}
+table.list { font-family: Arial, Helvetica, Tahoma; font-size: 9pt; width: 95%; border-width: 1px; border-style: solid; border-color: #333399; border-collapse: collapse; padding: 5px 5px 5px 5px; }
+.list th { color: #000000; background-color: #F9F9E3; border-width: 1px; border-style: solid; border-color: #333399; }
+.list td { background-color: #F9F7F7; vertical-align: top; border-width: 1px; border-style: solid; border-color: #333399; padding: 5px 5px 5px 5px; }
+table.list2 { font-family: Arial, Helvetica, Tahoma; font-size: 9pt; border-width: 0px; border-style: solid; border-color: #333399; padding: 0px 0px 0px 0px; }
+.list2 th { font-size: 11pt; color: #333399; text-align: left; text-decoration: underline; background-color: #FFFFFF; padding: 2px 2px 2px 2px; }
+.list2 td { background-color: #FFFFFF; vertical-align: top; padding: 2px 2px 2px 2px; }
+table.list3 { font-family: Arial, Helvetica, Tahoma; font-size: 9pt; width: 100%; border-width: 1px; border-style: solid; border-color: #333399; border-collapse: collapse; padding: 0px 0px 0px 0px; }
+.list3 th { color: #000000; background-color: #ECECEC; border-width: 1px 0px 1px 0px; border-style: solid; border-color: #333399; padding: 5px 5px 5px 5px; }
+.list3 td { background-color: #F9F7F7; vertical-align: top; border-style: solid; border-color: #333399; border-width: 1px 0px 1px 0px; padding: 5px 5px 5px 5px; }
+td.logo { width: 10%; }
+.border { border-width: 0px; border-style: solid; border-color: #333399; padding: 2px 2px 2px 2px; }
+.center { text-align: center; }
+.right { text-align: right; }
+.nowrap { white-space: nowrap; }
+.title { font-size: 16pt; color: #333399; font-weight: bold; text-align: center; }
+.date { font-size: 10pt; color: #333399; font-weight: bold; text-align: right; }
+.header { font-size: 11pt; color: #000000; text-align: center; }
+.footer { font-size: 9pt; color: #999999; text-align: left; }
+.heading1 { font-size: 11pt; color: #000000; font-weight: bold; background-color: #F6E78C; }
+.heading2 { font-size: 11pt; color: #333399; font-weight: bold; background-color: #F6E78C; }
+.heading3 { font-size: 11pt; color: #000000; font-weight: bold; background-color: #E6E6CB; }
+.heading4 { font-size: 11pt; color: #333399; font-weight: bold; background-color: #E6E6CB; }
+.heading5 { font-size: 11pt; color: #000000; font-weight: bold; background-color: #CFCF9D; }
+.heading6 { font-size: 11pt; color: #333399; font-weight: bold; background-color: #CFCF9D; }
+.heading7 { font-size: 15pt; color: #000000; font-weight: bold; background-color: #CFCF9D; }
+.heading8 { font-size: 10pt; color: #000000; font-weight: bold; text-align: center; background-color: #F5EFCA; }
+.heading9 { font-size: 10pt; color: #000000; font-weight: bold; background-color: #F6E78C; }
+.grouping1 { font-size: 10pt; color: #333399; font-weight: bold; background-color: #CFCF9D; }
+.grouping2 { font-size: 10pt; color: #000000; font-weight: bold; background-color: #CFCF9D; }
+.grouping3 { font-size: 9pt; color: #333399; font-weight: bold; background-color: #E6E6CB; }
+.odd_row { background-color: #F8F3F7; }
+.even_row { background-color: #FFFBFF; }
+.level1 { background-color: #FFEFF7; padding: 2px 2px 2px 2px; }
+.level2 { background-color: #F7E7EF; padding: 2px 2px 2px 2px; }
+.level2_indent { background-color: #F7E7EF; padding: 2px 2px 2px 12px; }
+.level3 { background-color: #EFDFE7; padding: 2px 2px 2px 2px; }
+.level3_indent { background-color: #EFDFE7; padding: 2px 2px 2px 22px; }
+.level4 { background-color: #E7D7DF; padding: 2px 2px 2px 2px; }
+.level4_indent { background-color: #E7D7DF; padding: 2px 2px 2px 32px; }
+.level5 { background-color: #DFCFD7; padding: 2px 2px 2px 2px; }
+.level5_indent { background-color: #DFCFD7; padding: 2px 2px 2px 42px; }
+.level6 { background-color: #D1BFC8; padding: 2px 2px 2px 2px; }
+.level6_indent { background-color: #D1BFC8; padding: 2px 2px 2px 52px; }
+.level7 { background-color: #C2B0B9; padding: 2px 2px 2px 2px; }
+.level7_indent { background-color: #C2B0B9; padding: 2px 2px 2px 62px; }
+.level8 { background-color: #B0A0A8; padding: 2px 2px 2px 2px; }
+.level8_indent { background-color: #B0A0A8; padding: 2px 2px 2px 72px; }
+.indent_transparent { padding: 0px 0px 0px 12px; }
+.context_backward_level4_indent { background-color: #E7D7DF; padding: 2px 2px 2px 2px; }
+.context_backward_level3_indent { background-color: #EFDFE7; padding: 2px 2px 2px 12px; }
+.context_backward_level2_indent { background-color: #F7E7EF; padding: 2px 2px 2px 22px; }
+.context_backward_level1_indent { background-color: #FFEFF7; padding: 2px 2px 2px 32px; }
+.context { color: #333399; font-weight: bold; background-color: #FFFFFF; border-style: solid; border-color: #000000; border-width: 1px; padding: 2px 2px 2px 2px; }
+.context_indent { color: #333399; font-weight: bold; background-color: #FFFFFF; border-style: solid; border-color: #000000; border-width: 1px; padding: 2px 2px 2px 42px; }
+.context_forward_level1_indent { background-color: #FFEFF7; padding: 2px 2px 2px 52px; }
+.context_forward_level2_indent { background-color: #F7E7EF; padding: 2px 2px 2px 62px; }
+.context_forward_level3_indent { background-color: #EFDFE7; padding: 2px 2px 2px 72px; }
+.context_forward_level4_indent { background-color: #E7D7DF; padding: 2px 2px 2px 82px; }
+.document_level1 { background-color: #FFFFFF; padding: 2px 2px 2px 2px; }
+.document_level2 { background-color: #FFFFFF; padding: 2px 2px 2px 12px; }
+.document_level3 { background-color: #FFFFFF; padding: 2px 2px 2px 22px; }
+.document_level4 { background-color: #FFFFFF; padding: 2px 2px 2px 32px; }
+.underline { text-decoration: underline; }
+.bold { color: #000000; font-weight: bold; }
+.bold_large { font-size: 12pt; color: #000000; font-weight: bold; }
+.bold_very_large { font-size: 14pt; color: #000000; font-weight: bold; }
+.bold_italic { color: #000000; font-weight: bold; font-style: italic; }
+.bold_underline { color: #000000; font-weight: bold; text-decoration: underline; }
+.bold_color { color: #333399; font-weight: bold; }
+.bold_color_large { font-size: 12pt; color: #333399; font-weight: bold; }
+.bold_color_italic { color: #333399; font-weight: bold; font-style: italic; }
+.bold_color_underline { color: #333399; font-weight: bold; text-decoration: underline; }
+.bold_color_underline_large { font-size: 11pt; color: #333399; font-weight: bold; text-decoration: underline; }
+.hr_default { height:1px; width:100%; color: #000000; background:#000000; }
+.calendar_no_date_cell { background-color: #F3F3F3; }
+</style>
+
+	<script type="text/javascript">
+		var line_count=0;
+		
+		function writeEvenOddTRTag() {
+			line_count++; 
+			if (line_count%2 == 0)
+				document.write("<tr class='even_row'>");
+			else
+				document.write("<tr class='odd_row'>");
+		}
+	</script>
+</head>
+
+
+
+<body>
+<table class="heading">
+<tr>
+	<td></td>
+	<td class="title_white" align="right" width="100%">Test Execution Summary</td>
+	<td>&nbsp;</td>
+</tr>
+</table>
+<table class="white_bg">
+    <tr><td></td></tr>
+</table>
+<table width="100%" class="heading">
+    <tr><td></td></tr>
+</tr>
+</table>
+<p class="header"></p>
+<p class="date">Jul 5, 2017</p>
+
+<table class="detailcols fullWidth">
+<!-- block ID=4650-->
+
+<!-- Display issue heading -->
+<tr><th style="text-align: left" >SCH_Functional_Test - Item 4650 </th></tr>
+<!-- Display issue field names and values -->
+
+<tr><td><b>TEST_Test_Name:</b> SCH_Functional_Test</td></tr>
+
+<tr><td><b>TEST_Description:</b> <!-- MKS HTML -->This test verifies that the SCH application responds correctly and timely to definition changes in the SCH schedule and message definition tables in order to control the enabling/disabling of individual activities.</td></tr>
+
+<tr><td><b>TEST_Current_Build:</b> 2.2.1.0</td></tr>
+
+<tr><td><b>TEST_Execution_Assigned_To:</b> Walt Moleski (wmoleski)</td></tr>
+
+<tr><td><b>TEST_Execution_Testbed:</b> cFE 6.5.0.0; OSAL 4.2.0.0; PSP 1.3.0.0</td></tr>
+
+<tr><td><b>TEST_Execution_Checksum:</b> 50244</td></tr>
+
+<tr><td><b>TEST_Execution_Completion_Date:</b> Jul 3, 2017</td></tr>
+
+<tr><td><b>TEST_Execution_Time:</b> 694.862 seconds or 11.581 minutes</td></tr>
+
+<tr><td><b>TEST_Execution_Comments:</b> <!-- MKS HTML -->All requirements passed</td></tr>
+
+<tr><td><b>TEST_Comments:</b> &nbsp;</td></tr>
+
+<!-- Relationships info -->
+<!-- Display relationship heading -->
+<tr><td >DCRs Submitted / Tested and Requirements Validated</td></tr>
+
+
+<tr><td class="detailheading" style="text-align: left" >Links_To_TEST_from_DCRs_Backward,ALM_Validates:</td></tr>
+<tr>
+    <td >
+        <table class="detailcols fullWidth">
+        
+        <tr>
+            
+            <th>ReqID</th>
+            
+            <th>Text</th>
+            
+            <th>Build Test Method</th>
+            
+            <th>REQ_Build_Sys_Test_Results</th>
+            
+            <th>REQ_Build_Sys_Test_Comments</th>
+            
+            <th>DCR_Title</th>
+            
+            <th>DCR_TEST_Outcome</th>
+            
+        </tr>
+        <!-- block ID=4650-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script>
+            
+            <td>SCH2000</td>
+            
+            <td><!-- MKS HTML -->Upon receipt of a Major Frame Signal, SCH shall start processing the Scheduler Definition Table (SDT) which contains the defined activities</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4650-->
+<!-- block ID=4650-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script>
+            
+            <td>SCH2002</td>
+            
+            <td><!-- MKS HTML -->SCH shall schedule a maximum of &lt;PLATFORM_DEFINED, 5&gt; activities in each minor frame.</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4650-->
+<!-- block ID=4650-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script>
+            
+            <td>SCH2003</td>
+            
+            <td><!-- MKS HTML -->SCH shall identify the spacecraft Major Frame Signal as “noisy” when two Major Frame Signals occur consecutively that are separated from the previous Major Frame Signal by less than &lt;PLATFORM_DEFINED, 990&gt; milliseconds (running fast) and/or greater than &lt;PLATFORM_DEFINED, 1010&gt; milliseconds (running slow)</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4650-->
+<!-- block ID=4650-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script>
+            
+            <td>SCH2003.1</td>
+            
+            <td><!-- MKS HTML -->If the Major Frame Signal is running fast, SCH shall process the activities contained in the slots not processed prior to receiving the Major Frame Signal, up to the &lt;PLATFORM_DEFINED&gt; maximum number of activities allowed to be processed in a minor frame</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4650-->
+<!-- block ID=4650-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script>
+            
+            <td>SCH2003.2</td>
+            
+            <td><!-- MKS HTML -->Any remaning activites shall be scheduled in the subsequent minor frames until there are no unprocessed activities from the previous Major Frame</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4650-->
+<!-- block ID=4650-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script>
+            
+            <td>SCH2003.3</td>
+            
+            <td><!-- MKS HTML --><p>If the number of slots not processed prior to receiving the Major Frame Signal is greater than &lt;PLATFORM_DEFINED&gt; number of allowable “catch-up” slots, SCH shall:</p><p>a)&#160;&#160;&#160;&#160;&#160;&#160; begin processing the first slot of the major frame</p><p>b)&#160;&#160;&#160;&#160;&#160;&#160; skip the unprocessed slots</p><p>c)&#160;&#160;&#160;&#160;&#160;&#160; incrementing the Number of Times Slots skipped counter</p></td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4650-->
+<!-- block ID=4650-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script>
+            
+            <td>SCH2003.4</td>
+            
+            <td><!-- MKS HTML --><p>&#160;If more than &lt;PLATFORM_DEFINED&gt; consecutive Major Frame Signals are noisy, &#160;SCH shall</p><p>a)&#160;&#160;&#160;&#160;&#160;&#160; disable synchronizing to the Major Frame Signal and</p><p>b)&#160;&#160;&#160;&#160;&#160;&#160; use the Minor Frame Signal for synchronization</p><p>c)&#160;&#160;&#160;&#160;&#160;&#160; Set the SCH synchronization status to “flywheel”</p></td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4650-->
+<!-- block ID=4650-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script>
+            
+            <td>SCH2004</td>
+            
+            <td><!-- MKS HTML -->SCH shall schedule each activity’s frequency as specified by that activity’s table-defined major frame frequency (eg. every 5 seconds)</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4650-->
+<!-- block ID=4650-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script>
+            
+            <td>SCH2005</td>
+            
+            <td><!-- MKS HTML -->SCH shall schedule each activity’s frequency as specified by that activity’s table-defined major frame frequency offset (eg. every 5 seconds starting at second 2)</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4650-->
+<!-- block ID=4650-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script>
+            
+            <td>SCH2006</td>
+            
+            <td><!-- MKS HTML -->Upon receipt of a SDT Load, SCH shall validate the entries of the table and if any entry is invalid, the table is declared invalid and rejected.</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4650-->
+<!-- block ID=4650-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script>
+            
+            <td>SCH2006.1</td>
+            
+            <td><!-- MKS HTML -->SCH shall identify any “Unused” SDT entry that contains data other than “Unused” as invalid</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4650-->
+<!-- block ID=4650-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script>
+            
+            <td>SCH2006.2</td>
+            
+            <td><!-- MKS HTML -->SCH shall identify any “Enabled” or “Disabled” SDT entry that contains a Frequency of zero as invalid</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4650-->
+<!-- block ID=4650-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script>
+            
+            <td>SCH2006.3</td>
+            
+            <td><!-- MKS HTML -->SCH shall identify any “Enabled” or “Disabled” SDT entry that contains a Frequency Offset greater than the entry’s specified Frequency as invalid.</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4650-->
+<!-- block ID=4650-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script>
+            
+            <td>SCH2006.4</td>
+            
+            <td><!-- MKS HTML -->SCH shall identify any “Enabled” or “Disabled” SDT entry that contains a Message Index of zero or greater than the maximum number of Messages in the Message Definition Table as invalid.</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4650-->
+<!-- block ID=4650-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script>
+            
+            <td>SCH2006.5</td>
+            
+            <td><!-- MKS HTML -->SCH shall identify any “Enabled” or “Disabled” SDT entry that contains an undefined Activity Type as invalid.</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4650-->
+<!-- block ID=4650-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script>
+            
+            <td>SCH2007</td>
+            
+            <td><!-- MKS HTML -->Upon receipt of a Message Definition Table Load, SCH shall validate the entries of the table and if any table entry is invalid, reject the table</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4650-->
+<!-- block ID=4650-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script>
+            
+            <td>SCH2007.1</td>
+            
+            <td><!-- MKS HTML -->SCH shall identify any “Unused” MDT entry that contains data other than “Unused” &#160;as invalid</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4650-->
+<!-- block ID=4650-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script>
+            
+            <td>SCH2007.2</td>
+            
+            <td><!-- MKS HTML -->SCH shall identify any MDT entry that has a message definition with a Message ID that is greater than &lt;MISSION_DEFINED&gt; maximum Message ID as invalid</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4650-->
+<!-- block ID=4650-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script>
+            
+            <td>SCH2007.3</td>
+            
+            <td><!-- MKS HTML -->SCH shall identify any MDT entry that has a message definition with a Message ID that is less than &lt;MISSION_DEFINED&gt; minimum Message ID as invalid</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4650-->
+<!-- block ID=4650-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script>
+            
+            <td>SCH2007.4</td>
+            
+            <td><!-- MKS HTML -->SCH shall identify any MDT entry that has a message length greater than &lt;PLATFORM_DEFINED&gt; maximum message length as invalid</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4650-->
+<!-- block ID=4650-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script>
+            
+            <td>SCH2007.5</td>
+            
+            <td><!-- MKS HTML -->SCH shall identify any MDT entry that has a message length that is an odd number of bytes as invalid</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4650-->
+<!-- block ID=4650-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script>
+            
+            <td>SCH8000</td>
+            
+            <td><!-- MKS HTML --><p>&#160;&#160;SCH shall generate a housekeeping message containing the following:</p><p>a) Valid Ground Command Counter</p><p>b) Ground Command Rejected Counter</p><p>e) Valid commands sent by the SCH APP</p><p>f) Commands sent by SCH APP that were reported as erroneous by the Software Bus</p><p>g) Number of Slots processed</p><p>h) Number of Times Slots skipped i) Number of Times Multiple Slots processed</p><p>j) Number of times that SCH woke up in the same slot as last time</p><p>k) Number of bad entries found in the Scheduler table (indication of corrupted table)</p><p>l) Synchronization status (flywheeling)</p></td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4650-->
+<!-- block ID=4650-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script>
+            
+            <td>SCH9000</td>
+            
+            <td><!-- MKS HTML --><p>Upon any Initialization of the SCH Application (cFE Power On, cFE Processor Reset or SCH Application Reset), SCH shall initialize the following data to Zero:</p><p>a) Valid Ground Command Counter</p><p>b) Ground Command Rejected Counter</p><p>e) Valid commands sent by the SCH APP</p><p>f) Commands sent by SCH APP that were reported as erroneous by the Software Bus</p><p>&#160;</p><p>g) Number of Slots processed</p><p>h) Number of Times Slots skipped</p><p>i) Number of Times Multiple Slots processed</p><p>j) Number of times that SCH woke up in the same slot as last time</p><p>k) Number of bad entries found in the Scheduler table (indication of corrupted table)</p><p>l) Synchronization status (not flywheeling</p></td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4650-->
+<!-- block ID=4650-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script>
+            
+            <td>SCH9001</td>
+            
+            <td><!-- MKS HTML -->Upon any Initialization, the SCH Application shall inhibit processing of the Schedule Definition Table until the cFE indicates that all of the applications have started.</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4650-->
+
+        </table>
+    </td>
+</tr>
+
+<tr><td ><hr class="hr_default"></td></tr>
+<tr><td >&nbsp;</td></tr>
+<script type="text/javascript"> line_count=0; </script>
+<!-- blockend ID=4650-->
+<!-- block ID=4648-->
+
+<!-- Display issue heading -->
+<tr><th style="text-align: left" >SCH_GenCmds - Item 4648 </th></tr>
+<!-- Display issue field names and values -->
+
+<tr><td><b>TEST_Test_Name:</b> SCH_GenCmds</td></tr>
+
+<tr><td><b>TEST_Description:</b> <!-- MKS HTML -->This test verifies that the SCH Application general commands function properly. The SCH_NOOP and the SCH_RESETCTRS commands are tested as well as invalid commands to see if SCH handles these properly.</td></tr>
+
+<tr><td><b>TEST_Current_Build:</b> 2.2.1.0</td></tr>
+
+<tr><td><b>TEST_Execution_Assigned_To:</b> Walt Moleski (wmoleski)</td></tr>
+
+<tr><td><b>TEST_Execution_Testbed:</b> cFE 6.5.0.0; OSAL 4.2.0.0; PSP 1.3.0.0</td></tr>
+
+<tr><td><b>TEST_Execution_Checksum:</b> 50244</td></tr>
+
+<tr><td><b>TEST_Execution_Completion_Date:</b> Jul 3, 2017</td></tr>
+
+<tr><td><b>TEST_Execution_Time:</b> 327.181 seconds or 5.45301 minutes</td></tr>
+
+<tr><td><b>TEST_Execution_Comments:</b> <!-- MKS HTML -->All requirements passed</td></tr>
+
+<tr><td><b>TEST_Comments:</b> &nbsp;</td></tr>
+
+<!-- Relationships info -->
+<!-- Display relationship heading -->
+<tr><td >DCRs Submitted / Tested and Requirements Validated</td></tr>
+
+
+<tr><td class="detailheading" style="text-align: left" >Links_To_TEST_from_DCRs_Backward,ALM_Validates:</td></tr>
+<tr>
+    <td >
+        <table class="detailcols fullWidth">
+        
+        <tr>
+            
+            <th>ReqID</th>
+            
+            <th>Text</th>
+            
+            <th>Build Test Method</th>
+            
+            <th>REQ_Build_Sys_Test_Results</th>
+            
+            <th>REQ_Build_Sys_Test_Comments</th>
+            
+            <th>DCR_Title</th>
+            
+            <th>DCR_TEST_Outcome</th>
+            
+        </tr>
+        <!-- block ID=4648-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script>
+            
+            <td>SCH1000</td>
+            
+            <td><!-- MKS HTML -->Upon receipt of a No-Op command, SCH shall increment the SCH Valid Command Counter and generate an event message.</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4648-->
+<!-- block ID=4648-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script>
+            
+            <td>SCH1001</td>
+            
+            <td><!-- MKS HTML --><p>Upon receipt of a Reset command, CS shall reset the following housekeeping variables to a value of zero:</p><p>a)&#160;&#160;&#160;&#160;&#160;&#160; Valid Ground Command Counter</p><p>b)&#160;&#160;&#160;&#160;&#160;&#160; Ground Command Rejected Counter</p><p>c)&#160;&#160;&#160;&#160;&#160;&#160; Non-volatile CRC Miscompare Counter</p><p>d)&#160;&#160;&#160;&#160;&#160;&#160; OS Code Segment CRC Miscompare Counter</p><p>e)&#160;&#160;&#160;&#160;&#160;&#160; cFE Code Segment CRC Miscompare Counter</p><p>f)&#160;&#160;&#160;&#160;&#160;&#160;&#160; Application CRC Miscompare Counter</p><p>g)&#160;&#160;&#160;&#160;&#160;&#160; Table CRC Miscompare Counter</p><p>h)&#160;&#160;&#160;&#160;&#160;&#160; User-defined Memory CRC Miscompare Counter</p><p>i)&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; Checksum Pass Counter (number of passes through all of the checksum areas)</p></td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4648-->
+<!-- block ID=4648-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script>
+            
+            <td>SCH1002</td>
+            
+            <td><!-- MKS HTML -->For all SCH commands, if the length contained in the message header is not equal to the expected length, SCH shall reject the command and issue an event message.</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4648-->
+<!-- block ID=4648-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script>
+            
+            <td>SCH1004</td>
+            
+            <td><!-- MKS HTML -->If SCH accepts any command as valid, SCH shall execute the command, increment the SCH Valid Command Counter and issue an event message</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4648-->
+<!-- block ID=4648-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script>
+            
+            <td>SCH1005</td>
+            
+            <td><!-- MKS HTML -->If SCH rejects any command, SCH shall abort the command execution, increment the SCH Command Rejected Counter and issue an error event message</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4648-->
+<!-- block ID=4648-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script>
+            
+            <td>SCH8000</td>
+            
+            <td><!-- MKS HTML --><p>&#160;&#160;SCH shall generate a housekeeping message containing the following:</p><p>a) Valid Ground Command Counter</p><p>b) Ground Command Rejected Counter</p><p>e) Valid commands sent by the SCH APP</p><p>f) Commands sent by SCH APP that were reported as erroneous by the Software Bus</p><p>g) Number of Slots processed</p><p>h) Number of Times Slots skipped i) Number of Times Multiple Slots processed</p><p>j) Number of times that SCH woke up in the same slot as last time</p><p>k) Number of bad entries found in the Scheduler table (indication of corrupted table)</p><p>l) Synchronization status (flywheeling)</p></td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4648-->
+<!-- block ID=4648-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script>
+            
+            <td>SCH9000</td>
+            
+            <td><!-- MKS HTML --><p>Upon any Initialization of the SCH Application (cFE Power On, cFE Processor Reset or SCH Application Reset), SCH shall initialize the following data to Zero:</p><p>a) Valid Ground Command Counter</p><p>b) Ground Command Rejected Counter</p><p>e) Valid commands sent by the SCH APP</p><p>f) Commands sent by SCH APP that were reported as erroneous by the Software Bus</p><p>&#160;</p><p>g) Number of Slots processed</p><p>h) Number of Times Slots skipped</p><p>i) Number of Times Multiple Slots processed</p><p>j) Number of times that SCH woke up in the same slot as last time</p><p>k) Number of bad entries found in the Scheduler table (indication of corrupted table)</p><p>l) Synchronization status (not flywheeling</p></td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4648-->
+<!-- block ID=4648-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script>
+            
+            <td>SCH9001</td>
+            
+            <td><!-- MKS HTML -->Upon any Initialization, the SCH Application shall inhibit processing of the Schedule Definition Table until the cFE indicates that all of the applications have started.</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4648-->
+
+        </table>
+    </td>
+</tr>
+
+<tr><td ><hr class="hr_default"></td></tr>
+<tr><td >&nbsp;</td></tr>
+<script type="text/javascript"> line_count=0; </script>
+<!-- blockend ID=4648-->
+<!-- block ID=4660-->
+
+<!-- Display issue heading -->
+<tr><th style="text-align: left" >SCH_Lib_Test - Item 4660 </th></tr>
+<!-- Display issue field names and values -->
+
+<tr><td><b>TEST_Test_Name:</b> SCH_Lib_Test</td></tr>
+
+<tr><td><b>TEST_Description:</b> <!-- MKS HTML -->This test verifies that the SCH application shared library works correctly. This library provides other applications the capability to Enable/Disable the Scheduler Application activity processing. Also, a function to query the Processing State is provided.</td></tr>
+
+<tr><td><b>TEST_Current_Build:</b> 2.2.1.0</td></tr>
+
+<tr><td><b>TEST_Execution_Assigned_To:</b> Walt Moleski (wmoleski)</td></tr>
+
+<tr><td><b>TEST_Execution_Testbed:</b> cFE 6.5.0.0; OSAL 4.2.0.0; PSP 1.3.0.0</td></tr>
+
+<tr><td><b>TEST_Execution_Checksum:</b> 50244</td></tr>
+
+<tr><td><b>TEST_Execution_Completion_Date:</b> Jul 3, 2017</td></tr>
+
+<tr><td><b>TEST_Execution_Time:</b> 272.944 seconds or 4.54906 minutes without the library - 311.008 seconds or 5.18347 minutes with it</td></tr>
+
+<tr><td><b>TEST_Execution_Comments:</b> <!-- MKS HTML -->This test was executed twice with the library present which is the &quot;out-of-the-box&quot; configuration and with the library not present. There is a configuration parameter that controls whether the Scheduler application contains the library or does not.</td></tr>
+
+<tr><td><b>TEST_Comments:</b> &nbsp;</td></tr>
+
+<!-- Relationships info -->
+<!-- Display relationship heading -->
+<tr><td >DCRs Submitted / Tested and Requirements Validated</td></tr>
+
+
+<tr><td class="detailheading" style="text-align: left" >Links_To_TEST_from_DCRs_Backward,ALM_Validates:</td></tr>
+<tr>
+    <td >
+        <table class="detailcols fullWidth">
+        
+        <tr>
+            
+            <th>ReqID</th>
+            
+            <th>Text</th>
+            
+            <th>Build Test Method</th>
+            
+            <th>REQ_Build_Sys_Test_Results</th>
+            
+            <th>REQ_Build_Sys_Test_Comments</th>
+            
+            <th>DCR_Title</th>
+            
+            <th>DCR_TEST_Outcome</th>
+            
+        </tr>
+        <!-- block ID=4660-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script>
+            
+            <td>SCH8000</td>
+            
+            <td><!-- MKS HTML --><p>&#160;&#160;SCH shall generate a housekeeping message containing the following:</p><p>a) Valid Ground Command Counter</p><p>b) Ground Command Rejected Counter</p><p>e) Valid commands sent by the SCH APP</p><p>f) Commands sent by SCH APP that were reported as erroneous by the Software Bus</p><p>g) Number of Slots processed</p><p>h) Number of Times Slots skipped i) Number of Times Multiple Slots processed</p><p>j) Number of times that SCH woke up in the same slot as last time</p><p>k) Number of bad entries found in the Scheduler table (indication of corrupted table)</p><p>l) Synchronization status (flywheeling)</p></td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4660-->
+<!-- block ID=4660-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script>
+            
+            <td>SCH9000</td>
+            
+            <td><!-- MKS HTML --><p>Upon any Initialization of the SCH Application (cFE Power On, cFE Processor Reset or SCH Application Reset), SCH shall initialize the following data to Zero:</p><p>a) Valid Ground Command Counter</p><p>b) Ground Command Rejected Counter</p><p>e) Valid commands sent by the SCH APP</p><p>f) Commands sent by SCH APP that were reported as erroneous by the Software Bus</p><p>&#160;</p><p>g) Number of Slots processed</p><p>h) Number of Times Slots skipped</p><p>i) Number of Times Multiple Slots processed</p><p>j) Number of times that SCH woke up in the same slot as last time</p><p>k) Number of bad entries found in the Scheduler table (indication of corrupted table)</p><p>l) Synchronization status (not flywheeling</p></td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4660-->
+<!-- block ID=4660-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script>
+            
+            <td>SCH9001</td>
+            
+            <td><!-- MKS HTML -->Upon any Initialization, the SCH Application shall inhibit processing of the Schedule Definition Table until the cFE indicates that all of the applications have started.</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4660-->
+
+        </table>
+    </td>
+</tr>
+
+<tr><td ><hr class="hr_default"></td></tr>
+<tr><td >&nbsp;</td></tr>
+<script type="text/javascript"> line_count=0; </script>
+<!-- blockend ID=4660-->
+<!-- block ID=4649-->
+
+<!-- Display issue heading -->
+<tr><th style="text-align: left" >SCH_Timing_Analysis - Item 4649 </th></tr>
+<!-- Display issue field names and values -->
+
+<tr><td><b>TEST_Test_Name:</b> SCH_Timing_Analysis</td></tr>
+
+<tr><td><b>TEST_Description:</b> <!-- MKS HTML -->This test verifies that the SCH application responds correctly to changes in the schedule and message definition tables. It will also verify the timing of the SCH schedule and message definition table processing.</td></tr>
+
+<tr><td><b>TEST_Current_Build:</b> 2.2.1.0</td></tr>
+
+<tr><td><b>TEST_Execution_Assigned_To:</b> Walt Moleski (wmoleski)</td></tr>
+
+<tr><td><b>TEST_Execution_Testbed:</b> cFE 6.5.0.0; OSAL 4.2.0.0; PSP 1.3.0.0</td></tr>
+
+<tr><td><b>TEST_Execution_Checksum:</b> 50244</td></tr>
+
+<tr><td><b>TEST_Execution_Completion_Date:</b> Jul 3, 2017</td></tr>
+
+<tr><td><b>TEST_Execution_Time:</b> 617.923 seconds or 10.2987 minutes</td></tr>
+
+<tr><td><b>TEST_Execution_Comments:</b> <!-- MKS HTML -->All requirements passed.</td></tr>
+
+<tr><td><b>TEST_Comments:</b> &nbsp;</td></tr>
+
+<!-- Relationships info -->
+<!-- Display relationship heading -->
+<tr><td >DCRs Submitted / Tested and Requirements Validated</td></tr>
+
+
+<tr><td class="detailheading" style="text-align: left" >Links_To_TEST_from_DCRs_Backward,ALM_Validates:</td></tr>
+<tr>
+    <td >
+        <table class="detailcols fullWidth">
+        
+        <tr>
+            
+            <th>ReqID</th>
+            
+            <th>Text</th>
+            
+            <th>Build Test Method</th>
+            
+            <th>REQ_Build_Sys_Test_Results</th>
+            
+            <th>REQ_Build_Sys_Test_Comments</th>
+            
+            <th>DCR_Title</th>
+            
+            <th>DCR_TEST_Outcome</th>
+            
+        </tr>
+        <!-- block ID=4649-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script>
+            
+            <td>SCH1002</td>
+            
+            <td><!-- MKS HTML -->For all SCH commands, if the length contained in the message header is not equal to the expected length, SCH shall reject the command and issue an event message.</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4649-->
+<!-- block ID=4649-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script>
+            
+            <td>SCH1004</td>
+            
+            <td><!-- MKS HTML -->If SCH accepts any command as valid, SCH shall execute the command, increment the SCH Valid Command Counter and issue an event message</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4649-->
+<!-- block ID=4649-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script>
+            
+            <td>SCH1005</td>
+            
+            <td><!-- MKS HTML -->If SCH rejects any command, SCH shall abort the command execution, increment the SCH Command Rejected Counter and issue an error event message</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4649-->
+<!-- block ID=4649-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script>
+            
+            <td>SCH2001</td>
+            
+            <td><!-- MKS HTML -->The Schedule Definition Table shall schedule activities with a minimum minor frame resolution of &lt;PLATFORM_DEFINED, 10&gt; milliseconds and a major frame resolution of &lt;PLATFORM_DEFINED, 1&gt; second.&#160;</td>
+            
+            <td>Analysis</td>
+            
+            <td>Pass</td>
+            
+            <td><!-- MKS HTML -->The Timing Analysis test procedure schedules a large amount of NOOP commands in Step 2.1. The resolution can be determined from the log file for this test and passed this requirement.</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4649-->
+<!-- block ID=4649-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script>
+            
+            <td>SCH3000</td>
+            
+            <td><!-- MKS HTML -->For each “Enabled” activity defined in the SDT, SCH shall send the specified message defined in the Message Definition Table (MDT) via a Software Bus message.</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4649-->
+<!-- block ID=4649-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script>
+            
+            <td>SCH3001</td>
+            
+            <td><!-- MKS HTML -->SCH shall associate each activity with a single Group and zero to 24 Multi-Groups.</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4649-->
+<!-- block ID=4649-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script>
+            
+            <td>SCH3001.1</td>
+            
+            <td><!-- MKS HTML -->SCH shall support a maximum of 255 Groups</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4649-->
+<!-- block ID=4649-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script>
+            
+            <td>SCH3002</td>
+            
+            <td><!-- MKS HTML -->SCH shall support a maximum of &lt;PLATFORM_DEFINED, 255&gt; messages in the Message Definition Table</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4649-->
+<!-- block ID=4649-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script>
+            
+            <td>SCH3003</td>
+            
+            <td><!-- MKS HTML -->SCH shall allow the user to combine one or more groups of activities in the Schedule Definition Table into one or more Multi-Groups.</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4649-->
+<!-- block ID=4649-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script>
+            
+            <td>SCH3003.1</td>
+            
+            <td><!-- MKS HTML -->SCH shall support a maximum of 24 Multi-Groups.</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4649-->
+<!-- block ID=4649-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script>
+            
+            <td>SCH4000</td>
+            
+            <td><!-- MKS HTML -->Upon receipt of an Enable Activity Command, SCH shall enable the command-specified activity defined in the Schedule Definition Table</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4649-->
+<!-- block ID=4649-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script>
+            
+            <td>SCH4000.1</td>
+            
+            <td><!-- MKS HTML -->If an “Unused” Activity definition is specified by the command, the command shall be rejected</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4649-->
+<!-- block ID=4649-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script>
+            
+            <td>SCH4000.2</td>
+            
+            <td><!-- MKS HTML -->If the command specified activity identifier is out of range, the command shall be rejected</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4649-->
+<!-- block ID=4649-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script>
+            
+            <td>SCH4001</td>
+            
+            <td><!-- MKS HTML -->Upon receipt of a Disable Activity Command, SCH shall disable further processing of the command-specified activity defined in the Schedule Definition Table</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4649-->
+<!-- block ID=4649-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script>
+            
+            <td>SCH4001.1</td>
+            
+            <td><!-- MKS HTML -->If an “Unused” Activity definition is specified by the command, the command shall be rejected</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4649-->
+<!-- block ID=4649-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script>
+            
+            <td>SCH4001.2</td>
+            
+            <td><!-- MKS HTML -->If the command specified activity identifier is out of range, the command shall be rejected</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4649-->
+<!-- block ID=4649-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script>
+            
+            <td>SCH4002</td>
+            
+            <td><!-- MKS HTML -->Upon receipt of an Enable Group Command, SCH shall enable all the activities associated with the command-specified Group and/or Multi-Group</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4649-->
+<!-- block ID=4649-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script>
+            
+            <td>SCH4002.1</td>
+            
+            <td><!-- MKS HTML -->If &#160;no Group or Multi-Group is specified then the command shall be rejected</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4649-->
+<!-- block ID=4649-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script>
+            
+            <td>SCH4003</td>
+            
+            <td><!-- MKS HTML -->Upon receipt of a Disable Group Command, SCH shall disable further processing of all activities associated with the command-specified Group and/or Multi-Group.</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4649-->
+<!-- block ID=4649-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script>
+            
+            <td>SCH4003.1</td>
+            
+            <td><!-- MKS HTML -->If no Group or Multi-Group is specified then the command shall be rejected</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4649-->
+<!-- block ID=4649-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script>
+            
+            <td>SCH4004</td>
+            
+            <td><!-- MKS HTML -->Upon receipt of a SCH Diagnostic Command, SCH shall produce a Diagnostic Message containing, at a minimum, the Activity State for all Activities.</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4649-->
+<!-- block ID=4649-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script>
+            
+            <td>SCH4005</td>
+            
+            <td><!-- MKS HTML -->Upon receipt of an Enable Major Frame Synchronization Command, SCH shall synchronize its Scheduler Definition Table (SDT) containing defined activities to the next Major Frame Signal</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4649-->
+<!-- block ID=4649-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script>
+            
+            <td>SCH8000</td>
+            
+            <td><!-- MKS HTML --><p>&#160;&#160;SCH shall generate a housekeeping message containing the following:</p><p>a) Valid Ground Command Counter</p><p>b) Ground Command Rejected Counter</p><p>e) Valid commands sent by the SCH APP</p><p>f) Commands sent by SCH APP that were reported as erroneous by the Software Bus</p><p>g) Number of Slots processed</p><p>h) Number of Times Slots skipped i) Number of Times Multiple Slots processed</p><p>j) Number of times that SCH woke up in the same slot as last time</p><p>k) Number of bad entries found in the Scheduler table (indication of corrupted table)</p><p>l) Synchronization status (flywheeling)</p></td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4649-->
+<!-- block ID=4649-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script>
+            
+            <td>SCH9000</td>
+            
+            <td><!-- MKS HTML --><p>Upon any Initialization of the SCH Application (cFE Power On, cFE Processor Reset or SCH Application Reset), SCH shall initialize the following data to Zero:</p><p>a) Valid Ground Command Counter</p><p>b) Ground Command Rejected Counter</p><p>e) Valid commands sent by the SCH APP</p><p>f) Commands sent by SCH APP that were reported as erroneous by the Software Bus</p><p>&#160;</p><p>g) Number of Slots processed</p><p>h) Number of Times Slots skipped</p><p>i) Number of Times Multiple Slots processed</p><p>j) Number of times that SCH woke up in the same slot as last time</p><p>k) Number of bad entries found in the Scheduler table (indication of corrupted table)</p><p>l) Synchronization status (not flywheeling</p></td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4649-->
+<!-- block ID=4649-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script>
+            
+            <td>SCH9001</td>
+            
+            <td><!-- MKS HTML -->Upon any Initialization, the SCH Application shall inhibit processing of the Schedule Definition Table until the cFE indicates that all of the applications have started.</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4649-->
+
+        </table>
+    </td>
+</tr>
+
+<tr><td ><hr class="hr_default"></td></tr>
+<tr><td >&nbsp;</td></tr>
+<script type="text/javascript"> line_count=0; </script>
+<!-- blockend ID=4649-->
+
+</table>
+<center class="footer"></center>
+</body>
+</html>

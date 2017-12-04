@@ -1,7 +1,7 @@
 /*
-** $Id: sch_msgdefs.h 1.4 2015/03/01 14:01:35EST sstrege Exp  $
+** $Id: sch_msgdefs.h 1.3 2017/06/21 15:28:58EDT mdeschu Exp  $
 **
-**  Copyright © 2007-2014 United States Government as represented by the 
+**  Copyright (c) 2007-2014 United States Government as represented by the 
 **  Administrator of the National Aeronautics and Space Administration. 
 **  All Other Rights Reserved.  
 **
@@ -23,16 +23,6 @@
 **   ADD THEM TO sch_msg.h IF NEEDED! 
 **
 **
-** $Log: sch_msgdefs.h  $
-** Revision 1.4 2015/03/01 14:01:35EST sstrege 
-** Added copyright information
-** Revision 1.3 2011/06/14 15:11:32EDT aschoeni 
-** Cleaned up comments on reset command
-** Revision 1.2 2011/06/02 16:19:03EDT aschoeni 
-** Clarified MF_SOURCE as MAJOR_FS (M could also be minor)
-** Revision 1.1 2008/10/16 15:08:38EDT dkobe 
-** Initial revision
-** Member added to project c:/MKSDATA/MKS-REPOSITORY/CFS-REPOSITORY/sch/fsw/src/project.pj
 */
 
 #ifndef _sch_msgdefs_

@@ -1,7 +1,7 @@
 /*
-** $Id: sch_def_schtbl.c 1.5 2015/03/01 14:02:05EST sstrege Exp  $
+** $Id: sch_def_schtbl.c 1.3 2017/06/21 15:29:50EDT mdeschu Exp  $
 **
-**  Copyright © 2007-2014 United States Government as represented by the 
+**  Copyright (c) 2007-2014 United States Government as represented by the 
 **  Administrator of the National Aeronautics and Space Administration. 
 **  All Other Rights Reserved.  
 **
@@ -16,18 +16,6 @@
 **
 ** Notes:
 **
-** $Log: sch_def_schtbl.c  $
-** Revision 1.5 2015/03/01 14:02:05EST sstrege 
-** Added copyright information
-** Revision 1.4 2012/07/20 17:09:20EDT aschoeni 
-** Fixed table compiler warning
-** Revision 1.3 2011/07/21 14:52:44EDT aschoeni 
-** removed default entries from table and replaced with unused entries
-** Revision 1.2 2011/06/30 20:30:57EDT aschoeni 
-** updated table header
-** Revision 1.1 2009/03/27 00:32:26EDT dkobe 
-** Initial revision
-** Member added to project c:/MKSDATA/MKS-REPOSITORY/CFS-REPOSITORY/sch/fsw/tables/project.pj
 */
 
 /*************************************************************************

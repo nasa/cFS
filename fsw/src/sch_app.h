@@ -1,8 +1,8 @@
 /************************************************************************
 ** File:
-**   $Id: sch_app.h 1.7 2015/03/01 14:01:45EST sstrege Exp  $
+**   $Id: sch_app.h 1.4 2017/06/21 15:29:01EDT mdeschu Exp  $
 **
-**  Copyright © 2007-2014 United States Government as represented by the 
+**  Copyright (c) 2007-2014 United States Government as represented by the 
 **  Administrator of the National Aeronautics and Space Administration. 
 **  All Other Rights Reserved.  
 **
@@ -15,23 +15,6 @@
 **  The CFS Scheduler (SCH) Application header file
 **
 ** Notes:
-**
-** $Log: sch_app.h  $
-** Revision 1.7 2015/03/01 14:01:45EST sstrege 
-** Added copyright information
-** Revision 1.6 2011/06/14 15:26:32EDT aschoeni 
-** Reduced command counters to 8 bit
-** Revision 1.5 2011/06/14 15:11:52EDT aschoeni 
-** Cleaned up comments on reset command
-** Revision 1.4 2011/05/24 18:08:13EDT aschoeni 
-** Moved Major frame event outside of callback
-** Revision 1.3 2009/03/27 00:24:22EDT dkobe 
-** Added consecutive noisy major frame counter and platform config parameter to compare counter to
-** Revision 1.2 2009/03/26 16:05:09EDT dkobe 
-** Added logic for determining worst case number of slots that could be executed in response to a poor minor frame timer signal.
-** Revision 1.1 2008/10/16 15:08:33EDT dkobe 
-** Initial revision
-** Member added to project c:/MKSDATA/MKS-REPOSITORY/CFS-REPOSITORY/sch/fsw/src/project.pj
 **
 *************************************************************************/
 #ifndef _sch_app_
@@ -115,6 +98,30 @@
 #define SCH_BAD_MSG_LENGTH_RC   (-2) /**< \brief SCH return code for unexpected cmd length */
 #define SCH_UNKNOWN_ACTIVITY    (-3) /**< \brief SCH return code for unknown Entry Activity Type */
 /** \} */
+
+/*
+** Time Semaphore Characteristics
+*/
+#define SCH_SEM_NAME     "SCH_TIME_SEM"
+#define SCH_SEM_VALUE    0
+#define SCH_SEM_OPTIONS  0
+
+/*
+** SDT Table Validation Error Codes
+*/
+#define SCH_SDT_GARBAGE_ENTRY    (-1)
+#define SCH_SDT_NO_FREQUENCY     (-2)
+#define SCH_SDT_BAD_REMAINDER    (-3)
+#define SCH_SDT_BAD_ACTIVITY     (-4)
+#define SCH_SDT_BAD_MSG_INDEX    (-5)
+#define SCH_SDT_BAD_ENABLE_STATE (-6)
+
+/*
+** MDT Table Validation Error Codes
+*/
+#define SCH_MDT_GARBAGE_ENTRY   (-1)
+#define SCH_MDT_INVALID_LENGTH  (-2)
+#define SCH_MDT_BAD_MSG_ID      (-3)
 
 /*************************************************************************
 **
@@ -254,6 +261,229 @@ extern SCH_AppData_t    SCH_AppData;
 **       
 *************************************************************************/
 void   SCH_AppMain(void);
+
+/*************************************************************************
+** Local function prototypes
+**************************************************************************/
+
+/************************************************************************/
+/** \brief Initialize the Scheduler CFS application
+**  
+**  \par Description
+**       Scheduler application initialization routine. This 
+**       function performs all the required startup steps to 
+**       get the application registered with the cFE services so
+**       it can begin to receive command messages. 
+**
+**  \par Assumptions, External Events, and Notes:
+**       None
+**       
+**  \returns
+**  \retcode #CFE_SUCCESS  \retdesc \copydoc CFE_SUCCESS \endcode
+**  \retstmt Return codes from #CFE_EVS_Register         \endcode
+**  \retstmt Return codes from #CFE_SB_CreatePipe        \endcode
+**  \retstmt Return codes from #CFE_SB_Subscribe         \endcode
+**  \endreturns
+**
+*************************************************************************/
+int32 SCH_AppInit(void);
+
+/************************************************************************/
+/** \brief Initialize the cFE Events with CFS Scheduler Application
+**  
+**  \par Description
+**       This function performs those steps required to initialize the
+**       relationship between the CFS Scheduler and the cFE Events Services. 
+**
+**  \par Assumptions, External Events, and Notes:
+**       None
+**       
+**  \returns
+**  \retcode #CFE_SUCCESS  \retdesc \copydoc CFE_SUCCESS \endcode
+**  \retstmt Return codes from #CFE_EVS_Register         \endcode
+**  \retstmt Return codes from #CFE_SB_CreatePipe        \endcode
+**  \retstmt Return codes from #CFE_SB_Subscribe         \endcode
+**  \endreturns
+**
+*************************************************************************/
+int32 SCH_EvsInit(void);
+
+/************************************************************************/
+/** \brief Initialize cFE Software Bus with CFS Scheduler Application
+**  
+**  \par Description
+**       This function performs those steps required to initialize the
+**       relationship between the CFS Scheduler and the cFE Software Bus. 
+**
+**  \par Assumptions, External Events, and Notes:
+**       None
+**       
+**  \returns
+**  \retcode #CFE_SUCCESS  \retdesc \copydoc CFE_SUCCESS \endcode
+**  \retstmt Return codes from #CFE_EVS_Register         \endcode
+**  \retstmt Return codes from #CFE_SB_CreatePipe        \endcode
+**  \retstmt Return codes from #CFE_SB_Subscribe         \endcode
+**  \endreturns
+**
+*************************************************************************/
+int32 SCH_SbInit(void);
+
+/************************************************************************/
+/** \brief Initialize cFE Table Services with CFS Scheduler Application
+**  
+**  \par Description
+**       This function performs those steps required to initialize the
+**       relationship between the CFS Scheduler and the cFE Table Services. 
+**
+**  \par Assumptions, External Events, and Notes:
+**       None
+**       
+**  \returns
+**  \retcode #CFE_SUCCESS  \retdesc \copydoc CFE_SUCCESS \endcode
+**  \retstmt Return codes from #CFE_EVS_Register         \endcode
+**  \retstmt Return codes from #CFE_SB_CreatePipe        \endcode
+**  \retstmt Return codes from #CFE_SB_Subscribe         \endcode
+**  \endreturns
+**
+*************************************************************************/
+int32 SCH_TblInit(void);
+
+/************************************************************************/
+/** \brief Initialize cFE Table Services with cFE Time Services and OSAL timer
+**  
+**  \par Description
+**       This function performs those steps required to initialize the
+**       relationship between the CFS Scheduler and cFE Time Services as
+**       well as with the OS Abstraction Layer Timer Interface. 
+**
+**  \par Assumptions, External Events, and Notes:
+**       None
+**       
+**  \returns
+**  \retcode #CFE_SUCCESS  \retdesc \copydoc CFE_SUCCESS \endcode
+**  \retstmt Return codes from #CFE_EVS_Register         \endcode
+**  \retstmt Return codes from #CFE_SB_CreatePipe        \endcode
+**  \retstmt Return codes from #CFE_SB_Subscribe         \endcode
+**  \endreturns
+**
+*************************************************************************/
+int32 SCH_TimerInit(void);
+
+/************************************************************************/
+/** \brief Processes the Schedule Table to determine next Minor Frame
+**  
+**  \par Description
+**       This function performs the highest level operations associated with
+**       processing the Schedule Definition Table.  It determines which
+**       minor frame schedule definitions are to be processed during this
+**       cycle. 
+**
+**  \par Assumptions, External Events, and Notes:
+**       None
+**       
+**  \returns
+**  \retcode #CFE_SUCCESS  \retdesc \copydoc CFE_SUCCESS \endcode
+**  \retstmt Return codes from #CFE_EVS_Register         \endcode
+**  \retstmt Return codes from #CFE_SB_CreatePipe        \endcode
+**  \retstmt Return codes from #CFE_SB_Subscribe         \endcode
+**  \endreturns
+**
+*************************************************************************/
+int32 SCH_ProcessScheduleTable(void);
+
+/************************************************************************/
+/** \brief Processes the next minor frame in schedule definition table
+**  
+**  \par Description
+**       This function performs the high level operations associated with
+**       processing a minor frame definition in the Schedule Definition
+**       Table. 
+**
+**  \par Assumptions, External Events, and Notes:
+**       None
+**       
+**  \returns
+**  \retcode #CFE_SUCCESS  \retdesc \copydoc CFE_SUCCESS \endcode
+**  \retstmt Return codes from #CFE_EVS_Register         \endcode
+**  \retstmt Return codes from #CFE_SB_CreatePipe        \endcode
+**  \retstmt Return codes from #CFE_SB_Subscribe         \endcode
+**  \endreturns
+**
+*************************************************************************/
+int32  SCH_ProcessNextSlot(void);
+
+/************************************************************************/
+/** \brief Processes the next entry in the current minor frame
+**  
+**  \par Description
+**       This function processes the next entry in the current minor frame
+**       as defined in the schedule definition table. 
+**
+**  \par Assumptions, External Events, and Notes:
+**       None
+**       
+*************************************************************************/
+void   SCH_ProcessNextEntry(SCH_ScheduleEntry_t *NextEntry, int32 EntryNumber);
+
+/************************************************************************/
+/** \brief Processes commands received from cFE Software Bus
+**  
+**  \par Description
+**       This function pulls messages from command pipe and processes
+**       them accordingly. 
+**
+**  \par Assumptions, External Events, and Notes:
+**       None
+**       
+**  \returns
+**  \retcode #CFE_SUCCESS  \retdesc \copydoc CFE_SUCCESS \endcode
+**  \retstmt Return codes from #CFE_EVS_Register         \endcode
+**  \retstmt Return codes from #CFE_SB_CreatePipe        \endcode
+**  \retstmt Return codes from #CFE_SB_Subscribe         \endcode
+**  \endreturns
+**
+*************************************************************************/
+int32  SCH_ProcessCommands(void);
+
+/************************************************************************/
+/** \brief Validates contents of Schedule Definition Table
+**  
+**  \par Description
+**       This function is called by table services when a validation of
+**       the Schedule Definition Table is required. 
+**
+**  \par Assumptions, External Events, and Notes:
+**       None
+**       
+**  \returns
+**  \retcode #CFE_SUCCESS  \retdesc \copydoc CFE_SUCCESS \endcode
+**  \retstmt Return codes from #CFE_EVS_Register         \endcode
+**  \retstmt Return codes from #CFE_SB_CreatePipe        \endcode
+**  \retstmt Return codes from #CFE_SB_Subscribe         \endcode
+**  \endreturns
+**
+*************************************************************************/
+int32 SCH_ValidateScheduleData(void *TableData);
+
+/************************************************************************/
+/** \brief Validates contents of Message Definition Table
+**  
+**  \par Description
+**       This function is called by table services when a validation of
+**       the Message Definition Table is required. 
+**
+**  \par Assumptions, External Events, and Notes:
+**       None
+**       
+**  \returns
+**  \retcode #CFE_SUCCESS  \retdesc \copydoc CFE_SUCCESS \endcode
+**  \retstmt Return codes from #CFE_EVS_Register         \endcode
+**  \retstmt Return codes from #CFE_SB_CreatePipe        \endcode
+**  \retstmt Return codes from #CFE_SB_Subscribe         \endcode
+**  \endreturns
+**
+*************************************************************************/
+int32 SCH_ValidateMessageData(void *TableData);
 
 #endif /* _sch_app_ */
 

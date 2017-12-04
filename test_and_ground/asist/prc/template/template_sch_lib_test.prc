@@ -13,33 +13,35 @@ PROC $sc_$cpu_sch_lib_test
 ;  Requirements Tested
 ;    SCH8000    SCH shall generate a housekeeping message containing the
 ;               following:
-;               a)      Valid Ground Command Counter
-;               b)      Ground Command Rejected Counter
-;               e)      Valid commands sent by the SCH APP
-;               f)      Commands sent by SCH APP that were reported as erroneous;                       by the Software Bus
-;               g)      Number of Slots processed
-;               h)      Number of Times Slots skipped
-;               i)      Number of Times Multiple Slots processed
-;               j)      Number of times that SCH woke up in the same slot as
-;                       last time
-;               k)      Number of bad entries found in the Scheduler table
-;                       (indication of corrupted table)
-;               l)      Synchronization Status (flywheeling)
+;                 a) Valid Ground Command Counter
+;                 b) Ground Command Rejected Counter
+;                 e) Valid commands sent by the SCH APP
+;                 f) Commands sent by SCH APP that were reported as erroneous
+;		     by the Software Bus
+;                 g) Number of Slots processed
+;                 h) Number of Times Slots skipped
+;                 i) Number of Times Multiple Slots processed
+;                 j) Number of times that SCH woke up in the same slot as
+;                    last time
+;                 k) Number of bad entries found in the Scheduler table
+;                    (indication of corrupted table)
+;                 l) Synchronization Status (flywheeling)
 ;    SCH9000    Upon any Initialization of the SCH Application (cFE Power On,
 ;               cFE Processor Reset or SCH Application Reset), SCH shall
 ;               initialize the following data to Zero:
-;               a)      Valid Ground Command Counter
-;               b)      Ground Command Rejected Counter
-;               e)      Valid commands sent by the SCH APP
-;               f)      Commands sent by SCH APP that were reported as erroneous;                       by the Software Bus
-;               g)      Number of Slots processed
-;               h)      Number of Times Slots skipped
-;               i)      Number of Times Multiple Slots processed
-;               j)      Number of times that SCH woke up in the same slot as
-;                       last time
-;               k)      Number of bad entries found in the Scheduler table
-;                       (indication of corrupted table)
-;               l)      Synchronization Status (not flywheeling)
+;                 a) Valid Ground Command Counter
+;                 b) Ground Command Rejected Counter
+;                 e) Valid commands sent by the SCH APP
+;                 f) Commands sent by SCH APP that were reported as erroneous by
+;		     the Software Bus
+;                 g) Number of Slots processed
+;                 h) Number of Times Slots skipped
+;                 i) Number of Times Multiple Slots processed
+;                 j) Number of times that SCH woke up in the same slot as
+;                    last time
+;                 k) Number of bad entries found in the Scheduler table
+;                    (indication of corrupted table)
+;                 l) Synchronization Status (not flywheeling)
 ;    SCH9001    Upon any Initialization, the SCH Application shall inhibit
 ;               processing of the Schedule Definition Table until the cFE
 ;               indicates that all of the applications have started.
@@ -54,11 +56,13 @@ PROC $sc_$cpu_sch_lib_test
 ;	have been loaded.
 ;
 ;  Change History
-;
-;	Date		   Name			Description
-;	08/10/11	Walt Moleski		Initial implementation
-;       08/02/12        Walt Moleski            Added code to look for the
-;                                               Scheduler app executing.
+;	Date		Name		Description
+;	08/10/11	Walt Moleski	Initial implementation
+;       08/02/12        Walt Moleski	Added code to look for the Scheduler
+;					app executing.
+;       06/13/17        W. Moleski	Updated to use CPU1 for commanding and
+;					added a hostCPU variable for the utility
+;					procs to connect to the proper host.
 ;
 ;  Arguments
 ;	None.
@@ -142,6 +146,7 @@ local ramDir = "RAM:0"
 local SCHDefTblName = SCHAppName & ".SCHED_DEF"
 local MSGDefTblName = SCHAppName & ".MSG_DEFS"
 local cmdCtr
+local hostCPU = "$CPU"
 
 ;;; Set the pkt and app IDs for the tables based upon the cpu being used
 ;;; Right now, the pktIDs are not used
@@ -150,18 +155,6 @@ sch_tblAppId = "0FB5"
 sch_tblPktId = 4021
 msg_tblAppId = "0FB4"
 msg_tblPktId = 4020
-
-if ("$CPU" = "CPU2") then
-  sch_tblAppId = "0FD3"
-  sch_tblPktId = 4051
-  msg_tblAppId = "0FD2"
-  msg_tblPktId = 4050
-elseif ("$CPU" = "CPU3") then
-  sch_tblAppId = "0FF3"
-  sch_tblPktId = 4083
-  msg_tblAppId = "0FF2"
-  msg_tblPktId = 4082
-endif
 
 write ";*********************************************************************"
 write ";  Step 1.0:  Initialize the CPU for this test. "
@@ -172,16 +165,16 @@ write ";********************************************************************"
 wait 10
 
 close_data_center
-wait 75
+wait 60
 
-cfe_startup $CPU
+cfe_startup {hostCPU}
 wait 5
 
 write ";*********************************************************************"
 write ";  Step 1.2: Determine if the SCH_LAB application is running. If so,  "
 write ";  we must delete it in order to start the SCH application. "
 write ";**********************************************************************"
-s get_file_to_cvt (ramDir,"cfe_es_app_info.log","$sc_$cpu_es_app_info.log","$CPU")
+s get_file_to_cvt (ramDir,"cfe_es_app_info.log","$sc_$cpu_es_app_info.log",hostCPU)
 
 local found_app = FALSE
 
@@ -236,7 +229,7 @@ else
   s $SC_$CPU_sch_sdtloadfile
   s $SC_$CPU_sch_mdtloadfile
 
-  s load_start_app (SCHAppName,"$CPU","SCH_AppMain")
+  s load_start_app (SCHAppName,hostCPU,"SCH_AppMain")
 
   ; Wait for app startup events
   ut_tlmwait $SC_$CPU_find_event[2].num_found_messages, 1
@@ -258,12 +251,6 @@ endif
 ;; CPU1 is the default
 stream1 = x'0897'
 
-if ("$CPU" = "CPU2") then
-  stream1 = x'0997'
-elseif ("$CPU" = "CPU3") then
-  stream1 = x'0A97'
-endif
-
 write "Sending command to add subscription for SCH HK packet."
 /$SC_$CPU_TO_ADDPACKET Stream=stream1 Pkt_Size=x'0' Priority=x'0' Reliability=x'1' Buflimit=x'4'
 wait 10
@@ -275,7 +262,7 @@ write ";**********************************************************************"
 ut_setupevents "$SC", "$CPU", "CFE_ES", CFE_ES_START_INF_EID, "INFO", 1
 ut_setupevents "$SC", "$CPU", "TST_SCH", TST_SCH_INITSTATS_INF_EID, "INFO", 2
 
-s load_start_app ("TST_SCH","$CPU","TST_SCH_AppMain")
+s load_start_app ("TST_SCH",hostCPU,"TST_SCH_AppMain")
                                                                                 
 ; Wait for app startup events
 ut_tlmwait  $SC_$CPU_find_event[2].num_found_messages, 1
@@ -293,12 +280,6 @@ endif
 ;;; Need to set the stream based upon the cpu being used (using the TST_SCH HK Packet IDs)
 ;;; CPU1 is the default
 stream1 = x'0936'
-
-if ("$CPU" = "CPU2") then
-  stream1 = x'0A36'
-elseif ("$CPU" = "CPU3") then
-  stream1 = x'0B36'
-endif
 
 write "Sending command to add subscription for TST_SCH HK packet."
 /$SC_$CPU_TO_ADDPACKET Stream=stream1 Pkt_Size=x'0' Priority=x'0' Reliability=x'1' Buflimit=x'4'
@@ -336,12 +317,6 @@ local hkPktId
 ;; Set the HK packet ID based upon the cpu being used
 ;; CPU1 is the default
 hkPktId = "p097"
-
-if ("$CPU" = "CPU2") then
-  hkPktId = "p197"
-elseif ("$CPU" = "CPU3") then
-  hkPktId = "p297"
-endif
 
 ;; Verify the HK Packet is getting generated by waiting for the
 ;; sequencecount to increment twice
@@ -557,9 +532,9 @@ write ";*********************************************************************"
 wait 10
 
 close_data_center
-wait 75
+wait 60
 
-cfe_startup $CPU
+cfe_startup {hostCPU}
 wait 5
 
 write "**** Requirements Status Reporting"

@@ -1,8 +1,8 @@
 /************************************************************************
 ** File:
-**   $Id: sch_apipriv.h 1.3 2015/03/01 14:01:27EST sstrege Exp  $
+**   $Id: sch_apipriv.h 1.4 2017/06/21 15:29:01EDT mdeschu Exp  $
 **
-**  Copyright © 2007-2014 United States Government as represented by the 
+**  Copyright (c) 2007-2014 United States Government as represented by the 
 **  Administrator of the National Aeronautics and Space Administration. 
 **  All Other Rights Reserved.  
 **
@@ -12,18 +12,9 @@
 **  agreement.
 **
 ** Purpose: 
-**  The CFS Scheduler (SCH) Application header file
+**  The CFS Scheduler (SCH) API header file
 **
 ** Notes:
-**
-** $Log: sch_apipriv.h  $
-** Revision 1.3 2015/03/01 14:01:27EST sstrege 
-** Added copyright information
-** Revision 1.2 2011/07/29 13:23:27EDT aschoeni 
-** Added return of OS_SUCCESS to LibInit
-** Revision 1.1 2011/06/30 13:57:47EDT aschoeni 
-** Initial revision
-** Member added to project c:/MKSDATA/MKS-REPOSITORY/CFS-REPOSITORY/sch/fsw/src/project.pj
 **
 *************************************************************************/
 #ifndef _sch_apipriv_
@@ -65,9 +56,6 @@ extern SCH_LibData_t    SCH_LibData;
 **
 **************************************************************************/
 
-/*
-** Library entry point for initialization
-*/
 /************************************************************************/
 /** \brief CFS Scheduler (SCH) Library Entry Point
 **  
@@ -79,6 +67,42 @@ extern SCH_LibData_t    SCH_LibData;
 **       
 *************************************************************************/
 int32  SCH_LibInit(void);
+
+/************************************************************************/
+/** \brief SCH_EnableProcessing()
+**  
+**  \par Description
+**       Enables SCH schedule processing.
+**       
+**  \par Assumptions, External Events, and Notes:
+**       None
+**       
+*************************************************************************/
+void SCH_EnableProcessing(void);
+
+/************************************************************************/
+/** \brief SCH_DisableProcessing()
+**  
+**  \par Description
+**       Disables SCH schedule processing.
+**       
+**  \par Assumptions, External Events, and Notes:
+**       None
+**       
+*************************************************************************/
+void SCH_DisableProcessing(void);
+
+/************************************************************************/
+/** \brief SCH_GetProcessingState()
+**  
+**  \par Description
+**       Obtains the current SCH schedule table processing state.
+**       
+**  \par Assumptions, External Events, and Notes:
+**       None
+**       
+*************************************************************************/
+boolean SCH_GetProcessingState(void);
 
 #endif /* _sch_apipriv_ */
 

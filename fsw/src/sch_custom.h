@@ -1,8 +1,8 @@
 /*************************************************************************
 ** File:
-**   $Id: sch_custom.h 1.2 2015/03/01 14:01:42EST sstrege Exp  $
+**   $Id: sch_custom.h 1.5 2017/06/21 15:29:23EDT mdeschu Exp  $
 **
-**  Copyright © 2007-2014 United States Government as represented by the 
+**  Copyright (c) 2007-2014 United States Government as represented by the 
 **  Administrator of the National Aeronautics and Space Administration. 
 **  All Other Rights Reserved.  
 **
@@ -16,14 +16,6 @@
 **   custom function interface
 **
 ** Notes:
-**
-**   $Log: sch_custom.h  $
-**   Revision 1.2 2015/03/01 14:01:42EST sstrege 
-**   Added copyright information
-**   Revision 1.1 2011/06/30 15:30:03EDT aschoeni 
-**   Initial revision
-**   Member added to project c:/MKSDATA/MKS-REPOSITORY/CFS-REPOSITORY/sch/fsw/src/project.pj
-**   Member added to project c:/MKSDATA/MKS-REPOSITORY/CFS-REPOSITORY/lc/fsw/src/project.pj
 ** 
 **************************************************************************/
 #ifndef _sch_custom_
@@ -33,6 +25,15 @@
 ** Includes
 *************************************************************************/
 #include "cfe.h"
+
+/*************************************************************************
+** Macro definitions
+**************************************************************************/
+
+/*
+** Timer Characteristics
+*/
+#define SCH_TIMER_NAME   "SCH_MINOR_TIMER"
 
 /*************************************************************************
 ** Exported Functions
@@ -120,6 +121,52 @@ uint32 SCH_CustomGetCurrentSlotNumber(void);
 **       
 *************************************************************************/
 void SCH_CustomCleanup(void);
+
+/************************************************************************/
+/** \brief Computes a minor slot number from a MET subseconds zero point
+**  
+**  \par Description
+**       This function determines the current slot (minor frame) number if
+**       one were to assume that slot zero started when the MET microseconds
+**       are equal to zero. 
+**
+**  \par Assumptions, External Events, and Notes:
+**       None
+**       
+**  \returns
+**  \retstmt Returns slot index from zero to (#SCH_TOTAL_SLOTS-1) \endcode
+**  \endreturns
+**
+*************************************************************************/
+uint32 SCH_GetMETSlotNumber(void);
+
+/************************************************************************/
+/** \brief Performs Major Frame Synchronization
+**  
+**  \par Description
+**       This function is called by cFE TIME services when a Major Frame
+**       synchronization signal is received.  It then synchronizes the
+**       minor frame (slot) processing of the Schedule Definition Table. 
+**
+**  \par Assumptions, External Events, and Notes:
+**       None
+**       
+*************************************************************************/
+void  SCH_MajorFrameCallback(void);
+
+/************************************************************************/
+/** \brief Performs Minor Frame time step
+**  
+**  \par Description
+**       This function is called by an OSAL timer when the minor frame
+**       timing reference sends a signal.  The Scheduler Application uses
+**       this to drive the Application's processing of each minor frame. 
+**
+**  \par Assumptions, External Events, and Notes:
+**       None
+**       
+*************************************************************************/
+void  SCH_MinorFrameCallback(uint32 TimerId);
 
 #endif /* _sch_custom_ */
 /************************/

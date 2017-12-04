@@ -1,7 +1,7 @@
 /*
-** $Id: sch_app.c 1.15 2015/03/01 14:01:50EST sstrege Exp  $
+** $Id: sch_app.c 1.5 2017/06/21 15:29:02EDT mdeschu Exp  $
 **
-**  Copyright © 2007-2014 United States Government as represented by the 
+**  Copyright (c) 2007-2014 United States Government as represented by the 
 **  Administrator of the National Aeronautics and Space Administration. 
 **  All Other Rights Reserved.  
 **
@@ -16,38 +16,6 @@
 **
 ** Notes:
 **
-** $Log: sch_app.c  $
-** Revision 1.15 2015/03/01 14:01:50EST sstrege 
-** Added copyright information
-** Revision 1.14 2012/06/26 13:56:10EDT lwalling 
-** Added call to CFE_TBL_Modified() after change to shedule table entry enable/disable state
-** Revision 1.13 2011/06/30 17:38:56PDT aschoeni 
-** updated OS_SUCCESS to CFE_SUCCESS for custom earlyinit
-** Revision 1.12 2011/06/30 15:33:08EDT aschoeni 
-** removed customizable components to separate file
-** Revision 1.11 2011/06/30 14:03:39EDT aschoeni 
-** Added sch library for inhibiting schedule
-** Revision 1.10 2011/06/02 16:19:26EDT aschoeni 
-** Updated platform config and verification
-** Revision 1.9 2011/05/24 18:08:13EDT aschoeni 
-** Moved Major frame event outside of callback
-** Revision 1.8 2011/03/30 17:25:43EDT aschoeni 
-** Added a minimum message ID limit for defined messages
-** Revision 1.7 2011/03/30 16:05:00EDT aschoeni 
-** Added error codes for primary key in each table (enablestate and msgid)
-** Revision 1.6 2011/03/29 18:49:51EDT aschoeni 
-** MessageIndex of 0 is now considered a bad schedule table entry.
-** Revision 1.5 2009/03/27 09:58:19EDT dkobe 
-** Changed Table Validation Return Codes to be negative to avoid cFE 5.2 TBL Services bug
-** Revision 1.4 2009/03/27 00:24:23EDT dkobe 
-** Added consecutive noisy major frame counter and platform config parameter to compare counter to
-** Revision 1.3 2009/03/26 16:05:08EDT dkobe 
-** Added logic for determining worst case number of slots that could be executed in response to a poor minor frame timer signal.
-** Revision 1.2 2009/03/26 15:42:04EDT dkobe 
-** Moved 1 Hz Registration to after Startup Synchronization so that 1 Hz signals are not received too early.
-** Revision 1.1 2008/10/16 15:08:32EDT dkobe 
-** Initial revision
-** Member added to project c:/MKSDATA/MKS-REPOSITORY/CFS-REPOSITORY/sch/fsw/src/project.pj
 */
 
 /*************************************************************************
@@ -139,240 +107,6 @@ SCH_AppData_t           SCH_AppData;
 
 /*************************************************************************
 **
-** File data
-**
-**************************************************************************/
-
-/*
-** (none)
-*/
-
-/*************************************************************************
-** Local function prototypes
-**************************************************************************/
-
-/************************************************************************/
-/** \brief Initialize the Scheduler CFS application
-**  
-**  \par Description
-**       Scheduler application initialization routine. This 
-**       function performs all the required startup steps to 
-**       get the application registered with the cFE services so
-**       it can begin to receive command messages. 
-**
-**  \par Assumptions, External Events, and Notes:
-**       None
-**       
-**  \returns
-**  \retcode #CFE_SUCCESS  \retdesc \copydoc CFE_SUCCESS \endcode
-**  \retstmt Return codes from #CFE_EVS_Register         \endcode
-**  \retstmt Return codes from #CFE_SB_CreatePipe        \endcode
-**  \retstmt Return codes from #CFE_SB_Subscribe         \endcode
-**  \endreturns
-**
-*************************************************************************/
-int32 SCH_AppInit(void);
-
-/************************************************************************/
-/** \brief Initialize the cFE Events with CFS Scheduler Application
-**  
-**  \par Description
-**       This function performs those steps required to initialize the
-**       relationship between the CFS Scheduler and the cFE Events Services. 
-**
-**  \par Assumptions, External Events, and Notes:
-**       None
-**       
-**  \returns
-**  \retcode #CFE_SUCCESS  \retdesc \copydoc CFE_SUCCESS \endcode
-**  \retstmt Return codes from #CFE_EVS_Register         \endcode
-**  \retstmt Return codes from #CFE_SB_CreatePipe        \endcode
-**  \retstmt Return codes from #CFE_SB_Subscribe         \endcode
-**  \endreturns
-**
-*************************************************************************/
-int32 SCH_EvsInit(void);
-
-/************************************************************************/
-/** \brief Initialize cFE Software Bus with CFS Scheduler Application
-**  
-**  \par Description
-**       This function performs those steps required to initialize the
-**       relationship between the CFS Scheduler and the cFE Software Bus. 
-**
-**  \par Assumptions, External Events, and Notes:
-**       None
-**       
-**  \returns
-**  \retcode #CFE_SUCCESS  \retdesc \copydoc CFE_SUCCESS \endcode
-**  \retstmt Return codes from #CFE_EVS_Register         \endcode
-**  \retstmt Return codes from #CFE_SB_CreatePipe        \endcode
-**  \retstmt Return codes from #CFE_SB_Subscribe         \endcode
-**  \endreturns
-**
-*************************************************************************/
-int32 SCH_SbInit(void);
-
-/************************************************************************/
-/** \brief Initialize cFE Table Services with CFS Scheduler Application
-**  
-**  \par Description
-**       This function performs those steps required to initialize the
-**       relationship between the CFS Scheduler and the cFE Table Services. 
-**
-**  \par Assumptions, External Events, and Notes:
-**       None
-**       
-**  \returns
-**  \retcode #CFE_SUCCESS  \retdesc \copydoc CFE_SUCCESS \endcode
-**  \retstmt Return codes from #CFE_EVS_Register         \endcode
-**  \retstmt Return codes from #CFE_SB_CreatePipe        \endcode
-**  \retstmt Return codes from #CFE_SB_Subscribe         \endcode
-**  \endreturns
-**
-*************************************************************************/
-int32 SCH_TblInit(void);
-
-/************************************************************************/
-/** \brief Initialize cFE Table Services with cFE Time Services and OSAL timer
-**  
-**  \par Description
-**       This function performs those steps required to initialize the
-**       relationship between the CFS Scheduler and cFE Time Services as
-**       well as with the OS Abstraction Layer Timer Interface. 
-**
-**  \par Assumptions, External Events, and Notes:
-**       None
-**       
-**  \returns
-**  \retcode #CFE_SUCCESS  \retdesc \copydoc CFE_SUCCESS \endcode
-**  \retstmt Return codes from #CFE_EVS_Register         \endcode
-**  \retstmt Return codes from #CFE_SB_CreatePipe        \endcode
-**  \retstmt Return codes from #CFE_SB_Subscribe         \endcode
-**  \endreturns
-**
-*************************************************************************/
-int32 SCH_TimerInit(void);
-
-/************************************************************************/
-/** \brief Processes the Schedule Table to determine next Minor Frame
-**  
-**  \par Description
-**       This function performs the highest level operations associated with
-**       processing the Schedule Definition Table.  It determines which
-**       minor frame schedule definitions are to be processed during this
-**       cycle. 
-**
-**  \par Assumptions, External Events, and Notes:
-**       None
-**       
-**  \returns
-**  \retcode #CFE_SUCCESS  \retdesc \copydoc CFE_SUCCESS \endcode
-**  \retstmt Return codes from #CFE_EVS_Register         \endcode
-**  \retstmt Return codes from #CFE_SB_CreatePipe        \endcode
-**  \retstmt Return codes from #CFE_SB_Subscribe         \endcode
-**  \endreturns
-**
-*************************************************************************/
-int32 SCH_ProcessScheduleTable(void);
-
-/************************************************************************/
-/** \brief Processes the next minor frame in schedule definition table
-**  
-**  \par Description
-**       This function performs the high level operations associated with
-**       processing a minor frame definition in the Schedule Definition
-**       Table. 
-**
-**  \par Assumptions, External Events, and Notes:
-**       None
-**       
-**  \returns
-**  \retcode #CFE_SUCCESS  \retdesc \copydoc CFE_SUCCESS \endcode
-**  \retstmt Return codes from #CFE_EVS_Register         \endcode
-**  \retstmt Return codes from #CFE_SB_CreatePipe        \endcode
-**  \retstmt Return codes from #CFE_SB_Subscribe         \endcode
-**  \endreturns
-**
-*************************************************************************/
-int32  SCH_ProcessNextSlot(void);
-
-/************************************************************************/
-/** \brief Processes the next entry in the current minor frame
-**  
-**  \par Description
-**       This function processes the next entry in the current minor frame
-**       as defined in the schedule definition table. 
-**
-**  \par Assumptions, External Events, and Notes:
-**       None
-**       
-*************************************************************************/
-void   SCH_ProcessNextEntry(SCH_ScheduleEntry_t *NextEntry, int32 EntryNumber);
-
-/************************************************************************/
-/** \brief Processes commands received from cFE Software Bus
-**  
-**  \par Description
-**       This function pulls messages from command pipe and processes
-**       them accordingly. 
-**
-**  \par Assumptions, External Events, and Notes:
-**       None
-**       
-**  \returns
-**  \retcode #CFE_SUCCESS  \retdesc \copydoc CFE_SUCCESS \endcode
-**  \retstmt Return codes from #CFE_EVS_Register         \endcode
-**  \retstmt Return codes from #CFE_SB_CreatePipe        \endcode
-**  \retstmt Return codes from #CFE_SB_Subscribe         \endcode
-**  \endreturns
-**
-*************************************************************************/
-int32  SCH_ProcessCommands(void);
-
-/************************************************************************/
-/** \brief Validates contents of Schedule Definition Table
-**  
-**  \par Description
-**       This function is called by table services when a validation of
-**       the Schedule Definition Table is required. 
-**
-**  \par Assumptions, External Events, and Notes:
-**       None
-**       
-**  \returns
-**  \retcode #CFE_SUCCESS  \retdesc \copydoc CFE_SUCCESS \endcode
-**  \retstmt Return codes from #CFE_EVS_Register         \endcode
-**  \retstmt Return codes from #CFE_SB_CreatePipe        \endcode
-**  \retstmt Return codes from #CFE_SB_Subscribe         \endcode
-**  \endreturns
-**
-*************************************************************************/
-int32 SCH_ValidateScheduleData(void *TableData);
-
-/************************************************************************/
-/** \brief Validates contents of Message Definition Table
-**  
-**  \par Description
-**       This function is called by table services when a validation of
-**       the Message Definition Table is required. 
-**
-**  \par Assumptions, External Events, and Notes:
-**       None
-**       
-**  \returns
-**  \retcode #CFE_SUCCESS  \retdesc \copydoc CFE_SUCCESS \endcode
-**  \retstmt Return codes from #CFE_EVS_Register         \endcode
-**  \retstmt Return codes from #CFE_SB_CreatePipe        \endcode
-**  \retstmt Return codes from #CFE_SB_Subscribe         \endcode
-**  \endreturns
-**
-*************************************************************************/
-int32 SCH_ValidateMessageData(void *TableData);
-
-
-/*************************************************************************
-**
 ** Function definitions
 **
 **************************************************************************/
@@ -415,7 +149,7 @@ void SCH_AppMain(void)
         {
             CFE_EVS_SendEvent(SCH_MAJOR_FRAME_SUB_ERR_EID, CFE_EVS_ERROR,
                               "Error initializing Timers (RC=0x%08X)", 
-                              Status);    
+                              (unsigned int)Status);    
         }
     }
 
@@ -508,12 +242,12 @@ void SCH_AppMain(void)
         ** Send an event describing the reason for the termination
         */
         CFE_EVS_SendEvent(SCH_APP_EXIT_EID, CFE_EVS_CRITICAL, 
-                          "SCH App: terminating, err = 0x%08X", Status);
+                          "SCH App: terminating, err = 0x%08X", (unsigned int)Status);
 
         /*
         ** In case cFE Event Services is not working
         */
-        CFE_ES_WriteToSysLog("SCH App terminating, err = 0x%08X\n", Status);
+        CFE_ES_WriteToSysLog("SCH App terminating, err = 0x%08X\n", (unsigned int)Status);
     }
  
     /*
@@ -567,7 +301,7 @@ int32 SCH_AppInit(void)
     Status = CFE_ES_GetAppID(&SCH_AppData.AppID);
     if (Status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("SCH App: Unable to obtain own AppID, RC=0x%08X\n", Status);
+        CFE_ES_WriteToSysLog("SCH App: Unable to obtain own AppID, RC=0x%08X\n", (unsigned int)Status);
         return(Status);
     }
     
@@ -652,7 +386,7 @@ int32 SCH_EvsInit(void)
     Status = CFE_EVS_Register(SCH_AppData.EventFilters, SCH_FILTER_COUNT, CFE_EVS_BINARY_FILTER);
     if (Status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("SCH App: Error Registering For Event Services, RC=0x%08X\n", Status);
+        CFE_ES_WriteToSysLog("SCH App: Error Registering For Event Services, RC=0x%08X\n", (unsigned int)Status);
     }
 
     return(Status);
@@ -691,7 +425,7 @@ int32 SCH_SbInit(void)
     if (Status != CFE_SUCCESS)
     {
         CFE_EVS_SendEvent(SCH_CR_PIPE_ERR_EID, CFE_EVS_ERROR,
-                          "Error Creating SB Pipe, RC=0x%08X", Status);
+                          "Error Creating SB Pipe, RC=0x%08X", (unsigned int)Status);
         return(Status);
     }
 
@@ -703,7 +437,7 @@ int32 SCH_SbInit(void)
     {
         CFE_EVS_SendEvent(SCH_SUB_HK_REQ_ERR_EID, CFE_EVS_ERROR,
                           "Error Subscribing to HK Request(MID=0x%04X), RC=0x%08X", 
-                          SCH_SEND_HK_MID, Status);    
+                          SCH_SEND_HK_MID, (unsigned int)Status);    
         return(Status);
     }
 
@@ -715,7 +449,7 @@ int32 SCH_SbInit(void)
     {
         CFE_EVS_SendEvent(SCH_SUB_GND_CMD_ERR_EID, CFE_EVS_ERROR,
                           "Error Subscribing to GND CMD(MID=0x%04X), RC=0x%08X", 
-                          SCH_CMD_MID, Status);    
+                          SCH_CMD_MID, (unsigned int)Status);    
         return(Status);
     }
 
@@ -765,7 +499,7 @@ int32 SCH_TblInit(void)
     {
         CFE_EVS_SendEvent(SCH_SDT_REG_ERR_EID, CFE_EVS_ERROR,
                           "Error Registering SDT, RC=0x%08X", 
-                          Status);    
+                          (unsigned int)Status);    
         return(Status);
     }
 
@@ -784,7 +518,7 @@ int32 SCH_TblInit(void)
     {
         CFE_EVS_SendEvent(SCH_MDT_REG_ERR_EID, CFE_EVS_ERROR,
                           "Error Registering MDT, RC=0x%08X", 
-                          Status);    
+                          (unsigned int)Status);    
         return(Status);
     }
 
@@ -799,7 +533,7 @@ int32 SCH_TblInit(void)
     {
         CFE_EVS_SendEvent(SCH_SDT_LOAD_ERR_EID, CFE_EVS_ERROR,
                           "Error (RC=0x%08X) Loading SDT with %s", 
-                          Status, SCH_SCHEDULE_FILENAME);    
+                          (unsigned int)Status, SCH_SCHEDULE_FILENAME);    
         return(Status);
     }
 
@@ -814,7 +548,7 @@ int32 SCH_TblInit(void)
     {
         CFE_EVS_SendEvent(SCH_MDT_LOAD_ERR_EID, CFE_EVS_ERROR,
                           "Error (RC=0x%08X) Loading MDT with %s", 
-                          Status, SCH_MESSAGE_FILENAME);    
+                          (unsigned int)Status, SCH_MESSAGE_FILENAME);    
         return(Status);
     }
 
@@ -828,7 +562,7 @@ int32 SCH_TblInit(void)
     {
         CFE_EVS_SendEvent(SCH_ACQ_PTR_ERR_EID, CFE_EVS_ERROR,
                           "Error Acquiring Tbl Ptrs (RC=0x%08X)", 
-                          Status);    
+                          (unsigned int)Status);    
         return(Status);
     }
 
@@ -880,7 +614,7 @@ int32 SCH_TimerInit(void)
     {
         CFE_EVS_SendEvent(SCH_MINOR_FRAME_TIMER_CREATE_ERR_EID, CFE_EVS_ERROR,
                           "Error creating Timer (RC=0x%08X)", 
-                          Status);    
+                          (unsigned int)Status);    
         return(Status);
     }
     
@@ -891,7 +625,7 @@ int32 SCH_TimerInit(void)
     {
         CFE_EVS_SendEvent(SCH_MINOR_FRAME_TIMER_ACC_WARN_EID, CFE_EVS_INFORMATION,
                           "OS Timer Accuracy (%d > reqd %d usec) requires Minor Frame MET sync",
-                          SCH_AppData.ClockAccuracy, SCH_WORST_CLOCK_ACCURACY);
+                          (int)SCH_AppData.ClockAccuracy, SCH_WORST_CLOCK_ACCURACY);
         
         /* Synchronize Minor Frame Timing with Mission Elapsed Time to keep from losing slots */
         SCH_AppData.SyncToMET = SCH_MINOR_SYNCHRONIZED;
@@ -908,7 +642,7 @@ int32 SCH_TimerInit(void)
     {
         CFE_EVS_SendEvent(SCH_SEM_CREATE_ERR_EID, CFE_EVS_ERROR,
                           "Error creating Main Loop Timing Semaphore (RC=0x%08X)", 
-                          Status);    
+                          (unsigned int)Status);    
         return(Status);
     }
     
@@ -999,7 +733,7 @@ int32 SCH_ProcessScheduleTable(void)
 
         CFE_EVS_SendEvent(SCH_SAME_SLOT_EID, CFE_EVS_DEBUG,
                           "Slot did not increment: slot = %d",
-                          CurrentSlot);
+                          (int)CurrentSlot);
         ProcessCount = 0;
     }
 
@@ -1012,7 +746,7 @@ int32 SCH_ProcessScheduleTable(void)
 
         CFE_EVS_SendEvent(SCH_SKIPPED_SLOTS_EID, CFE_EVS_ERROR,
                           "Slots skipped: slot = %d, count = %d",
-                          SCH_AppData.NextSlotNumber, (ProcessCount - 1));
+                          SCH_AppData.NextSlotNumber, (int)(ProcessCount - 1));
 
         /*
         ** Update the pass counter if we are skipping the rollover slot
@@ -1059,7 +793,7 @@ int32 SCH_ProcessScheduleTable(void)
         {
             CFE_EVS_SendEvent(SCH_MULTI_SLOTS_EID, CFE_EVS_INFORMATION,
                               "Multiple slots processed: slot = %d, count = %d",
-                              SCH_AppData.NextSlotNumber, ProcessCount);
+                              SCH_AppData.NextSlotNumber, (int)ProcessCount);
         }
     }
 
@@ -1170,7 +904,7 @@ void SCH_ProcessNextEntry(SCH_ScheduleEntry_t *NextEntry, int32 EntryNumber)
         */
         CFE_EVS_SendEvent(SCH_CORRUPTION_EID, CFE_EVS_ERROR,
                           "Corrupt data error (1): slot = %d, entry = %d",
-                          SCH_AppData.NextSlotNumber, EntryNumber);
+                          SCH_AppData.NextSlotNumber, (int)EntryNumber);
 
         CFE_EVS_SendEvent(SCH_CORRUPTION_EID, CFE_EVS_ERROR,
                           "Corrupt data error (2): msg = %d, freq = %d, type = %d, rem = %d",
@@ -1224,7 +958,7 @@ void SCH_ProcessNextEntry(SCH_ScheduleEntry_t *NextEntry, int32 EntryNumber)
 
                 CFE_EVS_SendEvent(SCH_PACKET_SEND_EID, CFE_EVS_ERROR,
                                   "Activity error: slot = %d, entry = %d, err = 0x%08X",
-                                  SCH_AppData.NextSlotNumber, EntryNumber, Status);
+                                  SCH_AppData.NextSlotNumber, (int)EntryNumber, (unsigned int)Status);
             }
         }
     }
@@ -1385,7 +1119,7 @@ int32 SCH_ValidateScheduleData(void *TableData)
 
             CFE_EVS_SendEvent(SCH_SCHEDULE_TBL_ERR_EID, CFE_EVS_ERROR,
                               "Schedule tbl verify error - idx[%d] ena[%d] typ[%d] fre[%d] rem[%d] msg[%d] grp[0x%08X]",
-                              TableIndex, EnableState, Type, Frequency, Remainder, MessageIndex, GroupData);
+                              (int)TableIndex, EnableState, Type, Frequency, Remainder, MessageIndex, (unsigned int)GroupData);
         }
     }
 
@@ -1394,7 +1128,7 @@ int32 SCH_ValidateScheduleData(void *TableData)
     */
     CFE_EVS_SendEvent(SCH_SCHEDULE_TABLE_EID, CFE_EVS_DEBUG,
                       "Schedule table verify results -- good[%d] bad[%d] unused[%d]",
-                      GoodCount, BadCount, UnusedCount);
+                      (int)GoodCount, (int)BadCount, (int)UnusedCount);
     /*
     ** Maintain table verification statistics
     */
@@ -1504,7 +1238,7 @@ int32 SCH_ValidateMessageData(void *TableData)
 
             CFE_EVS_SendEvent(SCH_MESSAGE_TBL_ERR_EID, CFE_EVS_ERROR,
                               "Message tbl verify err - idx[%d] mid[0x%X] len[%d] buf[%d]",
-                              TableIndex, MessageID, MessageLength, BufferIndex);
+                              (int)TableIndex, MessageID, MessageLength, (int)BufferIndex);
         }
     }
 
@@ -1513,7 +1247,7 @@ int32 SCH_ValidateMessageData(void *TableData)
     */
     CFE_EVS_SendEvent(SCH_MESSAGE_TABLE_EID, CFE_EVS_DEBUG,
                       "Message tbl verify results - good[%d] bad[%d] unused[%d]",
-                      GoodCount, BadCount, UnusedCount);
+                      (int)GoodCount, (int)BadCount, (int)UnusedCount);
     /*
     ** Maintain table verification statistics
     */

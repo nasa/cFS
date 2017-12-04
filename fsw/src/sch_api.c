@@ -1,7 +1,7 @@
 /*
-** $Id: sch_api.c 1.4 2015/03/01 14:01:58EST sstrege Exp  $
+** $Id: sch_api.c 1.3 2017/06/21 15:28:59EDT mdeschu Exp  $
 **
-**  Copyright © 2007-2014 United States Government as represented by the 
+**  Copyright (c) 2007-2014 United States Government as represented by the 
 **  Administrator of the National Aeronautics and Space Administration. 
 **  All Other Rights Reserved.  
 **
@@ -17,16 +17,6 @@
 **
 ** References: 
 **
-** $Log: sch_api.c  $
-** Revision 1.4 2015/03/01 14:01:58EST sstrege 
-** Added copyright information
-** Revision 1.3 2011/07/29 13:23:19EDT aschoeni 
-** Added return of OS_SUCCESS to LibInit
-** Revision 1.2 2011/06/30 15:47:01EDT aschoeni 
-** added LibData
-** Revision 1.1 2011/06/30 13:57:46EDT aschoeni 
-** Initial revision
-** Member added to project c:/MKSDATA/MKS-REPOSITORY/CFS-REPOSITORY/sch/fsw/src/project.pj
 */
 
 /*

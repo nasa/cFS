@@ -1,7 +1,7 @@
 /*
-** $Id: sch_cmds.c 1.5 2015/03/01 14:01:41EST sstrege Exp  $
+** $Id: sch_cmds.c 1.5 2017/06/21 15:29:02EDT mdeschu Exp  $
 **
-**  Copyright © 2007-2014 United States Government as represented by the 
+**  Copyright (c) 2007-2014 United States Government as represented by the 
 **  Administrator of the National Aeronautics and Space Administration. 
 **  All Other Rights Reserved.  
 **
@@ -16,18 +16,6 @@
 **
 ** Notes:
 **
-** $Log: sch_cmds.c  $
-** Revision 1.5 2015/03/01 14:01:41EST sstrege 
-** Added copyright information
-** Revision 1.4 2012/06/26 13:56:25EDT lwalling 
-** Added call to CFE_TBL_Modified() after change to shedule table entry enable/disable state
-** Revision 1.3 2009/06/12 11:41:00PDT rmcgraw 
-** DCR82191:1 Changed OS_Mem function calls to CFE_PSP_Mem
-** Revision 1.2 2009/03/27 00:24:21EDT dkobe 
-** Added consecutive noisy major frame counter and platform config parameter to compare counter to
-** Revision 1.1 2008/10/16 15:08:34EDT dkobe 
-** Initial revision
-** Member added to project c:/MKSDATA/MKS-REPOSITORY/CFS-REPOSITORY/sch/fsw/src/project.pj
 */
 
 /*************************************************************************
@@ -46,33 +34,6 @@
 #include "sch_version.h"
 
 #include "cfe_time_msg.h"
-
-
-/*************************************************************************
-**
-** Macro definitions
-**
-**************************************************************************/
-
-/*************************************************************************
-**
-** Type definitions
-**
-**************************************************************************/
-
-/*
-** (none)
-*/
-
-/*************************************************************************
-**
-** Imported data
-**
-**************************************************************************/
-
-/*
-** (none)
-*/
 
 /*************************************************************************
 **
@@ -94,225 +55,6 @@ extern SCH_AppData_t           SCH_AppData;
 /*
 ** (none)
 */
-
-/*************************************************************************
-** Local function prototypes
-**************************************************************************/
-/************************************************************************/
-/** \brief Process housekeeping request
-**  
-**  \par Description
-**       Processes an on-board housekeeping request message.
-**
-**  \par Assumptions, External Events, and Notes:
-**       This command does not affect the command execution counter
-**       
-**  \param [in]   MessagePtr   A #CFE_SB_MsgPtr_t pointer that
-**                             references the software bus message 
-**       
-**  \returns
-**  \retcode #CFE_SUCCESS  \retdesc \copydoc CFE_SUCCESS \endcode
-**  \retstmt Return codes from #CFE_EVS_Register         \endcode
-**  \retstmt Return codes from #CFE_SB_CreatePipe        \endcode
-**  \retstmt Return codes from #CFE_SB_Subscribe         \endcode
-**  \endreturns
-**
-*************************************************************************/
-int32 SCH_HousekeepingCmd(CFE_SB_MsgPtr_t MessagePtr);
-
-/*
-** Application command handlers
-*/
-/************************************************************************/
-/** \brief Process noop command
-**  
-**  \par Description
-**       Processes a noop ground command.
-**
-**  \par Assumptions, External Events, and Notes:
-**       None
-**       
-**  \param [in]   MessagePtr   A #CFE_SB_MsgPtr_t pointer that
-**                             references the software bus message 
-**
-**  \sa #SCH_NOOP_CC
-**
-*************************************************************************/
-void SCH_NoopCmd(CFE_SB_MsgPtr_t MessagePtr);
-
-/************************************************************************/
-/** \brief Process reset counters command
-**  
-**  \par Description
-**       Processes a reset counters ground command which will reset
-**       the Scheduler commmand error, command execution and performance
-**       statistics counters to zero.
-**
-**  \par Assumptions, External Events, and Notes:
-**       None
-**       
-**  \param [in]   MessagePtr   A #CFE_SB_MsgPtr_t pointer that
-**                             references the software bus message 
-**
-**  \sa #SCH_RESET_CC
-**
-*************************************************************************/
-void SCH_ResetCmd(CFE_SB_MsgPtr_t MessagePtr);
-
-/************************************************************************/
-/** \brief Enable a Single Activity Command
-**  
-**  \par Description
-**       Command to Enable a specific activity in the Schedule 
-**       Definition Table.
-**
-**  \par Assumptions, External Events, and Notes:
-**       None
-**       
-**  \param [in]   MessagePtr     A #CFE_SB_MsgPtr_t pointer that
-**                               references the software bus message 
-**       
-**  \sa #SCH_ENABLE_CC, #SCH_DISABLE_CC, #SCH_ENABLE_GROUP_CC, #SCH_DISABLE_GROUP_CC
-**
-*************************************************************************/
-void SCH_EnableCmd(CFE_SB_MsgPtr_t MessagePtr);
-
-/************************************************************************/
-/** \brief Disable a Single Activity Command
-**  
-**  \par Description
-**       Command to Disable a specific activity in the Schedule 
-**       Definition Table.
-**
-**  \par Assumptions, External Events, and Notes:
-**       None
-**       
-**  \param [in]   MessagePtr     A #CFE_SB_MsgPtr_t pointer that
-**                               references the software bus message 
-**       
-**  \sa #SCH_ENABLE_CC, #SCH_DISABLE_CC, #SCH_ENABLE_GROUP_CC, #SCH_DISABLE_GROUP_CC
-**
-*************************************************************************/
-void SCH_DisableCmd(CFE_SB_MsgPtr_t MessagePtr);
-
-/************************************************************************/
-/** \brief Enable a Group and/or Multi-Group(s) Command
-**  
-**  \par Description
-**       Command to Enable a single Group and/or one or more Multi-Groups
-**       of activities.
-**
-**  \par Assumptions, External Events, and Notes:
-**       None
-**       
-**  \param [in]   MessagePtr     A #CFE_SB_MsgPtr_t pointer that
-**                               references the software bus message 
-**       
-**  \sa #SCH_ENABLE_CC, #SCH_DISABLE_CC, #SCH_ENABLE_GROUP_CC, #SCH_DISABLE_GROUP_CC
-**
-*************************************************************************/
-void SCH_EnableGroupCmd(CFE_SB_MsgPtr_t MessagePtr);
-
-/************************************************************************/
-/** \brief Disable a Group and/or Multi-Group(s) Command
-**  
-**  \par Description
-**       Command to Disable a single Group and/or one or more Multi-Groups
-**       of activities.
-**
-**  \par Assumptions, External Events, and Notes:
-**       None
-**       
-**  \param [in]   MessagePtr     A #CFE_SB_MsgPtr_t pointer that
-**                               references the software bus message 
-**       
-**  \sa #SCH_ENABLE_CC, #SCH_DISABLE_CC, #SCH_ENABLE_GROUP_CC, #SCH_DISABLE_GROUP_CC
-**
-*************************************************************************/
-void SCH_DisableGroupCmd(CFE_SB_MsgPtr_t MessagePtr);
-
-/************************************************************************/
-/** \brief Enables Major Frame Synchronization
-**  
-**  \par Description
-**       Command to enable synchronization of Schedule Definition Table to
-**       the Major Frame Sync signal.  The synchronization can become
-**       unsynchronized when the Major Frame signal becomes noisy.
-**
-**  \par Assumptions, External Events, and Notes:
-**       None
-**       
-**  \param [in]   MessagePtr     A #CFE_SB_MsgPtr_t pointer that
-**                               references the software bus message 
-**       
-**  \sa #SCH_ENABLE_CC, #SCH_DISABLE_CC, #SCH_ENABLE_GROUP_CC, #SCH_DISABLE_GROUP_CC
-**
-*************************************************************************/
-void SCH_EnableSyncCmd(CFE_SB_MsgPtr_t MessagePtr);
-
-/************************************************************************/
-/** \brief Creates and sends diagnostic message packet
-**  
-**  \par Description
-**       Command to send the Scheduler diagnostic message.
-**
-**  \par Assumptions, External Events, and Notes:
-**       None
-**       
-**  \param [in]   MessagePtr     A #CFE_SB_MsgPtr_t pointer that
-**                               references the software bus message 
-**       
-*************************************************************************/
-void SCH_SendDiagTlmCmd(CFE_SB_MsgPtr_t MessagePtr);
-
-/************************************************************************/
-/** \brief Updates appropriate command counters following command execution
-**  
-**  \par Description
-**       This function updates the ground or on-board command counter or
-**       command error counter depending upon the success of the command
-**       and where it originated.
-**
-**  \par Assumptions, External Events, and Notes:
-**       None
-**       
-**  \param [in]   GoodCommand    Indicates the command was successfully
-**                               performed (=TRUE) or contained an error
-**                               (=FALSE). 
-**       
-*************************************************************************/
-void SCH_PostCommandResult(boolean GoodCommand);
-
-/************************************************************************/
-/** \brief Verifies the length of the specified message
-**  
-**  \par Description
-**       This function determines whether the specified message is of the
-**       specified expected length.  If not, an event message is generated
-**       and the appropriate command error counter is incremented.  If the
-**       message length is appropriate, then the appropriate command counter
-**       is incremented.
-**
-**  \par Assumptions, External Events, and Notes:
-**       None
-**       
-**       
-**  \param [in]   MessagePtr     A #CFE_SB_MsgPtr_t pointer that
-**                               references the software bus message 
-**       
-**  \param [in]   ExpectedLength The size, in bytes, that the specified
-**                               message should be equal to. 
-**       
-**  \returns
-**  \retcode #CFE_SUCCESS  \retdesc \copydoc CFE_SUCCESS \endcode
-**  \retstmt Return codes from #CFE_EVS_Register         \endcode
-**  \retstmt Return codes from #CFE_SB_CreatePipe        \endcode
-**  \retstmt Return codes from #CFE_SB_Subscribe         \endcode
-**  \endreturns
-**
-*************************************************************************/
-int32 SCH_VerifyCmdLength (CFE_SB_MsgPtr_t MessagePtr, uint32 ExpectedLength);
-
 
 /*******************************************************************
 **
@@ -768,14 +510,14 @@ void SCH_EnableGroupCmd(CFE_SB_MsgPtr_t MessagePtr)
                 CFE_TBL_Modified(SCH_AppData.ScheduleTableHandle);
                 CFE_EVS_SendEvent(SCH_ENA_GRP_CMD_EID, CFE_EVS_DEBUG,
                                   "ENABLE GROUP command: match count = %d",
-                                  MatchCount);
+                                  (int)MatchCount);
                 GoodCommand = TRUE;
             }
             else
             {
                 CFE_EVS_SendEvent(SCH_ENA_GRP_NOT_FOUND_ERR_EID, CFE_EVS_ERROR,
                                   "ENABLE GROUP command: Neither Group %d nor Multi-Group 0x%06X found",
-                                  (CmdGroupNumber>>24), CmdMultiGroup);
+                                  (int)(CmdGroupNumber>>24), (unsigned int)CmdMultiGroup);
             }
         }
     }
@@ -859,14 +601,14 @@ void SCH_DisableGroupCmd(CFE_SB_MsgPtr_t MessagePtr)
                 CFE_TBL_Modified(SCH_AppData.ScheduleTableHandle);
                 CFE_EVS_SendEvent(SCH_DIS_GRP_CMD_EID, CFE_EVS_DEBUG,
                                   "DISABLE GROUP command: match count = %d",
-                                  MatchCount);
+                                  (int)MatchCount);
                 GoodCommand = TRUE;
             }
             else
             {
                 CFE_EVS_SendEvent(SCH_DIS_GRP_NOT_FOUND_ERR_EID, CFE_EVS_ERROR,
                                   "DISABLE GROUP command: Neither Group %d nor Multi-Group 0x%06X found",
-                                  (CmdGroupNumber>>24), CmdMultiGroup);
+                                  (int)(CmdGroupNumber>>24), (unsigned int)CmdMultiGroup);
             }
         }
     }
@@ -1044,7 +786,7 @@ int32 SCH_VerifyCmdLength (CFE_SB_MsgPtr_t MessagePtr, uint32 ExpectedLength)
          
         CFE_EVS_SendEvent(SCH_CMD_LEN_ERR_EID, CFE_EVS_ERROR,
                           "Cmd Msg with Bad length Rcvd: ID = 0x%04X, CC = %d, Exp Len = %d, Len = %d",
-                          MessageID, CommandCode, ExpectedLength, ActualLength);
+                          MessageID, CommandCode, (int)ExpectedLength, ActualLength);
 
         Status = SCH_BAD_MSG_LENGTH_RC;
     }

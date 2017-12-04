@@ -1,7 +1,7 @@
 /*
-** $Id: sch_msg.h 1.5 2015/03/01 14:01:43EST sstrege Exp  $
+** $Id: sch_msg.h 1.3 2017/06/21 15:29:01EDT mdeschu Exp  $
 **
-**  Copyright © 2007-2014 United States Government as represented by the 
+**  Copyright (c) 2007-2014 United States Government as represented by the 
 **  Administrator of the National Aeronautics and Space Administration. 
 **  All Other Rights Reserved.  
 **
@@ -16,18 +16,6 @@
 **
 ** Notes:
 **
-** $Log: sch_msg.h  $
-** Revision 1.5 2015/03/01 14:01:43EST sstrege 
-** Added copyright information
-** Revision 1.4 2011/06/14 15:26:32EDT aschoeni 
-** Reduced command counters to 8 bit
-** Revision 1.3 2011/06/14 15:11:43EDT aschoeni 
-** Cleaned up comments on reset command
-** Revision 1.2 2009/03/27 00:33:24EDT dkobe 
-** Corrected doxygen comments to improve User's Guide
-** Revision 1.1 2008/10/16 15:08:37EDT dkobe 
-** Initial revision
-** Member added to project c:/MKSDATA/MKS-REPOSITORY/CFS-REPOSITORY/sch/fsw/src/project.pj
 */
 
 /*************************************************************************

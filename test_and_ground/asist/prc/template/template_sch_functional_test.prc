@@ -32,14 +32,14 @@ PROC $sc_$cpu_sch_functional_test
 ;    SCH2003.3	If the number of slots not processed prior to receiving the
 ;		Major Frame Signal is greater than <PLATFORM_DEFINED> number of
 ;		allowable catch-up slots, SCH shall:
-;		a)       begin processing the first slot of the major frame
-;		b)       skip the unprocessed slots
-;		c)       incrementing the Number of Times Slots skipped counter
+;		   a) begin processing the first slot of the major frame
+;		   b) skip the unprocessed slots
+;		   c) incrementing the Number of Times Slots skipped counter
 ;    SCH2003.4	If more than <PLATFORM_DEFINED> consecutive Major Frame Signals
 ;		are noisy,  SCH shall
-;		a)       disable synchronizing to the Major Frame Signal and
-;		b)       use the Minor Frame Signal for synchronization
-;		c)       Set the SCH synchronization status to flywheel
+;		   a) disable synchronizing to the Major Frame Signal and
+;		   b) use the Minor Frame Signal for synchronization
+;		   c) Set the SCH synchronization status to flywheel
 ;    SCH2004	SCH shall schedule each activity’s frequency as specified by
 ;		that activity's table-defined major frame frequency (eg. every
 ;		5 seconds)
@@ -79,37 +79,35 @@ PROC $sc_$cpu_sch_functional_test
 ;		is an odd number of bytes as invalid
 ;    SCH8000	SCH shall generate a housekeeping message containing the 
 ;		following:
-;		a)	Valid Ground Command Counter
-;		b)	Ground Command Rejected Counter
-;			erroneous by the Software Bus
-;		e)	Valid commands sent by the SCH App
-;		f)	Commands sent by the SCH App that were reported as
-;			erroneous by the Software Bus
-;		g)	Number of Slots processed
-;		h)	Number of Times Slots skipped
-;		i)	Number of Times Multiple Slots processed
-;		j)	Number of times that SCH woke up in the same slot as
-;			last time
-;		k)	Number of bad entries found in the Scheduler table
-;			(indication of corrupted table)
-;		l)	Synchronization Status (not flywheeling)
+;		   a) Valid Ground Command Counter
+;		   b) Ground Command Rejected Counter
+;		   e) Valid commands sent by the SCH App
+;		   f) Commands sent by the SCH App that were reported as
+;		      erroneous by the Software Bus
+;		   g) Number of Slots processed
+;		   h) Number of Times Slots skipped
+;		   i) Number of Times Multiple Slots processed
+;		   j) Number of times that SCH woke up in the same slot as last
+;		      time
+;		   k) Number of bad entries found in the Scheduler table
+;		      (indication of corrupted table)
+;		   l) Synchronization Status (not flywheeling)
 ;    SCH9000	Upon any Initialization of the SCH Application (cFE Power On,
 ;		cFE Processor Reset or SCH Application Reset), SCH shall
 ;		initialize the following data to Zero: 
-;		a)	Valid Ground Command Counter
-;		b)	Ground Command Rejected Counter
-;			erroneous by the Software Bus
-;		e)	Valid commands sent by the SCH App
-;		f)	Commands sent by the SCH App that were reported as
-;			erroneous by the Software Bus
-;		g)	Number of Slots processed
-;		h)	Number of Times Slots skipped
-;		i)	Number of Times Multiple Slots processed
-;		j)	Number of times that SCH woke up in the same slot as
-;			last time
-;		k)	Number of bad entries found in the Scheduler table
-;			(indication of corrupted table)
-;		l)	Synchronization Status (not flywheeling)
+;		   a) Valid Ground Command Counter
+;		   b) Ground Command Rejected Counter
+;		   e) Valid commands sent by the SCH App
+;		   f) Commands sent by the SCH App that were reported as
+;		      erroneous by the Software Bus
+;		   g) Number of Slots processed
+;		   h) Number of Times Slots skipped
+;		   i) Number of Times Multiple Slots processed
+;		   j) Number of times that SCH woke up in the same slot as
+;		      last time
+;		   k) Number of bad entries found in the Scheduler table
+;		      (indication of corrupted table)
+;		   l) Synchronization Status (not flywheeling)
 ;    SCH9001	Upon any Initialization, the SCH Application shall inhibit
 ;		processing of the Schedule Definition Table until the cFE
 ;		indicates that all of the applications have started. 
@@ -124,16 +122,17 @@ PROC $sc_$cpu_sch_functional_test
 ;	have been loaded.
 ;
 ;  Change History
-;
-;	Date		   Name			Description
-;	01/30/09	Ezinne Uzo-Okoro	Original Procedure.
-;	03/15/10	Walt Moleski		Updated comments so that they
-;						were not overrunning lines and
-;						updated the arrays to be 0-based
-;	06/06/11	Walt Moleski		Added variables for ram disk and
-;						app and table names
-;       08/02/12        Walt Moleski            Added code to look for the
-;                                               Scheduler app executing.
+;	Date		Name		  Description
+;	01/30/09	Ezinne Uzo-Okoro  Original Procedure.
+;	03/15/10	Walt Moleski	  Updated comments so that they were not
+;					  overrunning lines and updated the
+;					  arrays to be 0-based
+;	06/06/11	Walt Moleski	  Added variables for ram disk and app
+;					  and table names
+;       08/02/12	Walt Moleski	  Added code to look for the Scheduler
+;					  app executing.
+;       06/13/17	W. Moleski	  Updated to use CPU1 for commanding and;					  added a hostCPU variable for the
+;					  utility procs to connect to the proper;					  host.
 ;
 ;  Arguments
 ;	None.
@@ -159,9 +158,9 @@ PROC $sc_$cpu_sch_functional_test
 ;      ut_tlmupdate             Directive to wait for telemetry packet update.
 ;
 ;  Expected Test Results and Analysis
-;
-;  Verify that correct event messages are received on the ground. 
-;  Verify that changes to scheduler and command tables are accepted and are executed.
+;	Verify that correct event messages are received on the ground. 
+;	Verify that changes to scheduler and command tables are accepted and are
+;	executed.
 ;
 ;**********************************************************************
 
@@ -241,6 +240,7 @@ local ramDir = "RAM:0"
 local SCHDefTblName = SCHAppName & ".SCHED_DEF"
 local MSGDefTblName = SCHAppName & ".MSG_DEFS"
 local cmdCtr
+local hostCPU = "$CPU"
 
 ;;; Set the pkt and app IDs for the tables based upon the cpu being used
 ;;; Right now, the pktIDs are not used
@@ -250,37 +250,25 @@ sch_tblPktId = 4021
 msg_tblAppId = "0FB4"
 msg_tblPktId = 4020
 
-if ("$CPU" = "CPU2") then
-  sch_tblAppId = "0FD3"
-  sch_tblPktId = 4051
-  msg_tblAppId = "0FD2"
-  msg_tblPktId = 4050
-elseif ("$CPU" = "CPU3") then
-  sch_tblAppId = "0FF3"
-  sch_tblPktId = 4083
-  msg_tblAppId = "0FF2"
-  msg_tblPktId = 4082
-endif
-
 write ";*********************************************************************"
 write ";  Step 1.0:  Initialize the CPU for this test. "
 write ";*********************************************************************"
-write ";  Step 1.1:  Command a Power-On Reset on $CPU. "
+write ";  Step 1.1:  Command a Power-On Reset. "
 write ";********************************************************************"
 /$SC_$CPU_ES_POWERONRESET
 wait 10
 
 close_data_center
-wait 75
+wait 60
 
-cfe_startup $CPU
+cfe_startup {hostCPU}
 wait 5
 
 write ";*********************************************************************"
 write ";  Step 1.2: Determine if the SCH_LAB application is running. If so,  "
 write ";  we must delete it in order to start the SCH application. "
 write ";**********************************************************************"
-s get_file_to_cvt (ramDir,"cfe_es_app_info.log","$sc_$cpu_es_app_info.log","$CPU")
+s get_file_to_cvt (ramDir,"cfe_es_app_info.log","$sc_$cpu_es_app_info.log",hostCPU)
 
 local found_app = FALSE
 
@@ -335,7 +323,7 @@ else
   s $SC_$CPU_sch_sdtloadfile
   s $SC_$CPU_sch_mdtloadfile
 
-  s load_start_app (SCHAppName,"$CPU","SCH_AppMain")
+  s load_start_app (SCHAppName,hostCPU,"SCH_AppMain")
 
   ; Wait for app startup events
   ut_tlmwait  $SC_$CPU_find_event[2].num_found_messages, 1
@@ -357,12 +345,6 @@ endif
 ;; CPU1 is the default
 stream1 = x'0897'
 
-if ("$CPU" = "CPU2") then
-  stream1 = x'0997'
-elseif ("$CPU" = "CPU3") then
-  stream1 = x'0A97'
-endif
-
 write "Sending command to add subscription for SCH HK packet."
 /$SC_$CPU_TO_ADDPACKET Stream=stream1 Pkt_Size=x'0' Priority=x'0' Reliability=x'1' Buflimit=x'4'
 wait 10
@@ -374,7 +356,7 @@ write ";**********************************************************************"
 ut_setupevents "$SC", "$CPU", "CFE_ES", CFE_ES_START_INF_EID, "INFO", 1
 ut_setupevents "$SC", "$CPU", "TST_SCH", TST_SCH_INITSTATS_INF_EID, "INFO", 2
 
-s load_start_app ("TST_SCH","$CPU","TST_SCH_AppMain")
+s load_start_app ("TST_SCH",hostCPU,"TST_SCH_AppMain")
                                                                                 
 ; Wait for app startup events
 ut_tlmwait  $SC_$CPU_find_event[2].num_found_messages, 1
@@ -392,12 +374,6 @@ endif
 ;;; Need to set the stream based upon the cpu being used (using the TST_SCH HK Packet IDs)
 ;;; CPU1 is the default
 stream1 = x'0936'
-
-if ("$CPU" = "CPU2") then
-  stream1 = x'0A36'
-elseif ("$CPU" = "CPU3") then
-  stream1 = x'0B36'
-endif
 
 write "Sending command to add subscription for TST_SCH HK packet."
 /$SC_$CPU_TO_ADDPACKET Stream=stream1 Pkt_Size=x'0' Priority=x'0' Reliability=x'1' Buflimit=x'4'
@@ -435,12 +411,6 @@ local hkPktId
 ;; Set the HK packet ID based upon the cpu being used
 ;; CPU1 is the default
 hkPktId = "p097"
-
-if ("$CPU" = "CPU2") then
-  hkPktId = "p197"
-elseif ("$CPU" = "CPU3") then
-  hkPktId = "p297"
-endif
 
 ;; Verify the HK Packet is getting generated by waiting for the
 ;; sequencecount to increment twice
@@ -554,7 +524,7 @@ write ";*********************************************************************"
 wait 5
 
 ;; get current schedule definition table 
-s get_tbl_to_cvt (ramDir,SCHDefTblName,"A","sch_def_schtbl.tbl","$CPU",sch_tblAppId)
+s get_tbl_to_cvt (ramDir,SCHDefTblName,"A","sch_def_schtbl.tbl",hostCPU,sch_tblAppId)
 wait 1
 
 write
@@ -611,7 +581,7 @@ ut_setupevents "$SC","$CPU","CFE_TBL",CFE_TBL_FILE_LOADED_INF_EID,"INFO", 1
 
 cmdCtr = $SC_$CPU_TBL_CMDPC + 1
 
-s load_table ("sch_def_sdt2.tbl","$CPU")
+s load_table ("sch_def_sdt2.tbl",hostCPU)
 
 ut_tlmwait $SC_$CPU_TBL_CMDPC, {cmdCtr}
 if (UT_TW_Status = UT_Success) then
@@ -816,7 +786,7 @@ wait 5
 write ";*********************************************************************"
 write ";  Step 2.5: Disabling Major Frame Synchronization"
 write ";*********************************************************************"
-ut_setupevents "$SC", "$CPU", {SCHAppName}, SCH_NOISY_MAJOR_FRAME_ERR_EID, "ERROR", 1
+ut_setupevents "$SC","$CPU",{SCHAppName},SCH_NOISY_MAJOR_FRAME_ERR_EID,"ERROR",1
 
 write "*** Jam 1Hz time."
 write
@@ -867,7 +837,7 @@ write ";*********************************************************************"
 s $sc_$cpu_sch_badsdttbls
 
 ;; Requirement 2006.1 Test
-s load_table ("sdt_20061.tbl","$CPU")
+s load_table ("sdt_20061.tbl",hostCPU)
 wait 5
 
 tblfailverifyctr = $SC_$CPU_SCH_TBLFAILVERIFYCTR + 1
@@ -885,7 +855,7 @@ ELSE
 ENDIF
 
 ;; Requirement 2006.2 Tests
-s load_table ("sdt_20062E.tbl","$CPU")
+s load_table ("sdt_20062E.tbl",hostCPU)
 wait 5
 
 tblfailverifyctr = $SC_$CPU_SCH_TBLFAILVERIFYCTR + 1
@@ -902,7 +872,7 @@ ELSE
   ut_setrequirements SCH_2006_2, "F"
 ENDIF
 
-s load_table ("sdt_20062D.tbl","$CPU")
+s load_table ("sdt_20062D.tbl",hostCPU)
 wait 5
 
 tblfailverifyctr = $SC_$CPU_SCH_TBLFAILVERIFYCTR + 1
@@ -920,7 +890,7 @@ ELSE
 ENDIF
 
 ;; Requirement 2006.3 Tests
-s load_table ("sdt_20063D.tbl","$CPU")
+s load_table ("sdt_20063D.tbl",hostCPU)
 wait 5
 
 tblfailverifyctr = $SC_$CPU_SCH_TBLFAILVERIFYCTR + 1
@@ -937,7 +907,7 @@ ELSE
   ut_setrequirements SCH_2006_3, "F"
 ENDIF
 
-s load_table ("sdt_20063E.tbl","$CPU")
+s load_table ("sdt_20063E.tbl",hostCPU)
 wait 5
 
 tblfailverifyctr = $SC_$CPU_SCH_TBLFAILVERIFYCTR + 1
@@ -955,7 +925,7 @@ ELSE
 ENDIF
 
 ;; Requirement 2006.4 Tests
-s load_table ("sdt_20064D.tbl","$CPU")
+s load_table ("sdt_20064D.tbl",hostCPU)
 wait 5
 
 tblfailverifyctr = $SC_$CPU_SCH_TBLFAILVERIFYCTR + 1
@@ -972,7 +942,7 @@ ELSE
   ut_setrequirements SCH_2006_4, "F"
 ENDIF
 
-s load_table ("sdt_20064E.tbl","$CPU")
+s load_table ("sdt_20064E.tbl",hostCPU)
 wait 5
 
 tblfailverifyctr = $SC_$CPU_SCH_TBLFAILVERIFYCTR + 1
@@ -990,7 +960,7 @@ ELSE
 ENDIF
 
 ;; Requirement 2006.5 Tests
-s load_table ("sdt_20065D.tbl","$CPU")
+s load_table ("sdt_20065D.tbl",hostCPU)
 wait 5
 
 tblfailverifyctr = $SC_$CPU_SCH_TBLFAILVERIFYCTR + 1
@@ -1007,7 +977,7 @@ ELSE
   ut_setrequirements SCH_2006_5, "F"
 ENDIF
 
-s load_table ("sdt_20065E.tbl","$CPU")
+s load_table ("sdt_20065E.tbl",hostCPU)
 wait 5
 
 tblfailverifyctr = $SC_$CPU_SCH_TBLFAILVERIFYCTR + 1
@@ -1025,7 +995,7 @@ ELSE
 ENDIF
 
 ;; MessageIndex = 0 Tests
-s load_table ("sdt_2006msg0E.tbl","$CPU")
+s load_table ("sdt_2006msg0E.tbl",hostCPU)
 wait 5
 
 tblfailverifyctr = $SC_$CPU_SCH_TBLFAILVERIFYCTR + 1
@@ -1040,7 +1010,7 @@ ELSE
   ut_setrequirements SCH_2006, "F"
 ENDIF
 
-s load_table ("sdt_2006msg0D.tbl","$CPU")
+s load_table ("sdt_2006msg0D.tbl",hostCPU)
 wait 5
 
 tblfailverifyctr = $SC_$CPU_SCH_TBLFAILVERIFYCTR + 1
@@ -1065,7 +1035,7 @@ write ";*********************************************************************"
 s $SC_$CPU_sch_badmdttbls
 
 ;; This file should have 0 good and 7 bad entries
-s load_table ("mdt_20071.tbl","$CPU")
+s load_table ("mdt_20071.tbl",hostCPU)
 wait 5
 
 tblfailverifyctr = $SC_$CPU_SCH_TBLFAILVERIFYCTR + 1
@@ -1082,7 +1052,7 @@ ELSE
 ENDIF
 
 ;; Should have 2 good & 5 bad. Should detect MSGID 0001 as invalid
-s load_table ("mdt_20072.tbl","$CPU")
+s load_table ("mdt_20072.tbl",hostCPU)
 wait 5
 
 /$SC_$CPU_TBL_VALIDATE INACTIVE VTABLENAME=MSGDefTblName
@@ -1100,7 +1070,7 @@ ENDIF
 tblfailverifyctr = $SC_$CPU_SCH_TBLFAILVERIFYCTR + 1
 
 ;; Should have 3 good & 4 bad. Should detect MSGID 0000 as invalid
-s load_table ("mdt_20073.tbl","$CPU")
+s load_table ("mdt_20073.tbl",hostCPU)
 wait 5
 
 /$SC_$CPU_TBL_VALIDATE INACTIVE VTABLENAME=MSGDefTblName
@@ -1118,7 +1088,7 @@ ENDIF
 tblfailverifyctr = $SC_$CPU_SCH_TBLFAILVERIFYCTR + 1
 
 ; Should have 4 good & 3 bad. Should detect MID 2001 as invalid
-s load_table ("mdt_20074.tbl","$CPU")
+s load_table ("mdt_20074.tbl",hostCPU)
 wait 5
 
 /$SC_$CPU_TBL_VALIDATE INACTIVE VTABLENAME=MSGDefTblName
@@ -1136,7 +1106,7 @@ ENDIF
 tblfailverifyctr = $SC_$CPU_SCH_TBLFAILVERIFYCTR + 1
 
 ; Should have 5 good & 2 bad. Should detect MID 1848 with len = 135 as invalid
-s load_table ("mdt_20075.tbl","$CPU")
+s load_table ("mdt_20075.tbl",hostCPU)
 wait 5
 
 /$SC_$CPU_TBL_VALIDATE INACTIVE VTABLENAME=MSGDefTblName
@@ -1154,7 +1124,7 @@ ENDIF
 tblfailverifyctr = $SC_$CPU_SCH_TBLFAILVERIFYCTR + 1
 
 ; Should have 5 good & 2 bad. Should detect MID 1848 with len = 9 as invalid
-s load_table ("mdt_20076.tbl","$CPU")
+s load_table ("mdt_20076.tbl",hostCPU)
 wait 5
 
 /$SC_$CPU_TBL_VALIDATE INACTIVE VTABLENAME=MSGDefTblName
@@ -1172,7 +1142,7 @@ ENDIF
 tblfailverifyctr = $SC_$CPU_SCH_TBLFAILVERIFYCTR + 1
 
 ; Should have 6 good & 1 bad. Should detect index 6 as invalid
-s load_table ("mdt_20077.tbl","$CPU")
+s load_table ("mdt_20077.tbl",hostCPU)
 wait 5
 
 /$SC_$CPU_TBL_VALIDATE INACTIVE VTABLENAME=MSGDefTblName
@@ -1196,9 +1166,9 @@ write ";*********************************************************************"
 wait 10
 
 close_data_center
-wait 75
+wait 60
 
-cfe_startup $CPU
+cfe_startup {hostCPU}
 wait 5
 
 write "**** Requirements Status Reporting"

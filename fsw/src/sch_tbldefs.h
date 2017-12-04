@@ -1,7 +1,7 @@
 /*
-** $Id: sch_tbldefs.h 1.2 2015/03/01 14:02:06EST sstrege Exp  $
+** $Id: sch_tbldefs.h 1.3 2017/06/21 15:29:42EDT mdeschu Exp  $
 **
-**  Copyright © 2007-2014 United States Government as represented by the 
+**  Copyright (c) 2007-2014 United States Government as represented by the 
 **  Administrator of the National Aeronautics and Space Administration. 
 **  All Other Rights Reserved.  
 **
@@ -16,12 +16,6 @@
 **
 ** Notes:
 **
-** $Log: sch_tbldefs.h  $
-** Revision 1.2 2015/03/01 14:02:06EST sstrege 
-** Added copyright information
-** Revision 1.1 2008/10/16 15:08:38EDT dkobe 
-** Initial revision
-** Member added to project c:/MKSDATA/MKS-REPOSITORY/CFS-REPOSITORY/sch/fsw/src/project.pj
 */
 
 /*************************************************************************

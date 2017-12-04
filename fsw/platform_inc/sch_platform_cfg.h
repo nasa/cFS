@@ -1,8 +1,8 @@
 /************************************************************************
 ** File:
-**   $Id: sch_platform_cfg.h 1.8 2015/03/01 14:01:36EST sstrege Exp  $
+**   $Id: sch_platform_cfg.h 1.4 2017/06/21 15:28:58EDT mdeschu Exp  $
 **
-**  Copyright © 2007-2014 United States Government as represented by the 
+**  Copyright (c) 2007-2014 United States Government as represented by the 
 **  Administrator of the National Aeronautics and Space Administration. 
 **  All Other Rights Reserved.  
 **
@@ -15,25 +15,6 @@
 **  The CFS Scheduler (SCH) Application platform configuration header file
 **
 ** Notes:
-**
-** $Log: sch_platform_cfg.h  $
-** Revision 1.8 2015/03/01 14:01:36EST sstrege 
-** Added copyright information
-** Revision 1.7 2011/06/30 15:38:11EDT aschoeni 
-** moved table filenames from /ram to /cf/apps
-** Revision 1.6 2011/06/30 14:03:38EDT aschoeni 
-** Added sch library for inhibiting schedule
-** Revision 1.5 2011/06/02 16:18:19EDT aschoeni 
-** Updated platform configuration and verification
-** Revision 1.4 2011/03/30 17:25:21EDT aschoeni 
-** Added a minimum message ID limit for defined messages
-** Revision 1.3 2011/03/29 18:23:09EDT aschoeni 
-** Moved Mission Revision to Platform Config file
-** Revision 1.2 2009/03/27 00:24:20EDT dkobe 
-** Added consecutive noisy major frame counter and platform config parameter to compare counter to
-** Revision 1.1 2008/10/16 15:08:01EDT dkobe 
-** Initial revision
-** Member added to project c:/MKSDATA/MKS-REPOSITORY/CFS-REPOSITORY/sch/fsw/platform_inc/project.pj
 **
 *************************************************************************/
 #ifndef _sch_platform_cfg_h_
@@ -96,10 +77,10 @@
 #define SCH_MAX_MESSAGES      128
 
 /**
-**  \schcfg Maximum Message ID allowed in Message Definition Table 
+**  \schcfg Minimum Message ID allowed in Message Definition Table 
 **
 **  \par Description:
-**       Dictates the maximum message ID that can be used in the Message Definition Table.
+**       Dictates the minimum message ID that can be used in the Message Definition Table.
 **
 **  \par Limits
 **       Must be less than or equal to SCH_MDT_MAX_MSG_ID and greater than or equal to 0
@@ -107,10 +88,10 @@
 #define SCH_MDT_MIN_MSG_ID    0
 
 /**
-**  \schcfg Minimum Message ID allowed in Message Definition Table 
+**  \schcfg Maximum Message ID allowed in Message Definition Table 
 **
 **  \par Description:
-**       Dictates the minimum message ID that can be used in the Message Definition Table.
+**       Dictates the maximum message ID that can be used in the Message Definition Table.
 **
 **  \par Limits
 **       Must be less than or equal to #CFE_SB_HIGHEST_VALID_MSGID and greater than SCH_MDT_MIN_MSG_ID

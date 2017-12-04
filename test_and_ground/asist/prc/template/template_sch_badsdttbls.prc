@@ -1,5 +1,4 @@
 PROC $sc_$cpu_sch_badsdttbls
-
 ;*******************************************************************************
 ;  Name:  sch_badsdttbls
 ;
@@ -10,9 +9,11 @@ PROC $sc_$cpu_sch_badsdttbls
 ;	via the CFE_TBL_LOAD command.
 ;
 ;  Change History
-;
 ;	Date	   Name		Description
 ;	06/29/11   W. Moleski	Original implementation
+;       06/13/17   W. Moleski   Updated to use CPU1 for commanding and added a
+;                               hostCPU variable for the utility procs to
+;                               connect to the proper host.
 ;
 ;  Arguments
 ;	None.
@@ -39,20 +40,13 @@ LOCAL i
 local SCHAppName = "SCH"
 local SCHDefTblName = SCHAppName & ".SCHED_DEF"
 local defTblDir = "RAM:0"
+local hostCPU = "$CPU"
 
 ;;; Set the pkt and app IDs for the tables based upon the cpu being used
 ;;; Right now, the pktIDs are not used
 ;;; CPU1 is the default
 tblAppId = "0FB5"
 tblPktId = 4021
-
-if ("$CPU" = "CPU2") then
-  tblAppId = "0FD3"
-  tblPktId = 4051
-elseif ("$CPU" = "CPU3") then
-  tblAppId = "0FF3"
-  tblPktId = 4083
-endif
 
 write ";*********************************************************************"
 write ";  Create an invalid SDT image for each error SCH is required to detect."
@@ -182,7 +176,7 @@ enddo
 local endMnemonic = "$SC_$CPU_SCH_DefaultScheduleTable[" & maxEntries & "]"
 
 ;; Create the Table Load file for 2006.1
-s create_tbl_file_from_cvt ("$CPU",tblAppId,"SCH Schedule Definition Table Req_2006", "sdt_20061.tbl",SCHDefTblName,"$SC_$CPU_SCH_DefaultScheduleTable[0]",endMnemonic)
+s create_tbl_file_from_cvt (hostCPU,tblAppId,"SCH Schedule Definition Table Req_2006", "sdt_20061.tbl",SCHDefTblName,"$SC_$CPU_SCH_DefaultScheduleTable[0]",endMnemonic)
 
 ;; Fix the bad table entry
 $SC_$CPU_SCH_DefaultScheduleTable[0].EnableState = SCH_ENABLED
@@ -193,7 +187,7 @@ $SC_$CPU_SCH_DefaultScheduleTable[0].MessageIndex = 1
 $SC_$CPU_SCH_DefaultScheduleTable[0].GroupData = 5
 
 ;; Create the Table Load file for 2006.2 - Enabled
-s create_tbl_file_from_cvt ("$CPU",tblAppId,"SCH Schedule Definition Table Req_2006", "sdt_20062E.tbl",SCHDefTblName,"$SC_$CPU_SCH_DefaultScheduleTable[0]",endMnemonic)
+s create_tbl_file_from_cvt (hostCPU,tblAppId,"SCH Schedule Definition Table Req_2006", "sdt_20062E.tbl",SCHDefTblName,"$SC_$CPU_SCH_DefaultScheduleTable[0]",endMnemonic)
 
 ;; Fix the bad table entry
 $SC_$CPU_SCH_DefaultScheduleTable[1].EnableState = SCH_ENABLED
@@ -204,7 +198,7 @@ $SC_$CPU_SCH_DefaultScheduleTable[1].MessageIndex = 2
 $SC_$CPU_SCH_DefaultScheduleTable[1].GroupData = 6
 
 ;; Create the Table Load file for 2006.2 - Disabled
-s create_tbl_file_from_cvt ("$CPU",tblAppId,"SCH Schedule Definition Table Req_2006", "sdt_20062D.tbl",SCHDefTblName,"$SC_$CPU_SCH_DefaultScheduleTable[0]",endMnemonic)
+s create_tbl_file_from_cvt (hostCPU,tblAppId,"SCH Schedule Definition Table Req_2006", "sdt_20062D.tbl",SCHDefTblName,"$SC_$CPU_SCH_DefaultScheduleTable[0]",endMnemonic)
 
 ;; Fix the bad table entry
 $SC_$CPU_SCH_DefaultScheduleTable[3].EnableState = SCH_DISABLED
@@ -215,7 +209,7 @@ $SC_$CPU_SCH_DefaultScheduleTable[3].MessageIndex = 4
 $SC_$CPU_SCH_DefaultScheduleTable[3].GroupData = 5
 
 ;; Create the Table Load file for 2006.3 - Disabled
-s create_tbl_file_from_cvt ("$CPU",tblAppId,"SCH Schedule Definition Table Req_2006", "sdt_20063D.tbl",SCHDefTblName,"$SC_$CPU_SCH_DefaultScheduleTable[0]",endMnemonic)
+s create_tbl_file_from_cvt (hostCPU,tblAppId,"SCH Schedule Definition Table Req_2006", "sdt_20063D.tbl",SCHDefTblName,"$SC_$CPU_SCH_DefaultScheduleTable[0]",endMnemonic)
 
 ;; Fix the bad table entry
 $SC_$CPU_SCH_DefaultScheduleTable[4].EnableState = SCH_DISABLED
@@ -226,7 +220,7 @@ $SC_$CPU_SCH_DefaultScheduleTable[4].MessageIndex = 5
 $SC_$CPU_SCH_DefaultScheduleTable[4].GroupData = 1
 
 ;; Create the Table Load file for 2006.3 - Enabled
-s create_tbl_file_from_cvt ("$CPU",tblAppId,"SCH Schedule Definition Table Req_2006", "sdt_20063E.tbl",SCHDefTblName,"$SC_$CPU_SCH_DefaultScheduleTable[0]",endMnemonic)
+s create_tbl_file_from_cvt (hostCPU,tblAppId,"SCH Schedule Definition Table Req_2006", "sdt_20063E.tbl",SCHDefTblName,"$SC_$CPU_SCH_DefaultScheduleTable[0]",endMnemonic)
 
 ;; Fix the bad table entry
 $SC_$CPU_SCH_DefaultScheduleTable[5].EnableState = SCH_ENABLED
@@ -237,7 +231,7 @@ $SC_$CPU_SCH_DefaultScheduleTable[5].MessageIndex = 1
 $SC_$CPU_SCH_DefaultScheduleTable[5].GroupData = 6
 
 ;; Create the Table Load file for 2006.4 - Disabled
-s create_tbl_file_from_cvt ("$CPU",tblAppId,"SCH Schedule Definition Table Req_2006", "sdt_20064D.tbl",SCHDefTblName,"$SC_$CPU_SCH_DefaultScheduleTable[0]",endMnemonic)
+s create_tbl_file_from_cvt (hostCPU,tblAppId,"SCH Schedule Definition Table Req_2006", "sdt_20064D.tbl",SCHDefTblName,"$SC_$CPU_SCH_DefaultScheduleTable[0]",endMnemonic)
 
 ;; Fix the bad table entry
 $SC_$CPU_SCH_DefaultScheduleTable[6].EnableState = SCH_DISABLED
@@ -248,7 +242,7 @@ $SC_$CPU_SCH_DefaultScheduleTable[6].MessageIndex = 7
 $SC_$CPU_SCH_DefaultScheduleTable[6].GroupData = 5
 
 ;; Create the Table Load file for 2006.5 - Disabled
-s create_tbl_file_from_cvt ("$CPU",tblAppId,"SCH Schedule Definition Table Req_2006", "sdt_20065D.tbl",SCHDefTblName,"$SC_$CPU_SCH_DefaultScheduleTable[0]",endMnemonic)
+s create_tbl_file_from_cvt (hostCPU,tblAppId,"SCH Schedule Definition Table Req_2006", "sdt_20065D.tbl",SCHDefTblName,"$SC_$CPU_SCH_DefaultScheduleTable[0]",endMnemonic)
 
 ;; Fix the bad table entry
 $SC_$CPU_SCH_DefaultScheduleTable[7].EnableState = SCH_DISABLED
@@ -259,7 +253,7 @@ $SC_$CPU_SCH_DefaultScheduleTable[7].MessageIndex = 7
 $SC_$CPU_SCH_DefaultScheduleTable[7].GroupData = 5
 
 ;; Create the Table Load file for 2006.5 - Enabled
-s create_tbl_file_from_cvt ("$CPU",tblAppId,"SCH Schedule Definition Table Req_2006", "sdt_20065E.tbl",SCHDefTblName,"$SC_$CPU_SCH_DefaultScheduleTable[0]",endMnemonic)
+s create_tbl_file_from_cvt (hostCPU,tblAppId,"SCH Schedule Definition Table Req_2006", "sdt_20065E.tbl",SCHDefTblName,"$SC_$CPU_SCH_DefaultScheduleTable[0]",endMnemonic)
 
 ;; Fix the bad table entry
 $SC_$CPU_SCH_DefaultScheduleTable[8].EnableState = SCH_ENABLED
@@ -270,7 +264,7 @@ $SC_$CPU_SCH_DefaultScheduleTable[8].MessageIndex = 8
 $SC_$CPU_SCH_DefaultScheduleTable[8].GroupData = 5
 
 ;; Create the Table Load file for 2006.4 - Enabled
-s create_tbl_file_from_cvt ("$CPU",tblAppId,"SCH Schedule Definition Table Req_2006", "sdt_20064E.tbl",SCHDefTblName,"$SC_$CPU_SCH_DefaultScheduleTable[0]",endMnemonic)
+s create_tbl_file_from_cvt (hostCPU,tblAppId,"SCH Schedule Definition Table Req_2006", "sdt_20064E.tbl",SCHDefTblName,"$SC_$CPU_SCH_DefaultScheduleTable[0]",endMnemonic)
 
 ;; Fix the bad table entry for 2006.4 - Enabled
 $SC_$CPU_SCH_DefaultScheduleTable[9].EnableState = SCH_ENABLED
@@ -281,7 +275,7 @@ $SC_$CPU_SCH_DefaultScheduleTable[9].MessageIndex = 8
 $SC_$CPU_SCH_DefaultScheduleTable[9].GroupData = 5
 
 ;; Create the Table Load file for MessageIndex = 0 - Enabled
-s create_tbl_file_from_cvt ("$CPU",tblAppId,"SCH Schedule Definition Table", "sdt_2006msg0E.tbl",SCHDefTblName,"$SC_$CPU_SCH_DefaultScheduleTable[0]",endMnemonic)
+s create_tbl_file_from_cvt (hostCPU,tblAppId,"SCH Schedule Definition Table", "sdt_2006msg0E.tbl",SCHDefTblName,"$SC_$CPU_SCH_DefaultScheduleTable[0]",endMnemonic)
 
 ;; Fix the bad table entry for MessageIndex = 0 - Enabled
 $SC_$CPU_SCH_DefaultScheduleTable[10].EnableState = SCH_ENABLED
@@ -292,7 +286,7 @@ $SC_$CPU_SCH_DefaultScheduleTable[10].MessageIndex = 9
 $SC_$CPU_SCH_DefaultScheduleTable[10].GroupData = 5
 
 ;; Create the Table Load file for MessageIndex = 0 - Enabled
-s create_tbl_file_from_cvt ("$CPU",tblAppId,"SCH Schedule Definition Table", "sdt_2006msg0D.tbl",SCHDefTblName,"$SC_$CPU_SCH_DefaultScheduleTable[0]",endMnemonic)
+s create_tbl_file_from_cvt (hostCPU,tblAppId,"SCH Schedule Definition Table", "sdt_2006msg0D.tbl",SCHDefTblName,"$SC_$CPU_SCH_DefaultScheduleTable[0]",endMnemonic)
 
 %liv(log_procedure) = logging
 

@@ -1,9 +1,12 @@
 ###############################################################################
 # File: CFS Application Makefile 
 #
-# $Id: schlib.mak 1.1 2011/06/30 13:56:49EDT aschoeni Exp  $
+# $Id: schlib.mak 1.1 2015/08/04 04:54:41EDT rperera Exp  $
 #
 # $Log: schlib.mak  $
+# Revision 1.1 2015/08/04 04:54:41EDT rperera 
+# Initial revision
+# Member added to project /CFS-APPs-PROJECT/sch/fsw/for_build/project.pj
 # Revision 1.1 2011/06/30 13:56:49EDT aschoeni 
 # Initial revision
 # Member added to project c:/MKSDATA/MKS-REPOSITORY/CFS-REPOSITORY/sch/fsw/for_build/project.pj

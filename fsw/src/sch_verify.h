@@ -1,7 +1,7 @@
 /*
-** $Id: sch_verify.h 1.6 2015/03/01 14:01:37EST sstrege Exp  $
+** $Id: sch_verify.h 1.3 2017/06/21 15:29:22EDT mdeschu Exp  $
 **
-**  Copyright © 2007-2014 United States Government as represented by the 
+**  Copyright (c) 2007-2014 United States Government as represented by the 
 **  Administrator of the National Aeronautics and Space Administration. 
 **  All Other Rights Reserved.  
 **
@@ -14,20 +14,6 @@
 **
 ** Notes:
 **
-** $Log: sch_verify.h  $
-** Revision 1.6 2015/03/01 14:01:37EST sstrege 
-** Added copyright information
-** Revision 1.5 2011/06/02 16:59:08EDT aschoeni 
-** Updated tlm header size from 6 to 12 for diag packet and added check for using ccsds
-** Revision 1.4 2011/06/02 16:19:56EDT aschoeni 
-** Added noisy major frame verification
-** Revision 1.3 2011/03/30 17:28:37EDT aschoeni 
-** Added checks for min and max message ID for MDT
-** Revision 1.2 2011/03/29 18:23:09EDT aschoeni 
-** Moved Mission Revision to Platform Config file
-** Revision 1.1 2008/10/16 15:08:39EDT dkobe 
-** Initial revision
-** Member added to project c:/MKSDATA/MKS-REPOSITORY/CFS-REPOSITORY/sch/fsw/src/project.pj
 */
 
 #ifndef _sch_verify_

@@ -1,7 +1,7 @@
 /*
-** $Id: sch_custom.c 1.3 2015/03/01 14:01:44EST sstrege Exp  $
+** $Id: sch_custom.c 1.5 2017/06/21 15:29:41EDT mdeschu Exp  $
 **
-**  Copyright © 2007-2014 United States Government as represented by the 
+**  Copyright (c) 2007-2014 United States Government as represented by the 
 **  Administrator of the National Aeronautics and Space Administration. 
 **  All Other Rights Reserved.  
 **
@@ -16,14 +16,6 @@
 **
 ** Notes:
 **
-** $Log: sch_custom.c  $
-** Revision 1.3 2015/03/01 14:01:44EST sstrege 
-** Added copyright information
-** Revision 1.2 2011/06/30 20:39:09EDT aschoeni 
-** updated OS_SUCCESS to CFE_SUCCESS for custom earlyinit
-** Revision 1.1 2011/06/30 15:30:03EDT aschoeni 
-** Initial revision
-** Member added to project c:/MKSDATA/MKS-REPOSITORY/CFS-REPOSITORY/sch/fsw/src/project.pj
 */
 
 /*************************************************************************
@@ -36,9 +28,9 @@
 #include "sch_platform_cfg.h"
 
 #include "sch_app.h"
+#include "sch_custom.h"
 
 #include "cfe_time_msg.h"
-#include "cfe_psp.h"
 
 
 /*************************************************************************
@@ -47,61 +39,9 @@
 **
 **************************************************************************/
 
-/*
-** Timer Characteristics
-*/
-#define SCH_TIMER_NAME   "SCH_MINOR_TIMER"
-
 /*************************************************************************
 ** Local function prototypes
 **************************************************************************/
-
-/************************************************************************/
-/** \brief Computes a minor slot number from a MET subseconds zero point
-**  
-**  \par Description
-**       This function determines the current slot (minor frame) number if
-**       one were to assume that slot zero started when the MET microseconds
-**       are equal to zero. 
-**
-**  \par Assumptions, External Events, and Notes:
-**       None
-**       
-**  \returns
-**  \retstmt Returns slot index from zero to (#SCH_TOTAL_SLOTS-1) \endcode
-**  \endreturns
-**
-*************************************************************************/
-uint32 SCH_GetMETSlotNumber(void);
-
-/************************************************************************/
-/** \brief Performs Major Frame Synchronization
-**  
-**  \par Description
-**       This function is called by cFE TIME services when a Major Frame
-**       synchronization signal is received.  It then synchronizes the
-**       minor frame (slot) processing of the Schedule Definition Table. 
-**
-**  \par Assumptions, External Events, and Notes:
-**       None
-**       
-*************************************************************************/
-void  SCH_MajorFrameCallback(void);
-
-/************************************************************************/
-/** \brief Performs Minor Frame time step
-**  
-**  \par Description
-**       This function is called by an OSAL timer when the minor frame
-**       timing reference sends a signal.  The Scheduler Application uses
-**       this to drive the Application's processing of each minor frame. 
-**
-**  \par Assumptions, External Events, and Notes:
-**       None
-**       
-*************************************************************************/
-void  SCH_MinorFrameCallback(uint32 TimerId);
-
 
 
 /*************************************************************************
@@ -111,41 +51,6 @@ void  SCH_MinorFrameCallback(uint32 TimerId);
 **************************************************************************/
 
 
-/*************************************************************************
-**
-** At some point the CFE_PSP should support customizable timers, which at
-** minimum can fall through to the OSAL timers. Until this is implemented
-** in CFE_PSP, this redefinition supplies the same functionality to allow
-** Scheduler to work out of box.
-**
-**************************************************************************/
-#ifndef CFE_PSP_MAX_TIMERS
-
-int32 CFE_PSP_TimerCreate(uint32 *timer_id, const char *timer_name,
-                     uint32 *clock_accuracy, OS_TimerCallback_t  callback_ptr);
-int32 CFE_PSP_TimerSet(uint32 timer_id, uint32 start_time, uint32 interval_time);
-
-
-int32 CFE_PSP_TimerCreate(uint32 *timer_id,       const char         *timer_name,
-                     uint32 *clock_accuracy, OS_TimerCallback_t  callback_ptr)
-{
-   int32 Status = CFE_SUCCESS;
-
-   Status = OS_TimerCreate(timer_id, timer_name, clock_accuracy, callback_ptr);
-
-   if(Status == OS_SUCCESS)
-   {
-      Status = CFE_SUCCESS;
-   }
-
-   return Status;
-}
-int32 CFE_PSP_TimerSet(uint32 timer_id, uint32 start_time, uint32 interval_time)
-{
-   return OS_TimerSet(timer_id, start_time, interval_time);
-}
-
-#endif
 
 
 /*******************************************************************
@@ -162,10 +67,10 @@ int32 SCH_CustomEarlyInit(void)
 {
     int32             Status = CFE_SUCCESS;
     
-    Status = CFE_PSP_TimerCreate(&SCH_AppData.TimerId,
-                                 SCH_TIMER_NAME,
-                                 &SCH_AppData.ClockAccuracy,
-                                 SCH_MinorFrameCallback);
+    Status = OS_TimerCreate(&SCH_AppData.TimerId,
+                             SCH_TIMER_NAME,
+                            &SCH_AppData.ClockAccuracy,
+                             SCH_MinorFrameCallback);
     
     return Status;
 
@@ -200,7 +105,7 @@ int32 SCH_CustomLateInit(void)
         ** to start processing.  If the Major Frame Sync fails to arrive, then we will
         ** start when this timer expires and synch ourselves to the MET clock.
         */
-        Status = CFE_PSP_TimerSet(SCH_AppData.TimerId, SCH_STARTUP_PERIOD, 0);
+        Status = OS_TimerSet(SCH_AppData.TimerId, SCH_STARTUP_PERIOD, 0);
     }
 
     return Status;
@@ -396,7 +301,7 @@ void SCH_MajorFrameCallback(void)
             ** time to allow the Major Frame source to resynchronize timing) and start
             ** it again with nominal Minor Frame timing
             */
-            CFE_PSP_TimerSet(SCH_AppData.TimerId, SCH_NORMAL_SLOT_PERIOD, SCH_NORMAL_SLOT_PERIOD);
+            OS_TimerSet(SCH_AppData.TimerId, SCH_NORMAL_SLOT_PERIOD, SCH_NORMAL_SLOT_PERIOD);
     
             /*
             ** Increment Major Frame process counter
@@ -466,7 +371,7 @@ void SCH_MinorFrameCallback(uint32 TimerId)
         (SCH_AppData.MajorFrameSource == SCH_MAJOR_FS_MINOR_FRAME_TIMER))
     {
         /* Whether we have found the Major Frame Start or not, wait another slot */
-        CFE_PSP_TimerSet(SCH_AppData.TimerId, SCH_NORMAL_SLOT_PERIOD, SCH_NORMAL_SLOT_PERIOD);
+        OS_TimerSet(SCH_AppData.TimerId, SCH_NORMAL_SLOT_PERIOD, SCH_NORMAL_SLOT_PERIOD);
 
         /* Determine if this was the last attempt */
         SCH_AppData.SyncAttemptsLeft--;
@@ -505,7 +410,7 @@ void SCH_MinorFrameCallback(uint32 TimerId)
         ** It also means that we may now need a "short slot"
         ** timer to make up for the previous long one
         */
-        CFE_PSP_TimerSet(SCH_AppData.TimerId, SCH_SHORT_SLOT_PERIOD, SCH_NORMAL_SLOT_PERIOD);
+        OS_TimerSet(SCH_AppData.TimerId, SCH_SHORT_SLOT_PERIOD, SCH_NORMAL_SLOT_PERIOD);
         
         SCH_AppData.MinorFramesSinceTone = 0;
         
@@ -520,7 +425,7 @@ void SCH_MinorFrameCallback(uint32 TimerId)
         /*
         ** Start "long slot" timer (should be stopped by Major Frame Callback)
         */
-        CFE_PSP_TimerSet(SCH_AppData.TimerId, SCH_SYNC_SLOT_PERIOD, 0);
+        OS_TimerSet(SCH_AppData.TimerId, SCH_SYNC_SLOT_PERIOD, 0);
     }
     
     /*

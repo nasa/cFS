@@ -11,9 +11,11 @@ local logging = %liv(log_procedure)
 ;	the CFE_TBL_LOAD command.
 ;
 ;  Change History
-;
 ;	Date	   Name		Description
 ;	06/27/11   W. Moleski	Original implementation
+;       06/13/17   W. Moleski   Updated to use CPU1 for commanding and added a
+;                               hostCPU variable for the utility procs to
+;                               connect to the proper host.
 ;
 ;  Arguments
 ;	None.
@@ -38,20 +40,13 @@ LOCAL i
 local SCHAppName = "SCH"
 local SCHDefTblName = SCHAppName & ".SCHED_DEF"
 local defTblDir = "CF:0/apps"
+local hostCPU = "$CPU"
 
 ;;; Set the pkt and app IDs for the tables based upon the cpu being used
 ;;; Right now, the pktIDs are not used
 ;;; CPU1 is the default
 tblAppId = "0FB5"
 tblPktId = 4021
-
-if ("$CPU" = "CPU2") then
-  tblAppId = "0FD3"
-  tblPktId = 4051
-elseif ("$CPU" = "CPU3") then
-  tblAppId = "0FF3"
-  tblPktId = 4083
-endif
 
 write ";*********************************************************************"
 write ";  Create & upload the Schedule Definition Table file."
@@ -198,7 +193,7 @@ enddo
 local endMnemonic = "$SC_$CPU_SCH_DefaultScheduleTable[" & maxEntries & "]"
 
 ;; Create the Table Load file
-s create_tbl_file_from_cvt ("$CPU",tblAppId,"SCH Full Schedule Definition Table","sch_def_sdt2.tbl",SCHDefTblName,"$SC_$CPU_SCH_DefaultScheduleTable[0]",endMnemonic)
+s create_tbl_file_from_cvt (hostCPU,tblAppId,"SCH Full Schedule Definition Table","sch_def_sdt2.tbl",SCHDefTblName,"$SC_$CPU_SCH_DefaultScheduleTable[0]",endMnemonic)
 
 %liv(log_procedure) = logging
 
