@@ -1,0 +1,2 @@
+[../fsw/public_inc/tc_sync.h:33]: (error) Invalid number of character ({) when these macros are defined: '__cplusplus'.
+[../fsw/public_inc/tm_sync.h:33]: (error) Invalid number of character ({) when these macros are defined: '__cplusplus'.
