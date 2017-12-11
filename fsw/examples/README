@@ -1,0 +1,43 @@
+#   Author: Guy de Carufel (Odyssey Space Research)
+#   Date: Jan 26, 2016
+
+This directory holds example implementations of the custom layer for this application.
+
+To make use of an example, use the setup.sh 
+> ./setup.sh -h
+
+The normal setup is to copy the files in the appropriate locations and then modify then
+according to your mission needs.
+For the "ci/to_lab" application equivalent, use the udp example.
+>./setup.sh udp
+
+You can link to files in the examples in this directory rather than making copies 
+by using the -l option
+>./setup.sh -l multi
+
+
+DEVELOPERS NOTE:
+1. Always revert back to the udp example as a copy (not a link) before comitting to 
+the repo if you made changes to example files. 
+We want to keep the udp to_custom.c as the default example.
+>./setup.sh udp
+
+2. If you add examples, make sure to name the directory the same in both CI & TO. 
+
+
+USEFUL TIP: 
+Add the following to your .bashrc to update both CI/TO at the same time:
+
+setCustomLink() {
+    cd ${MISSION_HOME}/apps/ci/fsw/examples/
+    ./setup.sh -l $1
+    cd ${MISSION_HOME}/apps/to/fsw/examples/
+    ./setup.sh -l $1
+}
+
+setCustomCopy() {
+    cd ${MISSION_HOME}/apps/ci/fsw/examples/
+    ./setup.sh $1
+    cd ${MISSION_HOME}/apps/to/fsw/examples/
+    ./setup.sh $1
+}
