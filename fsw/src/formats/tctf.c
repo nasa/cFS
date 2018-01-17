@@ -1,6 +1,11 @@
 /*******************************************************************************
 ** File: tc_transfer_frame.c
 **
+** Copyright 2017 United States Government as represented by the Administrator
+** of the National Aeronautics and Space Administration.  No copyright is
+** claimed in the United States under Title 17, U.S. Code.
+** All Other Rights Reserved.
+**
 ** Purpose:
 **   Provides functionality to handling telecommand space data link protocol
 **   (TC SDLP) transfer frames (TF).

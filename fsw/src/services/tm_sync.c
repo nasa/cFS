@@ -1,6 +1,11 @@
 /******************************************************************************/
 /** \file  tm_sync.c
 *
+*   Copyright 2017 United States Government as represented by the Administrator
+*   of the National Aeronautics and Space Administration.  No copyright is
+*   claimed in the United States under Title 17, U.S. Code.
+*   All Other Rights Reserved.
+*
 *   \brief Provides the TM Channel Synchronization service.
 *
 *   \par Modification History:

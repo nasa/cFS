@@ -2,6 +2,11 @@
 **
 ** File: ut_cfe_sb_stubs.h
 **
+** Copyright 2017 United States Government as represented by the Administrator
+** of the National Aeronautics and Space Administration.  No copyright is
+** claimed in the United States under Title 17, U.S. Code.
+** All Other Rights Reserved.
+**
 ** $Id: ut_cfe_sb_stubs.h 1.1 2011/05/04 11:20:21EDT rmcgraw Exp  $
 **
 ** Purpose: cFE Software Bus Header file for unit test stubs

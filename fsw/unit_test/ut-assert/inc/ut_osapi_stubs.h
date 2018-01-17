@@ -2,6 +2,11 @@
 **
 ** File: ut_osapi_stubs.h
 **
+** Copyright 2017 United States Government as represented by the Administrator
+** of the National Aeronautics and Space Administration.  No copyright is
+** claimed in the United States under Title 17, U.S. Code.
+** All Other Rights Reserved.
+**
 ** $Id: ut_osapi_stubs.h 1.2 2011/05/16 16:25:33EDT rmcgraw Exp  $
 **
 ** Purpose: OSAPI Header file for unit test stubs

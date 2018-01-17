@@ -1,6 +1,11 @@
 /*******************************************************************************
 * File: trans_select.c
 *
+*   Copyright 2017 United States Government as represented by the Administrator
+*   of the National Aeronautics and Space Administration.  No copyright is
+*   claimed in the United States under Title 17, U.S. Code.
+*   All Other Rights Reserved.
+*
 * Purpose:
 *   Provides the functionality to do synchronous I/O multiplexing with 
 *   different devices (UDP, RS422) with the use of the POSIX select library.

@@ -1,6 +1,11 @@
 /*
  * Filename: tc_sync_testcase.c
  *
+ * Copyright 2017 United States Government as represented by the Administrator
+ * of the National Aeronautics and Space Administration.  No copyright is
+ * claimed in the United States under Title 17, U.S. Code.
+ * All Other Rights Reserved.
+ *
  * Purpose: This file contains a unit test cases for the TC_SYNC Service
  *
  * Modification History:

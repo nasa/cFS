@@ -1,6 +1,11 @@
 /*******************************************************************************
  * File: cop1.c
  *
+ * Copyright 2017 United States Government as represented by the Administrator
+ * of the National Aeronautics and Space Administration.  No copyright is
+ * claimed in the United States under Title 17, U.S. Code.
+ * All Other Rights Reserved.
+ *
  * Purpose:
  *   Provide the functionality for the receiver for the Communications Operation
  *   Procedure-1 (COP-1), i.e. the Frame Acceptance and Reporting Mechanism-1
