@@ -1,6 +1,11 @@
 /*
 ** File: ut_osapi_stubs.c
 **
+** Copyright 2017 United States Government as represented by the Administrator
+** of the National Aeronautics and Space Administration.  No copyright is
+** claimed in the United States under Title 17, U.S. Code.
+** All Other Rights Reserved.
+**
 ** $Id: ut_osapi_stubs.c 1.2 2011/05/16 16:25:35EDT rmcgraw Exp  $
 **
 ** Purpose: Unit test stubs for OSAPI routines.
