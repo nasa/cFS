@@ -11,3 +11,8 @@ The cFS is a platform and project independent reusable software framework and se
 The Telemetry Output (TO) Application is responsible for transmitting telemetry to external destination(s) (such as a ground station) over transport devices(s).
 
 
+
+This software is licensed under the NASA Open Source Agreement. 
+http://ti.arc.nasa.gov/opensource/nosa
+
+
