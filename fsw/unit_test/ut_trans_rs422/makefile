@@ -48,6 +48,7 @@ INCLUDES += -I$(CFE_PATH)/../mission_inc
 INCLUDES += -I$(CFE_PATH)/../platform_inc/cpu1
 INCLUDES += -I$(OSAL_PATH)/src/os/inc
 INCLUDES += -I$(OSAL_PATH)/build/inc
+INCLUDES += -I$(OSAL_PATH)/src/bsp/pc-linux/config
 INCLUDES += -I$(PSP_PATH)/fsw/inc
 INCLUDES += -I$(PSP_PATH)/fsw/pc-linux/inc
 
