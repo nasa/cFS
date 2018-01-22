@@ -1,8 +1,8 @@
-Telemetry Output
+# Telemetry Output
 
-NASA core Flight System Scheduler Application
+NASA core Flight System Telemetry Output Application
 
-Description
+## Description
 
 Telemetry Output (TO) application is a core Flight System (cFS) application that is a plug in to the Core Flight Executive (cFE) component of the cFS.
 
@@ -10,9 +10,7 @@ The cFS is a platform and project independent reusable software framework and se
 
 The Telemetry Output (TO) Application is responsible for transmitting telemetry to external destination(s) (such as a ground station) over transport devices(s).
 
-
+## License
 
 This software is licensed under the NASA Open Source Agreement. 
 http://ti.arc.nasa.gov/opensource/nosa
-
-
