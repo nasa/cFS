@@ -41,8 +41,13 @@ extern "C" {
 /*******************************************************************************
 ** Macro Definitions
 *******************************************************************************/
+#ifdef MESSAGE_FORMAT_IS_CCSDS_VER_2
+#define TO_UNUSED_ENTRY     ((uint32) 0x00FFFFFF+1)
+#define TO_REMOVED_ENTRY    ((uint32) 0x00FFFFFF+2)
+#else
 #define TO_UNUSED_ENTRY     0
 #define TO_REMOVED_ENTRY    1
+#endif
 
 /** \name Default Table Size */
 /** \{ */
