@@ -4,7 +4,7 @@ This repository is a bundle of submodules that make up the Core Flight System (c
 
 This bundle has not been fully verified as an operational system, and is provided as a starting point vs an end product.  Testing of this bundle consists of building, executing, sending setup commands and verifying receipt of telemetry.  Unit testing is also run, but extensive analysis is not performed.  All verification and validation per mission requirements is the responsibility of the mission (although attempts are made in the cFS Framework to provide a testing framework to facilitate the process).
 
-The cFS Framework is just a core subset of cFS, there are additional OSALs, PSPs, tools as listed below provided from a variety of sources.
+The cFS Framework is a core subset of cFS.  There are additional OSALs, PSPs, and tools as listed below available from a variety of sources.
 
 ## Release Notes
 
@@ -25,7 +25,9 @@ The version description document details two build warnings in linux that will b
 
 Major known issues (not noted in version description document):
   - elf2cfetbl doesn't build 64bit tables, there is a patch (contact forum below)
-  - TIME services can lock up in rare cases/contexts, there is a patch (contact forum below)
+  - TIME services can lock up if CFE_TIME_GetReference is called from a higher priority task/ISR, there is a patch (contact forum below)
+  
+Unit test - the nominal os timer test occasionally failes on standard Linux systems (non-RTOS)
 
 ## Major future work
 
@@ -47,9 +49,7 @@ Official cFS page: http://cfs.gsfc.nasa.gov
 
 ## Setup
 
-We suggest that users fork the repositories included here and modify as needed for their specific missions.
-
-To setup cFS directly from the latest release:
+To setup the cFS BUNDLE directly from the latest set of interoperable repositories:
 
     git clone https://github.com/nasa/cFS.git
     cd cFS
@@ -69,27 +69,66 @@ To compile and run (from cFS directory above):
     make prep
     make
     make install
-    ./build/exe/cpu1/core-cpu1
-    (should see startup messages, and CFE_ES_Main entering OPERATIONAL state)
+    cd build/exe/cpu1/
+    ./core-cpu1
 
-The cFS-GroundSystem tool can be used to send commands and receive telemetry (see https://TBD, the Guide-GroundSystem.txt).  Note it depends on PyQt4 and PyZMQ:
+Should see startup messages, and CFE_ES_Main entering OPERATIONAL state.  Note the code must be executed from the build/exe/cpu1 directory to find the startup script and shared objects.
 
-    (install PyQt4 and PyZMQ on your system)
-    cd tools/cFS-GroundSystem/Subsystems/cmdUtil
-    make
-    cd ../..
-    python GroundSystem.py
-    (select "Start Command System")
-    (select "Enable Tlm")
-    (enter IP address to connect to, 127.0.0.1 if running locally)
-    (should see telemetry, can send noops and see command counters increment)
+## Send commands, receive telemetry
 
-## Compatible list of cFS apps tested against current release
+The cFS-GroundSystem tool can be used to send commands and receive telemetry (see https://github.com/nasa/cFS-GroundSystem/tree/master/Guide-GroundSystem.txt, the Guide-GroundSystem.txt).  Note it depends on PyQt4 and PyZMQ:
 
-## Other cFS related elements/tools/apps (not tested), user submitted catalog
+1. Install PyQt4 and PyZMQ on your system
+2. Compile cmdUtil and start the ground system executable
 
-  - TBD Ground station 
-  - TBD Other Apps 
-  - TBD Tools
-  - TBD OSALs
-  - TBD PSPs
+       cd tools/cFS-GroundSystem/Subsystems/cmdUtil
+       make
+       cd ../..
+       python GroundSystem.py
+    
+3. Select "Start Command System"
+4. Select "Enable Tlm"
+5. Enter IP address of system executing cFS, 127.0.0.1 if running locally
+
+Should see telemetry, can send noops and see command counters increment
+
+## Compatible list of cFS apps
+
+The following applications have been tested against this release:
+  - TBD
+
+## Other cFS related elements/tools/apps/distributions
+
+The following list is user submitted, and not CCB controlled.  They are released by various orgainizations, under various licenses.
+
+  - Distributions
+    - cFS-101: Virtual machine distribution at https://github.com/nasa/CFS-101
+    - OpenSatKit: Open source kit for satelite software at https://github.com/OpenSatKit/OpenSatKit
+  - Other Ground station software
+    - TBD
+  - Other Apps
+    - CF: CFDP application at https://github.com/nasa/CF
+    - HK: Housekeeping application at https://github.com/nasa/HK
+    - MD: Memory Dwell application at https://github.com/nasa/MD
+    - MM: Memory Manager application at https://github.com/nasa/MM
+    - LC: Limit Checker application at https://github.com/nasa/LC
+    - CS: Checksum application at https://github.com/nasa/CS
+    - FM: File Manager application at https://github.com/nasa/FM
+    - SC: Stored Commands application at https://github.com/nasa/SC
+    - SCH: Scheduler application at https://github.com/nasa/SCH
+    - HS: Health and Safety application at https://github.com/nasa/HS
+    - DS: Data Store application at https://github.com/nasa/DS
+    - SCA: Stored Command Absolute application at https://github.com/nasa/SCA
+  - Other Interfaces
+    - SIL: Simulink Interface Layer at https://github.com/nasa/SIL
+    - ECI: External Code Interface at https://github.com/nasa/ECI
+  - Other Libraries
+    - cFS_LIB: at https://github.com/nasa/cfs_lib
+    - cFS_IO_LIB: IO library at https://github.com/nasa/CFS_IO_LIB
+  - Other Tools
+    - CCDD: Command and Data Dictionary Tool at https://github.com/nasa/CCDD
+    - Perfutils-java: Java based performance analyzer for cFS at https://github.com/nasa/perfutils-java
+  - Other OSALs
+    - TBD
+  - Other PSPs
+    - TBD
