@@ -56,7 +56,9 @@ To setup the cFS BUNDLE directly from the latest set of interoperable repositori
     git submodule init
     git submodule update
 
-If running on a standard linux build, likely need to increase message queues.  Recommendation is to set /proc/sys/fs/mqueue/msg_max to 256 or greater.
+If running on a standard linux build, likely need to increase message queues.  Recommendation is to set /proc/sys/fs/mqueue/msg_max to 128 or greater:
+
+    root# echo 128 > /proc/sys/fs/mqueue/msg_max
 
 ## Build and Run
 
