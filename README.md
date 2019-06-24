@@ -43,7 +43,7 @@ Unit test - the nominal os timer test occasionally failes on standard Linux syst
 
 ## Getting Help
 
-The cFS community page http://coreflightsystem.org should be your first stop for getting help. Please post questions to the http://coreflightsystem.org/questions/. There is also a forum at http://coreflightsystem.org/forums for more general discussions.
+For best results, submit issues:questions or issues:help wanted requests to this repo.
 
 Official cFS page: http://cfs.gsfc.nasa.gov
 
