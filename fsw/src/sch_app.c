@@ -43,6 +43,7 @@
 
 #include "cfe_time_msg.h"
 #include "sch_verify.h"
+#include "cfe_platform_cfg.h" /* for CFE_SB_HIGHEST_VALID_MSGID */
 
 /*************************************************************************
 **
