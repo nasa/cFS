@@ -42,10 +42,6 @@
 	path = tools/gen_msgids
 	url = https://github.com/nasa/gen_msgids.git
         branch = master
-[submodule "tools/gen_sch_tbl"]
-	path = tools/gen_sch_tbl
-	url = https://github.com/nasa/gen_sch_tbl.git
-        branch = master
 [submodule "tools/tblCRCTool"]
 	path = tools/tblCRCTool
 	url = https://github.com/nasa/tblCRCTool.git
