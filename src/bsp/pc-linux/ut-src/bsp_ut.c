@@ -25,25 +25,55 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#include "osapi.h"
 #include "utbsp.h"
 #include "uttest.h"
 
+static const char BSP_TERMCODE_HIGHLIGHT[] = "\x1b[31m";
+static const char BSP_TERMCODE_NORMAL[] =    "\x1b[0m";
+static const char BSP_TERMCODE_NONE[] = "";
 
 /*
 **  External Declarations
 */
-void OS_Application_Startup(void);
-
+extern OS_VolumeInfo_t OS_VolumeTable [NUM_TABLE_ENTRIES];
 
 /*
 **  Local Variables
 */
+static int32 NumUserOptions = 0;
+static char **FirstUserOption = NULL;
 static uint32 CurrVerbosity = (2 << UTASSERT_CASETYPE_PASS) - 1;
+static bool EnableTermCodes = false;
+
+/*
+ * UT_BSP_GetTotalOptions: See details in prototype
+ */
+int32 UT_BSP_GetTotalOptions(void)
+{
+    return NumUserOptions;
+}
+
+/*
+ * UT_BSP_GetOptionString: See details in prototype
+ */
+const char * UT_BSP_GetOptionString(int32 OptionNum)
+{
+    if (OptionNum >= NumUserOptions)
+    {
+        return NULL;
+    }
+
+    return FirstUserOption[OptionNum];
+}
+
+
 
 void UT_BSP_ParseCommandLine(int argc, char *argv[])
 {
@@ -74,28 +104,58 @@ void UT_BSP_ParseCommandLine(int argc, char *argv[])
         }
     }
 
-
+    if (optind < argc)
+    {
+        NumUserOptions = argc - optind;
+        FirstUserOption = &argv[optind];
+    }
 }
 
 void UT_BSP_Setup(const char *Name)
 {
     int      mode;
+    uint32   i;
+    struct stat statbuf;
+
+    /*
+     * Enable terminal codes only if stdout is actually terminal.
+     * This should prevent log files from having escape codes, for
+     * when output is redirected to a file.
+     */
+    EnableTermCodes = isatty(STDOUT_FILENO);
+
 
     UT_BSP_DoText(UTASSERT_CASETYPE_BEGIN, Name);
 
     /*
     ** Create local directories for "disk" mount points
     **  See bsp_voltab for the values
+    **
+    ** NOTE - the voltab table is poorly designed here; values of "0" are valid
+    ** and will translate into an entry that is actually used.  In particular the
+    ** "free" flag has to be actually initialized to TRUE to say its NOT valid.
+    ** So in the case of an entry that has been zeroed out (i.e. bss section) it
+    ** will be treated as a valid entry.
+    **
+    ** Checking that the DeviceName starts with a leading slash '/' is a workaround
+    ** for this, and may be the only way to detect an entry that is uninitialized.
     */
-    printf("Making directories: ram0, ram1, eeprom1 for OSAL mount points\n");
     mode = S_IFDIR |S_IRWXU | S_IRWXG | S_IRWXO;
-    mkdir("ram0", mode);
-    mkdir("ram1", mode);
-    mkdir("eeprom1", mode);
+    for (i=0; i < NUM_TABLE_ENTRIES; ++i)
+    {
+        if (OS_VolumeTable[i].VolumeType == FS_BASED &&
+                OS_VolumeTable[i].PhysDevName[0] != 0 &&
+                OS_VolumeTable[i].DeviceName[0] == '/')
 
-    /* For unit testing, the ram3/ram4 mount points need to exist as well */
-    mkdir("ram3", mode);
-    mkdir("ram4", mode);
+        {
+            if (stat(OS_VolumeTable[i].PhysDevName, &statbuf) < 0)
+            {
+                printf("Creating mount point directory: %s\n",
+                        OS_VolumeTable[i].PhysDevName);
+                mkdir(OS_VolumeTable[i].PhysDevName, mode);
+            }
+        }
+    }
 }
 
 void UT_BSP_StartTestSegment(uint32 SegmentNumber, const char *SegmentName)
@@ -109,6 +169,8 @@ void UT_BSP_StartTestSegment(uint32 SegmentNumber, const char *SegmentName)
 void UT_BSP_DoText(uint8 MessageType, const char *OutputMessage)
 {
    const char *Prefix;
+   const char *ControlCodeStart = NULL;
+   const char *ControlCodeEnd = NULL;
 
    if ((CurrVerbosity >> MessageType) & 1)
    {
@@ -118,6 +180,7 @@ void UT_BSP_DoText(uint8 MessageType, const char *OutputMessage)
          Prefix = "ABORT";
          break;
       case UTASSERT_CASETYPE_FAILURE:
+         ControlCodeStart = BSP_TERMCODE_HIGHLIGHT;
          Prefix = "FAIL";
          break;
       case UTASSERT_CASETYPE_MIR:
@@ -152,7 +215,17 @@ void UT_BSP_DoText(uint8 MessageType, const char *OutputMessage)
          Prefix = "OTHER";
          break;
       }
-      printf("[%5s] %s\n",Prefix,OutputMessage);
+
+      if (!EnableTermCodes || ControlCodeStart == NULL)
+      {
+          ControlCodeStart = BSP_TERMCODE_NONE;
+          ControlCodeEnd = BSP_TERMCODE_NONE;
+      }
+      else if (ControlCodeEnd == NULL)
+      {
+          ControlCodeEnd = BSP_TERMCODE_NORMAL;
+      }
+      printf("[%s%5s%s] %s\n",ControlCodeStart,Prefix,ControlCodeEnd,OutputMessage);
    }
 
    /*
@@ -272,13 +345,12 @@ void UT_BSP_EndTest(const UtAssert_TestCounter_t *TestCounters)
 int main(int argc, char *argv[])
 {
    UT_BSP_Setup("PC-LINUX UNIT TEST");
+   UT_BSP_ParseCommandLine(argc, argv);
 
    /*
    ** Call application specific entry point.
    */
    OS_Application_Startup();
-
-   UT_BSP_ParseCommandLine(argc, argv);
 
    /*
    ** In unit test mode, call the UtTest_Run function (part of UT Assert library)

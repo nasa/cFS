@@ -30,6 +30,7 @@
 #ifndef _UTSTUBS_H_
 #define _UTSTUBS_H_
 
+#include <stdarg.h>
 #include "common_types.h"
 
 /**
@@ -68,6 +69,7 @@ typedef struct
  * Function pointer for user-specified hooks/stub callbacks
  */
 typedef int32 (*UT_HookFunc_t)(void *UserObj, int32 StubRetcode, uint32 CallCount, const UT_StubContext_t *Context);
+typedef int32 (*UT_VaHookFunc_t)(void *UserObj, int32 StubRetcode, uint32 CallCount, const UT_StubContext_t *Context, va_list va);
 
 
 /**************************************************************
@@ -124,13 +126,29 @@ void UT_SetDeferredRetcode(UT_EntryKey_t FuncKey, int32 Count, int32 Retcode);
  * \param FuncKey The stub function to add the data buffer to.
  * \param DataBuffer Pointer to data buffer that should be associated with the stub function
  * \param BufferSize Size of data buffer
- * \param AllocateCopy If TRUE then malloc() will be used to allocate a copy of the buffer
+ * \param AllocateCopy If true then malloc() will be used to allocate a copy of the buffer
  *      and the supplied DataBuffer will be copied into it via memcpy() before returning.  The
  *      buffer will be freed after the test code reads it or the test state is reset.  If this
- *      is FALSE then the DataBuffer pointer is used directly, and must remain valid for the duration
+ *      is false then the DataBuffer pointer is used directly, and must remain valid for the duration
  *      of the current test case.
  */
-void UT_SetDataBuffer(UT_EntryKey_t FuncKey, void *DataBuffer, uint32 BufferSize, osalbool AllocateCopy);
+void UT_SetDataBuffer(UT_EntryKey_t FuncKey, void *DataBuffer, uint32 BufferSize, bool AllocateCopy);
+
+/**
+ * Gets the data buffer for a given stub function
+ *
+ * This is the complement to UT_SetDataBuffer() and it can be useful in stub functions
+ * where the buffer needs to be checked but not necessarily consumed.
+ *
+ * In case there is no associated buffer the pointer will be set NULL and the size will be
+ * set to 0.
+ *
+ * \param FuncKey The stub function to reference.
+ * \param DataBuffer Set to Pointer to data buffer that is associated with the stub function (output)
+ * \param BufferSize Set to Maximum Size of data buffer (output)
+ * \param Position Set to current position in data buffer (output)
+ */
+void UT_GetDataBuffer(UT_EntryKey_t FuncKey, void **DataBuffer, uint32 *MaxSize, uint32 *Position);
 
 /**
  * Enable or disable the forced failure mode for the given stub function
@@ -168,19 +186,45 @@ void UT_ClearForceFail(UT_EntryKey_t FuncKey);
  */
 void UT_SetHookFunction(UT_EntryKey_t FuncKey, UT_HookFunc_t HookFunc, void *UserObj);
 
-
+/**
+ * Set a variable-argument Hook function for a particular call
+ *
+ * Identical to the normal hook function except that it includes a va_list argument
+ * such that the entire set of args from the original call can be passed to the hook.
+ * This can be important for printf-like stubs where correctness might depend on the
+ * contents of the arguments but the types of arguments aren't known.
+ *
+ * However, some systems have limited support for va_list, so this might not be
+ * available on those systems.  Tests should use the generic (non-va) hook function 
+ * unless the arguments are truly necessary.
+ *
+ * \param FuncKey  The stub function to add the hook to.
+ * \param HookFunc User defined hook function.  Set NULL to delete/clear an entry.
+ * \param UserObj  Arbitrary user data object to pass to the hook function
+ */
+void UT_SetVaHookFunction(UT_EntryKey_t FuncKey, UT_VaHookFunc_t HookFunc, void *UserObj);
 
 /**
- * Get a count for the number of times a forced failure mode was taken
+ * Get a count for the number of times a stub was invoked, at its most recent return value
  *
- * More specifically, this counts the number of times UT_Stub_CheckForceFail()
- * was called and returned TRUE since UT_SetForceFail() was called.  The
- * actual meaning of this depends on the stub's implementation.
+ * Test cases may check this to determine if a particular stub was called during the test.
  *
  * \param FuncKey The stub function to check.
- * \param Count   The number of times the failure mode was invoked
+ * \param Retcode Buffer to store the most recent return code from the stub
+ * \param Count   Buffer to store the number of times the stub was invoked
  */
-osalbool UT_GetStubRetcodeAndCount(UT_EntryKey_t FuncKey, int32 *Retcode, int32 *Count);
+bool UT_GetStubRetcodeAndCount(UT_EntryKey_t FuncKey, int32 *Retcode, int32 *Count);
+
+/**
+ * Get a count for the number of times a stub was invoked
+ *
+ * Test cases may check this to determine if a particular stub was called during the test.
+ *
+ * \param FuncKey The stub function to check.
+ * \return The number of times the stub was invoked
+ */
+uint32 UT_GetStubCount(UT_EntryKey_t FuncKey);
+
 
 
 /**************************************************************
@@ -188,14 +232,26 @@ osalbool UT_GetStubRetcodeAndCount(UT_EntryKey_t FuncKey, int32 *Retcode, int32 
  **************************************************************/
 
 /**
+ * Registers a function to be called once per test case
+ *
+ * This can be used for initialization purposes to preserve state
+ * across stub calls.  The first time this is encountered after a
+ * reset, the function will be called.  For all subsequent encounters,
+ * it will be ignored.
+ *
+ * \param Func      A function to call once per test case.
+ */
+void UT_Stub_CallOnce(void (*Func)(void));
+
+/**
  * Check for a deferred return code entry for the given stub function
  *
  * This is a default implementation for deferred retcodes and can be used
  * by stub functions as a common implementation.  If a deferred retcode
  * for the given function is present, this will decrement the associated
- * count.  If the count becomes zero, this function returns TRUE and
+ * count.  If the count becomes zero, this function returns true and
  * the Retcode parameter is assigned the originally requested code.
- * Otherwise this function returns FALSE which indicates the default
+ * Otherwise this function returns false which indicates the default
  * stub implementation should be used.
  *
  * Once the counter reaches zero, this clears the entry so that if a
@@ -203,21 +259,21 @@ osalbool UT_GetStubRetcodeAndCount(UT_EntryKey_t FuncKey, int32 *Retcode, int32 
  *
  * \param FuncKey The stub function to check the return code.
  * \param Retcode Buffer to store deferred return code, if available.
- * \returns TRUE if deferred code is present and counter reached zero
+ * \returns true if deferred code is present and counter reached zero
  */
-osalbool UT_Stub_CheckDeferredRetcode(UT_EntryKey_t FuncKey, int32 *Retcode);
+bool UT_Stub_CheckDeferredRetcode(UT_EntryKey_t FuncKey, int32 *Retcode);
 
 /**
  * Check for a forced failure mode entry for the given stub function
  *
  * If a UT_SetForceFail() option is in place for the given function this
- * will return TRUE and increment the internal usage counter.
+ * will return true and increment the internal usage counter.
  *
  * \param FuncKey The stub function to check the return code.
  * \param Value Set to the value supplied to UT_SetForceFail()
- * \returns TRUE if force fail mode is active
+ * \returns true if force fail mode is active
  */
-osalbool UT_Stub_CheckForceFail(UT_EntryKey_t FuncKey, int32 *Value);
+bool UT_Stub_CheckForceFail(UT_EntryKey_t FuncKey, int32 *Value);
 
 /**
  * Copies data from a test-supplied buffer to the local buffer
@@ -231,7 +287,7 @@ osalbool UT_Stub_CheckForceFail(UT_EntryKey_t FuncKey, int32 *Value);
  * \returns The actual size of data copied.  If no data buffer is
  *      supplied by the test harness this will return 0.
  */
-uint32 UT_Stub_CopyToLocal(UT_EntryKey_t FuncKey, uint8 *LocalBuffer, uint32 MaxSize);
+uint32 UT_Stub_CopyToLocal(UT_EntryKey_t FuncKey, void *LocalBuffer, uint32 MaxSize);
 
 /**
  * Copies data from a local buffer to the test-supplied buffer
@@ -245,7 +301,7 @@ uint32 UT_Stub_CopyToLocal(UT_EntryKey_t FuncKey, uint8 *LocalBuffer, uint32 Max
  * \returns The actual size of data copied.  If no data buffer is
  *      supplied by the test harness this will return 0.
  */
-uint32 UT_Stub_CopyFromLocal(UT_EntryKey_t FuncKey, const uint8 *LocalBuffer, uint32 MaxSize);
+uint32 UT_Stub_CopyFromLocal(UT_EntryKey_t FuncKey, const void *LocalBuffer, uint32 MaxSize);
 
 /**
  * Registers a single context element for the hook callback
@@ -261,16 +317,32 @@ uint32 UT_Stub_CopyFromLocal(UT_EntryKey_t FuncKey, const uint8 *LocalBuffer, ui
 void UT_Stub_RegisterContext(UT_EntryKey_t FuncKey, const void *Parameter);
 
 /**
- * Default implementation for a stub function that should be useful for most cases.
+ * Default implementation for a stub function that takes a va_list of arguments.
  *
  * Checks first for a deferred retcode, then for a constant retcode, and a default (0) if neither is present.
  * Optionally also prints a debug level status message to show that the function was called.
+ *
+ * If a hook function is registered, then it is called using the supplied va_list of arguments.
  *
  * \param FunctionName  The printable name of the actual function called, for the debug message.  If
  *    NULL then no debug message will be generated.
  * \param FuncKey       The Key to look up in the table
  */
-int32 UT_DefaultStubImpl(const char *FunctionName, UT_EntryKey_t FuncKey, int32 DefaultRc);
+int32 UT_DefaultStubImplWithArgs(const char *FunctionName, UT_EntryKey_t FuncKey, int32 DefaultRc, va_list va);
+
+
+/**
+ * Default implementation for a stub function that should be useful for most cases.
+ *
+ * This is a wrapper around UT_DefaultStubImplWithArgs() with a variable argument prototype.
+ *
+ * \param FunctionName  The printable name of the actual function called, for the debug message.  If
+ *    NULL then no debug message will be generated.
+ * \param FuncKey       The Key to look up in the table
+ * \param DefaultRc     The default code to be returned when no code is registered in the UT state
+ */
+int32 UT_DefaultStubImpl(const char *FunctionName, UT_EntryKey_t FuncKey, int32 DefaultRc, ...);
+
 
 /**
  * Macro to simplify usage of the UT_DefaultStubImpl() function
@@ -278,17 +350,45 @@ int32 UT_DefaultStubImpl(const char *FunctionName, UT_EntryKey_t FuncKey, int32 
  * The UT_DEFAULT_IMPL can be used as part of a larger implementation
  * where the default items of deferred return codes / force fails are
  * checked first, then additional functionality is added.
+ *
+ * This version should be used on stubs that take no arguments
+ * and are expected to return 0 in the nominal case
  */
 #define UT_DEFAULT_IMPL(FuncName)           UT_DefaultStubImpl(#FuncName, UT_KEY(FuncName), 0)
 
 /**
  * Macro to simplify usage of the UT_DefaultStubImpl() function
  *
- * The UT_DEFAULT_IMPL can be used as part of a larger implementation
+ * The UT_DEFAULT_IMPL_RC can be used as part of a larger implementation
+ * where the default items of deferred return codes / force fails are
+ * checked first, then additional functionality is added.
+ *
+ * This version should be used on stubs that take no arguments
+ * and are expected to return nonzero in the nominal case
+ */
+#define UT_DEFAULT_IMPL_RC(FuncName, Rc)    UT_DefaultStubImpl(#FuncName, UT_KEY(FuncName), Rc)
+
+/**
+ * Macro to simplify usage of the UT_DefaultStubImpl() function
+ *
+ * The UT_DEFAULT_IMPL_ARGS can be used as part of a larger implementation
+ * where the default items of deferred return codes / force fails are
+ * checked first, then additional functionality is added.
+ *
+ * This version should be used on stubs that do take arguments
+ * and are expected to return 0 in the nominal case
+ */
+#define UT_DEFAULT_IMPL_ARGS(FuncName,...)  UT_DefaultStubImpl(#FuncName, UT_KEY(FuncName), 0, __VA_ARGS__)
+
+
+/**
+ * Macro to simplify usage of the UT_DefaultStubImpl() function
+ *
+ * The UT_DEFAULT_IMPL_RC_ARGS can be used as part of a larger implementation
  * where the default items of deferred return codes / force fails are
  * checked first, then additional functionality is added.
  */
-#define UT_DEFAULT_IMPL_RC(FuncName, Rc)    UT_DefaultStubImpl(#FuncName, UT_KEY(FuncName), Rc)
+#define UT_DEFAULT_IMPL_RC_ARGS(FuncName,Rc,...)  UT_DefaultStubImpl(#FuncName, UT_KEY(FuncName), Rc, __VA_ARGS__)
 
 /**
  * Macro to simplify usage of the UT_DefaultStubImpl() function
@@ -297,59 +397,6 @@ int32 UT_DefaultStubImpl(const char *FunctionName, UT_EntryKey_t FuncKey, int32 
  * when only deferred return codes / force fails are in use.
  */
 #define UT_DEFAULT_STUB(FuncName, Args)     int32 FuncName Args { return UT_DEFAULT_IMPL(FuncName); }
-
-
-/*******************************************************************
- * COMPATIBILITY LAYER DEFINITIONS AND PROTOTYPES
- *******************************************************************
- *
- * The definitions in this section are to support the CFE unit test without
- * requiring a major rewrite of the test code.
- *
- * Much of that code "communicates" with a stub function via the UT_SetRtn_t
- * structure types.  For every stub function there is also a global object (or 2)
- * of this type instantiated that hold the state.
- *
- * This is unnecessary using the stub API defined here, but in order to support
- * code ALREADY WRITTEN for this, some adaption layers are defined here.
- */
-
-/**
- * A structure to interface between the test code and stubs
- * This is intended to be compatible with the old "UT_SetRtn_t" structure
- * used throughout the CFE unit test code.  It can be removed once that
- * code is updated.
- */
-typedef struct
-{
-    int32 count;
-    int32 value;
-} UT_Compat_SetRtn_t;
-
-/**
- * Maps an arbitrary object pointer to a stub function
- *
- * This just serves to associate some global object to a stub function.
- * Once the association is established, calling UT_Compat_SetRtnCode()
- * on the same global object works as if the UT_SetDeferredRetcode()
- * were called directly using the associated stub function
- *
- * /param ObjPtr    Arbitrary (opaque) object to associate
- * /param FuncKey   Stub function to associate with
- */
-void UT_Compat_SetCodeMap(const void *ObjPtr, UT_EntryKey_t FuncKey);
-
-
-/**
- * Compatibility layer for UT_SetDeferredRetcode() for existing unit tests.
- *
- * Using the associates set up by UT_Compat_SetCodeMap(), this calls
- * UT_SetDeferredRetcode() with the correct function ID.
- *
- * This is an adaption layer for code that expects a separate global object
- * to be the interface between it and the stub function.
- */
-void UT_Compat_SetRtnCode(const void *ObjPtr, int32 RetCode, int32 Count);
 
 
 

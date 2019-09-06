@@ -90,7 +90,7 @@ rtems_id          RtemsTimerId;
  */
 bool BSP_Login_Check(const char *user, const char *passphrase)
 {
-   return TRUE;
+   return true;
 }
 
 
@@ -193,7 +193,7 @@ rtems_task Init(
 
    /*
    ** OS_IdleLoop() will wait forever and return if
-   ** someone calls OS_ApplicationShutdown(TRUE)
+   ** someone calls OS_ApplicationShutdown(true)
    */
    OS_IdleLoop();
 

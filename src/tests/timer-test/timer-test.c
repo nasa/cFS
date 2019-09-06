@@ -40,6 +40,7 @@ uint32 timer_idlookup[OS_MAX_TIMERS];
 */
 void test_func(uint32 timer_id)
 {
+   OS_ConvertToArrayIndex(timer_id, &timer_id);
    timer_counter[timer_idlookup[timer_id]]++;
 }
 
@@ -92,6 +93,7 @@ void TimerTestTask(void)
    
    int              i = 0;
    int32            TimerStatus;
+   uint32           TableId;
    uint32           TimerID[NUMBER_OF_TIMERS];
    char             TimerName[NUMBER_OF_TIMERS][20] = {"TIMER1","TIMER2","TIMER3","TIMER4"};
    uint32           ClockAccuracy;
@@ -107,7 +109,9 @@ void TimerTestTask(void)
       TimerStatus  =  OS_TimerSet(TimerID[i], TimerStart[i], TimerInterval[i]);
       UtAssert_True(TimerStatus == OS_SUCCESS, "Timer %d programmed RC=%d", i, (int)TimerStatus);
 
-      timer_idlookup[TimerID[i]] = i;
+      OS_ConvertToArrayIndex(TimerID[i], &TableId);
+
+      timer_idlookup[TableId] = i;
    }
 
 
@@ -135,7 +139,7 @@ void TimerTestTask(void)
                i, (int)TimerStatus, (int)timer_counter[i]);
    }
 
-   OS_ApplicationShutdown(TRUE);
+   OS_ApplicationShutdown(true);
    OS_TaskExit();
 }
 
@@ -162,6 +166,8 @@ void TimerTestCheck(void)
    for ( i = 0; i < NUMBER_OF_TIMERS; i++ )
    {
       expected = (microsecs - TimerStart[i]) / TimerInterval[i];
+      UtAssert_True(expected > 0, "Expected ticks = %u", (unsigned int)expected);
+
       /*
        * Since all these counts are affected by test system load,
        * allow for some fudge factor before declaring failure

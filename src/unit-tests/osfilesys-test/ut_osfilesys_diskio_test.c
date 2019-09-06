@@ -1075,11 +1075,11 @@ UT_os_translatepath_test_exit_tag:
 }
 
 /*--------------------------------------------------------------------------------*
-** Syntax: os_fshealth_t OS_chkfs(const char *name, boolean repair)
+** Syntax: os_fshealth_t OS_chkfs(const char *name, bool repair)
 ** Purpose: Checks the integrity of the file system, and may or may not repair it,
 **          depending on repair
 ** Parameters: *name - the name of the drive to check
-**             repair - boolean flag to repair or not to repair
+**             repair - bool flag to repair or not to repair
 ** Returns: OS_FS_ERR_INVALID_POINTER if the pointer passed in is NULL
 **          OS_FS_ERROR if the OS call failed
 **          OS_FS_SUCCESS if succeeded

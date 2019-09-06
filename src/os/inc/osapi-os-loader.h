@@ -14,27 +14,6 @@
 ** Purpose: Contains functions prototype definitions and variables declarations
 **          for the OS Abstraction Layer, Object file loader API
 **
-** $Revision: 1.5 $ 
-**
-** $Date: 2013/07/25 10:02:08GMT-05:00 $
-**
-** $Log: osapi-os-loader.h  $
-** Revision 1.5 2013/07/25 10:02:08GMT-05:00 acudmore 
-** removed circular include "osapi.h"
-** Revision 1.4 2010/11/12 12:00:18GMT-05:00 acudmore 
-** replaced copyright character with (c) and added open source notice where needed.
-** Revision 1.3 2010/02/01 12:38:06EST acudmore 
-** added return code to OS_ModuleTableInit
-** Revision 1.2 2008/06/20 15:13:43EDT apcudmore 
-** Checked in new Module loader/symbol table functionality
-** Revision 1.1 2008/04/20 22:36:02EDT ruperera 
-** Initial revision
-** Member added to project c:/MKSDATA/MKS-REPOSITORY/MKS-OSAL-REPOSITORY/src/os/inc/project.pj
-** Revision 1.1 2008/02/07 11:08:24EST apcudmore 
-** Initial revision
-** Member added to project d:/mksdata/MKS-OSAL-REPOSITORY/src/os/inc/project.pj
-** 
-**  
 */
 
 #ifndef _osapi_loader_
@@ -64,11 +43,32 @@ typedef struct
 typedef struct
 {
    cpuaddr             entry_point;
-   uint32              host_module_id;
+   cpuaddr             host_module_id;
    char                filename[OS_MAX_PATH_LEN];
    char                name[OS_MAX_API_NAME];
    OS_module_address_t addr;
 } OS_module_prop_t;
+
+/**
+ * Associates a single symbol name with a memory address.
+ *
+ * If the OS_STATIC_SYMBOL_TABLE feature is enabled, then
+ * an array of these structures should be provided by the
+ * application.  When the application needs to find a symbol
+ * address, the static table will be checked in addition
+ * to (or instead of) the OS/library-provided lookup function.
+ *
+ * This static symbol allows systems that do not implement
+ * dynamic module loading to maintain the same semantics
+ * as dynamically loaded modules.
+ */
+typedef const struct
+{
+   const char *Name;
+   void (*Address)(void);
+   const char *Module;
+} OS_static_symbol_record_t;
+
 
 /*
  * Define the former "OS_module_record_t" type as equivalent

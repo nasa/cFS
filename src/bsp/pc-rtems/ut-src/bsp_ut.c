@@ -31,6 +31,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <ctype.h>
 #include <rtems.h>
 #include <rtems/mkrootfs.h>
 #include <rtems/bdbuf.h>
@@ -41,21 +42,22 @@
 #include <rtems/dosfs.h>
 #include <rtems/fsmount.h>
 #include <rtems/shell.h>
+#include <bsp.h>
 
-#include "osconfig.h"
+#include "osapi.h"
 #include "utbsp.h"
 #include "uttest.h"
 
 /*
 **  External Declarations
 */
+extern OS_VolumeInfo_t OS_VolumeTable [NUM_TABLE_ENTRIES];
+
 void OS_Application_Startup(void);
 
-extern rtems_status_code rtems_ide_part_table_initialize (const char* );
-
-
-#define RTEMS_NUMBER_OF_RAMDISKS 1
-
+#define RTEMS_NUMBER_OF_RAMDISKS  1
+#define RTEMS_UT_MAX_USER_OPTIONS 4
+#define RTEMS_UT_MAX_CMDLINE      256
 
 /*
 ** Global variables
@@ -91,30 +93,128 @@ rtems_driver_address_table rtems_ramdisk_io_ops =
  *
  * It may be possible to set this value using the shell...
  */
-uint32 CurrVerbosity = (2 << UTASSERT_CASETYPE_PASS) - 1;
+static bool BatchMode = false;
+static int32 UserArgc = 0;
+static char UserArgBuffer[RTEMS_UT_MAX_CMDLINE];
+static char *UserArgv[RTEMS_UT_MAX_USER_OPTIONS] = { NULL };
+static uint32 CurrVerbosity = (2 << UTASSERT_CASETYPE_PASS) - 1;
 
 /*
- * The RTEMS shell needs a function to check the validity of a login username/password
- * This is just a stub that always passes.
+ * UT_BSP_GetTotalOptions: See details in prototype
  */
-bool BSP_Login_Check(const char *user, const char *passphrase)
+int32 UT_BSP_GetTotalOptions(void)
 {
-   return TRUE;
+    return UserArgc;
+}
+
+/*
+ * UT_BSP_GetOptionString: See details in prototype
+ */
+const char * UT_BSP_GetOptionString(int32 OptionNum)
+{
+    if (OptionNum >= UserArgc)
+    {
+        return NULL;
+    }
+
+    return UserArgv[OptionNum];
 }
 
 
 void UT_BSP_Setup(const char *Name)
 {
     int status;
+    int i;
+    struct stat statbuf;
+    const char *cmdlinestr;
+    const char *cmdp;
+    char *cmdi, *cmdo;
 
+    cmdlinestr = bsp_cmdline();
     printf( "\n\n*** RTEMS Info ***\n" );
-    printf("%s", Name );
     printf("%s", _Copyright_Notice );
     printf("%s\n\n", _RTEMS_version );
     printf(" Stack size=%d\n", (int)Configuration.stack_space_size );
     printf(" Workspace size=%d\n",   (int) Configuration.work_space_size );
+    if (cmdlinestr != NULL)
+    {
+        printf(" Bootloader Command Line: %s\n", cmdlinestr);
+    }
     printf("\n");
     printf( "*** End RTEMS info ***\n\n" );
+
+    /*
+     * Parse command line string (passed in from bootloader)
+     *
+     * Known arguments are handled here, and unknown args are
+     * saved for the UT application.
+     *
+     * Batch mode is intended for non-interative execution.
+     *
+     * It does two things:
+     * - do not start the shell task
+     * - when tests are complete, shutdown the executive
+     *
+     * The BSP should be configured with these options to
+     * make this most useful:
+     *   USE_COM1_AS_CONSOLE=1
+     *   BSP_PRESS_KEY_FOR_RESET=0
+     *   BSP_RESET_BOARD_AT_EXIT=1
+     *
+     * This way all the test output will be sent to COM1
+     * and then immediately resets the CPU when done.
+     *
+     * When running under QEMU the "-no-reboot" flag is
+     * also useful to shutdown QEMU rather than resetting.
+     */
+    if (cmdlinestr != NULL)
+    {
+        cmdp = cmdlinestr;
+        cmdo = NULL;
+        cmdi = NULL;
+        while (1)
+        {
+            if (isgraph((int)*cmdp))
+            {
+                if (cmdo == NULL)
+                {
+                    cmdo = UserArgBuffer;
+                }
+                else
+                {
+                    ++cmdo;
+                }
+                if (cmdi == NULL)
+                {
+                    cmdi = cmdo;
+                }
+                *cmdo = *cmdp;
+            }
+            else if (cmdi != NULL)
+            {
+                ++cmdo;
+                *cmdo = 0;
+                if (strcmp(cmdi,"--batch-mode") == 0)
+                {
+                    BatchMode = true;
+                }
+                else if (UserArgc < RTEMS_UT_MAX_USER_OPTIONS)
+                {
+                    /* save other args for app */
+                    UserArgv[UserArgc] = cmdi;
+                    ++UserArgc;
+                }
+                cmdi = NULL;
+            }
+
+            if (*cmdp == 0)
+            {
+                break;
+            }
+
+            ++cmdp;
+        }
+    }
 
     /*
     ** Create the RTEMS Root file system
@@ -128,44 +228,57 @@ void UT_BSP_Setup(const char *Name)
     /*
     ** create the directory mountpoints
     */
-    status = mkdir("/ram", S_IFDIR |S_IRWXU | S_IRWXG | S_IRWXO); /* For ramdisk mountpoint */
-    if (status != RTEMS_SUCCESSFUL)
-    {
-        printf("mkdir failed: %s\n", strerror (errno));
-    }
-
-    status = mkdir("/cf", S_IFDIR |S_IRWXU | S_IRWXG | S_IRWXO); /* For EEPROM mountpoint */
-    if (status != RTEMS_SUCCESSFUL)
-    {
-        printf("mkdir failed: %s\n", strerror (errno));
-        return;
-    }
 
     /*
-     * Register the IDE partition table.
-     */
-    status = rtems_ide_part_table_initialize ("/dev/hda");
-    if (status != RTEMS_SUCCESSFUL)
+    ** Create local directories for "disk" mount points
+    **  See bsp_voltab for the values
+    **
+    ** NOTE - the voltab table is poorly designed here; values of "0" are valid
+    ** and will translate into an entry that is actually used.  In particular the
+    ** "free" flag has to be actually initialized to TRUE to say its NOT valid.
+    ** So in the case of an entry that has been zeroed out (i.e. bss section) it
+    ** will be treated as a valid entry.
+    **
+    ** Checking that the DeviceName starts with a leading slash '/' is a workaround
+    ** for this, and may be the only way to detect an entry that is uninitialized.
+    */
+    for (i=0; i < NUM_TABLE_ENTRIES; ++i)
     {
-      printf ("error: ide partition table not found: %s / %s\n",
-              rtems_status_text (status),strerror(errno));
+        if (OS_VolumeTable[i].VolumeType == FS_BASED &&
+                OS_VolumeTable[i].PhysDevName[0] != 0 &&
+                OS_VolumeTable[i].DeviceName[0] == '/')
+
+        {
+            if (stat(OS_VolumeTable[i].PhysDevName, &statbuf) < 0)
+            {
+                printf("Creating mount point directory: %s\n",
+                        OS_VolumeTable[i].PhysDevName);
+                status = mkdir(OS_VolumeTable[i].PhysDevName, S_IFDIR |S_IRWXU | S_IRWXG | S_IRWXO); /* For ramdisk mountpoint */
+                if (status != RTEMS_SUCCESSFUL)
+                {
+                    printf("mkdir failed: %s\n", strerror (errno));
+                }
+            }
+        }
     }
 
-    status = mount("/dev/hda1", "/cf",
-          RTEMS_FILESYSTEM_TYPE_DOSFS,
-          RTEMS_FILESYSTEM_READ_WRITE,
-          NULL);
-    if (status < 0)
+    if (!BatchMode)
     {
-      printf ("mount failed: %s\n", strerror (errno));
+        status = rtems_shell_init("SHLL", RTEMS_MINIMUM_STACK_SIZE * 4, 100, "/dev/console", false, false, NULL);
+        if (status < 0)
+        {
+          printf ("shell init failed: %s\n", strerror (errno));
+        }
+
     }
 
-    status = rtems_shell_init("SHLL", RTEMS_MINIMUM_STACK_SIZE * 4, 100, "/dev/console", false, false, BSP_Login_Check);
-    if (status < 0)
-    {
-      printf ("shell init failed: %s\n", strerror (errno));
-    }
+    printf("\n\n");
 
+    /* give a small delay to let the shell start,
+       avoids having the login prompt show up mid-test,
+       and gives a little time for pending output to actually
+       be sent to the console in case of a slow port */
+    rtems_task_wake_after(50);
 
     UT_BSP_DoText(UTASSERT_CASETYPE_BEGIN, Name);
 }
@@ -285,6 +398,8 @@ void UT_BSP_DoTestSegmentReport(const char *SegmentName, const UtAssert_TestCoun
 
 void UT_BSP_EndTest(const UtAssert_TestCounter_t *TestCounters)
 {
+   const char *Overall;
+
    /*
     * Only output a "summary" if there is more than one test Segment.
     * Otherwise it is a duplicate of the report already given.
@@ -294,21 +409,52 @@ void UT_BSP_EndTest(const UtAssert_TestCounter_t *TestCounters)
        UT_BSP_DoTestSegmentReport("SUMMARY", TestCounters);
    }
 
-   printf("COMPLETE: %u test segment(s) executed\n\n", (unsigned int)TestCounters->TestSegmentCount);
+   printf("COMPLETE: %u test segment(s) executed\n", (unsigned int)TestCounters->TestSegmentCount);
+
+   /*
+    * Since this test is probably not running directly on the
+    * host but rather on a separate target or emulator, we cannot
+    * rely on a return code / exit status to identify pass/fail
+    * as is done on the Linux UT.
+    *
+    * This outputs a simplified "RESULT: <STATUS>" line as the
+    * final output line.  A test script can grep for this line.
+    */
+   if (TestCounters->CaseCount[UTASSERT_CASETYPE_FAILURE] > 0 ||
+           TestCounters->CaseCount[UTASSERT_CASETYPE_ABORT] > 0)
+   {
+       Overall = "FAILURE";
+   }
+   else if (TestCounters->CaseCount[UTASSERT_CASETYPE_TSF] > 0 ||
+           TestCounters->CaseCount[UTASSERT_CASETYPE_TTF] > 0)
+   {
+       Overall = "TSF/TTF";
+   }
+   else if (TestCounters->CaseCount[UTASSERT_CASETYPE_PASS] > 0)
+   {
+       Overall = "SUCCESS";
+   }
+   else
+   {
+       /* no tests failed, but no tests passed either... */
+       Overall = "UNKNOWN";
+   }
+
+   printf("RESULT: %s\n", Overall);
 
    /*
     * Not calling exit() under RTEMS, this simply shuts down the executive,
     * forcing the user to reboot the system.
     *
-    * Calling "pause()" in a loop causes execution to get stuck here, but the RTEMS
+    * Calling suspend causes execution to get stuck here, but the RTEMS
     * shell thread will still be active so the user can poke around, read results,
     * then use a shell command to reboot when ready.
     */
-   while (TRUE)
+   while (!BatchMode)
    {
-       pause();
+       printf("\n\nTesting thread now idle.\nPress <enter> for shell or reset machine...\n\n");
+       rtems_task_suspend(rtems_task_self());
    }
-
 }
 
 
@@ -333,6 +479,7 @@ rtems_task Init(
    UtTest_Run();
    UT_BSP_EndTest(UtAssert_GetCounters());
 
+   rtems_shutdown_executive(UtAssert_GetFailCount() != 0);
 }
 
 
@@ -353,8 +500,8 @@ rtems_task Init(
  */
 #define CONFIGURE_MAXIMUM_TASKS                      (OS_MAX_TASKS + 4)
 #define CONFIGURE_MAXIMUM_TIMERS                     (OS_MAX_TIMERS + 2)
-#define CONFIGURE_MAXIMUM_SEMAPHORES                 (OS_MAX_BIN_SEMAPHORES + OS_MAX_COUNT_SEMAPHORES + OS_MAX_MUTEXES + 4)
-#define CONFIGURE_MAXIMUM_MESSAGE_QUEUES             (OS_MAX_QUEUES + 4)
+#define CONFIGURE_MAXIMUM_SEMAPHORES                 (OS_MAX_BIN_SEMAPHORES + OS_MAX_COUNT_SEMAPHORES + OS_MAX_MUTEXES + 2)
+#define CONFIGURE_MAXIMUM_MESSAGE_QUEUES             (OS_MAX_QUEUES + 2)
 
 
 #define CONFIGURE_EXECUTIVE_RAM_SIZE    (1024*1024)
@@ -364,30 +511,22 @@ rtems_task Init(
 #define CONFIGURE_APPLICATION_NEEDS_CLOCK_DRIVER
 
 #define CONFIGURE_USE_IMFS_AS_BASE_FILESYSTEM
-#define CONFIGURE_LIBIO_MAXIMUM_FILE_DESCRIPTORS     100
+#define CONFIGURE_LIBIO_MAXIMUM_FILE_DESCRIPTORS     (OS_MAX_NUM_OPEN_FILES + 8)
 
 #define CONFIGURE_FILESYSTEM_RFS
 #define CONFIGURE_FILESYSTEM_IMFS
-#define CONFIGURE_FILESYSTEM_DOSFS
 #define CONFIGURE_FILESYSTEM_DEVFS
 
 #define CONFIGURE_APPLICATION_NEEDS_LIBBLOCK
 
 #define CONFIGURE_MICROSECONDS_PER_TICK              10000
-
 #define CONFIGURE_MAXIMUM_DRIVERS                   10
-
-#define CONFIGURE_APPLICATION_NEEDS_IDE_DRIVER
-#define CONFIGURE_APPLICATION_NEEDS_ATA_DRIVER
-#define CONFIGURE_ATA_DRIVER_TASK_PRIORITY         9
-
 #define CONFIGURE_MAXIMUM_POSIX_KEYS               4
 
 #include <rtems/confdefs.h>
 
 #define CONFIGURE_SHELL_COMMANDS_INIT
 #define CONFIGURE_SHELL_COMMANDS_ALL
-#define CONFIGURE_SHELL_MOUNT_MSDOS
 
 #include <rtems/shellconfig.h>
 

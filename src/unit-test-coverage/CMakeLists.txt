@@ -21,6 +21,9 @@ project(OSALCOVERAGE C)
 # Ask to generate a "make test" target
 enable_testing()
 
+add_definitions(-Wall -Werror)
+add_definitions(-D_UNIT_TEST_)
+
 # Assume that this script lives in a subdirectory called <osal>/src/unit-test-coverage
 # Get a reference to the top-level OSAL source tree and store it in OSAL_SOURCE_DIR
 get_filename_component(OSAL_SOURCE_DIR "${CMAKE_SOURCE_DIR}/../.." ABSOLUTE)
@@ -30,7 +33,6 @@ get_filename_component(OSAL_SOURCE_DIR "${CMAKE_SOURCE_DIR}/../.." ABSOLUTE)
 # These can be specified either through cmake command line (e.g. -DUSER_C_FLAGS=-Werror) or
 # through an environment variable (e.g. OSALCOVERAGE_USER_C_FLAGS=-Werror cmake ...)
 set(OSALCOVERAGE_USER_C_FLAGS "$ENV{OSALCOVERAGE_USER_C_FLAGS}" CACHE STRING "User-specified C flags for OSAL coverage test build")
-set(OSALCOVERAGE_C_FLAGS "${OSALCOVERAGE_USER_C_FLAGS} -D_UNIT_TEST_")
 
 # The following logic is borrowed from the real OSAL build
 # One difference here is that the UT BSP/framework and target OSTYPE need not "match"
@@ -41,17 +43,8 @@ set(OSALCOVERAGE_C_FLAGS "${OSALCOVERAGE_USER_C_FLAGS} -D_UNIT_TEST_")
 # The currently supported setup is to use the "pc-linux" BSP to execute the "vxworks6" 
 # code coverage analysis.  Because the actual underlying OS calls are stubbed out, there
 # is no dependency on the actual underlying OS.
-set(OSALCOVERAGE_TARGET_OSTYPE "vxworks6" CACHE STRING "OSAL target to build coverage tests for")
+set(OSALCOVERAGE_TARGET_OSTYPE "vxworks6" CACHE STRING "OSAL target(s) to build coverage tests for")
 set(OSALCOVERAGE_HOST_BSPTYPE "pc-linux" CACHE STRING "OSAL unit test BSP to execute coverage tests")
-
-
-# HAVE_STDINT enables use of the ISO C99 stdint.h file
-# This should always be used whenever available, as it is the most accurate way
-# to obtain the proper fixed-width type definitions.
-find_file(STDINT_H_FILE stdint.h ONLY_CMAKE_FIND_ROOT_PATH)
-if (STDINT_H_FILE)
-  set(OSALCOVERAGE_C_FLAGS "${OSALCOVERAGE_C_FLAGS} -D_HAVE_STDINT_")
-endif (STDINT_H_FILE)
 
 # OSALCOVERAGE_SYSTEM_OSTYPE indicates which of the BSP packages to include
 # This is required and must be defined
@@ -60,9 +53,11 @@ if (NOT OSALCOVERAGE_TARGET_OSTYPE)
 endif (NOT OSALCOVERAGE_TARGET_OSTYPE)
 
 # Check that coverage has been implemented for this OSTYPE
-if (NOT IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${OSALCOVERAGE_TARGET_OSTYPE})
-  message(FATAL_ERROR "No coverage tests implemented for ${OSALCOVERAGE_TARGET_OSTYPE}")
-endif (NOT IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${OSALCOVERAGE_TARGET_OSTYPE})
+foreach(OSTYPE ${OSALCOVERAGE_TARGET_OSTYPE})
+    if (NOT IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${OSTYPE})
+      message(FATAL_ERROR "No coverage tests implemented for ${OSTYPE}")
+    endif (NOT IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${OSTYPE})
+endforeach(OSTYPE ${OSALCOVERAGE_TARGET_OSTYPE})
 
 # Do NOT Include the OS-specific compiler options (those are for normal builds)
 #include(src/os/${OSALCOVERAGE_TARGET_OSTYPE}/build_options.cmake OPTIONAL)
@@ -87,7 +82,23 @@ message(STATUS "Coverage Test CFLAGS: ${CMAKE_C_FLAGS}")
 # Utilize the shared UT assert library, along with the standard OSAL includes
 include_directories(${OSAL_SOURCE_DIR}/ut_assert/inc)
 include_directories(${OSAL_SOURCE_DIR}/src/os/inc)
-include_directories(${OSAL_SOURCE_DIR}/src/bsp/${OSALCOVERAGE_HOST_BSPTYPE}/config)
+
+# The "osconfig.h" file for coverage test should ideally be the same one that
+# is used for the normal build.  The path to this file can be supplied as OSAL_INCLUDEDIR
+# If not supplied, the file from the UT BSP can be used, but coverage results might be 
+# less accurate.  
+if (DEFINED OSAL_INCLUDEDIR)
+    include_directories(${OSAL_INCLUDEDIR})
+else (DEFINED OSAL_INCLUDEDIR)
+    message(STATUS "No OSAL_INCLUDEDIR specified, using default config from UT BSP")
+    include_directories(${OSAL_SOURCE_DIR}/src/bsp/${OSALCOVERAGE_HOST_BSPTYPE}/config)
+endif (DEFINED OSAL_INCLUDEDIR)
+
+# These include paths are not public APIs but are needed
+# to get to some internal headers for private APIs
+include_directories(${OSAL_SOURCE_DIR}/src/os/shared)
+include_directories(${OSAL_SOURCE_DIR}/src/os/portable)
+include_directories(${CMAKE_SOURCE_DIR}/ut-stubs/inc)
 
 # The "ut_bsp" library is a simple startup BSP that can be used for unit testing
 # This removes the need to use the "real" CFE PSP and also provides the necessary 
@@ -95,7 +106,6 @@ include_directories(${OSAL_SOURCE_DIR}/src/bsp/${OSALCOVERAGE_HOST_BSPTYPE}/conf
 # This is the OSAL BSP but with the _UNIT_TEST_ macro defined so it may have UT-specific features
 aux_source_directory(${OSAL_SOURCE_DIR}/src/bsp/${OSALCOVERAGE_HOST_BSPTYPE}/ut-src BSPFILES)
 add_library(ut_bsp STATIC ${BSPFILES})    
-set_target_properties(ut_bsp PROPERTIES COMPILE_DEFINITIONS "_UNIT_TEST_")
 
 # The "utassert" library is the core GSFC-provided unit test library
 # It is only the generic framework and does _not_ include any of the specific stub/hook functions  
@@ -104,7 +114,51 @@ set_target_properties(ut_bsp PROPERTIES COMPILE_DEFINITIONS "_UNIT_TEST_")
 aux_source_directory(${OSAL_SOURCE_DIR}/ut_assert/src UT_ASSERT_FILES)
 add_library(ut_assert STATIC ${UT_ASSERT_FILES})
 
-SET(OSALCOVERAGE_LINK_LIBRARIES ut_assert ut_bsp)
+# The OSALCOVERAGE_STUB_LIB_LIST is a list of stub libraries to link the
+# test runner executables with.  It will be appended at various points
+# depending on what is under test.
+set(OSALCOVERAGE_STUB_LIB_LIST)
+add_subdirectory(ut-stubs)
 
-add_subdirectory(${OSALCOVERAGE_TARGET_OSTYPE})
+# Build the stub libraries for OSAL itself.
+# These are potentially needed by many tests, to handle calls 
+# from the module under test into OTHER parts of OSAL 
+aux_source_directory(${OSAL_SOURCE_DIR}/src/ut-stubs UT_OSAPI_STUB_FILES)
+add_library(ut_osapi_stubs STATIC ${UT_OSAPI_STUB_FILES})
+
+list(APPEND OSALCOVERAGE_STUB_LIB_LIST ut_osapi_stubs)
+
+# A generic function to add a coverage test case source file
+# This combines the following into an executable
+#  - The test case setup (a C source file starting with "coveragetest" prefix)
+#  - The object code of the unit under test (special build with instrumentation)
+#  - Links to the stub libraries of everything else, plus UT assert
+function (add_coverage_tests SETNAME)
+  foreach(MODNAME ${ARGN})
+    if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/src/coveragetest-${MODNAME}.c)
+      set(TESTNAME "${SETNAME}-${MODNAME}")
+      message (STATUS "Found test case for ${TESTNAME}")
+      
+      if (DEFINED MODULE_LINK_MAP_${MODNAME})
+        set(LINKMOD ${MODULE_LINK_MAP_${MODNAME}})
+      else()
+        set(LINKMOD ${MODNAME})
+      endif()
+          
+      add_executable(${TESTNAME}-testrunner 
+        src/coveragetest-${MODNAME}.c
+        $<TARGET_OBJECTS:ut_${SETNAME}_${LINKMOD}>)
+        
+      set_target_properties(${TESTNAME}-testrunner PROPERTIES LINK_FLAGS "${UT_C_FLAGS}")
+      target_link_libraries(${TESTNAME}-testrunner ${OSALCOVERAGE_STUB_LIB_LIST} ut_bsp ut_assert)
+      add_test(${TESTNAME} ${TESTNAME}-testrunner)
+    endif()
+  endforeach(MODNAME ${ARGN})
+  
+endfunction(add_coverage_tests SETNAME)
+
+
+foreach(SETNAME ${OSALCOVERAGE_TARGET_OSTYPE})
+    add_subdirectory(${SETNAME})
+endforeach(SETNAME ${OSALCOVERAGE_TARGET_OSTYPE})
 

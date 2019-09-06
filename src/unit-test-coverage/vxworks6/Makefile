@@ -47,6 +47,6 @@ ifeq ($(OSAL_M32),-m32)
 OSAL_LD32 ?= -melf_i386
 endif
 
-testrunner.o: utassert.o utlist.o utstubs.o uttest.o uttools.o bsp_ut.o
+testrunner.o: utassert.o utlist.o utstubs.o uttest.o uttools.o bsp_ut.o bsp_ut_voltab.o
 	ld $(OSAL_LD32) -o $@ -r $^
 

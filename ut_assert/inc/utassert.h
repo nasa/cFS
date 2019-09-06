@@ -2,8 +2,6 @@
 **
 ** File: utassert.h
 **
-** $Id: utassert.h 1.4 2015/06/16 16:02:14EDT sstrege Exp  $
-**
 ** Copyright 2012-2013 United States Government as represented by the 
 ** Administrator of the National Aeronautics and Space Administration. 
 ** All Other Rights Reserved.  
@@ -15,18 +13,9 @@
 **
 ** Purpose: This code implements a standard set of asserts for use in unit tests.
 **
-** $Log: utassert.h  $
-** Revision 1.4 2015/06/16 16:02:14EDT sstrege 
-** Added copyright information
-** Revision 1.3 2015/03/17 18:13:15EDT czogby 
-** --- Added comments ---  czogby [2015/03/31 18:01:28Z]
-** Added macro UtAssert_IntegerCmpAbs
-** Revision 1.2 2015/03/10 15:19:29EDT czogby 
-** Add Missing Functionality to UT Assert Library
-**
 ** Design Notes:
-**    - All asserts evaluate a expression as TRUE or FALSE to determine if a unit test has
-**      passed or failed.  TRUE means the test passed, FALSE means the test failed.
+**    - All asserts evaluate a expression as true or false to determine if a unit test has
+**      passed or failed.  true means the test passed, false means the test failed.
 **    - All asserts return a boolen result to indicate the pass fail status.
 **    - All asserts are implemented as macros to hide the __LINE__ and __FILE__ macros.
 **    - All asserts must call the function UtAssert.
@@ -90,17 +79,17 @@ typedef struct
 #define     UtAssert_Simple(Expression)      \
         UtAssert(Expression, #Expression, __FILE__, __LINE__)
 
-/* Evaluates a expression as either TRUE or FALSE.  TRUE means the test passed, FALSE means the test failed. */
+/* Evaluates a expression as either true or false.  true means the test passed, false means the test failed. */
 #define     UtAssert_True(Expression, ...) \
         UtAssertEx(Expression, UtAssert_GetContext(), __FILE__, __LINE__, __VA_ARGS__)
 
-/* Evaluates a expression as either TRUE or FALSE.  TRUE means the test passed, FALSE means the test failed. */
+/* Evaluates a expression as either true or false.  true means the test passed, false means the test failed. */
 #define     UtAssert_Bool(Expression, Description) \
         UtAssert(Expression, Description, __FILE__, __LINE__)
 
 /* Asserts a test failure */
 #define     UtAssert_Failed(...) \
-        UtAssertEx(FALSE, UtAssert_GetContext(), __FILE__, __LINE__, __VA_ARGS__)
+        UtAssertEx(false, UtAssert_GetContext(), __FILE__, __LINE__, __VA_ARGS__)
 
 /* Compares two integers and determines if they are equal within a specified absolute tolerance. */
 #define     UtAssert_IntegerCmpAbs(x, y, Tolerance, Description) \
@@ -170,14 +159,17 @@ void UtAssert_SetContext(UtAssert_CaseType_t Context);
 /* Sets the context of the current test, which is the default message type for UtAssert calls */
 UtAssert_CaseType_t UtAssert_GetContext(void);
 
+/* Sets the context of the current test, which is the default message type for UtAssert calls */
+const char *UtAssert_GetSegmentName(void);
+
 /* Base assert function.  All asserts must call this function. */
-osalbool    UtAssert(osalbool Expression, const char *Description, const char *File, uint32 Line);
+bool    UtAssert(bool Expression, const char *Description, const char *File, uint32 Line);
 
 /*
  * Assert function with CaseType (supports MIR, TSF, NA in addition to FAIL).
  * Also supports printf-style message strings to allow more dynamic content in the messages
  */
-osalbool    UtAssertEx(osalbool Expression, UtAssert_CaseType_t CaseType, const char *File, uint32 Line, const char *MessageFormat, ...) OS_PRINTF(5,6);
+bool    UtAssertEx(bool Expression, UtAssert_CaseType_t CaseType, const char *File, uint32 Line, const char *MessageFormat, ...) OS_PRINTF(5,6);
 
 /*
  * Aborts the entire test

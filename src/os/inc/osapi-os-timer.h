@@ -14,24 +14,6 @@
 ** Purpose: Contains functions prototype definitions and variable declarations
 **          for the OS Abstraction Layer, Timer API
 **
-** $Revision: 1.5 $ 
-**
-** $Date: 2013/07/25 10:02:20GMT-05:00 $
-**
-** $Log: osapi-os-timer.h  $
-** Revision 1.5 2013/07/25 10:02:20GMT-05:00 acudmore 
-** removed circular include "osapi.h"
-** Revision 1.4 2010/11/12 12:00:19GMT-05:00 acudmore 
-** replaced copyright character with (c) and added open source notice where needed.
-** Revision 1.3 2010/02/01 12:38:34EST acudmore 
-** Added return code to OS_TimerAPIInit
-** Revision 1.2 2008/08/26 13:52:52EDT apcudmore 
-** removed linux specific define
-** Revision 1.1 2008/08/20 16:12:07EDT apcudmore 
-** Initial revision
-** Member added to project c:/MKSDATA/MKS-REPOSITORY/MKS-OSAL-REPOSITORY/src/os/inc/project.pj
-** 
-**  
 */
 
 #ifndef _osapi_timer_
@@ -41,7 +23,7 @@
 ** Typedefs
 */
 typedef void (*OS_TimerCallback_t)(uint32 timer_id);
-typedef int32 (*OS_TimerSync_t)(uint32 timer_id);
+typedef uint32 (*OS_TimerSync_t)(uint32 timer_id);
 
 typedef struct 
 {
@@ -57,7 +39,8 @@ typedef struct
 {
     char                name[OS_MAX_API_NAME];
     uint32              creator;
-    uint32              interval_time;
+    uint32              nominal_interval_time;
+    uint32              freerun_time;
     uint32              accuracy;
 } OS_timebase_prop_t;
 
@@ -66,10 +49,12 @@ typedef struct
 */
 int32  OS_TimerAPIInit          (void);
 
-int32 OS_TimeBaseCreate         (uint32 *timer_id, const char *timebase_name, OS_TimerSync_t external_sync);
-int32 OS_TimeBaseSet            (uint32 timer_id, uint32 start_time, uint32 interval_time);
-int32 OS_TimeBaseDelete         (uint32 timer_id);
-int32 OS_TimeBaseGetIdByName    (uint32 *timer_id, const char *timebase_name);
+int32 OS_TimeBaseCreate         (uint32 *timebase_id, const char *timebase_name, OS_TimerSync_t external_sync);
+int32 OS_TimeBaseSet            (uint32 timebase_id, uint32 start_time, uint32 interval_time);
+int32 OS_TimeBaseDelete         (uint32 timebase_id);
+int32 OS_TimeBaseGetIdByName    (uint32 *timebase_id, const char *timebase_name);
+int32 OS_TimeBaseGetInfo        (uint32 timebase_id, OS_timebase_prop_t *timebase_prop);
+int32 OS_TimeBaseGetFreeRun     (uint32 timebase_id, uint32 *freerun_val);
 
 int32 OS_TimerCreate            (uint32 *timer_id, const char *timer_name, uint32 *clock_accuracy, OS_TimerCallback_t callback_ptr);
 int32 OS_TimerAdd               (uint32 *timer_id, const char *timer_name, uint32 timebase_id, OS_ArgCallback_t  callback_ptr, void *callback_arg);

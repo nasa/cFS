@@ -2,8 +2,6 @@
 **
 ** File: utlist.c
 **
-** $Id: utlist.c 1.3 2015/06/16 16:14:04EDT sstrege Exp  $
-**
 ** Copyright 2012-2013 United States Government as represented by the 
 ** Administrator of the National Aeronautics and Space Administration. 
 ** All Other Rights Reserved.  
@@ -14,14 +12,6 @@
 ** agreement.
 **
 ** Purpose: This file contains functions to implement a generic linked list data structure.
-**
-** $Log: utlist.c  $
-** Revision 1.3 2015/06/16 16:14:04EDT sstrege 
-** Added copyright information
-** Revision 1.2 2015/03/10 15:21:43EDT czogby 
-** Add Missing Functionality to UT Assert Library
-** --- Added comments ---  czogby [2015/03/31 18:37:17Z]
-** No updates were made to this source code in this revision
 **
 */
 
@@ -164,7 +154,7 @@ UtListNode_t *UtList_Last(UtListHead_t *ListHead)
     return(ListHead->Last);
 }
 
-boolean UtList_IsEmpty(UtListHead_t *ListHead)
+bool UtList_IsEmpty(UtListHead_t *ListHead)
 {
     return(ListHead->NumberOfEntries == 0);
 }

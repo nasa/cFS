@@ -65,7 +65,7 @@ int main(int argc, char *argv[])
 
    /*
    ** OS_IdleLoop() will wait forever and return if
-   ** someone calls OS_ApplicationShutdown(TRUE)
+   ** someone calls OS_ApplicationShutdown(true)
    */
    OS_IdleLoop();
 

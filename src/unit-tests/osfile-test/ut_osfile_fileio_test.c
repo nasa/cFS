@@ -27,9 +27,6 @@
 
 extern UT_OsLogInfo_t  g_logInfo;
 
-/* As defined in osfileapi.c */
-extern OS_FDTableEntry  OS_FDTable[OS_MAX_NUM_OPEN_FILES];
-
 extern char* g_fsAddrPtr;
 
 extern int32  g_skipTestCase;
@@ -355,8 +352,6 @@ void UT_os_createfile_test()
     /*-----------------------------------------------------*/
     testDesc = "#7 File-descriptors-full";
 
-    UT_os_print_fdtable("FD TABLE _BEFORE_ FILE-DESC-FULL TEST SETUP FOR OS_creat()");
-
     for (i=0; i <= OS_MAX_NUM_OPEN_FILES; i++)
     {
         memset(g_fNames[i], '\0', sizeof(g_fNames[i]));
@@ -365,8 +360,6 @@ void UT_os_createfile_test()
         if (g_fDescs[i] < 0)
             break;
     }
-
-    UT_os_print_fdtable("FD TABLE _AFTER_ FILE-DESC-FULL TEST SETUP FOR OS_creat()");
 
     if ((i == OS_MAX_NUM_OPEN_FILES) && (g_fDescs[i] == OS_FS_ERR_NO_FREE_FDS))
         UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
@@ -380,23 +373,17 @@ void UT_os_createfile_test()
         OS_remove(g_fNames[j]);
     }
 
-    UT_os_print_fdtable("FD TABLE _AFTER_ FILE-DESC-FULL TEST TEARDOWN FOR OS_creat()");
-
     /*-----------------------------------------------------*/
     testDesc = "#8 Nominal";
 
     g_fDescs[5] = OS_creat(g_fNames[5], OS_WRITE_ONLY);
     g_fDescs[6] = OS_creat(g_fNames[6], OS_WRITE_ONLY);
 
-    UT_os_print_fdtable("FD TABLE _AFTER_ 2 FILE CREATIONS IN NOMINAL TEST FOR OS_creat()");
-
     if ((OS_close(g_fDescs[5])  != OS_FS_SUCCESS) || (OS_close(g_fDescs[6])  != OS_FS_SUCCESS) ||
         (OS_remove(g_fNames[5]) != OS_FS_SUCCESS) || (OS_remove(g_fNames[6]) != OS_FS_SUCCESS))
         UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
     else
         UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
-
-    UT_os_print_fdtable("FD TABLE _AFTER_ NOMINAL TEST FOR OS_creat()");
 
 UT_os_createfile_test_exit_tag:
     UT_OS_SET_API_NAME_AND_TEST_COUNT_MACRO(apiInfo, "OS_creat", idx)
@@ -548,8 +535,6 @@ void UT_os_openfile_test()
     /*-----------------------------------------------------*/
     testDesc = "#7 File-descriptors-full";
 
-    UT_os_print_fdtable("FD TABLE _BEFORE_ FILE-DESC-FULL TEST SETUP FOR OS_open()");
-
     continueFlg = 1;
     for (i=0; i < OS_MAX_NUM_OPEN_FILES; i++)
     {
@@ -582,8 +567,6 @@ void UT_os_openfile_test()
                 break;
         }
 
-        UT_os_print_fdtable("FD TABLE _AFTER_ FILE-DESC-FULL TEST SETUP FOR OS_open()");
-
         if ((i == OS_MAX_NUM_OPEN_FILES) && (g_fDescs[i] < OS_FS_SUCCESS))
             UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
         else
@@ -595,8 +578,6 @@ void UT_os_openfile_test()
             OS_close(g_fDescs[j]);
             OS_remove(g_fNames[j]);
         }
-
-        UT_os_print_fdtable("FD TABLE _AFTER_ FILE-DESC-FULL TEST TEARDOWN FOR OS_open()");
     }
 
     /*-----------------------------------------------------*/
@@ -621,15 +602,11 @@ void UT_os_openfile_test()
     g_fDescs[5] = OS_open(g_fNames[5], OS_READ_WRITE, 0644);
     g_fDescs[6] = OS_open(g_fNames[6], OS_WRITE_ONLY, 0644);
 
-    UT_os_print_fdtable("FD TABLE _AFTER_ 2 FILE OPENINGS IN NOMINAL TEST FOR OS_open()");
-
     if ((OS_close(g_fDescs[5])  != OS_FS_SUCCESS) || (OS_close(g_fDescs[6])  != OS_FS_SUCCESS) ||
         (OS_remove(g_fNames[5]) != OS_FS_SUCCESS) || (OS_remove(g_fNames[6]) != OS_FS_SUCCESS))
         UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
     else
         UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
-
-    UT_os_print_fdtable("FD TABLE _AFTER_ NOMINAL TEST FOR OS_open()");
 
 UT_os_openfile_test_exit_tag:
     UT_OS_SET_API_NAME_AND_TEST_COUNT_MACRO(apiInfo, "OS_open", idx)
@@ -1547,10 +1524,7 @@ void UT_os_removefile_test()
         goto UT_os_removefile_test_exit_tag;
     }
 
-    UT_os_print_fdtable("FD TABLE _AFTER_ FILE CREATION FOR OS_remove()");
-
-    /* TODO: Check to see if OS_remove() can delete an opened file.
-     *       If so, OS_FDTable should get clean up afterward. */
+    /* TODO: Check to see if OS_remove() can delete an opened file. */
     OS_close(g_fDescs[0]);
 
     if (OS_remove(g_fNames[0]) != OS_FS_SUCCESS)
@@ -1558,8 +1532,6 @@ void UT_os_removefile_test()
         UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
         goto UT_os_removefile_test_exit_tag;
     }
-
-    UT_os_print_fdtable("FD TABLE _AFTER_ FILE REMOVAL FOR OS_remove()");
 
     if (OS_stat(g_fNames[0], &fstats) == OS_FS_ERROR)
         UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
@@ -2211,7 +2183,7 @@ UT_os_outputtofile_test_exit_tag:
 }
 
 /*--------------------------------------------------------------------------------*
-** Syntax: int32 OS_FDGetInfo(int32 filedesc, OS_FDTableEntry *fd_prop)
+** Syntax: int32 OS_FDGetInfo(int32 filedesc, OS_file_prop_t *fd_prop)
 ** Purpose: Returns file descriptor information about a given file descriptor
 ** Parameters: filedesc - a file descriptor
 **             *fd_prop - pointer that will hold the file descriptor's data
@@ -2262,7 +2234,7 @@ void UT_os_getfdinfo_test()
 {
     int32 idx=0;
     UT_OsApiInfo_t apiInfo;
-    OS_FDTableEntry fdProps;
+    OS_file_prop_t fdProps;
     const char* testDesc=NULL;
     char* fileName="GetInfo_Nom.txt";
 

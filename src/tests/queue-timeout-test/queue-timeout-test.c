@@ -56,7 +56,8 @@ void task_1(void)
     OS_printf("Delay for 1 second before starting\n");
     OS_TaskDelay(1000);
 
-    while(1)
+    /* if errors occur do not loop endlessly */
+    while(task_1_failures < 20) 
     {
 
         status = OS_QueueGet(msgq_id, (void*)&data_received, MSGQ_SIZE, &data_size, 1000);
@@ -74,25 +75,10 @@ void task_1(void)
         else
         {
            ++task_1_failures;
-            OS_printf("TASK 1: Queue Get error!\n");
+            OS_printf("TASK 1: Queue Get error: %d!\n",(int)status);
+            OS_TaskDelay(10);
         }
     }
-}
-
-void task_2(void)
-{
-   OS_TaskRegister();
-   /*
-    * Time limited execution
-    */
-
-   while (timer_counter < 100)
-   {
-      OS_TaskDelay(500);
-   }
-
-   OS_ApplicationShutdown(TRUE);
-   OS_TaskExit();
 }
 
 void QueueTimeoutCheck(void)
@@ -156,12 +142,6 @@ void QueueTimeoutSetup(void)
    UtAssert_True(status == OS_SUCCESS, "Task 1 create Id=%u Rc=%d", (unsigned int)task_1_id, (int)status);
 
    /*
-   ** Create the "producer" task.
-   */
-   status = OS_TaskCreate( &task_2_id, "Task 2", task_2, task_2_stack, TASK_2_STACK_SIZE, TASK_2_PRIORITY, 0);
-   UtAssert_True(status == OS_SUCCESS, "Task 2 create Id=%u Rc=%d", (unsigned int)task_2_id, (int)status);
-
-   /*
    ** Create a timer
    */
    status = OS_TimerCreate(&timer_id, "Timer 1", &accuracy, &(TimerFunction));
@@ -174,6 +154,9 @@ void QueueTimeoutSetup(void)
    status  =  OS_TimerSet(timer_id, timer_start, timer_interval);
    UtAssert_True(status == OS_SUCCESS, "Timer 1 set Rc=%d", (int)status);
 
-
-   OS_IdleLoop();
+   /* allow some time for task to run and accrue queue timeouts */
+   while (timer_counter < 100)
+   {
+      OS_TaskDelay(100);
+   }
 }

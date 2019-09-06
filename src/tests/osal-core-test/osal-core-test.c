@@ -37,6 +37,28 @@ void OS_Application_Startup(void)
     
 } /* end OS_Application Startup */
 
+/* **************** A TASK THAT RUNS FOREVER **************************** */
+
+void task_generic_no_exit(void)
+{
+    OS_TaskRegister();
+
+    while(1)
+    {
+        OS_TaskDelay(100);
+    }
+
+    return;
+} /* end task_0 */
+
+/* **************** A TASK THAT EXITS ITSELF **************************** */
+
+void task_generic_with_exit(void)
+{
+    return;
+} /* end task_0 */
+
+
 
 typedef struct
 {
@@ -59,7 +81,7 @@ void TestTasks(void)
     for (tasknum = 0; tasknum < (OS_MAX_TASKS + 1); ++tasknum)
     {
        snprintf(taskname,sizeof(taskname), "Task %d", tasknum);
-       status = OS_TaskCreate( &TaskData[tasknum].task_id, taskname, task_0, TaskData[tasknum].task_stack,
+       status = OS_TaskCreate( &TaskData[tasknum].task_id, taskname, task_generic_no_exit, TaskData[tasknum].task_stack,
                                TASK_0_STACK_SIZE, (250 - OS_MAX_TASKS) + tasknum, 0);
 
        UtDebug("Create %s Status = %d, Id = %d\n",taskname,(int)status,(int)TaskData[tasknum].task_id);
@@ -87,6 +109,35 @@ void TestTasks(void)
     UtAssert_True(OS_TaskDelete(TaskData[1].task_id) != OS_SUCCESS, "OS_TaskDelete, redelete 1");
     UtAssert_True(OS_TaskDelete(TaskData[2].task_id) != OS_SUCCESS, "OS_TaskDelete, redelete 2");
     UtAssert_True(OS_TaskDelete(TaskData[3].task_id) != OS_SUCCESS, "OS_TaskDelete, redelete 3");
+
+    /* Testing tasks that exit themselves by calling OS_TaskExit() */
+    memset(TaskData,0xFF,sizeof(TaskData));
+    for (tasknum = 0; tasknum < (OS_MAX_TASKS + 1); ++tasknum)
+    {
+       snprintf(taskname,sizeof(taskname), "Task %d", tasknum);
+       status = OS_TaskCreate( &TaskData[tasknum].task_id, taskname, task_generic_with_exit, TaskData[tasknum].task_stack,
+                               TASK_0_STACK_SIZE, (250 - OS_MAX_TASKS) + tasknum, 0);
+
+       /*
+        * A small delay in this parent task to allow the child task to run.
+        * It should exit immediately....
+        */
+       OS_TaskDelay(10);
+
+       UtDebug("Create %s Status = %d, Id = %d\n",taskname,(int)status,(int)TaskData[tasknum].task_id);
+
+       UtAssert_True(status == OS_SUCCESS, "OS_TaskCreate, self exiting task");
+
+       /*
+        * Attempting to delete the task that exited itself should always fail
+        */
+       status = OS_TaskDelete( TaskData[tasknum].task_id );
+
+       UtDebug("Delete Status = %d, Id = %d\n",(int)status,(int)TaskData[tasknum].task_id);
+
+       UtAssert_True(status != OS_SUCCESS, "OS_TaskDelete, self exiting task");
+
+    }
 
     /* Creating some more tasks for testing name functions */
     
@@ -131,15 +182,11 @@ void TestTasks(void)
     /* UtDebug("Satus after Getting the id of \"Task 3\":%d,%d \n\n",status,task_3_id); */
     UtAssert_True(status == OS_SUCCESS, "OS_TaskGetIdByName, Task 3");
 
-#ifdef OSAL_OPAQUE_OBJECT_IDS
     /*
      * This should fail - verifies that ID re-use protections are working.
      * This only works with the new OSALs
      */
     UtAssert_True(OS_TaskDelete(saved_task0_id) != OS_SUCCESS, "OS_TaskDelete, Old ID");
-#else
-    TaskData[0].task_id = saved_task0_id; /* squelch unused variable warning */
-#endif
 
     UtAssert_True(OS_TaskDelete(task_0_id) == OS_SUCCESS, "OS_TaskDelete, Task 0");
     UtAssert_True(OS_TaskDelete(task_1_id) != OS_SUCCESS, "OS_TaskDelete, Task 1");
@@ -218,15 +265,11 @@ void TestQueues(void)
     status = OS_QueueGetIdByName(&msgq_3,"q 3");
     UtAssert_True(status == OS_SUCCESS, "OS_QueueGetIdByName, q 3");
 
-#ifdef OSAL_OPAQUE_OBJECT_IDS
     /*
      * This should fail - verifies that ID re-use protections are working.
      */
     status = OS_QueueDelete(saved_queue0_id);
     UtAssert_True(status != OS_SUCCESS, "OS_QueueDelete, Old ID");
-#else
-    msgq_ids[0] = saved_queue0_id;
-#endif
 
     /* Time to Delete the Queues we just created */
 
@@ -319,15 +362,11 @@ void TestBinaries(void)
      /* UtDebug("Status after GETID: %d,%d\n",status,bin_3); */
     UtAssert_True(status == OS_SUCCESS, "OS_BinSemGetIdByName, Bin 3");
 
-#ifdef OSAL_OPAQUE_OBJECT_IDS
     /*
      * This should fail - verifies that ID re-use protections are working.
      */
     status = OS_BinSemDelete(saved_bin0_id);
     UtAssert_True(status != OS_SUCCESS, "OS_BinSemDelete, Old ID");
-#else
-    binsem_ids[0] = saved_bin0_id;
-#endif
 
     status = OS_BinSemDelete(bin_0);
      /* UtDebug("Status after deleteing:%d\n",status); */
@@ -411,15 +450,11 @@ void TestMutexes(void)
     status = OS_MutSemGetIdByName(&mut_3,"Mut 3");
     UtAssert_True(status == OS_SUCCESS, "OS_MutSemGetIdByName, Mut 3");
 
-#ifdef OSAL_OPAQUE_OBJECT_IDS
     /*
      * This should fail - verifies that ID re-use protections are working.
      */
     status = OS_MutSemDelete(saved_mut0_id);
     UtAssert_True(status != OS_SUCCESS, "OS_MutSemDelete, Old ID");
-#else
-    mutex_ids[0] = saved_mut0_id;
-#endif
     
     status = OS_MutSemDelete(mut_0);
     /*  UtDebug("Status after deleteing Mut 0:%d\n",status);  */

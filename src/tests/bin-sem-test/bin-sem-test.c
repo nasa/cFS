@@ -60,7 +60,6 @@ void TimerFunction(uint32 timer_id)
        ++timer_failures;
    }
 
-#ifndef _RTEMS_OS_
    {
        OS_bin_sem_prop_t  bin_sem_prop;
        status = OS_BinSemGetInfo (bin_sem_id, &bin_sem_prop);
@@ -77,7 +76,6 @@ void TimerFunction(uint32 timer_id)
            ++timer_failures;
        }
    }
-#endif
 
 }
 
@@ -94,7 +92,8 @@ void task_1(void)
     OS_printf("Delay for 1 second before starting\n");
     OS_TaskDelay(1000);
 
-    while(1)
+    /* if failures occur, do not loop endlessly */
+    while(task_1_failures < 20)
     {
 
         status = OS_BinSemTake(bin_sem_id);
@@ -102,6 +101,7 @@ void task_1(void)
         {
            OS_printf("TASK 1:Error calling OS_BinSemTake\n");
            ++task_1_failures;
+           OS_TaskDelay(10);
         }
         else
         {
@@ -132,22 +132,6 @@ void task_1(void)
         }
 
     }
-}
-
-void task_2(void)
-{
-   OS_TaskRegister();
-
-   /*
-    * Limit the amount of time the test runs
-    */
-   while(timer_counter < 1000)
-   {
-      OS_TaskDelay(100);
-   }
-
-   OS_ApplicationShutdown(TRUE);
-   OS_TaskExit();
 }
 
 void BinSemCheck(void)
@@ -210,12 +194,6 @@ void BinSemSetup(void)
     UtAssert_True(status == OS_SUCCESS, "Task 1 create Id=%u Rc=%d", (unsigned int)task_1_id, (int)status);
 
     /*
-    ** Create the "producer" task.
-    */
-    status = OS_TaskCreate( &task_2_id, "Task 2", task_2, task_2_stack, TASK_2_STACK_SIZE, TASK_2_PRIORITY, 0);
-    UtAssert_True(status == OS_SUCCESS, "Task 2 create Id=%u Rc=%d", (unsigned int)task_2_id, (int)status);
-
-    /*
     ** Create a timer
     */
     status = OS_TimerCreate(&timer_id, "Timer 1", &accuracy, &(TimerFunction));
@@ -229,8 +207,11 @@ void BinSemSetup(void)
     UtAssert_True(status == OS_SUCCESS, "Timer 1 set Rc=%d", (int)status);
 
     /*
-     * Call OS_IdleLoop so the tasks and timers can run
-     * Something must call OS_ApplicationShutdown when done which will continue the test
+     * Give the task some time to run
      */
-    OS_IdleLoop();
+    while(timer_counter < 1000)
+    {
+       OS_TaskDelay(100);
+    }
+
 }

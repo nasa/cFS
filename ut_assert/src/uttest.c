@@ -2,8 +2,6 @@
 **
 ** File: uttest.c
 **
-** $Id: uttest.c 1.4 2015/06/16 16:14:05EDT sstrege Exp  $
-**
 ** Copyright 2012-2013 United States Government as represented by the 
 ** Administrator of the National Aeronautics and Space Administration. 
 ** All Other Rights Reserved.  
@@ -14,16 +12,6 @@
 ** agreement.
 **
 ** Purpose: This file contains functions to implement a standard way to execute unit tests.
-**
-** $Log: uttest.c  $
-** Revision 1.4 2015/06/16 16:14:05EDT sstrege 
-** Added copyright information
-** Revision 1.3 2015/05/01 14:53:07EDT czogby 
-** Changed "#if defined UT_VERBOSE" to "#if defined UT_VERBOSE || defined UT_VERBOSE_TEST_NAME"
-** Revision 1.2 2015/03/10 15:21:44EDT czogby 
-** Add Missing Functionality to UT Assert Library
-** --- Added comments ---  czogby [2015/03/31 18:37:28Z]
-** No updates were made to this source code in this revision
 **
 */
 
@@ -44,7 +32,7 @@ typedef struct {
     void    (*Test)(void);
     void    (*Setup)(void);
     void    (*Teardown)(void);
-    char     *TestName;
+    const char     *TestName;
 } UtTestDataBaseEntry_t;
 
 /*
@@ -58,7 +46,7 @@ uint32          UtTestsExecutedCount = 0;
  * Function Definitions
  */
 
-void UtTest_Add(void (*Test)(void), void (*Setup)(void), void (*Teardown)(void), char *TestName)
+void UtTest_Add(void (*Test)(void), void (*Setup)(void), void (*Teardown)(void), const char *TestName)
 {
     UtTestDataBaseEntry_t   UtTestDataBaseEntry;
 
@@ -69,7 +57,7 @@ void UtTest_Add(void (*Test)(void), void (*Setup)(void), void (*Teardown)(void),
     UtList_Add(&UtTestDataBase, &UtTestDataBaseEntry, sizeof(UtTestDataBaseEntry_t), 0);
 }
 
-int UtTest_Run(void)
+bool UtTest_Run(void)
 {
     uint32                   i;
     UtListNode_t            *UtListNode;

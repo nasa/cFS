@@ -14,116 +14,10 @@
 ** Purpose: Contains functions prototype definitions and variables declarations
 **          for the OS Abstraction Layer, File System module
 **
-** $Revision: 1.11 $ 
-**
-** $Date: 2013/12/16 12:57:41GMT-05:00 $
-**
-** $Log: osapi-os-filesys.h  $
-** Revision 1.11 2013/12/16 12:57:41GMT-05:00 acudmore 
-** Added macros for Volume name length and physical device name length
-** Revision 1.10 2013/07/29 12:05:48GMT-05:00 acudmore 
-** Added define for device and volume name length
-** Revision 1.9 2013/07/25 14:31:21GMT-05:00 acudmore 
-** Added prototype and datatype for OS_GetFsInfo
-** Revision 1.8 2011/12/05 12:04:21GMT-05:00 acudmore 
-** Added OS_rewinddir API
-** Revision 1.7 2011/04/05 16:01:12EDT acudmore 
-** Added OS_CloseFileByName and OS_CloseAllFiles
-** Revision 1.6 2010/11/15 11:04:38EST acudmore 
-** Added OS_FileOpenCheck function.
-** Revision 1.5 2010/11/12 12:00:18EST acudmore 
-** replaced copyright character with (c) and added open source notice where needed.
-** Revision 1.4 2010/02/01 12:28:57EST acudmore 
-** Added OS_fsBytesFree API
-** Revision 1.3 2010/01/25 14:44:26EST acudmore 
-** renamed "new" variable to avoid C++ reserved name conflict.
-** Revision 1.2 2009/07/14 15:16:05EDT acudmore 
-** Added OS_TranslatePath to the API
-** Revision 1.1 2008/04/20 22:36:01EDT ruperera 
-** Initial revision
-** Member added to project c:/MKSDATA/MKS-REPOSITORY/MKS-OSAL-REPOSITORY/src/os/inc/project.pj
-** Revision 1.1 2007/10/16 16:14:52EDT apcudmore 
-** Initial revision
-** Member added to project d:/mksdata/MKS-OSAL-REPOSITORY/src/os/inc/project.pj
-** Revision 1.1 2007/08/24 13:43:24EDT apcudmore 
-** Initial revision
-** Member added to project d:/mksdata/MKS-CFE-PROJECT/fsw/cfe-core/os/inc/project.pj
-** Revision 1.17 2007/06/07 09:59:14EDT njyanchik 
-** I replaced the second OS_cp definition with OS_mv
-** Revision 1.16 2007/06/05 16:25:33EDT apcudmore 
-** Increased Number of volume table entries from 10 to 14.
-** Added 2 extra EEPROM disk mappings to RAD750 Volume table + 2 spares
-** Added 4 spares to every other volume table.
-** Revision 1.15 2007/05/25 09:17:56EDT njyanchik 
-** I added the rmfs call to the OSAL and updated the unit test stubs to match
-** Revision 1.14 2007/03/21 10:15:29EST njyanchik 
-** I mistakenly put the wrong length in for the path in the OS_FDTableEntry structure, and I added 
-** some code that will set and out of range file descriptors .IsValid flag to false in OS_FDGetInfo
-** Revision 1.13 2007/03/06 11:52:46EST njyanchik 
-** This change goes with the previous CP, I forgot to include it
-** Revision 1.12 2007/02/28 14:57:45EST njyanchik 
-** The updates for supporting copying and moving files are now supported
-** Revision 1.11 2007/02/27 15:22:11EST njyanchik 
-** This CP has the initial import of the new file descripor table mechanism
-** Revision 1.10 2006/12/20 10:27:09EST njyanchik 
-** This change package incorporates all the changes necessary for the addition
-** of a new API to get the real physical drive undernieth a mount point
-** Revision 1.9 2006/11/14 14:44:28GMT-05:00 njyanchik 
-** Checks were added to the OS fs calls that look at the return of a function that
-** changes the name of paths from abstracted to local path names.
-** Revision 1.8 2006/10/30 16:12:19GMT-05:00 apcudmore 
-** Updated Compact flash and RAM device names for vxWorks 6.2 changes. 
-** Revision 1.7 2006/10/25 11:31:18EDT njyanchik 
-** This CP incorporates changes to every bsp_voltab.c file. I increased the number
-** entries in the volume table to 10. I also changed the #define in the os_filesys.h
-** file for the number of entries to match.
-** 
-** This update also includes adding the prototype for OS_initfs in os_filesys.h
-** Revision 1.6 2006/09/26 09:03:46GMT-05:00 njyanchik 
-** Contains the initial import of the ES Shell commands interface
-** Revision 1.5 2006/07/25 15:37:52EDT njyanchik 
-** It turns out the both the FS app and the OSAL were incorrect where file descriptors are
-** concerned. the file descriptors should be int32 across the board.
-** Revision 1.4 2006/01/20 11:56:18EST njyanchik 
-** Fixed header file information to match api document
-** Revision 1.26  2005/07/12 17:13:56  nyanchik
-** Moved the Volume table to a bsp table in the arch directories.
-**
-** Revision 1.2 2005/07/11 16:26:57EDT apcudmore 
-** OSAPI 2.0 integration
-** Revision 1.25  2005/07/06 16:11:17  nyanchik
-** *** empty log message ***
-**
-** Revision 1.24  2005/07/05 18:34:55  nyanchik
-** fixed issues found in code walkthrogh. Also removed the OS_Info* functions that are going in the BSP
-**
-** Revision 1.23  2005/06/17 19:46:34  nyanchik
-** added new file system style to linux and rtems.
-**
-** Revision 1.22  2005/06/15 16:43:48  nyanchik
-** added extra parenthesis for the .h file # defines
-**
-** Revision 1.21  2005/06/06 14:17:42  nyanchik
-** added headers to osapi-os-core.h and osapi-os-filesys.h
-**
-** Revision 1.20  2005/06/02 18:04:24  nyanchik
-** *** empty log message ***
-**
-** Revision 1.1  2005/03/15 18:26:32  nyanchik
-** *** empty log message ***
-**
-**
-** Date Written:
-**
-**    
 */
 
 #ifndef _osapi_filesys_
 #define _osapi_filesys_
-#include <stdio.h>
-#include <stdlib.h>
-#include <dirent.h>
-#include <sys/stat.h>
 
 #define OS_READ_ONLY        0
 #define OS_WRITE_ONLY       1
@@ -213,15 +107,7 @@ typedef struct
     char   MountPoint [OS_MAX_PATH_LEN];
     uint32 BlockSize;
 
-}OS_VolumeInfo_t;
-
-typedef struct
-{
-    int32   OSfd;                   /* The underlying OS's file descriptor */
-    char    Path[OS_MAX_PATH_LEN];  /* The path of the file opened */
-    uint32   User;                  /* The task id of the task who opened the file*/
-    uint8   IsValid;                /* Whether or not this entry is valid */
-}OS_FDTableEntry;
+} OS_VolumeInfo_t;
 
 typedef struct
 {
@@ -229,16 +115,79 @@ typedef struct
    uint32   FreeFds;               /* Total number that are free */
    uint32   MaxVolumes;            /* Maximum number of volumes */
    uint32   FreeVolumes;           /* Total number of volumes free */
-} os_fsinfo_t; 
+} os_fsinfo_t;
 
-/* modified to posix calls, since all of the 
- * applicable OSes use the posix calls */
 
-typedef struct stat         os_fstat_t;
-typedef DIR*                os_dirp_t;
-typedef struct dirent       os_dirent_t;
-/* still don't know what this should be*/
-typedef unsigned long int   os_fshealth_t; 
+typedef struct
+{
+    char Path[OS_MAX_PATH_LEN];
+    uint32 User;
+    uint8 IsValid;                /* For backward compatibility -- always true if OS_FDGetInfo returned true */
+}OS_file_prop_t;
+
+
+/*
+ * NOTE: This used to be directly typedef'ed to the "struct stat" from the C library
+ *
+ * Some C libraries (glibc in particular) actually #define member names to reference into
+ * sub-structures, so attempting to reuse a name like "st_mtime" might not work.
+ */
+
+typedef struct
+{
+   uint32   FileModeBits;
+   int32    FileTime;
+   uint32   FileSize;
+} os_fstat_t;
+
+/* We must also define replacements for the stat structure's mode bits.
+ * This is currently just a small subset since the OSAL just presents a very
+ * simplified view of the filesystem to the upper layers.  And since not all
+ * OS'es are POSIX, the more POSIX-specific bits are not relevant anyway.
+ */
+enum
+{
+   OS_FILESTAT_MODE_EXEC  = 0x00001,
+   OS_FILESTAT_MODE_WRITE = 0x00002,
+   OS_FILESTAT_MODE_READ =  0x00004,
+   OS_FILESTAT_MODE_DIR =   0x10000
+};
+
+#define OS_FILESTAT_MODE(x)   ((x).FileModeBits)
+#define OS_FILESTAT_ISDIR(x)  ((x).FileModeBits & OS_FILESTAT_MODE_DIR)
+#define OS_FILESTAT_EXEC(x)   ((x).FileModeBits & OS_FILESTAT_MODE_EXEC)
+#define OS_FILESTAT_WRITE(x)  ((x).FileModeBits & OS_FILESTAT_MODE_WRITE)
+#define OS_FILESTAT_READ(x)   ((x).FileModeBits & OS_FILESTAT_MODE_READ)
+#define OS_FILESTAT_SIZE(x)   ((x).FileSize)
+#define OS_FILESTAT_TIME(x)   ((x).FileTime)
+
+
+typedef struct
+{
+   char FileName[OS_MAX_PATH_LEN];
+} os_dirent_t;
+
+/*
+ * Preserve the old type names for compatibility;
+ * but instead of DIR* it is now just a void*
+ */
+#ifndef OSAL_OMIT_DEPRECATED
+/* Provide something to implement os_dirp_t */
+typedef void * os_dirp_t;
+#endif
+
+/*
+ * Macro to access filename part of the dirent structure
+ */
+#define OS_DIRENTRY_NAME(x)   ((x).FileName)
+
+/*
+ * Several old type names can be aliases for compatibility
+ */
+#ifndef OSAL_OMIT_DEPRECATED
+typedef int32              os_fshealth_t;
+typedef OS_file_prop_t     OS_FDTableEntry;
+#endif
 
 /*
  * Exported Functions
@@ -267,17 +216,61 @@ int32           OS_open   (const char *path,  int32 access,  uint32 mode);
 /*
  * Closes an open file.
 */
-int32           OS_close  (int32  filedes);
+int32           OS_close  (uint32  filedes);
 
 /*
  * Reads nbytes bytes from file into buffer
 */
-int32           OS_read   (int32  filedes, void *buffer, uint32 nbytes);
+int32           OS_read   (uint32  filedes, void *buffer, uint32 nbytes);
 
 /*
  * Write nybytes bytes of buffer into the file
 */
-int32           OS_write  (int32  filedes, void *buffer, uint32 nbytes);
+int32           OS_write  (uint32  filedes, const void *buffer, uint32 nbytes);
+
+/**
+ * File/Stream input read with a timeout
+ *
+ * This implements a time-limited read and is primarily intended for use with
+ * sockets but may also work with any other stream-like resource that the underlying
+ * OS supports.
+ *
+ * If data is immediately available on the file/socket, this will return that data
+ * along with the actual number of bytes that were immediately available.  It will
+ * not block.
+ *
+ * If no data is immediately available, this will wait up to the given timeout for
+ * data to appear.  If no data appears within the timeout period, then this returns
+ * an error code (not zero).
+ *
+ * In all cases this will return successfully as soon as at least 1 byte of actual
+ * data is available.  It will not attempt to read the entire input buffer.
+ *
+ * If an EOF condition occurs prior to timeout, this function returns zero.
+ */
+int32           OS_TimedRead(uint32  filedes, void *buffer, uint32 nbytes, int32 timeout);
+
+/**
+ * File/Stream output write with a timeout
+ *
+ * This implements a time-limited write and is primarily intended for use with
+ * sockets but may also work with any other stream-like resource that the underlying
+ * OS supports.
+ *
+ * If output buffer space is immediately available on the file/socket, this will
+ * place data into the buffer and return the actual number of bytes that were
+ * queued for output.  It will not block.
+ *
+ * If no output buffer space is immediately available, this will wait up to the
+ * given timeout for space to become available.  If no space becomes available within
+ * the timeout period, then this returns an error code (not zero).
+ *
+ * In all cases this will return successfully as soon as at least 1 byte of actual
+ * data is output.  It will _not_ attempt to write the entire output buffer.
+ *
+ * If an EOF condition occurs prior to timeout, this function returns zero.
+ */
+int32           OS_TimedWrite(uint32  filedes, const void *buffer, uint32 nbytes, int32 timeout);
 
 /*
  * Changes the permissions of a file
@@ -292,7 +285,7 @@ int32           OS_stat   (const char *path, os_fstat_t  *filestats);
 /*
  * Seeks to the specified position of an open file 
 */
-int32           OS_lseek  (int32  filedes, int32 offset, uint32 whence);
+int32           OS_lseek  (uint32  filedes, int32 offset, uint32 whence);
 
 /*
  * Removes a file from the file system
@@ -317,12 +310,12 @@ int32 OS_mv (const char *src, const char *dest);
 /*
  * Copies the info of an open file to the structure
 */
-int32 OS_FDGetInfo (int32 filedes, OS_FDTableEntry *fd_prop);
+int32 OS_FDGetInfo (uint32 filedes, OS_file_prop_t *fd_prop);
 
 /*
 ** Check to see if a file is open
 */
-int32 OS_FileOpenCheck(char *Filename);
+int32 OS_FileOpenCheck(const char *Filename);
 
 /*
 ** Close all open files
@@ -332,18 +325,14 @@ int32 OS_CloseAllFiles(void);
 /*
 ** Close a file by filename
 */
-int32 OS_CloseFileByName(char *Filename);
+int32 OS_CloseFileByName(const char *Filename);
 
 
 /******************************************************************************
 ** Directory API 
 ******************************************************************************/
 
-/*
- * Makes a new directory
-*/
-int32           OS_mkdir   (const char *path, uint32 access);
-
+#ifndef OSAL_OMIT_DEPRECATED
 /*
  * Opens a directory for searching
 */
@@ -357,41 +346,83 @@ int32           OS_closedir(os_dirp_t directory);
 /*
  * Rewinds an open directory
 */
-void           OS_rewinddir(os_dirp_t directory);
+void            OS_rewinddir(os_dirp_t directory);
 
 /*
  * Reads the next object in the directory
 */
 os_dirent_t *   OS_readdir (os_dirp_t directory);
 
+#endif
+
+
+/*
+ * Opens a directory for searching
+ * Same as OS_opendir but with a OSAL-style API
+ */
+int32           OS_DirectoryOpen(uint32 *dir_id, const char *path);
+
+/*
+ * Closes an open directory
+ * Same as OS_closedir but with a OSAL-style API
+ */
+int32           OS_DirectoryClose(uint32 dir_id);
+
+/*
+ * Rewinds an open directory
+ * Same as OS_rewinddir but with a OSAL-style API
+ */
+int32           OS_DirectoryRewind(uint32 dir_id);
+
+/*
+ * Reads the next object in the directory
+ * Same as OS_readdir but with a OSAL-style API
+ */
+int32           OS_DirectoryRead(uint32 dir_id, os_dirent_t *dirent);
+
+/*
+ * Makes a new directory
+*/
+int32           OS_mkdir   (const char *path, uint32 access);
+
 /*
  * Removes an empty directory from the file system.
-*/
+ */
 int32           OS_rmdir   (const char *path);
 
 /******************************************************************************
 ** System Level API 
 ******************************************************************************/
+
+/*
+ * Create a fixed mapping between an existing directory and a virtual OSAL mount point.
+ *
+ * This mimics the behavior of a "FS_BASED" entry in the VolumeTable but is registered
+ * at runtime.  It is intended to be called by the PSP/BSP prior to starting the
+ */
+int32           OS_FileSysAddFixedMap(uint32 *filesys_id, const char *phys_path,
+                                const char *virt_path);
+
 /*
  * Makes a file system
 */
-int32           OS_mkfs        (char *address,char *devname, char *volname,
+int32           OS_mkfs        (char *address, const char *devname, const char *volname,
                                 uint32 blocksize, uint32 numblocks);
 /*
  * Mounts a file system
 */
-int32           OS_mount       (const char *devname, char *mountpoint);
+int32           OS_mount       (const char *devname, const char *mountpoint);
 
 /*
  * Initializes an existing file system
 */
-int32           OS_initfs      (char *address,char *devname, char *volname,
+int32           OS_initfs      (char *address, const char *devname, const char *volname,
                                 uint32 blocksize, uint32 numblocks);
 
 /*
  * removes a file system 
 */
-int32           OS_rmfs        (char *devname);
+int32           OS_rmfs        (const char *devname);
 
 /*
  * Unmounts a mounted file system
@@ -411,14 +442,19 @@ int32           OS_fsBlocksFree (const char *name);
 int32 OS_fsBytesFree (const char *name, uint64 *bytes_free);
 
 /*
- * Checks the health of a file system and repairs it if neccesary
-*/
-os_fshealth_t   OS_chkfs       (const char *name, boolean repair);
+ * Checks the health of a file system and repairs it if necessary
+ *
+ * Modified to return an "int32" like all other functions - this used to
+ * have its own dedicated return typedef, which was also an integer,
+ * even though the same OSAL return codes seem to be used.
+ * (VxWorks is the only OS that currently does something in this call)
+ */
+int32   OS_chkfs       (const char *name, bool repair);
 
 /*
  * Returns in the parameter the physical drive underneith the mount point 
 */
-int32       OS_FS_GetPhysDriveName  (char * PhysDriveName, char * MountPoint);
+int32       OS_FS_GetPhysDriveName  (char * PhysDriveName, const char * MountPoint);
 
 /*
 ** Translates a OSAL Virtual file system path to a host Local path
@@ -436,5 +472,6 @@ int32       OS_GetFsInfo(os_fsinfo_t  *filesys_info);
 
 /* executes the shell command passed into is and writes the output of that 
  * command to the file specified by the given OSAPI file descriptor */
-int32 OS_ShellOutputToFile(char* Cmd, int32 OS_fd);
+int32 OS_ShellOutputToFile(const char* Cmd, uint32 filedes);
+
 #endif

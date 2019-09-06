@@ -1,118 +1,76 @@
 /*
-** File   : osnetwork.c
-** 
-**      Copyright (c) 2004-2006, United States government as represented by the 
-**      administrator of the National Aeronautics Space Administration.  
-**      All rights reserved. This software was created at NASAs Goddard 
-**      Space Flight Center pursuant to government contracts.
-**
-**      This is governed by the NASA Open Source Agreement and may be used, 
-**      distributed and modified only pursuant to the terms of that agreement.
-**
-** Author : Nicholas Yanchik
-**
-** Purpose: This file contains the network functionality for the osapi.
-*/
+ *      Copyright (c) 2018, United States government as represented by the
+ *      administrator of the National Aeronautics Space Administration.
+ *      All rights reserved. This software was created at NASA Glenn
+ *      Research Center pursuant to government contracts.
+ *
+ *      This is governed by the NASA Open Source Agreement and may be used,
+ *      distributed and modified only according to the terms of that agreement.
+ */
+
+/**
+ * \file   osnetwork.c
+ * \author joseph.p.hickey@nasa.gov
+ *
+ * Purpose: This file contains the network functionality for the osapi.
+ */
 
 /****************************************************************************************
                                     INCLUDE FILES
-****************************************************************************************/
+ ***************************************************************************************/
 
-#include "stdio.h"
-#include "unistd.h"
-#include "stdlib.h"
+#include "os-rtems.h"
 
-#include "common_types.h"
-#include "osapi.h"
+#ifdef OS_INCLUDE_NETWORK
 
-/****************************************************************************************
-                                     DEFINES
-****************************************************************************************/
-
-
-/****************************************************************************************
-                                   GLOBAL DATA
-****************************************************************************************/
+#include <fcntl.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/select.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
 
 
-/****************************************************************************************
-                                INITIALIZATION FUNCTION
-****************************************************************************************/
+/*
+ * Leverage the POSIX-style File I/O as this will mostly work on RTEMS,
+ * with the exception that regular files cannot be passed to select(),
+ * which means that we should NOT set the O_NONBLOCK flag on filehandles
+ * like the standard POSIX OSAL does.
+ */
+const int OS_IMPL_SOCKET_FLAGS = O_NONBLOCK;
 
-
-/****************************************************************************************
-                                    Network API
-****************************************************************************************/
+/* Leverage the portable BSD sockets implementation */
+#include "../portable/os-impl-bsd-sockets.c"
 
 /*--------------------------------------------------------------------------------------
-    Purpose: Get the Host ID from Networking
+    Name: OS_NetworkGetID
+
+    Purpose: Gets the ID of the current Network
 
     Returns: OS_ERROR if the  host id could not be found
-             an opaque 32 bit host id if success (NOT AN IPv4 ADDRESS).
-
-    WARNING: OS_NetworkGetID is currently [[deprecated]] as its behavior is
-             unknown and not consistent across operating systems.
+             a 32 bit host id if success
 ---------------------------------------------------------------------------------------*/
-int32 OS_NetworkGetID             (void)
+int32 OS_NetworkGetID_Impl          (int32 *IdBuf)
 {
-#ifdef OS_INCLUDE_NETWORK
-     int    host_id;
-
-     host_id = gethostid();
-     if (host_id == -1)
-     {
-       return OS_ERROR;
-     }
-     else
-     { 
-        return (host_id);
-     }
- #else
-    return(OS_ERR_NOT_IMPLEMENTED);
- #endif
-    
+    /* RTEMS does not have the GetHostId call -
+     * it is deprecated in other OS's anyway and not a good idea to use it
+     */
+    return OS_ERR_NOT_IMPLEMENTED;
 }/* end OS_NetworkGetID */
-/*--------------------------------------------------------------------------------------
-    Name: OS_NetworkGetHostName
-    
-    Purpose: Gets the name of the current host
 
-    Returns: OS_ERROR if the  host name could not be found
-             OS_SUCCESS if the name was copied to host_name successfully
----------------------------------------------------------------------------------------*/
+#else  /* OS_INCLUDE_NETWORK */
 
-int32 OS_NetworkGetHostName       (char *host_name, uint32 name_len)
-{
-#ifdef OS_INCLUDE_NETWORK
+/****************************************************************************************
+                         NOT IMPLEMENTED OPTION
+            This block provides stubs in case this module is disabled by config
+ ****************************************************************************************/
 
-   int    retval = OS_SUCCESS;
-   uint32 return_code;
-   
-   if ( host_name == NULL)
-   {
-      return_code = OS_INVALID_POINTER;
-   }
-   else if ( name_len == 0 )
-   {
-      return_code = OS_ERROR;
-   }
-   else
-   {
-      retval = gethostname( host_name, name_len); 
-      if ( retval == -1 )
-      {
-         return_code = OS_ERROR;
-      }
-      else
-      {
-         return_code = OS_SUCCESS;
-      }
-   }
+/*
+ * The "no-network" block includes the required API calls
+ * that all return OS_ERR_NOT_IMPLEMENTED
+ */
+#include "../portable/os-impl-no-network.c"
 
-   return(return_code);
-#else
-   return(OS_ERR_NOT_IMPLEMENTED);
+
 #endif
-}/* end OS_NetworkGetHostName */
-
 

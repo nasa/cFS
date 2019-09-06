@@ -50,7 +50,7 @@ void task_1(void)
        if ( status != OS_SUCCESS )
        {
           ++task_1_failures;
-          OS_printf("TASK 1: Error calling OS_CountSemGive 1\n");
+          OS_printf("TASK 1: Error calling OS_CountSemGive 1: %d\n", (int)status);
        }
        else
        {
@@ -65,7 +65,7 @@ void task_1(void)
        if ( status != OS_SUCCESS )
        {
           ++task_1_failures;
-          OS_printf("TASK 1: Error calling OS_CountSemGive 2\n");
+          OS_printf("TASK 1: Error calling OS_CountSemGive 2: %d\n", (int)status);
        }
        else
        {
@@ -92,7 +92,7 @@ void task_2(void)
        if ( status != OS_SUCCESS )
        {
           ++task_2_failures;
-          OS_printf("TASK 2: Error calling OS_CountSemTake\n");
+          OS_printf("TASK 2: Error calling OS_CountSemTake: %d\n", (int)status);
        }
        else
        {
@@ -119,7 +119,7 @@ void task_3(void)
        if ( status != OS_SUCCESS )
        {
           ++task_3_failures;
-          OS_printf("TASK 3: Error calling OS_CountSemTake\n");
+          OS_printf("TASK 3: Error calling OS_CountSemTake: %d\n", (int)status);
        }
        else
        {

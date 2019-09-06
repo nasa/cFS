@@ -81,7 +81,7 @@ void UT_BSP_DoText(uint8 MessageType, const char *OutputMessage)
          Prefix = "ABORT";
          break;
       case UTASSERT_CASETYPE_FAILURE:
-         Prefix = "FAIL";
+         Prefix = "\x1b[31m FAIL\x1b[0m";
          break;
       case UTASSERT_CASETYPE_MIR:
          Prefix = "MIR";

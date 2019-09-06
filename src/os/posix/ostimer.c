@@ -1,186 +1,92 @@
 /*
-** File   : ostimer.c
-**
-**      Copyright (c) 2004-2006, United States government as represented by the 
-**      administrator of the National Aeronautics Space Administration.  
-**      All rights reserved. This software was created at NASAs Goddard 
-**      Space Flight Center pursuant to government contracts.
-**
-**      This is governed by the NASA Open Source Agreement and may be used, 
-**      distributed and modified only pursuant to the terms of that agreement.
-**
-** Author : Alan Cudmore
-**
-** Purpose: This file contains the OSAL Timer API for POSIX systems.
-**            
-**          This implementation depends on the POSIX Timer API which may not be available
-**          in older versions of the Linux kernel. It was developed and tested on
-**          RHEL 5 ./ CentOS 5 with Linux kernel 2.6.18
-*/
+ *      Copyright (c) 2018, United States government as represented by the
+ *      administrator of the National Aeronautics Space Administration.
+ *      All rights reserved. This software was created at NASA Glenn
+ *      Research Center pursuant to government contracts.
+ *
+ *      This is governed by the NASA Open Source Agreement and may be used,
+ *      distributed and modified only according to the terms of that agreement.
+ */
+
+/**
+ * \file   ostimer.c
+ * \author joseph.p.hickey@nasa.gov
+ *
+ * Purpose: This file contains the OSAL Timer API for POSIX systems.
+ *
+ *          This implementation depends on the POSIX Timer API which may not be available
+ *          in older versions of the Linux kernel. It was developed and tested on
+ *          RHEL 5 ./ CentOS 5 with Linux kernel 2.6.18
+ */
 
 /****************************************************************************************
                                     INCLUDE FILES
-****************************************************************************************/
+ ***************************************************************************************/
 
-#include "common_types.h"
-#include "osapi.h"
-
-#include <string.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <stdio.h>
-#include <limits.h>
-#include <time.h>
-#include <sys/signal.h>
-#include <sys/errno.h>
-#include <pthread.h>
+#include "os-posix.h"
 
 /****************************************************************************************
                                 EXTERNAL FUNCTION PROTOTYPES
-****************************************************************************************/
-
-extern uint32 OS_FindCreator(void);
-extern int    OS_InterruptSafeLock(pthread_mutex_t *lock, sigset_t *set, sigset_t *previous);
-extern void   OS_InterruptSafeUnlock(pthread_mutex_t *lock, sigset_t *previous);
+ ***************************************************************************************/
 
 /****************************************************************************************
                                 INTERNAL FUNCTION PROTOTYPES
-****************************************************************************************/
+ ***************************************************************************************/
 
-void  OS_TimespecToUsec(struct timespec time_spec, uint32 *usecs);
-void  OS_UsecToTimespec(uint32 usecs, struct timespec *time_spec);
+static void  OS_UsecToTimespec(uint32 usecs, struct timespec *time_spec);
 
 /****************************************************************************************
                                      DEFINES
-****************************************************************************************/
+ ***************************************************************************************/
 
 /*
-** The timers use the RT Signals. The system that this code was developed
-** and tested on has 32 available RT signals ( SIGRTMIN -> SIGRTMAX ).
-** OS_MAX_TIMERS should not be set to more than this number.
-*/
-#define OS_STARTING_SIGNAL  (SIGRTMAX-1)
-
-/*
-** Since the API is storing the timer values in a 32 bit integer as Microseconds, 
-** there is a limit to the number of seconds that can be represented.
-*/
-#define MAX_SECS_IN_USEC 4293
-
-#define UNINITIALIZED 0
+ * Prefer to use the MONOTONIC clock if available, as it will not get distrupted by setting
+ * the time like the REALTIME clock will.
+ */
+#ifndef OS_PREFERRED_CLOCK
+#ifdef  _POSIX_MONOTONIC_CLOCK
+#define OS_PREFERRED_CLOCK      CLOCK_MONOTONIC
+#else
+#define OS_PREFERRED_CLOCK      CLOCK_REALTIME
+#endif
+#endif
 
 /****************************************************************************************
-                                    LOCAL TYPEDEFS 
-****************************************************************************************/
+                                    LOCAL TYPEDEFS
+ ***************************************************************************************/
 
-typedef struct 
+typedef struct
 {
-   uint32              free;
-   char                name[OS_MAX_API_NAME];
-   uint32              creator;
-   uint32              start_time;
-   uint32              interval_time;
-   uint32              accuracy;
-   OS_TimerCallback_t  callback_ptr;
-   timer_t              host_timerid;
+    pthread_t           handler_thread;
+    pthread_mutex_t     handler_mutex;
+    timer_t             host_timerid;
+    int                 assigned_signal;
+    sigset_t            sigset;
+    uint32              reset_flag;
+    struct timespec     softsleep;
 
-} OS_timer_internal_record_t;
+} OS_impl_timebase_internal_record_t;
 
 /****************************************************************************************
                                    GLOBAL DATA
-****************************************************************************************/
+ ***************************************************************************************/
 
-OS_timer_internal_record_t OS_timer_table[OS_MAX_TIMERS];
-uint32           os_clock_accuracy;
-
-/*
-** The Mutex for protecting the above table
-*/
-pthread_mutex_t    OS_timer_table_mut;
-
-/****************************************************************************************
-                                INITIALIZATION FUNCTION
-****************************************************************************************/
-int32  OS_TimerAPIInit ( void )
-{
-   int    i;   
-   int    status;
-   struct timespec clock_resolution;
-   int32  return_code = OS_SUCCESS;
-
-   /*
-   ** Mark all timers as available
-   */
-   for ( i = 0; i < OS_MAX_TIMERS; i++ )
-   {
-      OS_timer_table[i].free      = TRUE;
-      OS_timer_table[i].creator   = UNINITIALIZED;
-      strcpy(OS_timer_table[i].name,"");
-
-   }
-
-   /*
-   ** get the resolution of the realtime clock
-   */
-   status = clock_getres(CLOCK_REALTIME, &clock_resolution);
-   if ( status < 0 )
-   {
-      return_code = OS_ERROR;
-   }  
-   else
-   { 
-      /*
-      ** Convert to microseconds
-      */
-      OS_TimespecToUsec(clock_resolution, &os_clock_accuracy);
-   
-      /*
-      ** Create the Timer Table mutex
-      */
-      status = pthread_mutex_init((pthread_mutex_t *) & OS_timer_table_mut,NULL); 
-      if ( status < 0 )
-      {
-         return_code = OS_ERROR;
-      }
-   }
-   return(return_code);
-
-}
+OS_impl_timebase_internal_record_t OS_impl_timebase_table[OS_MAX_TIMEBASES];
 
 /****************************************************************************************
                                 INTERNAL FUNCTIONS
-****************************************************************************************/
+ ***************************************************************************************/
 
-/*
-** Timer Signal Handler.
-** The purpose of this function is to convert the POSIX signal number to the 
-** OSAL signal number and pass it to the User defined signal handler.
-*/
-void OS_TimerSignalHandler(int signum)
-{
-   uint32  timer_id;
 
-   timer_id = OS_STARTING_SIGNAL - signum;
-
-   if ( timer_id  < OS_MAX_TIMERS )
-   {
-      if ( OS_timer_table[timer_id].free == FALSE )
-      {
-         (OS_timer_table[timer_id].callback_ptr)(timer_id);
-      }
-   }
-
-}
- 
 /******************************************************************************
  **  Function:  OS_UsecToTimespec
  **
  **  Purpose:  Convert Microseconds to a POSIX timespec structure.
  **
  */
-void OS_UsecToTimespec(uint32 usecs, struct timespec *time_spec)
+static void OS_UsecToTimespec(uint32 usecs, struct timespec *time_spec)
 {
-	
+
    if ( usecs < 1000000 )
    {
       time_spec->tv_nsec = (usecs * 1000);
@@ -191,388 +97,475 @@ void OS_UsecToTimespec(uint32 usecs, struct timespec *time_spec)
       time_spec->tv_sec = usecs / 1000000;
       time_spec->tv_nsec = (usecs % 1000000) * 1000;
    }
-	
 }
 
-/******************************************************************************
- **  Function:  OS_TimespecToUsec
- **
- **  Purpose:  Convert a POSIX timespec structure to microseconds
- **
- */
-void OS_TimespecToUsec(struct timespec time_spec, uint32 *usecs)
+void OS_TimeBaseLock_Impl(uint32 local_id)
 {
-   /*
-    ** Need to account for maximum number of seconds that will fit in the
-    ** 32 bit usec integer
-    */
-   if ( time_spec.tv_sec > MAX_SECS_IN_USEC )
-   {
-      time_spec.tv_sec = MAX_SECS_IN_USEC;
-   }
-   *usecs = (time_spec.tv_sec * 1000000 ) + (time_spec.tv_nsec / 1000 );
+    pthread_mutex_lock(&OS_impl_timebase_table[local_id].handler_mutex);
 }
 
+void OS_TimeBaseUnlock_Impl(uint32 local_id)
+{
+    pthread_mutex_unlock(&OS_impl_timebase_table[local_id].handler_mutex);
+}
+
+static uint32 OS_TimeBase_SoftWaitImpl(uint32 timer_id)
+{
+    int ret;
+    OS_impl_timebase_internal_record_t *local;
+    uint32 interval_time;
+    int sig;
+
+    local = &OS_impl_timebase_table[timer_id];
+
+    if (local->reset_flag == 0)
+    {
+        interval_time = OS_timebase_table[timer_id].nominal_interval_time;
+    }
+    else
+    {
+        interval_time = OS_timebase_table[timer_id].nominal_start_time;
+        local->reset_flag = 0;
+    }
+
+    if (local->assigned_signal == 0)
+    {
+        /*
+         * If no signal is in use and this function got called,
+         * just implement it using a software delay.  This is the
+         * least accurate option, but it always works.
+         */
+        if (interval_time == 0)
+        {
+            /*
+             * Protect against a zero interval time causing a "spin loop"
+             * In this case sleep for 10ms.
+             */
+            interval_time = 10000;
+        }
+        local->softsleep.tv_nsec += 1000 * (interval_time % 1000000);
+        local->softsleep.tv_sec += interval_time / 1000000;
+        if (local->softsleep.tv_nsec > 1000000000)
+        {
+            local->softsleep.tv_nsec -= 1000000000;
+            ++local->softsleep.tv_sec;
+        }
+    }
+
+
+    do
+    {
+        /*
+         * Note that either of these calls can be interrupted by OTHER signals,
+         * so it needs to be repeated until it actually returns the proper code.
+         */
+        if (local->assigned_signal == 0)
+        {
+            ret = clock_nanosleep(OS_PREFERRED_CLOCK, TIMER_ABSTIME, &local->softsleep, NULL);
+        }
+        else
+        {
+            ret = sigwait(&local->sigset, &sig);
+        }
+    }
+    while (ret != 0);
+
+    return interval_time;
+}
 
 
 /****************************************************************************************
-                                   Timer API
-****************************************************************************************/
+                                INITIALIZATION FUNCTION
+ ***************************************************************************************/
 
 /******************************************************************************
-**  Function:  OS_TimerCreate
-**
-**  Purpose:  Create a new OSAL Timer
-**
-**  Arguments:
-**
-**  Return:
-*/
-int32 OS_TimerCreate(uint32 *timer_id, const char *timer_name, uint32 *clock_accuracy, OS_TimerCallback_t  callback_ptr)
-{
-   uint32    possible_tid;
-   int32     i;
-   sigset_t  previous;
-   sigset_t  mask;
-
-   int                status;
-   struct  sigaction  sig_act;
-   struct  sigevent   evp;
-
-   if ( timer_id == NULL || timer_name == NULL || clock_accuracy == NULL)
-   {
-        return OS_INVALID_POINTER;
-   }
-
-   /* 
-   ** we don't want to allow names too long
-   ** if truncated, two names might be the same 
-   */
-   if (strlen(timer_name) > OS_MAX_API_NAME)
-   {
-      return OS_ERR_NAME_TOO_LONG;
-   }
-
-   /* 
-   ** Check Parameters 
-   */
-   OS_InterruptSafeLock(&OS_timer_table_mut, &mask, &previous);
-    
-   for(possible_tid = 0; possible_tid < OS_MAX_TIMERS; possible_tid++)
-   {
-      if (OS_timer_table[possible_tid].free == TRUE)
-         break;
-   }
-
-
-   if( possible_tid >= OS_MAX_TIMERS || OS_timer_table[possible_tid].free != TRUE)
-   {
-        OS_InterruptSafeUnlock(&OS_timer_table_mut, &previous);
-        return OS_ERR_NO_FREE_IDS;
-   }
-
-   /* 
-   ** Check to see if the name is already taken 
-   */
-   for (i = 0; i < OS_MAX_TIMERS; i++)
-   {
-       if ((OS_timer_table[i].free == FALSE) &&
-            strcmp ((char*) timer_name, OS_timer_table[i].name) == 0)
-       {
-            OS_InterruptSafeUnlock(&OS_timer_table_mut, &previous);
-            return OS_ERR_NAME_TAKEN;
-       }
-   }
-
-   /*
-   ** Verify callback parameter
-   */
-   if (callback_ptr == NULL ) 
-   {
-      OS_InterruptSafeUnlock(&OS_timer_table_mut, &previous);
-      return OS_TIMER_ERR_INVALID_ARGS;
-   }    
-
-   /* 
-   ** Set the possible timer Id to not free so that
-   ** no other task can try to use it 
-   */
-   OS_timer_table[possible_tid].free = FALSE;
-   OS_InterruptSafeUnlock(&OS_timer_table_mut, &previous);
-
-   OS_timer_table[possible_tid].creator = OS_FindCreator();
-   strncpy(OS_timer_table[possible_tid].name, timer_name, OS_MAX_API_NAME);
-   OS_timer_table[possible_tid].start_time = 0;
-   OS_timer_table[possible_tid].interval_time = 0;
-    
-   OS_timer_table[possible_tid].callback_ptr = callback_ptr;
-
-   /*
-   **  Initialize the sigaction and sigevent structures for the handler.
-   */
-   memset((void *)&sig_act, 0, sizeof(sig_act));
-   sigemptyset(&sig_act.sa_mask);
-   sig_act.sa_handler = OS_TimerSignalHandler;
-   sig_act.sa_flags = SA_RESTART; 
-
-   memset((void *)&evp, 0, sizeof(evp));
-   evp.sigev_notify = SIGEV_SIGNAL; 
-   evp.sigev_signo = OS_STARTING_SIGNAL - possible_tid;
-
-   /*
-   ** Create the timer
-   */
-   status = timer_create(CLOCK_REALTIME, &evp, (timer_t *)&(OS_timer_table[possible_tid].host_timerid));
-   if (status < 0) 
-   {
-      OS_timer_table[possible_tid].free = TRUE;
-      return ( OS_TIMER_ERR_UNAVAILABLE);
-   }
-   
-   /*
-   ** Set the signal action for the timer
-   */
-   sigaction(OS_STARTING_SIGNAL - possible_tid, &(sig_act), 0); 
-
-   /*
-   ** Return the clock accuracy to the user
-   */
-   *clock_accuracy = os_clock_accuracy;
-
-   /*
-   ** Return timer ID 
-   */
-   *timer_id = possible_tid;
-
-   return OS_SUCCESS;
-}
-
-/******************************************************************************
-**  Function:  OS_TimerSet
-**
-**  Purpose:  
-**
-**  Arguments:
-**    (none)
-**
-**  Return:
-**    (none)
-*/
-int32 OS_TimerSet(uint32 timer_id, uint32 start_time, uint32 interval_time)
+ *  Function:  OS_Posix_TimeBaseAPI_Impl_Init
+ *
+ *  Purpose:  Initialize the timer implementation layer
+ *
+ *  Arguments:
+ *
+ *  Return:
+ */
+int32 OS_Posix_TimeBaseAPI_Impl_Init(void)
 {
    int    status;
-   struct itimerspec timeout;
+   int    i;
+   pthread_mutexattr_t mutex_attr;
+   struct timespec clock_resolution;
+   int32  return_code;
 
-   /* 
-   ** Check to see if the timer_id given is valid 
-   */
-   if (timer_id >= OS_MAX_TIMERS || OS_timer_table[timer_id].free == TRUE)
-   {
-      return OS_ERR_INVALID_ID;
-   }
+   return_code = OS_SUCCESS;
 
-   /*
-   ** Round up the accuracy of the start time and interval times 
-   */
-   if (( start_time > 0 ) && ( start_time < os_clock_accuracy ))
+   do
    {
-      start_time = os_clock_accuracy;
-   }
- 
-   if (( interval_time > 0) && ( interval_time < os_clock_accuracy ))
-   {
-      interval_time = os_clock_accuracy;
-   }
+       /*
+       ** Mark all timers as available
+       */
+       memset(OS_impl_timebase_table, 0, sizeof(OS_impl_timebase_table));
 
-   /*
-   ** Save the start and interval times 
-   */
-   OS_timer_table[timer_id].start_time = start_time;
-   OS_timer_table[timer_id].interval_time = interval_time;
+       /*
+       ** get the resolution of the selected clock
+       */
+       status = clock_getres(OS_PREFERRED_CLOCK, &clock_resolution);
+       if ( status != 0 )
+       {
+          OS_DEBUG("failed in clock_getres: %s\n",strerror(status));
+          return_code = OS_ERROR;
+          break;
+       }
 
-   /*
-   ** Convert from Microseconds to timespec structures
-   */
-   OS_UsecToTimespec(start_time, &(timeout.it_value));
-   OS_UsecToTimespec(interval_time, &(timeout.it_interval));
-	
-   /*
-   ** Program the real timer
-   */
-   status = timer_settime((timer_t)(OS_timer_table[timer_id].host_timerid), 
-                             0,              /* Flags field can be zero */
-                             &timeout,       /* struct itimerspec */
-		             NULL);         /* Oldvalue */
-   if (status < 0) 
-   {
-      return ( OS_TIMER_ERR_INTERNAL);
-   }
-	
-   return OS_SUCCESS;
+      /*
+      ** Convert to microseconds
+      ** Note that the resolution MUST be in the sub-second range, if not then
+      ** it looks like the POSIX timer API in the C library is broken.
+      ** Note for any flavor of RTOS we would expect <= 1ms.  Even a "desktop"
+      ** linux or development system should be <= 100ms absolute worst-case.
+      */
+       if ( clock_resolution.tv_sec > 0 )
+       {
+           return_code = OS_TIMER_ERR_INTERNAL;
+           break;
+       }
+
+       /* Round to the nearest microsecond */
+       POSIX_GlobalVars.ClockAccuracyNsec = (uint32)(clock_resolution.tv_nsec);
+
+       /*
+       ** initialize the attribute with default values
+       */
+       status = pthread_mutexattr_init(&mutex_attr);
+       if ( status != 0 )
+       {
+          OS_DEBUG("Error: pthread_mutexattr_init failed: %s\n",strerror(status));
+          return_code = OS_ERROR;
+          break;
+       }
+
+       /*
+       ** Allow the mutex to use priority inheritance
+       */
+       status = pthread_mutexattr_setprotocol(&mutex_attr,PTHREAD_PRIO_INHERIT);
+       if ( status != 0 )
+       {
+          OS_DEBUG("Error: pthread_mutexattr_setprotocol failed: %s\n",strerror(status));
+          return_code = OS_ERROR;
+          break;
+       }
+
+       for (i = 0; i < OS_MAX_TIMEBASES; ++i)
+       {
+           /*
+           ** create the timebase sync mutex
+           ** This gives a mechanism to synchronize updates to the timer chain with the
+           ** expiration of the timer and processing the chain.
+           */
+           status = pthread_mutex_init(&OS_impl_timebase_table[i].handler_mutex, &mutex_attr);
+           if ( status != 0 )
+           {
+              OS_DEBUG("Error: Mutex could not be created: %s\n",strerror(status));
+              return_code = OS_ERROR;
+              break;
+           }
+       }
+
+       /*
+        * Pre-calculate the clock tick to microsecond conversion factor.
+        * This is used by OS_Tick2Micros(), OS_Milli2Ticks(), etc.
+        */
+       OS_SharedGlobalVars.TicksPerSecond = sysconf(_SC_CLK_TCK);
+       if (OS_SharedGlobalVars.TicksPerSecond <= 0)
+       {
+          OS_DEBUG("Error: Unable to determine OS ticks per second: %s\n",strerror(errno));
+          return_code = OS_ERROR;
+          break;
+       }
+
+       /*
+        * Calculate microseconds per tick - Rounding UP
+        *  - If the ratio is not an integer, this will choose the next higher value
+        *  - The result is guaranteed not to be zero.
+        */
+       OS_SharedGlobalVars.MicroSecPerTick = (1000000 + (OS_SharedGlobalVars.TicksPerSecond / 2)) /
+             OS_SharedGlobalVars.TicksPerSecond;
+    }
+    while(0);
+
+
+   return(return_code);
+}
+
+/****************************************************************************************
+                                   Time Base API
+ ***************************************************************************************/
+
+static void *OS_TimeBasePthreadEntry(void *arg)
+{
+    OS_U32ValueWrapper_t local_arg;
+
+    local_arg.opaque_arg = arg;
+    OS_TimeBase_CallbackThread(local_arg.value);
+    return NULL;
+}
+
+/******************************************************************************
+ *  Function:  OS_TimeBaseCreate
+ *
+ *  Purpose:  Create a new OSAL Time base
+ *
+ *  Arguments:
+ *
+ *  Return:
+ */
+int32 OS_TimeBaseCreate_Impl(uint32 timer_id)
+{
+    int32  return_code;
+    int    status;
+    int    i;
+    struct sigevent   evp;
+    OS_impl_timebase_internal_record_t *local;
+    OS_common_record_t *global;
+    OS_U32ValueWrapper_t arg;
+
+
+    local = &OS_impl_timebase_table[timer_id];
+    global = &OS_global_timebase_table[timer_id];
+
+    /*
+     * Spawn a dedicated time base handler thread
+     *
+     * This alleviates the need to handle expiration in the context of a signal handler -
+     * The handler thread can call a BSP synchronized delay implementation as well as the
+     * application callback function.  It should run with elevated priority to reduce latency.
+     *
+     * Note the thread will not actually start running until this function exits and releases
+     * the global table lock.
+     */
+    arg.opaque_arg = NULL;
+    arg.value = global->active_id;
+    return_code = OS_Posix_InternalTaskCreate_Impl(&local->handler_thread, 0, 0, OS_TimeBasePthreadEntry, arg.opaque_arg);
+    if (return_code != OS_SUCCESS)
+    {
+        return return_code;
+    }
+
+    local->assigned_signal = 0;
+    clock_gettime(OS_PREFERRED_CLOCK, &local->softsleep);
+
+    /*
+     * Set up the necessary OS constructs
+     *
+     * If an external sync function is used then there is nothing to do here -
+     * we simply call that function and it should synchronize to the time source.
+     *
+     * If no external sync function is provided then this will set up a POSIX
+     * timer to locally simulate the timer tick using the CPU clock.
+     */
+    if (OS_timebase_table[timer_id].external_sync == NULL)
+    {
+        sigemptyset(&local->sigset);
+
+        /*
+         * find an RT signal that is not used by another time base object.
+         * This is all done while the global lock is held so no chance of the
+         * underlying tables changing
+         */
+        for(i = 0; i < OS_MAX_TIMEBASES; ++i)
+        {
+            if (i != timer_id &&
+                    OS_global_timebase_table[i].active_id != 0 &&
+                    OS_impl_timebase_table[i].assigned_signal != 0)
+            {
+                sigaddset(&local->sigset, OS_impl_timebase_table[i].assigned_signal);
+            }
+        }
+
+        for(i = SIGRTMIN; i <= SIGRTMAX; ++i)
+        {
+            if (!sigismember(&local->sigset, i))
+            {
+                local->assigned_signal = i;
+                break;
+            }
+        }
+
+        do
+        {
+            if (local->assigned_signal == 0)
+            {
+                OS_DEBUG("No free RT signals to use for simulated time base\n");
+                return_code = OS_TIMER_ERR_UNAVAILABLE;
+                break;
+            }
+
+            sigemptyset(&local->sigset);
+            sigaddset(&local->sigset, local->assigned_signal);
+
+            /*
+            **  Initialize the sigevent structures for the handler.
+            */
+            memset((void *)&evp, 0, sizeof(evp));
+            evp.sigev_notify = SIGEV_SIGNAL;
+            evp.sigev_signo = local->assigned_signal;
+
+            /*
+             * Pass the Timer Index value of the object ID to the signal handler --
+             *  Note that the upper bits can be safely assumed as a timer ID to recreate the original,
+             *  and doing it this way should still work on a system where sizeof(sival_int) < sizeof(uint32)
+             *  (as long as sizeof(sival_int) >= number of bits in OS_OBJECT_INDEX_MASK)
+             */
+            evp.sigev_value.sival_int = (int)(global->active_id & OS_OBJECT_INDEX_MASK);
+
+            /*
+            ** Create the timer
+            ** Note using the "MONOTONIC" clock here as this will still produce consistent intervals
+            ** even if the system clock is stepped (e.g. clock_settime).
+            */
+            status = timer_create(OS_PREFERRED_CLOCK, &evp, &local->host_timerid);
+            if (status < 0)
+            {
+                return_code = OS_TIMER_ERR_UNAVAILABLE;
+                break;
+            }
+
+            OS_timebase_table[timer_id].external_sync = OS_TimeBase_SoftWaitImpl;
+        }
+        while (0);
+
+    }
+
+    if (return_code != OS_SUCCESS)
+    {
+        /*
+         * NOTE about the thread cancellation -- this technically is just a backup,
+         * we should not need to cancel it because the handler thread will exit automatically
+         * if the active ID does not match the expected value.  This check would fail
+         * if this function returns non-success (the ID in the global will be set zero)
+         */
+        pthread_cancel(local->handler_thread);
+        local->assigned_signal = 0;
+    }
+
+    return return_code;
+}
+
+/******************************************************************************
+ *  Function:  OS_TimeBaseSet
+ *
+ *  Purpose:
+ *
+ *  Arguments:
+ *    (none)
+ *
+ *  Return:
+ *    (none)
+ */
+int32 OS_TimeBaseSet_Impl(uint32 timer_id, int32 start_time, int32 interval_time)
+{
+    OS_impl_timebase_internal_record_t *local;
+    struct itimerspec timeout;
+    int32 return_code;
+    int status;
+
+    local = &OS_impl_timebase_table[timer_id];
+    return_code = OS_SUCCESS;
+
+    /* There is only something to do here if we are generating a simulated tick */
+    if (local->assigned_signal != 0)
+    {
+        /*
+        ** Convert from Microseconds to timespec structures
+        */
+        memset(&timeout, 0, sizeof(timeout));
+        OS_UsecToTimespec(start_time, &timeout.it_value);
+        OS_UsecToTimespec(interval_time, &timeout.it_interval);
+
+        /*
+        ** Program the real timer
+        */
+        status = timer_settime(local->host_timerid,
+                0,              /* Flags field can be zero */
+                &timeout,       /* struct itimerspec */
+                NULL);         /* Oldvalue */
+
+        if (status < 0)
+        {
+            OS_DEBUG("Error in timer_settime: %s\n",strerror(errno));
+            return_code = OS_TIMER_ERR_INTERNAL;
+        }
+        else if (interval_time > 0)
+        {
+            OS_timebase_table[timer_id].accuracy_usec = (uint32)((timeout.it_interval.tv_nsec + 999) / 1000);
+        }
+        else
+        {
+            OS_timebase_table[timer_id].accuracy_usec = (uint32)((timeout.it_value.tv_nsec + 999) / 1000);
+        }
+    }
+
+    local->reset_flag = (return_code == OS_SUCCESS);
+    return return_code;
 }
 
 
 /******************************************************************************
-**  Function:  OS_TimerDelete
-**
-**  Purpose: 
-**
-**  Arguments:
-**    (none)
-**
-**  Return:
-**    (none)
-*/
-int32 OS_TimerDelete(uint32 timer_id)
+ *  Function:  OS_TimerDelete
+ *
+ *  Purpose:
+ *
+ *  Arguments:
+ *    (none)
+ *
+ *  Return:
+ *    (none)
+ */
+int32 OS_TimeBaseDelete_Impl(uint32 timer_id)
 {
-   int status;
+    OS_impl_timebase_internal_record_t *local;
+    int status;
 
-   /* 
-   ** Check to see if the timer_id given is valid 
-   */
-   if (timer_id >= OS_MAX_TIMERS || OS_timer_table[timer_id].free == TRUE)
-   {
-      return OS_ERR_INVALID_ID;
-   }
+    local = &OS_impl_timebase_table[timer_id];
 
-   /*
-   ** Delete the timer 
-   */
-   status = timer_delete((timer_t)(OS_timer_table[timer_id].host_timerid));
-   OS_timer_table[timer_id].free = TRUE;
-   if (status < 0)
-   {
-      return ( OS_TIMER_ERR_INTERNAL);
-   }
-	
-   return OS_SUCCESS;
-}
+    pthread_cancel(local->handler_thread);
 
-/***********************************************************************************
-**
-**    Name: OS_TimerGetIdByName
-**
-**    Purpose: This function tries to find a Timer Id given the name 
-**             The id is returned through timer_id
-**
-**    Returns: OS_INVALID_POINTER if timer_id or timer_name are NULL pointers
-**             OS_ERR_NAME_TOO_LONG if the name given is to long to have been stored
-**             OS_ERR_NAME_NOT_FOUND if the name was not found in the table
-**             OS_SUCCESS if success
-**             
-*/
-int32 OS_TimerGetIdByName (uint32 *timer_id, const char *timer_name)
-{
-    uint32 i;
-
-    if (timer_id == NULL || timer_name == NULL)
-    {
-        return OS_INVALID_POINTER;
-    }
-
-    /* 
-    ** a name too long wouldn't have been allowed in the first place
-    ** so we definitely won't find a name too long
+    /*
+    ** Delete the timer
     */
-    if (strlen(timer_name) > OS_MAX_API_NAME)
+    if (local->assigned_signal != 0)
     {
-        return OS_ERR_NAME_TOO_LONG;
-    }
-
-    for (i = 0; i < OS_MAX_TIMERS; i++)
-    {
-        if (OS_timer_table[i].free != TRUE &&
-                (strcmp (OS_timer_table[i].name , (char*) timer_name) == 0))
+        status = timer_delete(OS_impl_timebase_table[timer_id].host_timerid);
+        if (status < 0)
         {
-            *timer_id = i;
-            return OS_SUCCESS;
+            OS_DEBUG("Error deleting timer: %s\n",strerror(errno));
+            return ( OS_TIMER_ERR_INTERNAL);
         }
+
+        local->assigned_signal = 0;
     }
-   
-    /* 
-    ** The name was not found in the table,
-    **  or it was, and the sem_id isn't valid anymore 
-    */
-    return OS_ERR_NAME_NOT_FOUND;
-    
-}/* end OS_TimerGetIdByName */
-
-/***************************************************************************************
-**    Name: OS_TimerGetInfo
-**
-**    Purpose: This function will pass back a pointer to structure that contains 
-**             all of the relevant info( name and creator) about the specified timer.
-**             
-**    Returns: OS_ERR_INVALID_ID if the id passed in is not a valid timer 
-**             OS_INVALID_POINTER if the timer_prop pointer is null
-**             OS_SUCCESS if success
-*/
-int32 OS_TimerGetInfo (uint32 timer_id, OS_timer_prop_t *timer_prop)  
-{
-    sigset_t  previous;
-    sigset_t  mask;
-
-    /* 
-    ** Check to see that the id given is valid 
-    */
-    if (timer_id >= OS_MAX_TIMERS || OS_timer_table[timer_id].free == TRUE)
-    {
-       return OS_ERR_INVALID_ID;
-    }
-
-    if (timer_prop == NULL)
-    {
-        return OS_INVALID_POINTER;
-    }
-
-    /* 
-    ** put the info into the stucture 
-    */
-    OS_InterruptSafeLock(&OS_timer_table_mut, &mask, &previous);
-
-    timer_prop ->creator       = OS_timer_table[timer_id].creator;
-    strcpy(timer_prop-> name, OS_timer_table[timer_id].name);
-    timer_prop ->start_time    = OS_timer_table[timer_id].start_time;
-    timer_prop ->interval_time = OS_timer_table[timer_id].interval_time;
-    timer_prop ->accuracy      = OS_timer_table[timer_id].accuracy;
-    
-    OS_InterruptSafeUnlock(&OS_timer_table_mut, &previous);
 
     return OS_SUCCESS;
-    
+}
+
+/***************************************************************************************
+ *    Name: OS_TimerGetInfo
+ *
+ *    Purpose: This function will pass back a pointer to structure that contains
+ *             all of the relevant info( name and creator) about the specified timer.
+ *
+ *    Returns: OS_ERR_INVALID_ID if the id passed in is not a valid timer
+ *             OS_INVALID_POINTER if the timer_prop pointer is null
+ *             OS_SUCCESS if success
+ */
+int32 OS_TimeBaseGetInfo_Impl (uint32 timer_id, OS_timebase_prop_t *timer_prop)
+{
+    return OS_SUCCESS;
+
 } /* end OS_TimerGetInfo */
 
-/****************************************************************
- * TIME BASE API
- *
- * This is not implemented by this OSAL, so return "OS_ERR_NOT_IMPLEMENTED"
- * for all calls defined by this API.  This is necessary for forward
- * compatibility (runtime code can check for this return code and use
- * an alternative API where appropriate).
- */
+/****************************************************************************************
+                  Other Time-Related API Implementation
+ ***************************************************************************************/
 
-int32 OS_TimeBaseCreate(uint32 *timer_id, const char *timebase_name, OS_TimerSync_t external_sync)
-{
-    return OS_ERR_NOT_IMPLEMENTED;
-}
-
-int32 OS_TimeBaseSet(uint32 timer_id, uint32 start_time, uint32 interval_time)
-{
-    return OS_ERR_NOT_IMPLEMENTED;
-}
-
-int32 OS_TimeBaseDelete(uint32 timer_id)
-{
-    return OS_ERR_NOT_IMPLEMENTED;
-}
-
-int32 OS_TimeBaseGetIdByName (uint32 *timer_id, const char *timebase_name)
-{
-    return OS_ERR_NOT_IMPLEMENTED;
-}
-
-int32 OS_TimerAdd(uint32 *timer_id, const char *timer_name, uint32 timebase_id, OS_ArgCallback_t  callback_ptr, void *callback_arg)
-{
-    return OS_ERR_NOT_IMPLEMENTED;
-}
+/* POSIX implements clock_gettime and clock_settime that can be used */
+#include "../portable/os-impl-posix-gettime.c"
 

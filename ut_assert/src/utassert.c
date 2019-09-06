@@ -2,8 +2,6 @@
 **
 ** File: utassert.c
 **
-** $Id: utassert.c 1.3 2015/06/16 16:14:04EDT sstrege Exp  $
-**
 ** Copyright 2012-2013 United States Government as represented by the 
 ** Administrator of the National Aeronautics and Space Administration. 
 ** All Other Rights Reserved.  
@@ -14,14 +12,6 @@
 ** agreement.
 **
 ** Purpose: This code implements a standard set of asserts for use in unit tests.
-**
-** $Log: utassert.c  $
-** Revision 1.3 2015/06/16 16:14:04EDT sstrege 
-** Added copyright information
-** Revision 1.2 2015/03/10 15:21:43EDT czogby 
-** Add Missing Functionality to UT Assert Library
-** --- Added comments ---  czogby [2015/03/31 18:36:49Z]
-** Added a #include and a #ifdef
 **
 */
 
@@ -43,7 +33,7 @@
 UtAssert_CaseType_t DefaultContext = UTASSERT_CASETYPE_FAILURE;
 UtAssert_TestCounter_t UT_SegmentCounters = { 0 };
 UtAssert_TestCounter_t UT_TotalCounters = { 0 };
-static char CurrentSegment[32];
+static char CurrentSegment[128];
 
 /*
  * Function Definitions
@@ -72,6 +62,11 @@ void UtAssert_BeginTest(const char *SegmentName)
     UT_BSP_StartTestSegment(1 + UT_TotalCounters.TestSegmentCount, SegmentName);
 }
 
+const char *UtAssert_GetSegmentName(void)
+{
+    return CurrentSegment;
+}
+
 void UtAssert_EndTest(void)
 {
     uint32 Ct;
@@ -85,9 +80,13 @@ void UtAssert_EndTest(void)
         {
             UT_TotalCounters.CaseCount[Ct] += UT_SegmentCounters.CaseCount[Ct];
         }
+        UT_BSP_DoTestSegmentReport(CurrentSegment, &UT_SegmentCounters);
+    }
+    else
+    {
+        UT_BSP_DoText(UTASSERT_CASETYPE_END, "No test cases\n");
     }
 
-    UT_BSP_DoTestSegmentReport(CurrentSegment, &UT_SegmentCounters);
     memset(&UT_SegmentCounters, 0, sizeof (UT_SegmentCounters));
 }
 
@@ -101,12 +100,12 @@ UtAssert_CaseType_t UtAssert_GetContext(void)
     return DefaultContext;
 }
 
-osalbool UtAssert(osalbool Expression, const char *Description, const char *File, uint32 Line)
+bool UtAssert(bool Expression, const char *Description, const char *File, uint32 Line)
 {
     return UtAssertEx(Expression, UtAssert_GetContext(), File, Line, "%s", Description);
 }
 
-osalbool UtAssertEx(osalbool Expression, UtAssert_CaseType_t CaseType, const char *File, uint32 Line, const char *MessageFormat, ...)
+bool UtAssertEx(bool Expression, UtAssert_CaseType_t CaseType, const char *File, uint32 Line, const char *MessageFormat, ...)
 {
     va_list va;
     char FinalMessage[128];
@@ -140,10 +139,31 @@ void UtAssert_Abort(const char *Message)
 void UtAssert_Message(uint8 MessageType, const char *File, uint32 Line, const char *Spec, ...)
 {
     va_list va;
-    char FinalMessage[128];
+    char FinalMessage[256];
+    const char *BaseName;
+    size_t MsgLen;
+
+    if (File != NULL)
+    {
+        BaseName = strrchr(File, '/');
+        if (BaseName == NULL)
+        {
+            BaseName = File;
+        }
+        else
+        {
+            ++BaseName;
+        }
+        snprintf(FinalMessage, sizeof(FinalMessage), "%s:%u:", BaseName, (unsigned int)Line);
+        MsgLen = strlen(FinalMessage);
+    }
+    else
+    {
+        MsgLen = 0;
+    }
 
     va_start(va, Spec);
-    vsnprintf(FinalMessage, sizeof(FinalMessage), Spec, va);
+    vsnprintf(&FinalMessage[MsgLen], sizeof(FinalMessage) - MsgLen, Spec, va);
     va_end(va);
 
     UT_BSP_DoText(MessageType, FinalMessage);

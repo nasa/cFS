@@ -1,6 +1,5 @@
 /******************************************************************************
 ** File: osconfig.h
-** $Id: osconfig.h 1.2 2013/12/16 13:06:47GMT-05:00 acudmore Exp  $
 **
 ** Purpose:
 **   This header file contains the OS API  configuration parameters.
@@ -8,40 +7,6 @@
 ** Author:  A. Cudmore
 **
 ** Notes:
-**
-** $Date: 2013/12/16 13:06:47GMT-05:00 $
-** $Revision: 1.2 $
-** $Log: osconfig.h  $
-** Revision 1.2 2013/12/16 13:06:47GMT-05:00 acudmore 
-** use OS_FS_PHYS_NAME_LEN macro instead of hard-coded value
-** Revision 1.1 2013/07/19 14:04:41GMT-05:00 acudmore 
-** Initial revision
-** Member added to project c:/MKSDATA/MKS-REPOSITORY/MKS-OSAL-REPOSITORY/src/bsp/mcf5235-rtems/config/project.pj
-** Revision 1.8 2011/12/05 12:41:15GMT-05:00 acudmore 
-** Removed OS_MEM_TABLE_SIZE parameter
-** Revision 1.7 2009/07/14 14:24:53EDT acudmore 
-** Added parameter for local path size.
-** Revision 1.6 2009/07/07 14:01:02EDT acudmore 
-** Changed OS_MAX_NUM_OPEN_FILES to 50 to preserve data/telmetry space
-** Revision 1.5 2009/07/07 13:58:22EDT acudmore 
-** Added OS_STATIC_LOADER define to switch between static and dynamic loaders.
-** Revision 1.4 2009/06/04 11:43:43EDT rmcgraw 
-** DCR8290:1 Increased settings for max tasks,queues,sems and modules
-** Revision 1.3 2008/08/20 15:49:37EDT apcudmore 
-** Add OS_MAX_TIMERS parameter for Timer API
-** Revision 1.2 2008/06/20 15:17:56EDT apcudmore 
-** Added conditional define for Module Loader API configuration
-** Revision 1.1 2008/04/20 22:35:19EDT ruperera 
-** Initial revision
-** Member added to project c:/MKSDATA/MKS-REPOSITORY/MKS-OSAL-REPOSITORY/build/inc/project.pj
-** Revision 1.6 2008/02/12 13:27:59EST apcudmore 
-** New API updates:
-**   - fixed RTEMS osapi compile error
-**   - related makefile fixes
-**   - header file parameter update
-**
-** Revision 1.1 2005/06/09 10:57:58EDT rperera
-** Initial revision
 **
 ******************************************************************************/
 

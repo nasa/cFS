@@ -729,7 +729,7 @@ int32 OS_ModuleUnload(uint32 module_id)
     return 0;
 }
 
-int32 OS_close(int32  filedes)
+int32 OS_close(uint32  filedes)
 {
     return 0;
 }

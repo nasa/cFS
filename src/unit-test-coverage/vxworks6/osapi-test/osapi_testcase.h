@@ -27,7 +27,6 @@
 
 
 #define OS_INCLUDE_MODULE_LOADER
-#define OS_UTILITY_TASK_ON
 
 
 

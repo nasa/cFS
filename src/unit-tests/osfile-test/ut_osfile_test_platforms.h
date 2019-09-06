@@ -33,7 +33,7 @@
 
 #define UT_OS_COMPARE_COND_FOR_NOMINAL_GETFDINFO_MACRO              \
 if ((OS_FDGetInfo(g_fDescs[0], &fdProps) != OS_FS_SUCCESS) ||       \
-    (fdProps.IsValid != TRUE) ||                                    \
+    (fdProps.IsValid != true) ||                                    \
     (strncmp(fdProps.Path, g_fNames[0], strlen(g_fNames[0])) != 0))
 
 /*--------------------------------------------*/
@@ -51,7 +51,7 @@ if ((OS_FDGetInfo(g_fDescs[0], &fdProps) != OS_FS_SUCCESS) ||       \
 
 #define UT_OS_COMPARE_COND_FOR_NOMINAL_GETFDINFO_MACRO              \
 if ((OS_FDGetInfo(g_fDescs[0], &fdProps) != OS_FS_SUCCESS) ||       \
-    (fdProps.IsValid != TRUE) ||                                    \
+    (fdProps.IsValid != true) ||                                    \
     (strncmp(fdProps.Path, g_fNames[0], strlen(g_fNames[0])) != 0))
 
 /*--------------------------------------------*/
@@ -68,7 +68,7 @@ if ((OS_FDGetInfo(g_fDescs[0], &fdProps) != OS_FS_SUCCESS) ||       \
 
 #define UT_OS_COMPARE_COND_FOR_NOMINAL_GETFDINFO_MACRO         \
 if ((OS_FDGetInfo(g_fDescs[0], &fdProps) != OS_FS_SUCCESS) ||  \
-    (fdProps.IsValid != TRUE) ||                               \
+    (fdProps.IsValid != true) ||                               \
     (strncmp(fdProps.Path, fileName, strlen(fileName)) != 0))
 
 /*--------------------------------------------*/

@@ -1,4 +1,43 @@
 # CMake snippet for OSAL unit tests
+# 
+# NOTE:
+# This set of unit tests only includes platform support where
+# one of  OSP_ARINC653, _LINUX_OS_ or _VXWORKS_OS_ are defined.
+#
+# It does not include support for other options like _RTEMS_OS_
+# These test do not currently use the same UT assert framework
+# that the other tests use.  If/when these tests migrate to using the
+# same framework then this style of platform support via macros is
+# not necessary and other OS's like RTEMS should work.
+#
+
+
+# This first routine checks for overlap between
+# the set of supported OS type macro definitions
+# and the set of macros defined in CMAKE_C_FLAGS.
+# 
+# If no match is found then it means these tests do not
+# contain support for that platform and attempting compilation 
+# will fail.
+set(TEST_SUPPORTED_COMPILEDEF_LIST
+    -D_LINUX_OS_
+    -D_VXWORKS_OS_ 
+    -DOSP_ARINC653)
+    
+string(REGEX MATCHALL "-D([A-Z_]+)" ALL_COMPILEDEFS "${CMAKE_C_FLAGS}")
+set(OSTYPE_INDEX -1)
+foreach(DEF ${ALL_COMPILEDEFS})
+    list(FIND TEST_SUPPORTED_COMPILEDEF_LIST "${DEF}" OSTYPE_INDEX)
+    if (NOT OSTYPE_INDEX LESS 0)
+        # Matching index found - OK
+        break()
+    endif()
+endforeach()
+
+if (OSTYPE_INDEX LESS 0)
+    message(STATUS "Extended tests do not support ${OSAL_SYSTEM_OSTYPE}, skipping build")
+    return()
+endif()
 
 enable_testing()
 

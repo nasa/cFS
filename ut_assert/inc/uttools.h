@@ -2,8 +2,6 @@
 **
 ** File: uttools.h
 **
-** $Id: uttools.h 1.4 2015/06/16 16:02:15EDT sstrege Exp  $
-**
 ** Copyright 2012-2013 United States Government as represented by the 
 ** Administrator of the National Aeronautics and Space Administration. 
 ** All Other Rights Reserved.  
@@ -15,14 +13,6 @@
 **
 ** Purpose: This file contains functions to implement a set of tools for use in unit testing.
 **
-** $Log: uttools.h  $
-** Revision 1.4 2015/06/16 16:02:15EDT sstrege 
-** Added copyright information
-** Revision 1.3 2015/03/10 15:19:30EDT czogby 
-** Add Missing Functionality to UT Assert Library
-** --- Added comments ---  czogby [2015/03/31 18:03:04Z]
-** No source code changes were made in this revision.
-**
 */
 
 #ifndef _uttools_
@@ -33,13 +23,7 @@
  */
 
 #include "common_types.h"
-
-/*
- * Macro Definitions
- */
-#ifdef DEPRECATED
-#define             UtMemSet memset
-#endif
+#include "utassert.h"
 
 /*
  * Exported Functions
@@ -47,13 +31,13 @@
 
 /* Copies a region of memory to a binary file.  This file can be reloaded by calling UtBinFile2Mem or it can be
  * used to verify test results by calling UtMem2BinFileCmp. */
-boolean             UtMem2BinFile(const void *Memory, const char *Filename, uint32 Length);
+bool             UtMem2BinFile(const void *Memory, const char *Filename, uint32 Length);
 
 /* Copies a binary file to a region of memory. */
-boolean             UtBinFile2Mem(void *Memory, const char *Filename, uint32 Length);
+bool             UtBinFile2Mem(void *Memory, const char *Filename, uint32 Length);
 
 /* Copies a region of memory to a hex file */
-boolean             UtMem2HexFile(const void *Memory, const char *Filename, uint32 Length);
+bool             UtMem2HexFile(const void *Memory, const char *Filename, uint32 Length);
 
 /* Fills a region of memory with a byte count pattern. */
 void                UtMemFill(void *Memory, uint32 Length);
@@ -67,15 +51,15 @@ void                UtPrintx(const void *Memory, uint32 Length);
 
 /* Compares a region of memory to a static pattern and determines if they are equal.  Note: Use UtMemSet to
  * fill a region of memory with a static pattern. */
-boolean             UtMemCmpValue(const void *Memory, uint8 Value, uint32 Length);
+bool             UtMemCmpValue(const void *Memory, uint8 Value, uint32 Length);
 
 /* Compares a region of memory to a byte count pattern and determines if they are equal.  Note: Use UtMemFill to
  * fill a region of memory with a byte count pattern. */
-boolean             UtMemCmpCount(const void *Memory, uint32 Length);
+bool             UtMemCmpCount(const void *Memory, uint32 Length);
 
 /* Compares a region of memory with the contents of a binary file and determines if they are equal.  Note: Use
  * UtMem2BinFile to copy a region of memory to a binary file. */
-boolean             UtMem2BinFileCmp(const void *Memory, const char *Filename);
+bool             UtMem2BinFileCmp(const void *Memory, const char *Filename);
 
 
 /* Macros to implement simple printf-like functions for unit testing */

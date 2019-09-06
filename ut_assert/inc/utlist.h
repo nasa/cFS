@@ -2,8 +2,6 @@
 **
 ** File: utlist.h
 **
-** $Id: utlist.h 1.3 2015/06/16 16:02:15EDT sstrege Exp  $
-**
 ** Copyright 2012-2013 United States Government as represented by the 
 ** Administrator of the National Aeronautics and Space Administration. 
 ** All Other Rights Reserved.  
@@ -14,14 +12,6 @@
 ** agreement.
 **
 ** Purpose: This file contains functions to implement a generic linked list data structure.
-**
-** $Log: utlist.h  $
-** Revision 1.3 2015/06/16 16:02:15EDT sstrege 
-** Added copyright information
-** Revision 1.2 2015/03/10 15:19:30EDT czogby 
-** Add Missing Functionality to UT Assert Library
-** --- Added comments ---  czogby [2015/03/31 18:02:36Z]
-** No source code changes were made in this revision.
 **
 */
 
@@ -120,8 +110,8 @@ UtListNode_t               *UtList_First(UtListHead_t *ListHead);
 /* Returns a pointer to the last node on the list.  This is the same as (UtListHead->Last). */
 UtListNode_t               *UtList_Last(UtListHead_t *ListHead);
 
-/* Returns TRUE if the list is empty.  This is the same as (UtListHead->NumberOfEntries == 0). */
-boolean                     UtList_IsEmpty(UtListHead_t *ListHead);
+/* Returns true if the list is empty.  This is the same as (UtListHead->NumberOfEntries == 0). */
+bool                     UtList_IsEmpty(UtListHead_t *ListHead);
 
 /* Returns the number of nodes on the list.  This is the same as (UtListHead->NumberOfEntries). */
 uint32                      UtList_Depth(UtListHead_t *ListHead);

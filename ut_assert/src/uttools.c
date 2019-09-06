@@ -2,8 +2,6 @@
 **
 ** File: uttools.c
 **
-** $Id: uttools.c 1.5 2015/06/16 16:14:05EDT sstrege Exp  $
-**
 ** Copyright 2012-2013 United States Government as represented by the 
 ** Administrator of the National Aeronautics and Space Administration. 
 ** All Other Rights Reserved.  
@@ -14,16 +12,6 @@
 ** agreement.
 **
 ** Purpose: This file contains functions to implement a set of tools for use in unit testing.
-**
-** $Log: uttools.c  $
-** Revision 1.5 2015/06/16 16:14:05EDT sstrege 
-** Added copyright information
-** Revision 1.4 2015/05/01 14:54:02EDT czogby 
-** Add UtAssert fail where error messages
-** Revision 1.3 2015/03/10 15:21:44EDT czogby 
-** Add Missing Functionality to UT Assert Library
-** --- Added comments ---  czogby [2015/03/31 18:37:45Z]
-** No updates were made to this source code in this revision
 **
 */
 
@@ -56,34 +44,34 @@ typedef struct
  * Function Definitions
  */
 
-osalbool UtMem2BinFile(const void *Memory, const char *Filename, uint32 Length)
+bool UtMem2BinFile(const void *Memory, const char *Filename, uint32 Length)
 {
     FILE   *fp;
 
     if ((fp = fopen(Filename, "w"))) {
         fwrite(Memory, Length, 1, fp);
         fclose(fp);
-        return(TRUE);
+        return(true);
     }
     else
     {
         printf("UtMem2BinFile: Error Opening File: %s, %s\n", Filename, strerror(errno));
-        UtAssert_True(FALSE, "UtMem2BinFile: Error Opening File");
-        return(FALSE);
+        UtAssert_True(false, "UtMem2BinFile: Error Opening File");
+        return(false);
     }
 }
 
-osalbool UtBinFile2Mem(void *Memory, const char *Filename, uint32 Length)
+bool UtBinFile2Mem(void *Memory, const char *Filename, uint32 Length)
 {
     FILE   *fp;
-    osalbool Success;
+    bool Success;
 
-    Success = FALSE;
+    Success = false;
     if ((fp = fopen(Filename, "r")))
     {
         if (fread(Memory, Length, 1, fp) == 1)
         {
-            Success = TRUE;
+            Success = true;
         }
         fclose(fp);
     }
@@ -95,7 +83,7 @@ osalbool UtBinFile2Mem(void *Memory, const char *Filename, uint32 Length)
     return(Success);
 }
 
-osalbool UtMem2HexFile(const void *Memory, const char *Filename, uint32 Length)
+bool UtMem2HexFile(const void *Memory, const char *Filename, uint32 Length)
 {
     FILE        *fp;
     uint32       i;
@@ -119,12 +107,12 @@ osalbool UtMem2HexFile(const void *Memory, const char *Filename, uint32 Length)
             fprintf(fp, "\n");
         }
         fclose(fp);
-        return(TRUE);
+        return(true);
     }
     else {
         printf("UtMem2HexFile: Error Opening File: %s, %s\n", Filename, strerror(errno));
-        UtAssert_True(FALSE, "UtMem2HexFile: Error Opening File");
-        return(FALSE);
+        UtAssert_True(false, "UtMem2HexFile: Error Opening File");
+        return(false);
     }
 }
 
@@ -186,46 +174,46 @@ void UtPrintx(const void *Memory, uint32 Length)
     }
 }
 
-osalbool UtMemCmpValue(const void *Memory, uint8 Value, uint32 Length)
+bool UtMemCmpValue(const void *Memory, uint8 Value, uint32 Length)
 {
     uint32 i;
     const uint8  *Byte_ptr = Memory;
 
     for (i=0; i < Length; i++) {
         if (Byte_ptr[i] != Value) {
-            return(FALSE);
+            return(false);
         }
     }
-    return (TRUE);
+    return (true);
 }
 
-osalbool UtMemCmpCount(const void *Memory, uint32 Length)
+bool UtMemCmpCount(const void *Memory, uint32 Length)
 {
     uint32 i;
     const uint8  *Byte_ptr = Memory;
 
     for (i=0; i < Length; i++) {
         if (Byte_ptr[i] != (i & 0xFF)) {
-           return(FALSE);
+           return(false);
         }
     }
-    return (TRUE);
+    return (true);
 }
 
-osalbool UtMem2BinFileCmp(const void *Memory, const char *Filename)
+bool UtMem2BinFileCmp(const void *Memory, const char *Filename)
 {
     FILE   *fp;
     const uint8  *MemByte = Memory;
     int     FileByte;
-    osalbool Success;
+    bool Success;
     uint32  i;
 
-    Success = TRUE;
+    Success = true;
     if ((fp = fopen(Filename, "r"))) {
 
         for (i=0; (FileByte = fgetc(fp)) != EOF; i++) {
             if (MemByte[i] != FileByte) {
-                Success = FALSE;
+                Success = false;
                 printf("UtMem2BinFileCmp: Miscompare in file: %s, byte offset: %lu, expected: %u, found: %u\n", Filename, (unsigned long)i, (unsigned int)MemByte[i], (unsigned int)FileByte);
                 break;
             }            
@@ -233,9 +221,9 @@ osalbool UtMem2BinFileCmp(const void *Memory, const char *Filename)
         fclose(fp);
     }
     else {
-        Success = FALSE;
+        Success = false;
         printf("UtMem2BinFileCmp: Error Opening File: %s, %s\n", Filename, strerror(errno));
-        UtAssert_True(FALSE, "UtMem2BinFileCmp: Error Opening File");
+        UtAssert_True(false, "UtMem2BinFileCmp: Error Opening File");
     }
 
     return(Success);

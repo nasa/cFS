@@ -61,7 +61,7 @@ void TestSymbolApi(void)
 
 #else
    /* If the module loader is not present, generate an N/A test case just to indicate that the test ran */
-   UtAssert_True(status == OS_SUCCESS, "Module loader not present");
+   UtAssert_True(1, "Module loader not present");
 #endif
 } /* end TestSymbolApi */
 

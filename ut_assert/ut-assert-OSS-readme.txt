@@ -63,7 +63,7 @@ users which increases its complexity and obscures the basic functionality requir
 the FSRL unit tests. For example, cunit supports the generation of XML reports which 
 is not seen as a valuable feature for the FSRL. In addition, little effort is required 
 to implement and maintain the unit test framework. Therefore by developing our own 
-unit test framework we have complete control over the framework’s features, complexity,
+unit test framework we have complete control over the framework's features, complexity,
 and growth path. We also do not rely on an outside party to implement enhancements 
 and/or bug fixes.
 

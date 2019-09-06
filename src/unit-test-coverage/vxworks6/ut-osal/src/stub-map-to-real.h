@@ -217,5 +217,6 @@
 #define strncat                  VCS_strncat
 #define strncmp                  VCS_strncmp
 #define snprintf                 VCS_snprintf
+#define logMsg                   VCS_logMsg
 
 #endif /* STUB_MAP_TO_REAL_H_ */

@@ -63,11 +63,6 @@ void TestMkfsMount(void)
 
     status = OS_mount("/ramdev0","/drive0");
     UtAssert_True(status == OS_SUCCESS, "status after mount = %d",(int)status);
-
-#if 0
-    status = OS_mkfs(0,"/eedev1","RAM",512,200);
-    UtAssert_True(status == OS_SUCCESS, "status after mkfs = %d",(int)status);
-#endif
 }
 
 void TestUnmountRemount(void)
@@ -361,8 +356,10 @@ void TestMkRmDirFreeBytes(void)
     strcpy(buffer2,"222222222222");
     strcpy(copybuffer2,buffer2);
    
+    /* NOTE: The blocks free call is not necessarily implemented on all filesystems.
+     * So the response of OS_ERR_NOT_IMPLEMENTED is acceptable. */
     status = OS_fsBlocksFree("/drive0");
-    UtAssert_True(status >= OS_SUCCESS, "Checking Free Blocks: %d",(int)status);
+    UtAssert_True(status == OS_ERR_NOT_IMPLEMENTED || status >= OS_SUCCESS, "Checking Free Blocks: %d",(int)status);
 
     /* make the two directories */
     status = OS_mkdir(dir1,0);
@@ -402,7 +399,7 @@ void TestMkRmDirFreeBytes(void)
     memset(buffer1, 0, sizeof(buffer1));
     memset(buffer2, 0, sizeof(buffer2));
     status = OS_fsBlocksFree("/drive0");
-    UtAssert_True(status >= OS_SUCCESS, "Checking Free Blocks: %d",(int)status);
+    UtAssert_True(status == OS_ERR_NOT_IMPLEMENTED || status >= OS_SUCCESS, "Checking Free Blocks: %d",(int)status);
 
     /* read back out of the files what we wrote into them */
     size = strlen(copybuffer1);
@@ -444,7 +441,7 @@ void TestMkRmDirFreeBytes(void)
     UtAssert_True(status == OS_SUCCESS, "status after rmdir 2 = %d",(int)status);
 
     status = OS_fsBlocksFree("/drive0");
-    UtAssert_True(status >= OS_SUCCESS, "Checking Free Blocks: %d",(int)status);
+    UtAssert_True(status == OS_ERR_NOT_IMPLEMENTED || status >= OS_SUCCESS, "Checking Free Blocks: %d",(int)status);
 }
 /*---------------------------------------------------------------------------------------
  * Name TestOpenReadCloseDir();
@@ -462,12 +459,12 @@ void TestOpenReadCloseDir(void)
     int size;
     int fd1;
     int fd2;
+#if !defined(OSAL_OMIT_DEPRECATED)
     os_dirp_t     dirp0;
-    os_dirp_t     dirp1;
-    os_dirp_t     dirp2;
     os_dirent_t   *dirent_ptr0;
-    os_dirent_t   *dirent_ptr1;
-    os_dirent_t   *dirent_ptr2;
+#endif
+    uint32 dirh;
+    os_dirent_t dirent;
     
     /* make the directory names for testing, as well as the filenames and the buffers
      * to put in the files */
@@ -522,51 +519,71 @@ void TestOpenReadCloseDir(void)
     
     
     /* try to open the base directory "/" */
+    /* New version of test 1 - uses full abstraction API */
 
-    dirp0 = OS_opendir(dir0);
-    UtAssert_True(dirp0 != NULL, "OS_opendir not null");
-
+    status = OS_DirectoryOpen(&dirh, dir0);
+    UtAssert_True(status >= OS_SUCCESS, "OS_DirectoryOpen Id=%u Rc=%d",(unsigned int)dirh,(int)status);
+    
     /* try to read the two folders that are in the "/" */
     /* Have to make it a loop to see if we can find the directories in question */
-
-    dirent_ptr0 = OS_readdir (dirp0);
-    while (dirent_ptr0 != NULL)
+    while (true)
     {
-        if ( strncmp(dirent_ptr0 -> d_name,"DIRECTORY_ONE",strlen("DIRECTORY_ONE")) == 0)
+        status = OS_DirectoryRead (dirh, &dirent);
+        UtAssert_True(status == OS_SUCCESS, "OS_DirectoryRead Rc=%d Name=%s",(int)status, OS_DIRENTRY_NAME(dirent));
+        if (status != OS_SUCCESS)
+        {
+           break;
+        }
+
+        if ( strcmp(OS_DIRENTRY_NAME(dirent),"DIRECTORY_ONE") == 0 )
         {
             break;
         }
-        else
-            dirent_ptr0 = OS_readdir(dirp0);
     }
 
-    UtAssert_True(dirent_ptr0 != NULL, "DIRECTORY_ONE found");
+    UtAssert_True(status == OS_SUCCESS, "DIRECTORY_ONE found");
 
-    status = OS_closedir(dirp0);
-    UtAssert_True(status >= OS_SUCCESS, "OS_closedir Rc=%d",(int)status);
-
-    dirp0 = OS_opendir(dir0);
-    UtAssert_True(dirp0 != NULL, "OS_opendir not null");
-
-    dirent_ptr0 = OS_readdir (dirp0);
-    while (dirent_ptr0 != NULL)
+    /* Advance to end of dir */
+    while (status == OS_FS_SUCCESS)
     {
-        if ( strncmp(dirent_ptr0 -> d_name,"directory_two",strlen("directory_two")) == 0)
-        {
-            break;
-        }
-        else
-            dirent_ptr0 = OS_readdir(dirp0);
+       status = OS_DirectoryRead(dirh, &dirent);
     }
 
-    UtAssert_True(dirent_ptr0 != NULL, "directory_two found");
-
-    status = OS_closedir(dirp0);
-    UtAssert_True(status >= OS_SUCCESS, "OS_closedir Rc=%d",(int)status);
-
+    status = OS_DirectoryClose(dirh);
+    UtAssert_True(status >= OS_SUCCESS, "OS_DirectoryClose Rc=%d",(int)status);
     
-    /* try and read a nonexisitant 3rd directory */ 
+    /* New version of test 2 - uses full abstraction API */
+
+    status = OS_DirectoryOpen(&dirh, dir0);
+    UtAssert_True(status >= OS_SUCCESS, "OS_DirectoryOpen Id=%u Rc=%d",(unsigned int)dirh,(int)status);
+
+    while (true)
+    {
+       status = OS_DirectoryRead (dirh, &dirent);
+       UtAssert_True(status == OS_SUCCESS, "OS_DirectoryRead Rc=%d Name=%s",(int)status, OS_DIRENTRY_NAME(dirent));
+       if (status != OS_SUCCESS)
+       {
+          break;
+       }
+
+       if ( strcmp(OS_DIRENTRY_NAME(dirent),"directory_two") == 0)
+       {
+           break;
+       }
+    }
+
+    UtAssert_True(status == OS_SUCCESS, "directory_two found");
+
+    status = OS_DirectoryClose(dirh);
+    UtAssert_True(status >= OS_SUCCESS, "OS_DirectoryClose Rc=%d",(int)status);
+
         
+    /* use the deprecated API to read again (replaces test 3) */
+    /*
+     * Note the only test really does is to call readdir() until it returns NULL,
+     * this is already done in test 1 when using the abstraction API
+     */
+#if !defined(OSAL_OMIT_DEPRECATED)
     dirp0 = OS_opendir(dir0);
     UtAssert_True(dirp0 != NULL, "OS_opendir not null");
 
@@ -580,52 +597,73 @@ void TestOpenReadCloseDir(void)
     status = OS_closedir(dirp0);
     UtAssert_True(status >= OS_SUCCESS, "OS_closedir Rc=%d",(int)status);
 
+#endif /* !defined(OSAL_OMIT_DEPRECATED) */
+
     /* Now test the open/ read close for one of the sub directories */
     
-    dirp1 = OS_opendir(dir1);
-    UtAssert_True(dirp1 != NULL, "OS_opendir not null");
-
+    /* New version of test 4 - uses full abstraction API */
+    status = OS_DirectoryOpen(&dirh, dir1);
+    UtAssert_True(status >= OS_SUCCESS, "OS_DirectoryOpen Id=%u Rc=%d",(unsigned int)dirh,(int)status);
+    
+   
     /* try to read the next file within the first directory "MyFile1" */
-    dirent_ptr1 = OS_readdir (dirp1);
-    while (dirent_ptr1 != NULL)
+    while (true)
     {
-        if ( strncmp(dirent_ptr1 -> d_name,"MyFile1",strlen("MyFile1")) == 0)
-        {
-            break;
-        }
-        else
-            dirent_ptr1 = OS_readdir(dirp1);
-    }
+       status = OS_DirectoryRead (dirh, &dirent);
+       UtAssert_True(status == OS_SUCCESS, "OS_DirectoryRead Rc=%d Name=%s",(int)status, OS_DIRENTRY_NAME(dirent));
+       if (status != OS_SUCCESS)
+       {
+          break;
+       }
 
-    UtAssert_True(dirent_ptr1 != NULL, "MyFile1 found");
+       if ( strcmp(OS_DIRENTRY_NAME(dirent),"MyFile1") == 0)
+       {
+          break;
+       }
+    }
+    
+    UtAssert_True(status == OS_SUCCESS, "MyFile1 found");
 
     /* Close the file */
+    
+    status = OS_DirectoryClose(dirh);
+    UtAssert_True(status >= OS_SUCCESS, "OS_DirectoryClose Rc=%d",(int)status);
 
-    status = OS_closedir(dirp1);
-    UtAssert_True(status >= OS_SUCCESS, "OS_closedir Rc=%d",(int)status);
-
-    dirp2 = OS_opendir(dir2);
-    UtAssert_True(dirp2 != NULL, "OS_opendir not null");
-
+    /* New version of test 5 - uses full abstraction API */
+    status = OS_DirectoryOpen(&dirh, dir2);
+    UtAssert_True(status >= OS_SUCCESS, "OS_DirectoryOpen Id=%u Rc=%d",(unsigned int)dirh,(int)status);
+ 
     /* try to read the next file within the first directory "MyFile2" */
-
-    dirent_ptr2 = OS_readdir (dirp2);
-    while (dirent_ptr2 != NULL)
+    while (true)
     {
-        if ( strncmp(dirent_ptr2 -> d_name,"MyFile2",strlen("MyFile2")) == 0)
+        status = OS_DirectoryRead (dirh, &dirent);
+        UtAssert_True(status == OS_SUCCESS, "OS_DirectoryRead Rc=%d Name=%s",(int)status, OS_DIRENTRY_NAME(dirent));
+        if (status != OS_SUCCESS)
         {
             break;
         }
-        else
-            dirent_ptr2 = OS_readdir(dirp2);
+
+        if ( strcmp(OS_DIRENTRY_NAME(dirent),"MyFile2") == 0)
+        {
+            break;
+        }
     }
 
-    UtAssert_True(dirent_ptr2 != NULL, "MyFile2 found");
+    UtAssert_True(status == OS_SUCCESS, "MyFile2 found");
 
     /*Close the file */
+    status = OS_DirectoryClose(dirh);
+    UtAssert_True(status >= OS_SUCCESS, "OS_DirectoryClose Rc=%d",(int)status);
 
-    status = OS_closedir(dirp2);
-    UtAssert_True(status >= OS_SUCCESS, "OS_closedir Rc=%d",(int)status);
+    /* Test case for bug #181 - make sure that a directory used as a mount point
+     * is able to be opened.  This should not require a trailing
+     * slash (i.e. /cf rather than /cf/) */
+    status = OS_DirectoryOpen(&dirh, "/cf");
+    UtAssert_True(status >= OS_SUCCESS, "OS_DirectoryOpen /cf Id=%u Rc=%d",(unsigned int)dirh,(int)status);
+
+    /*Close the file */
+    status = OS_DirectoryClose(dirh);
+    UtAssert_True(status >= OS_SUCCESS, "OS_DirectoryClose /cf Rc=%d",(int)status);
 
 /* remove the files */
     status = OS_remove(filename1);

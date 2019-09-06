@@ -41,6 +41,20 @@
  * Functions implemented by the UT-specific BSP
  **************************************************************/
 
+/**
+ * Gets the number of additional user-supplied options
+ *
+ * For instance, this would be command line parameters on platforms that have a command line.
+ */
+int32 UT_BSP_GetTotalOptions(void);
+
+/**
+ * Gets the text string associated with a specific user-supplied option
+ *
+ * For instance, this would be command line parameters on platforms that have a command line.
+ */
+const char * UT_BSP_GetOptionString(int32 OptionNum);
+
 /*
  * Note - functions here are not typically directly called by UT code, they
  * are used by the framework to implement the common functions.

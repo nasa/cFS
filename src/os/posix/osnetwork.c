@@ -1,112 +1,98 @@
 /*
-** File   : osnetwork.c
-**
-**      Copyright (c) 2004-2006, United States government as represented by the 
-**      administrator of the National Aeronautics Space Administration.  
-**      All rights reserved. This software was created at NASAs Goddard 
-**      Space Flight Center pursuant to government contracts.
-**
-**      This is governed by the NASA Open Source Agreement and may be used, 
-**      distributed and modified only pursuant to the terms of that agreement.
-**
-** Author : Nicholas Yanchik
-**
-** Purpose: This file contains the network functionality for the osapi.
-*/
+ *      Copyright (c) 2018, United States government as represented by the
+ *      administrator of the National Aeronautics Space Administration.
+ *      All rights reserved. This software was created at NASA Glenn
+ *      Research Center pursuant to government contracts.
+ *
+ *      This is governed by the NASA Open Source Agreement and may be used,
+ *      distributed and modified only according to the terms of that agreement.
+ */
+
+/**
+ * \file   osnetwork.c
+ * \author joseph.p.hickey@nasa.gov
+ *
+ * Purpose: This file contains the network functionality for the osapi.
+ */
 
 /****************************************************************************************
                                     INCLUDE FILES
-****************************************************************************************/
+ ***************************************************************************************/
 
-#include "stdio.h"
-#include "unistd.h"
-#include "stdlib.h"
+#include "os-posix.h"
 
-#include "common_types.h"
-#include "osapi.h"
+/*
+ * FIXME: this belongs in the osconfig.h file, really.
+ */
+#define OS_NETWORK_SUPPORTS_IPV6
 
+#include <fcntl.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/select.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
+
+
+
+#ifdef OS_INCLUDE_NETWORK
+
+
+/*
+ * Leverage the POSIX-style File I/O as this will mostly work on RTEMS,
+ * with the exception that regular files cannot be passed to select(),
+ * which means that we should NOT set the O_NONBLOCK flag on filehandles
+ * like the standard POSIX OSAL does.
+ */
+const int OS_IMPL_SOCKET_FLAGS = O_NONBLOCK;
+
+/****************************************************************************************
+                                     COMMON ROUTINES
+ After including the OS/C-library specific include files, the basic UNIX file API is used
+ ****************************************************************************************/
+
+/*
+ * The "bsd-socket" portable block includes the generic
+ * bsd-style network operations
+ */
+#include "../portable/os-impl-bsd-sockets.c"
 
 
 /****************************************************************************************
-                                     DEFINES
-****************************************************************************************/
+                         IMPLEMENTATION-SPECIFIC ROUTINES
+             These are specific to this particular operating system
+ ****************************************************************************************/
 
-
-
-/****************************************************************************************
-                                   GLOBAL DATA
-****************************************************************************************/
-
-
-/****************************************************************************************
-                                INITIALIZATION FUNCTION
-****************************************************************************************/
-
-
-/****************************************************************************************
-                                    Network API
-****************************************************************************************/
 /*--------------------------------------------------------------------------------------
     Name: OS_NetworkGetID
-    
-    Purpose: Get the Host ID from Networking
 
-    Returns: OS_ERROR if the  host id could not be found
-             an opaque 32 bit host id if success (NOT AN IPv4 ADDRESS).
+    Purpose: Gets the ID of the current Network
 
-    WARNING: OS_NetworkGetID is currently [[deprecated]] as its behavior is
-             unknown and not consistent across operating systems.
-
+    NOTE: This is included here outside the portable bsd socket block
+    because even though it is a BSD-defined function, it is a historical one
+    and not all BSD socket implementations actually have it.
 ---------------------------------------------------------------------------------------*/
-int32 OS_NetworkGetID             (void)
+int32 OS_NetworkGetID_Impl             (int32 *IdBuf)
 {
-  int    host_id;
+    /* BSD-style gethostid() has no failure modes */
+    *IdBuf = gethostid();
+    return OS_SUCCESS;
+}
 
-   host_id = gethostid();
-   if (host_id == -1)
-       return OS_ERROR;
-   
-    return (host_id);
-    
-}/* end OS_NetworkGetID */
-/*--------------------------------------------------------------------------------------
-    Name: OS_NetworkGetHostName
-    
-    Purpose: Gets the name of the current host
+#else       /* OS_INCLUDE_NETWORK */
 
-    Returns: OS_ERROR if the  host name could not be found
-             OS_SUCCESS if the name was copied to host_name successfully
----------------------------------------------------------------------------------------*/
 
-int32 OS_NetworkGetHostName       (char *host_name, uint32 name_len)
-{
-   int    retval;
-   uint32 return_code;
-   
-   if ( host_name == NULL)
-   {
-      return_code = OS_INVALID_POINTER;
-   }
-   else if ( name_len == 0 )
-   {
-      return_code = OS_ERROR;
-   }
-   else
-   {
-      retval = gethostname( host_name, name_len);
-      if ( retval == -1 )
-      {
-      
-         return_code = OS_ERROR;
-      }
-      else
-      {
-         return_code = OS_SUCCESS;
-      }
-   }
+/****************************************************************************************
+                         NOT IMPLEMENTED OPTION
+            This block provides stubs in case this module is disabled by config
+ ****************************************************************************************/
 
-   return(return_code);
-}/* end OS_NetworkGetHostName */
+/*
+ * The "no-network" block includes the required API calls
+ * that all return OS_ERR_NOT_IMPLEMENTED
+ */
+#include "../portable/os-impl-no-network.c"
 
+#endif
 
 
