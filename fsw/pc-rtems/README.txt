@@ -23,20 +23,28 @@ Steps 1 & 5 may require root access.  Everything else should be done as regular 
 
 1) install RTEMS toolchain for i386-rtems4.11 (or relevant target arch) into /opt/rtems-4.11
 
-The RTEMS official docs have instructions for this.
+The RTEMS official docs have instructions for this, which should supercede anything here.
+
+Basic use of the the "rtems source builder" tool which works at the time of this writing:
+OFFICIAL RTEMS SOURCE BUILDER CLONE URL: git://git.rtems.org/rtems-source-builder.git
+
+
+sudo mkdir -p /opt/rtems-4.11
+git clone git://git.rtems.org/rtems-source-builder.git
+cd rtems-source-builder/rtems
+git checkout 4.11.2
+../source-builder/sb-set-builder --prefix=/opt/rtems-4.11 4.11/rtems-i386
 
 
 2) Clone/Bootstrap RTEMS source tree:
 
-Note - This is assuming running the newest "development" RTEMS version which, as of this writing,
-seems to be something of a moving target.  Depending on when the clone is done it may work perfectly
-or may not even compile.  FWIW, Git revision "52f8e90" seems to work OK as a point of reference.
-It may be worthwhile to try using the 4.10.2 tag -- this may be more stable, but I have not used
-this with the pc-rtems BSP yet.
+Note - at the time of this writing 4.11 is the current "stable" branch and
+4.11.2 represents the latest point release tag on that branch.  The bleeding
+edge "development" branch tends to change on a frequent basis.
 
-OFFICIAL RTEMS CLONE URL: git://git.rtems.org/rtems
+OFFICIAL RTEMS CLONE URL: git://git.rtems.org/rtems.git
 
-$ git clone <rtems-source-url>
+$ git clone -b 4.11.2 git://git.rtems.org/rtems.git
 $ export PATH=/opt/rtems-4.11/bin:$PATH
 $ (cd rtems && ./bootstrap)
 
@@ -48,32 +56,56 @@ The "prefix" can be whatever location is preferable for installation.
 
 $ mkdir b-pc686
 $ cd b-pc686
-$ ../rtems/configure --target=i386-rtems4.11 --enable-rtemsbsp=pc686 --prefix=${HOME}/rtems-4.11
+$ ../rtems/configure --target=i386-rtems4.11 \
+    --enable-rtemsbsp=pc686 \
+    --prefix=${HOME}/rtems-4.11 \
+    --enable-networking \
+    --enable-cxx \
+    --disable-posix \
+    --disable-deprecated \
+    BSP_ENABLE_VGA=0 \
+    CLOCK_DRIVER_USE_TSC=1 \
+    USE_COM1_AS_CONSOLE=1 \
+    BSP_PRESS_KEY_FOR_RESET=0 \
+    BSP_RESET_BOARD_AT_EXIT=1    
 $ make
 $ make install
 $ cd ..
 
 
-4) Install cexp-2.2 (dynamic module loader library)
+4) Install cexp-2.2.x (dynamic module loader library)
 
 This is necessary to get the module loader to compile and work.
 
 Ref page: http://www.slac.stanford.edu/~strauman/rtems/cexp/index.html
-Tarball: http://www.slac.stanford.edu/~strauman/rtems/cexp/cexp-2.2.tgz
+Tarball: http://www.slac.stanford.edu/~strauman/rtems/cexp/cexp-2.2.3.tgz
 
-$ tar zxvf cexp-2.2.tgz
+NOTE: As of 2017-10-26 the code is also now on github, but the git version appears to be
+missing files and I was not able to get it to compile. 
+git clone -b CEXP_Release_2_2_3 https://github.com/till-s/cexpsh.git
+
 $ mkdir b-cexp
 $ cd b-cexp
-$ ../cexp-CEXP_Release_2_2/configure --with-rtems-top=${HOME}/rtems-4.11 --host=i386-rtems4.11 --enable-std-rtems-installdirs
+$ ../cexp-CEXP_Release_2_2_3/configure --with-rtems-top=${HOME}/rtems-4.11 --host=i386-rtems4.11 --enable-std-rtems-installdirs
 $ make
 $ make install
 $ cd ..
 
+NOTE: using 2.2.3 against the latest rtems-4.11 produce a compile error regarding dereferencing incomplete types.
+This appears to be due to #define XOPEN_SOURCE 500 on cexplock.c.  Remove this and it compiled.
 
-5) install RTEMS build module for CMake
+
+5) RTEMS build module for CMake
 
 This tells CMake how to build basic binaries for RTEMS - it does not know how to do this
-"out of the box" on a stock install.  
+"out of the box" on a stock install.
+
+An "RTEMS.cmake" module is now directly included here with the PSP and can be directly 
+used by the build system so long as it is included in the CMAKE_MODULE_PATH.  Add a line
+like this if not already present (prior to the "project()" function):
+
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/../psp/cmake/Modules" ${CMAKE_MODULE_PATH})
+
 
 >>> IMPORTANT: Any code compiled with "-fPIC" will seriously confuse Cexp!! <<<
 
@@ -83,52 +115,11 @@ is just a simple relocatable object that it loads.
 
 The "CMAKE_C_COMPILE_OPTIONS_PIC" is actually set to _not_ use -fPIC for this reason. 
 
-====== START OF EXAMPLE RTEMS CMAKE PLATFORM MODULE: CUT HERE ===========
-
-# CMAKE variables for compiling for RTEMS
-
-set(CMAKE_DL_LIBS "")
-
-# Note - RTEMS does not support shared libraries natively.
-# This creates a simple relocatable object file that can be loaded via cexp
-set(CMAKE_SHARED_LIBRARY_C_FLAGS "")
-set(CMAKE_SHARED_LIBRARY_CXX_FLAGS "")
-set(CMAKE_SHARED_MODULE_C_FLAGS "")
-set(CMAKE_SHARED_MODULE_CXX_FLAGS "")
-set(CMAKE_SHARED_MODULE_SUFFIX ".o")
-set(CMAKE_C_CREATE_SHARED_MODULE "<CMAKE_LINKER> <LINK_FLAGS> -o <TARGET> -r <OBJECTS> <LINK_LIBRARIES>")
-set(CMAKE_CXX_CREATE_SHARED_MODULE ${CMAKE_C_CREATE_SHARED_MODULE})
-set(CMAKE_C_CREATE_SHARED_LIBRARY ${CMAKE_C_CREATE_SHARED_MODULE})
-set(CMAKE_CXX_CREATE_SHARED_LIBRARY ${CMAKE_C_CREATE_SHARED_MODULE})
-
-# Note that CEXP is not a shared library loader - it will not support code compiled with -fPIC
-# Also exception handling is very iffy.  These two options disable eh_frame creation.
-set(CMAKE_C_COMPILE_OPTIONS_PIC -fno-exceptions -fno-asynchronous-unwind-tables)
-
-# The RTEMS_C_FLAGS flags need to be added onto all RTEMS gcc commands
-set(RTEMS_C_FLAGS "--pipe -specs bsp_specs -qrtems")
-set(CMAKE_EXECUTABLE_SUFFIX ".exe")
-set (CMAKE_EXE_LINKER_FLAGS_INIT  "-Wl,-Ttext,0x00100000 -u Init")
-set(CMAKE_C_LINK_EXECUTABLE "<CMAKE_C_COMPILER> <FLAGS> <CMAKE_C_LINK_FLAGS> <LINK_FLAGS> ${RTEMS_C_FLAGS} -o <TARGET> <OBJECTS> <LINK_LIBRARIES>")
-set(CMAKE_CXX_LINK_EXECUTABLE "<CMAKE_CXX_COMPILER> <FLAGS> <CMAKE_CXX_LINK_FLAGS> <LINK_FLAGS> ${RTEMS_C_FLAGS} -o <TARGET> <OBJECTS> <LINK_LIBRARIES>")
-set(CMAKE_C_COMPILE_OBJECT "<CMAKE_C_COMPILER> <DEFINES> <FLAGS> ${RTEMS_C_FLAGS} -o <OBJECT> -c <SOURCE>")
-set(CMAKE_CXX_COMPILE_OBJECT "<CMAKE_CXX_COMPILER> <DEFINES> <FLAGS> ${RTEMS_C_FLAGS} -o <OBJECT> -c <SOURCE>")
-
-include(Platform/UnixPaths)
-
-====== START OF EXAMPLE RTEMS CMAKE PLATFORM MODULE: CUT HERE ===========
-
-If using a CMake package from the host Linux build system's official repo (CentOS/Ubuntu) then 
-it can be patched by copying the file in.  Example installation of this file to system-wide CMake:
-
-$ sudo cp RTEMS.cmake /usr/share/cmake-*/Modules/Platform/RTEMS.cmake
 
 
 
 
 II. Mission setup modifications to use PC-RTEMS PSP
-
-1) Toolchain file
 
 Use a CMake toolchain file to build CFE for RTEMS.  This goes under the mission's "_defs" top-level directory.
 This example below may be edited and tuned to the mission-specific needs.
@@ -141,53 +132,57 @@ file will be picked up and used by the build system.
 
 ====== START OF EXAMPLE TOOLCHAIN FILE: CUT HERE ===========
 
-SET(RTEMS_TOOLS_TOP     "/opt/rtems-4.11"       CACHE PATH "Rtems tools directory")
-SET(RTEMS_BSP_TOP       "$ENV{HOME}/rtems-4.11" CACHE PATH "Rtems BSP install directory")
+set(CMAKE_SYSTEM_NAME       RTEMS)
+set(CMAKE_SYSTEM_PROCESSOR  i386)
+set(CMAKE_SYSTEM_VERSION    4.11)
+set(RTEMS_TOOLS_PREFIX      "/opt/rtems-${CMAKE_SYSTEM_VERSION}")
+set(RTEMS_BSP_PREFIX        "$ENV{HOME}/rtems-${CMAKE_SYSTEM_VERSION}")
+set(RTEMS_BSP               pc686)
 
-SET(CMAKE_SYSTEM_NAME         RTEMS)
-SET(CMAKE_SYSTEM_VERSION      1)
-SET(CMAKE_SYSTEM_PROCESSOR    i686)
-SET(CMAKE_C_COMPILER          ${RTEMS_TOOLS_TOP}/bin/i386-rtems4.11-gcc)
-SET(CMAKE_CXX_COMPILER        ${RTEMS_TOOLS_TOP}/bin/i386-rtems4.11-g++)
-SET(CMAKE_LINKER              ${RTEMS_TOOLS_TOP}/bin/i386-rtems4.11-ld)
+# specify the cross compiler - adjust accord to compiler installation
+# This uses the compiler-wrapper toolchain that buildroot produces
+set(TARGET_PREFIX           "${CMAKE_SYSTEM_PROCESSOR}-rtems${CMAKE_SYSTEM_VERSION}-")
+set(CPUTUNEFLAGS            "-march=i686 -mtune=i686")
 
-SET(CMAKE_FIND_ROOT_PATH                ${RTEMS_TOOLS_TOP}/i386-rtems4.11 ${RTEMS_TOOLS_TOP}/lib/gcc/i386-rtems4.11/4.8.2 ${RTEMS_BSP_TOP}/i386-rtems4.11/pc686)
+SET(CMAKE_C_COMPILER        "${RTEMS_TOOLS_PREFIX}/bin/${TARGET_PREFIX}gcc")
+SET(CMAKE_CXX_COMPILER      "${RTEMS_TOOLS_PREFIX}/bin/${TARGET_PREFIX}g++")
+SET(CMAKE_LINKER            "${RTEMS_TOOLS_PREFIX}/bin/${TARGET_PREFIX}ld")
+SET(CMAKE_ASM_COMPILER      "${RTEMS_TOOLS_PREFIX}/bin/${TARGET_PREFIX}as")
+SET(CMAKE_STRIP             "${RTEMS_TOOLS_PREFIX}/bin/${TARGET_PREFIX}strip")
+SET(CMAKE_NM                "${RTEMS_TOOLS_PREFIX}/bin/${TARGET_PREFIX}nm")
+SET(CMAKE_AR                "${RTEMS_TOOLS_PREFIX}/bin/${TARGET_PREFIX}ar")
+SET(CMAKE_OBJDUMP           "${RTEMS_TOOLS_PREFIX}/bin/${TARGET_PREFIX}objdump")
+SET(CMAKE_OBJCOPY           "${RTEMS_TOOLS_PREFIX}/bin/${TARGET_PREFIX}objcopy")
+
+# search for programs in the build host directories
 SET(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM   NEVER)
+
+# for libraries and headers in the target directories
 SET(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY   ONLY)
 SET(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE   ONLY)
 
 SET(CMAKE_PREFIX_PATH                   /)
+
+# these settings are specific to cFE/OSAL and determines which
+# abstraction layers are built when using this toolchain
 SET(CFE_SYSTEM_PSPNAME                  pc-rtems)
-SET(OSAL_SYSTEM_OSTYPE                  rtems)
-SET(CFE_ENTRY_SYM                       Init)
+SET(OSAL_SYSTEM_BSPTYPE                 pc-rtems)
+SET(OSAL_SYSTEM_OSTYPE                  rtems-ng)
 
-SET(CMAKE_C_FLAGS_INIT "-march=i686 -B${RTEMS_BSP_TOP}/i386-rtems4.11/pc686/lib" CACHE STRING "C Flags required by platform")
-
-# Macro to copy the "rtems-grub.cfg" file into place in the exe directory
-macro(target_add_hook TGTNAME)
-  install(FILES ${MISSION_DEFS}/${TGTNAME}_rtems-grub.cfg DESTINATION ${TGTNAME} RENAME rtems-grub.cfg)
-endmacro()
-
-====== END OF EXAMPLE TOOLCHAIN FILE: CUT HERE ===========
 
 
 2) Get RTEMS GRUB boot image
 
+NOTE: The GRUB image is not needed when using QEMU.  The "-kernel" option to QEMU makes things
+much easier and is highly recommended.
+
 RTEMS binaries cannot be directly booted by a PC BIOS...  Grub is one way to boot RTEMS.
-The RTEMS FTP site has an example pre-built GRUB image for this at the following URL:
 
-ftp://ftp.rtems.org/pub/rtems/archive/current_contrib/pc386_grub_image
+Instructions for building GRUB for use with RTEMS@
 
-Once downloaded this file can be saved OUTSIDE the mission git tree and used forever.  It
-only serves as an intermediate to boot the binary image since the RTEMS binary cannot be
-booted directly by a PC BIOS.  Alternatively one could build a custom loader if needed.
+https://devel.rtems.org/wiki/Building/Grub
 
-NOTE: the current grub image being distributed from the FTP site contains a grub config file.
-This configuration file would need to be replaced with the customized version containing 
-the correct boot command (see next section).
-
-
-3) Create a grub configuration file to work with the boot image
+If using grub, create a grub configuration file to work with the boot image
 
 Minimal example below.  Replace <TGTNAME> accordingly, and can be otherwise modified as needed.
 
@@ -217,26 +212,64 @@ III. Building and Running CFE
 
 1) Build mission as normal and run "make install" to copy binaries to /exe (if using cmake makefile wrapper)
 
-2) A minimal QEMU boot sequence for reference
+2) A minimal QEMU boot sequence for reference (assuming "cpu1")
 
-First copy the "core-<TGTNAME>.exe" file and the grub configuration file into a separate directory 
-that can be mounted as /boot on the target:
+qemu-system-i386 -m 128 \ 
+    -kernel ${INSTALL_DIR}/cpu1/core-cpu1.exe \
+    -drive file=fat:rw:${INSTALL_DIR}/cpu1,format=raw \
+    -nographic \
+    -no-reboot
+    
+where ${INSTALL_DIR} represents the filesystem location of the installed binaries from "make install"
 
-$ mkdir boot
-$ cp core-<TGTNAME>.exe rtems-grub.cfg boot
-
-Then boot QEMU from the boot floppy, use "boot" as the first virtual disk and "eeprom" as the second virtual disk:
-
-$ qemu-system-i386 -m 128 -boot a -fda ./rtems-boot.img -hda fat:$PWD/boot -hdb fat:$PWD/eeprom -serial stdio
-
-Note - depending on needs, that command might be different - QEMU has _lots_ of options. 
-
-Also note that the "fat" emulation used above is fairly limited, generally only useful for read-only testing.
+Note that the "fat" emulation used above is fairly limited, generally only useful for read-only testing.
 To get read-write operation one would have to create real filesystem images and copy files into them, then 
 use the images directly.  This is also what would need to be done to deploy on real hardware.
 
-If using the "COM1" (serial port console) variant of the boot options above, the "-serial stdio" option
-to QEMU is helpful - this connects the virtualized com1 to the standard I/O of the QEMU process.  You must
-give _something_ as a "-serial" option when using this or the console will not be visible.
+The "-no-reboot" flag causes QEMU to exit if a panic or shutdown event occurs, rather than emulating
+an actual processor reset.  This is generally a good thing when debugging, since a bad build can
+cause a reset loop.   This flag can be omitted if one wishes to emulate the processor reset.
 
+
+3) Network-enabled boot sequence.
+
+This is an example QEMU command that includes a simulated network device.  This works with the 
+"CI_LAB" / "TO_LAB" apps to allow commands and telemetry from CFE to be exchanged with the host PC.
+
+The "device" and "netdev" options can be tuned to your preferences (see documentation)
+
+qemu-system-i386 -m 128 -nographic -no-reboot \
+    -kernel ${INSTALL_DIR}/cpu1/core-cpu1.exe \
+    -drive file=fat:rw:${INSTALL_DIR}/cpu1,format=raw \
+    -device i82557b,netdev=net0,mac=00:04:9F:00:27:61 \
+    -netdev user,id=net0,hostfwd=udp:127.0.0.1:1235-:1235 \
+    
+One can then use the "cmdutil" and "tlm_decode" applications to interact with the CFE.
+
+    
+4) Automated/scripted Unit-testing configuration using QEMU
+ 
+The Unit Test BSP (utbsp) by default will start an RTEMS shell and allow
+an interactive user to query/interact with the system as part of the unit testing.
+
+The BSP also supports a "--batch-mode" option which is intended for 
+automated or script-based execution.  It can be invoked through QEMU's 
+"-append" option or through the GRUB bootloader if using real hardware.
+When using QEMU this allows for  fully scripted testing.  
+
+The basic QEMU command to execute a single unit test is:
+
+qemu-system-i386 -m 128 \
+   -kernel ${test-executable}.exe \
+   -append '--batch-mode' \
+   -nographic -no-reboot \
+       > log-${test-executable}.txt
+
+
+The entire suite of unit tests can be executed using a for loop:
+
+for i in *test.exe *UT.exe; do \
+   qemu-system-i386 -m 128 -kernel $i -append '--batch-mode' -nographic -no-reboot \
+       | tee log-${i%%.exe}.txt;  \
+done
 

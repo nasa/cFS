@@ -1,27 +1,27 @@
+/*
+**  GSC-18128-1, "Core Flight Executive Version 6.6"
+**
+**  Copyright (c) 2006-2019 United States Government as represented by
+**  the Administrator of the National Aeronautics and Space Administration.
+**  All Rights Reserved.
+**
+**  Licensed under the Apache License, Version 2.0 (the "License");
+**  you may not use this file except in compliance with the License.
+**  You may obtain a copy of the License at
+**
+**    http://www.apache.org/licenses/LICENSE-2.0
+**
+**  Unless required by applicable law or agreed to in writing, software
+**  distributed under the License is distributed on an "AS IS" BASIS,
+**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+**  See the License for the specific language governing permissions and
+**  limitations under the License.
+*/
+
 /******************************************************************************
 ** File:  cfe_psp_memory.c
 **
 **      mcf5235 Coldfire RTEMS version
-**
-**      GSC-18128-1, "Core Flight Executive Version 6.6"
-**
-**      Copyright (c) 2006-2019 United States Government as represented by
-**      the Administrator of the National Aeronautics and Space Administration.
-**      All Rights Reserved.
-**
-**      Licensed under the Apache License, Version 2.0 (the "License");
-**      you may not use this file except in compliance with the License.
-**      You may obtain a copy of the License at
-**
-**        http://www.apache.org/licenses/LICENSE-2.0
-**
-**      Unless required by applicable law or agreed to in writing, software
-**      distributed under the License is distributed on an "AS IS" BASIS,
-**      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**      See the License for the specific language governing permissions and
-**      limitations under the License.
-** 
-**
 **
 ** Purpose:
 **   cFE PSP Memory related functions. This is the implementation of the cFE 
@@ -56,8 +56,6 @@
 /*
 ** Macro Definitions
 */
-#ifdef _ENHANCED_BUILD_
-
 #include <target_config.h>
 
 /*
@@ -69,19 +67,6 @@
 #define CFE_PSP_USER_RESERVED_SIZE     (GLOBAL_CONFIGDATA.CfeConfig->UserReservedSize)
 #define CFE_PSP_RAM_DISK_SECTOR_SIZE   (GLOBAL_CONFIGDATA.CfeConfig->RamDiskSectorSize)
 #define CFE_PSP_RAM_DISK_NUM_SECTORS   (GLOBAL_CONFIGDATA.CfeConfig->RamDiskTotalSectors)
-
-#else
-
-#include "cfe_es.h"            /* For memory sizes */
-#include "cfe_platform_cfg.h"  /* for processor ID */
-
-#define CFE_PSP_CDS_SIZE               CFE_ES_CDS_SIZE
-#define CFE_PSP_RESET_AREA_SIZE        CFE_ES_RESET_AREA_SIZE
-#define CFE_PSP_USER_RESERVED_SIZE     CFE_ES_USER_RESERVED_SIZE
-#define CFE_PSP_RAM_DISK_SECTOR_SIZE   CFE_ES_RAM_DISK_SECTOR_SIZE
-#define CFE_PSP_RAM_DISK_NUM_SECTORS   CFE_ES_RAM_DISK_NUM_SECTORS
-
-#endif
 
 /*
 **  External Declarations
@@ -143,7 +128,7 @@ int32 CFE_PSP_GetCDSSize(uint32 *SizeOfCDS)
 **  Return:
 **    (none)
 */
-int32 CFE_PSP_WriteToCDS(void *PtrToDataToWrite, uint32 CDSOffset, uint32 NumBytes)
+int32 CFE_PSP_WriteToCDS(const void *PtrToDataToWrite, uint32 CDSOffset, uint32 NumBytes)
 {
    uint8 *CopyPtr;
    int32  return_code;

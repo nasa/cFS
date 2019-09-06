@@ -19,3 +19,8 @@ aux_source_directory(fsw/shared PSPFILES)
 aux_source_directory(fsw/${CFE_SYSTEM_PSPNAME}/src PSPFILES)
 
 add_library(psp-${CFE_SYSTEM_PSPNAME} STATIC ${PSPFILES})
+
+if (ENABLE_UNIT_TESTS)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/fsw/ut-stubs)
+endif (ENABLE_UNIT_TESTS)
+

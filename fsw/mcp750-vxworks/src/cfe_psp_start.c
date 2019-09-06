@@ -1,25 +1,25 @@
+/*
+**  GSC-18128-1, "Core Flight Executive Version 6.6"
+**
+**  Copyright (c) 2006-2019 United States Government as represented by
+**  the Administrator of the National Aeronautics and Space Administration.
+**  All Rights Reserved.
+**
+**  Licensed under the Apache License, Version 2.0 (the "License");
+**  you may not use this file except in compliance with the License.
+**  You may obtain a copy of the License at
+**
+**    http://www.apache.org/licenses/LICENSE-2.0
+**
+**  Unless required by applicable law or agreed to in writing, software
+**  distributed under the License is distributed on an "AS IS" BASIS,
+**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+**  See the License for the specific language governing permissions and
+**  limitations under the License.
+*/
+
 /******************************************************************************
 ** File:  cfe_psp_start.c
-**
-**
-**      GSC-18128-1, "Core Flight Executive Version 6.6"
-**
-**      Copyright (c) 2006-2019 United States Government as represented by
-**      the Administrator of the National Aeronautics and Space Administration.
-**      All Rights Reserved.
-**
-**      Licensed under the Apache License, Version 2.0 (the "License");
-**      you may not use this file except in compliance with the License.
-**      You may obtain a copy of the License at
-**
-**        http://www.apache.org/licenses/LICENSE-2.0
-**
-**      Unless required by applicable law or agreed to in writing, software
-**      distributed under the License is distributed on an "AS IS" BASIS,
-**      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**      See the License for the specific language governing permissions and
-**      limitations under the License.
-**
 **
 ** Purpose:
 **   cFE PSP main entry point.
@@ -56,8 +56,6 @@
 */
 #include "common_types.h"
 #include "osapi.h"
-#include "cfe_es.h"            /* For reset types */
-#include "cfe_platform_cfg.h"  /* for processor ID */
 
 #include "cfe_psp.h" 
 #include "cfe_psp_memory.h"           
@@ -65,8 +63,21 @@
 /*
 **  External Declarations
 */
-extern void CFE_TIME_Local1HzISR(void);
 IMPORT void sysPciWrite32 (UINT32, UINT32);
+
+
+/*
+ * The preferred way to obtain the CFE tunable values at runtime is via
+ * the dynamically generated configuration object.  This allows a single build
+ * of the PSP to be completely CFE-independent.
+ */
+#include <target_config.h>
+
+#define CFE_PSP_MAIN_FUNCTION        (*GLOBAL_CONFIGDATA.CfeConfig->SystemMain)
+#define CFE_PSP_NONVOL_STARTUP_FILE  (GLOBAL_CONFIGDATA.CfeConfig->NonvolStartupFile)
+#define CFE_PSP_1HZ_FUNCTION         (*GLOBAL_CONFIGDATA.CfeConfig->System1HzISR)
+
+
 
 /******************************************************************************
 **  Function:  CFE_PSP_Main()
@@ -81,18 +92,26 @@ IMPORT void sysPciWrite32 (UINT32, UINT32);
 **    (none)
 */
 
-void CFE_PSP_Main(  uint32 ModeId, char *StartupFilePath )
+void CFE_PSP_Main( void )
 {
    int    TicksPerSecond;
    uint32 reset_type;
    uint32 reset_subtype;
-   char   reset_register; 
+   char   reset_register;
+   int32  Status;
 
 
    /*
    ** Initialize the OS API
    */
-   OS_API_Init();
+   Status = OS_API_Init();
+   if (Status != OS_SUCCESS)
+   {
+       /* irrecoverable error if OS_API_Init() fails. */
+       /* note: use printf here, as OS_printf may not work */
+       printf("CFE_PSP: OS_API_Init() failure\n");
+       CFE_PSP_Panic(Status);
+   }
 
    /* 
    ** Delay for one second. 
@@ -188,7 +207,7 @@ void CFE_PSP_Main(  uint32 ModeId, char *StartupFilePath )
    ** Call cFE entry point. This will return when cFE startup
    ** is complete.
    */
-   CFE_ES_Main(reset_type,reset_subtype, 1, CFE_ES_NONVOL_STARTUP_FILE); 
+   CFE_PSP_MAIN_FUNCTION(reset_type,reset_subtype, 1, CFE_PSP_NONVOL_STARTUP_FILE);
 
    /*
    ** Main loop for default task and simulated 1hz 
@@ -197,7 +216,7 @@ void CFE_PSP_Main(  uint32 ModeId, char *StartupFilePath )
    {
       TicksPerSecond = sysClkRateGet();
       (void) taskDelay( TicksPerSecond );
-      CFE_TIME_Local1HzISR();
+      CFE_PSP_1HZ_FUNCTION();
    }
 }
 

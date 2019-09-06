@@ -1,26 +1,25 @@
+/*
+**  GSC-18128-1, "Core Flight Executive Version 6.6"
+**
+**  Copyright (c) 2006-2019 United States Government as represented by
+**  the Administrator of the National Aeronautics and Space Administration.
+**  All Rights Reserved.
+**
+**  Licensed under the Apache License, Version 2.0 (the "License");
+**  you may not use this file except in compliance with the License.
+**  You may obtain a copy of the License at
+**
+**    http://www.apache.org/licenses/LICENSE-2.0
+**
+**  Unless required by applicable law or agreed to in writing, software
+**  distributed under the License is distributed on an "AS IS" BASIS,
+**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+**  See the License for the specific language governing permissions and
+**  limitations under the License.
+*/
+
 /******************************************************************************
 ** File:  cfe_psp_start.c
-**
-**
-**      GSC-18128-1, "Core Flight Executive Version 6.6"
-**
-**      Copyright (c) 2006-2019 United States Government as represented by
-**      the Administrator of the National Aeronautics and Space Administration.
-**      All Rights Reserved.
-**
-**      Licensed under the Apache License, Version 2.0 (the "License");
-**      you may not use this file except in compliance with the License.
-**      You may obtain a copy of the License at
-**
-**        http://www.apache.org/licenses/LICENSE-2.0
-**
-**      Unless required by applicable law or agreed to in writing, software
-**      distributed under the License is distributed on an "AS IS" BASIS,
-**      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**      See the License for the specific language governing permissions and
-**      limitations under the License.
-** 
-**
 **
 ** Purpose:
 **   cFE BSP main entry point.
@@ -40,15 +39,19 @@
 #include <rtems/bdbuf.h>
 #include <rtems/blkdev.h>
 #include <rtems/diskdevs.h>
+#include <rtems/bdpart.h>
 #include <rtems/error.h>
 #include <rtems/ramdisk.h>
 #include <rtems/dosfs.h>
 #include <rtems/fsmount.h>
 #include <rtems/shell.h>
-#include <cexp.h>
+#include <rtems/untar.h>
+#include <rtems/rtems_bsdnet.h>
+#include <rtems/rtems_dhcp_failsafe.h>
+#include <rtems/rtl/dlfcn-shell.h>
+#include <bsp.h>
 
-
-extern rtems_status_code rtems_ide_part_table_initialize (const char* );
+extern int rtems_fxp_attach(struct rtems_bsdnet_ifconfig *config, int attaching);
 
 /*
 ** cFE includes 
@@ -57,6 +60,7 @@ extern rtems_status_code rtems_ide_part_table_initialize (const char* );
 #include "osapi.h"
 #include "cfe_psp.h" 
 #include "cfe_psp_memory.h"
+#include "cfe_psp_module.h"
 
 #define RTEMS_NUMBER_OF_RAMDISKS 1
 
@@ -68,11 +72,8 @@ extern rtems_status_code rtems_ide_part_table_initialize (const char* );
  */
 #include <target_config.h>
 
-#define CFE_ES_MAIN_FUNCTION        (*GLOBAL_CONFIGDATA.CfeConfig->SystemMain)
-#define CFE_ES_NONVOL_STARTUP_FILE  (GLOBAL_CONFIGDATA.CfeConfig->NonvolStartupFile)
-#define CFE_CPU_ID                  (GLOBAL_CONFIGDATA.Default_CpuId)
-#define CFE_CPU_NAME                (GLOBAL_CONFIGDATA.Default_CpuName)
-#define CFE_SPACECRAFT_ID           (GLOBAL_CONFIGDATA.Default_SpacecraftId)
+#define CFE_PSP_MAIN_FUNCTION        (*GLOBAL_CONFIGDATA.CfeConfig->SystemMain)
+#define CFE_PSP_NONVOL_STARTUP_FILE  (GLOBAL_CONFIGDATA.CfeConfig->NonvolStartupFile)
 
 /*
 ** Global variables
@@ -103,10 +104,24 @@ rtems_driver_address_table rtems_ramdisk_io_ops =
 
 rtems_id          RtemsTimerId;
 
-bool CFE_PSP_Login_Check(const char *user, const char *passphrase)
-{
-   return TRUE;
-}
+static unsigned char ethernet_address[6] = {0x00, 0x04, 0x9F, 0x00, 0x27, 0x61 };
+
+static struct rtems_bsdnet_ifconfig netdriver_config = {
+        .name = "fxp1" /*RTEMS_BSP_NETWORK_DRIVER_NAME*/,
+        .attach = rtems_fxp_attach /*RTEMS_BSP_NETWORK_DRIVER_ATTACH*/,
+        .next = NULL,
+        .ip_address = "10.0.2.17",
+        .ip_netmask = "255.255.255.0",
+        .hardware_address = ethernet_address
+        /* more options can follow */
+};
+
+struct rtems_bsdnet_config rtems_bsdnet_config = {
+        .ifconfig = &netdriver_config,
+        .bootp = rtems_bsdnet_do_dhcp_failsafe, /* fill if DHCP is used*/
+};
+
+
 
 /*
 ** 1 HZ Timer "ISR"
@@ -119,10 +134,12 @@ int timer_count = 0;
 **  Purpose:
 **    Perform initial setup.
 **
+**    This function is invoked before OSAL is initialized.
+**      NO OSAL CALLS SHOULD BE USED YET.
+**
 **    The root file system is created, and mount points are created and mounted:
 **     - /ram as ramdisk (RFS), read-write
 **     - /boot from /dev/hda1, read-only, contain the boot executable(s) (CFE core)
-**     - /cf from /dev/hdb1, read-write, containing loadable apps & tables (eeprom directory).
 **
 **  Arguments:
 **    (none)
@@ -139,13 +156,13 @@ int CFE_PSP_Setup(void)
 {
    int status;
    
-   OS_printf( "\n\n*** RTEMS Info ***\n" );
-   OS_printf("%s", _Copyright_Notice );
-   OS_printf("%s\n\n", _RTEMS_version );
-   OS_printf(" Stack size=%d\n", (int)Configuration.stack_space_size );
-   OS_printf(" Workspace size=%d\n",   (int) Configuration.work_space_size );
-   OS_printf("\n");
-   OS_printf( "*** End RTEMS info ***\n\n" );
+   printf( "\n\n*** RTEMS Info ***\n" );
+   printf("%s", _Copyright_Notice );
+   printf("%s\n\n", _RTEMS_version );
+   printf(" Stack size=%d\n", (int)Configuration.stack_space_size );
+   printf(" Workspace size=%d\n",   (int) Configuration.work_space_size );
+   printf("\n");
+   printf( "*** End RTEMS info ***\n\n" );
 
    /*
    ** Create the RTEMS Root file system
@@ -153,7 +170,7 @@ int CFE_PSP_Setup(void)
    status = rtems_create_root_fs();
    if (status != RTEMS_SUCCESSFUL)
    {
-       OS_printf("Creating Root file system failed: %s\n",rtems_status_text(status));
+       printf("Creating Root file system failed: %s\n",rtems_status_text(status));
        return status;
    }
 
@@ -163,93 +180,53 @@ int CFE_PSP_Setup(void)
    status = mkdir("/ram", S_IFDIR |S_IRWXU | S_IRWXG | S_IRWXO); /* For ramdisk mountpoint */
    if (status != RTEMS_SUCCESSFUL)
    {
-       OS_printf("mkdir failed: %s\n", strerror (errno));
+       printf("mkdir failed: %s\n", strerror (errno));
        return status;
    }
 
-   status = mkdir("/boot", S_IFDIR |S_IRWXU | S_IRWXG | S_IRWXO); /* For boot disk mountpoint */
+   status = mkdir("/eeprom", S_IFDIR |S_IRWXU | S_IRWXG | S_IRWXO); /* For EEPROM mountpoint */
    if (status != RTEMS_SUCCESSFUL)
    {
-       OS_printf("mkdir failed: %s\n", strerror (errno));
-       return status;
-   }
-
-   status = mkdir("/cf", S_IFDIR |S_IRWXU | S_IRWXG | S_IRWXO); /* For EEPROM mountpoint */
-   if (status != RTEMS_SUCCESSFUL)
-   {
-       OS_printf("mkdir failed: %s\n", strerror (errno));
+       printf("mkdir failed: %s\n", strerror (errno));
        return status;
    }
 
    /*
     * Register the IDE partition table.
+    * This is _optional_ depending on whether a block device is present.
     */
-   status = rtems_ide_part_table_initialize ("/dev/hda");
+   status = rtems_bdpart_register_from_disk("/dev/hda");
    if (status != RTEMS_SUCCESSFUL)
    {
-     OS_printf ("error: ide partition table not found: %s / %s\n",
+     printf ("Not mounting block device /dev/hda: %s / %s\n",
              rtems_status_text (status),strerror(errno));
-     return status;
+   }
+   else
+   {
+       printf ("Mounting block device /dev/hda1 on /eeprom\n");
+       status = mount("/dev/hda1", "/eeprom",
+             RTEMS_FILESYSTEM_TYPE_DOSFS,
+             RTEMS_FILESYSTEM_READ_ONLY,
+             NULL);
+       if (status < 0)
+       {
+         printf ("Mount /eeprom failed: %s\n", strerror (errno));
+         return status;
+       }
    }
 
-   status = rtems_ide_part_table_initialize ("/dev/hdb");
+   /*
+    * Initialize the network.  This is also optional and only
+    * works if an appropriate network device is present.
+    */
+   status = rtems_bsdnet_initialize_network();
    if (status != RTEMS_SUCCESSFUL)
    {
-     OS_printf ("error: ide partition table not found: %s / %s\n",
+     printf ("Network init not successful: %s / %s (continuing)\n",
              rtems_status_text (status),strerror(errno));
-     return status;
-   }
-
-   status = mount("/dev/hda1", "/boot",
-         RTEMS_FILESYSTEM_TYPE_DOSFS,
-         RTEMS_FILESYSTEM_READ_ONLY,
-         NULL);
-   if (status < 0)
-   {
-     OS_printf ("mount failed: %s\n", strerror (errno));
-     return status;
-   }
-
-   status = mount("/dev/hdb1", "/cf",
-         RTEMS_FILESYSTEM_TYPE_DOSFS,
-         RTEMS_FILESYSTEM_READ_WRITE,
-         NULL);
-   if (status < 0)
-   {
-     OS_printf ("mount failed: %s\n", strerror (errno));
-     return status;
    }
 
    return RTEMS_SUCCESSFUL;
-}
-
-/******************************************************************************
-**  Function:  CFE_PSP_SetupSymbolTable()
-**
-**  Purpose:
-**    Load the symbol table from the EXE file representing the currently running code.
-**    This is required in order to make the module loading work properly.  Without this,
-**    all symbols defined within the core executable will get flagged as undefined
-**    when loading a module that tries to reference them.
-**
-**  Arguments:
-**    (none)
-**
-**  Return:
-**    (none)
-**
-**  Note:
-**    Not calling CFE_PSP_Panic() if this doesn't work, because CFE itself will still
-**    run and any apps that are statically linked should still run.
-*/
-void CFE_PSP_SetupSymbolTable(void)
-{
-    char cfe_exec_file[OS_MAX_LOCAL_PATH_LEN];
-
-    snprintf(cfe_exec_file, sizeof(cfe_exec_file), "/boot/core-%s.exe",
-            GLOBAL_CONFIGDATA.Default_CpuName);
-    OS_printf ("CFE_PSP: Loading symbol table from: %s\n", cfe_exec_file);
-    cexpModuleLoad(cfe_exec_file, 0);
 }
 
 /******************************************************************************
@@ -300,7 +277,18 @@ void CFE_PSP_SetupSystemTimer(void)
 
 
 /*
-** A simple entry point to start from the loader
+** A simple entry point to start from the BSP loader
+**
+** This entry point is used when building an RTEMS+CFE monolithic
+** image, which is a single executable containing the RTEMS
+** kernel and Core Flight Executive in one file.  In this mode
+** the RTEMS BSP invokes the "Init" function directly.
+**
+** This sets up the root fs and the shell prior to invoking CFE via
+** the CFE_PSP_Main() routine.
+**
+** In a future version this code may be moved into a separate bsp
+** integration unit to be more symmetric with the VxWorks implementation.
 */
 rtems_task Init(
   rtems_task_argument ignored
@@ -314,25 +302,22 @@ rtems_task Init(
    /*
    ** Start the shell early, so it can be be used in case a problem occurs
    */
-   if (rtems_shell_init("SHLL", RTEMS_MINIMUM_STACK_SIZE * 4, 100, "/dev/console", false, false, CFE_PSP_Login_Check) < 0)
+   if (rtems_shell_init("SHLL", RTEMS_MINIMUM_STACK_SIZE * 4, 100, "/dev/console", false, false, NULL) < 0)
    {
-     OS_printf ("shell init failed: %s\n", strerror (errno));
+     printf ("shell init failed: %s\n", strerror (errno));
    }
 
-   /*
-   ** Initialize the OS API
-   */
-   OS_API_Init();
-
-   CFE_PSP_SetupSymbolTable();
-
-   /* Prepare the system timing resources */
-   CFE_PSP_SetupSystemTimer();
+   /* give a small delay to let the shell start,
+      avoids having the login prompt show up mid-test,
+      and gives a little time for pending output to actually
+      be sent to the console in case of a slow port */
+   rtems_task_wake_after(50);
+   printf("\n\n\n\n");
 
    /*
    ** Run the PSP Main - this will return when init is complete
    */
-   CFE_PSP_Main(1, "/cf/cfe_es_startup.scr");
+   CFE_PSP_Main();
 
 
    /*
@@ -348,6 +333,13 @@ rtems_task Init(
 **  Purpose:
 **    Application entry point.
 **
+**    The basic RTEMS system including the root FS and shell (if used) should
+**    be running prior to invoking this function.
+**
+**    This entry point is used when building a separate RTEMS kernel/platform
+**    boot image and Core Flight Executive image.  This is the type of deployment
+**    used on e.g. VxWorks platforms.
+**
 **  Arguments:
 **    (none)
 **
@@ -355,11 +347,33 @@ rtems_task Init(
 **    (none)
 */
 
-void CFE_PSP_Main(uint32 ModeId, char *StartupFilePath )
+void CFE_PSP_Main(void)
 {
    uint32            reset_type;
    uint32            reset_subtype;
+   int32 Status;
 
+
+
+   /*
+   ** Initialize the OS API
+   */
+   Status = OS_API_Init();
+   if (Status != OS_SUCCESS)
+   {
+       /* irrecoverable error if OS_API_Init() fails. */
+       /* note: use printf here, as OS_printf may not work */
+       printf("CFE_PSP: OS_API_Init() failure\n");
+       CFE_PSP_Panic(Status);
+   }
+
+   /*
+   ** Initialize the statically linked modules (if any)
+   */
+   CFE_PSP_ModuleInit();
+
+   /* Prepare the system timing resources */
+   CFE_PSP_SetupSystemTimer();
 
    /*
    ** Determine Reset type by reading the hardware reset register.
@@ -376,7 +390,7 @@ void CFE_PSP_Main(uint32 ModeId, char *StartupFilePath )
    ** Call cFE entry point. This will return when cFE startup
    ** is complete.
    */
-   CFE_ES_MAIN_FUNCTION(reset_type,reset_subtype, 1, CFE_ES_NONVOL_STARTUP_FILE);
+   CFE_PSP_MAIN_FUNCTION(reset_type,reset_subtype, 1, CFE_PSP_NONVOL_STARTUP_FILE);
 
 }
 
@@ -388,26 +402,41 @@ void CFE_PSP_Main(uint32 ModeId, char *StartupFilePath )
 #define TASK_INTLEVEL 0
 #define CONFIGURE_INIT
 #define CONFIGURE_INIT_TASK_ATTRIBUTES  (RTEMS_FLOATING_POINT | RTEMS_PREEMPT | RTEMS_NO_TIMESLICE | RTEMS_ASR | RTEMS_INTERRUPT_LEVEL(TASK_INTLEVEL))
-#define CONFIGURE_INIT_TASK_STACK_SIZE  (20*1024)
+#define CONFIGURE_INIT_TASK_STACK_SIZE  (64*1024)
 #define CONFIGURE_INIT_TASK_PRIORITY    120
 
 /*
  * Note that these resources are shared with RTEMS itself (e.g. the init task, the shell)
  * so they should be allocated slightly higher than the user limits in osconfig.h
+ *
+ * Many RTEMS services use tasks internally, including the idle task, BSWP, ATA driver,
+ * low level console I/O, the shell, TCP/IP network stack, and DHCP (if enabled).
+ * Many of these also use semaphores for synchronization.
+ *
+ * Budgeting for additional:
+ *   8 internal tasks
+ *   2 internal timers
+ *   4 internal queues
+ *   16 internal semaphores
+ *
  */
-#define CONFIGURE_MAXIMUM_TASKS                      (OS_MAX_TASKS + 4)
+#define CONFIGURE_MAXIMUM_TASKS                      (OS_MAX_TASKS + 8)
 #define CONFIGURE_MAXIMUM_TIMERS                     (OS_MAX_TIMERS + 2)
-#define CONFIGURE_MAXIMUM_SEMAPHORES                 (OS_MAX_BIN_SEMAPHORES + OS_MAX_COUNT_SEMAPHORES + OS_MAX_MUTEXES + 4)
+#define CONFIGURE_MAXIMUM_SEMAPHORES                 (OS_MAX_BIN_SEMAPHORES + OS_MAX_COUNT_SEMAPHORES + OS_MAX_MUTEXES + 16)
 #define CONFIGURE_MAXIMUM_MESSAGE_QUEUES             (OS_MAX_QUEUES + 4)
 
-#define CONFIGURE_EXECUTIVE_RAM_SIZE    (1024*1024)
+/*
+ * The amount of RAM reserved for the executive workspace.
+ * This is for the kernel, and is separate from the C program heap.
+ */
+#define CONFIGURE_EXECUTIVE_RAM_SIZE    (2*1024*1024)
 
 #define CONFIGURE_RTEMS_INIT_TASKS_TABLE
 #define CONFIGURE_APPLICATION_NEEDS_CONSOLE_DRIVER
 #define CONFIGURE_APPLICATION_NEEDS_CLOCK_DRIVER
 
 #define CONFIGURE_USE_IMFS_AS_BASE_FILESYSTEM
-#define CONFIGURE_LIBIO_MAXIMUM_FILE_DESCRIPTORS     100
+#define CONFIGURE_LIBIO_MAXIMUM_FILE_DESCRIPTORS     (OS_MAX_NUM_OPEN_FILES + 8)
 
 #define CONFIGURE_FILESYSTEM_RFS
 #define CONFIGURE_FILESYSTEM_IMFS
@@ -431,6 +460,31 @@ void CFE_PSP_Main(uint32 ModeId, char *StartupFilePath )
 #define CONFIGURE_SHELL_COMMANDS_INIT
 #define CONFIGURE_SHELL_COMMANDS_ALL
 #define CONFIGURE_SHELL_MOUNT_MSDOS
+
+extern int rtems_rtl_shell_command (int argc, char* argv[]);
+rtems_shell_cmd_t rtems_shell_RTL_Command = {
+  .name = "rtl",
+  .usage = "rtl COMMAND...",
+  .topic = "misc",
+  .command = rtems_rtl_shell_command
+};
+rtems_shell_cmd_t rtems_shell_dlopen_Command = {
+  .name = "dlopen",
+  .usage = "dlopen COMMAND...",
+  .topic = "misc",
+  .command = shell_dlopen
+};
+rtems_shell_cmd_t rtems_shell_dlsym_Command = {
+  .name = "dlsym",
+  .usage = "dlsym COMMAND...",
+  .topic = "misc",
+  .command = shell_dlsym
+};
+#define CONFIGURE_SHELL_USER_COMMANDS   \
+    &rtems_shell_RTL_Command,           \
+    &rtems_shell_dlopen_Command,           \
+    &rtems_shell_dlsym_Command
+
 
 #include <rtems/shellconfig.h>
 

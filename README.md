@@ -18,6 +18,6 @@ Version description document contains references to internal repositories and so
 
 ## Getting Help
 
-For best results, submit issues:questions or issues:help wanted requests at https://github.com/nasa/cFS.
+The cFS community page http://coreflightsystem.org should be your first stop for getting help. Please post questions to http://coreflightsystem.org/questions/. There is also a forum at http://coreflightsystem.org/forums/ for more general discussions.
 
 Official cFS page: http://cfs.gsfc.nasa.gov

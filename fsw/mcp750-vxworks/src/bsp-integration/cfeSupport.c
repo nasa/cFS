@@ -1,23 +1,25 @@
 /*
+**  GSC-18128-1, "Core Flight Executive Version 6.6"
+**
+**  Copyright (c) 2006-2019 United States Government as represented by
+**  the Administrator of the National Aeronautics and Space Administration.
+**  All Rights Reserved.
+**
+**  Licensed under the Apache License, Version 2.0 (the "License");
+**  you may not use this file except in compliance with the License.
+**  You may obtain a copy of the License at
+**
+**    http://www.apache.org/licenses/LICENSE-2.0
+**
+**  Unless required by applicable law or agreed to in writing, software
+**  distributed under the License is distributed on an "AS IS" BASIS,
+**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+**  See the License for the specific language governing permissions and
+**  limitations under the License.
+*/
+
+/*
 ** cFE Support routines
-**
-**      GSC-18128-1, "Core Flight Executive Version 6.6"
-**
-**      Copyright (c) 2006-2019 United States Government as represented by
-**      the Administrator of the National Aeronautics and Space Administration.
-**      All Rights Reserved.
-**
-**      Licensed under the Apache License, Version 2.0 (the "License");
-**      you may not use this file except in compliance with the License.
-**      You may obtain a copy of the License at
-**
-**        http://www.apache.org/licenses/LICENSE-2.0
-**
-**      Unless required by applicable law or agreed to in writing, software
-**      distributed under the License is distributed on an "AS IS" BASIS,
-**      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**      See the License for the specific language governing permissions and
-**      limitations under the License.
 **
 ** This module is a collection of support routines needed to run the cFE on vxWorks.
 ** 
@@ -83,14 +85,14 @@ unsigned int GetWrsKernelTextEnd (void)
 ** Purpose:  This function unzips ( if needed ) , loads, and starts the cFE core.
 **
 */
-int startCfeCore ( char *cfevolume, char *cfepath, int ModeId, char *StartupFilePath )
+int startCfeCore ( char *cfevolume, char *cfepath )
 {
    int        fd;
    int        status;
    MODULE_ID  moduleID;
    SYM_TYPE   symType;
    char       *symValue;
-   void       (*cFEFuncPtr)(int ModeId, char *StartupFilePath);
+   void       (*cFEFuncPtr)(void);
    char       cfeCorePath[64];
 
    if ( cfevolume == NULL || cfepath == NULL )
@@ -160,7 +162,7 @@ int startCfeCore ( char *cfevolume, char *cfepath, int ModeId, char *StartupFile
    ** Call the cFE startup routine 
    */
     cFEFuncPtr = (void *)symValue;
-    (*cFEFuncPtr)(ModeId, StartupFilePath);
+    (*cFEFuncPtr)();
  
    /*
    ** Return to the vxWorks shell

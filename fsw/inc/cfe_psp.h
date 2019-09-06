@@ -1,23 +1,25 @@
 /*
+**  GSC-18128-1, "Core Flight Executive Version 6.6"
+**
+**  Copyright (c) 2006-2019 United States Government as represented by
+**  the Administrator of the National Aeronautics and Space Administration.
+**  All Rights Reserved.
+**
+**  Licensed under the Apache License, Version 2.0 (the "License");
+**  you may not use this file except in compliance with the License.
+**  You may obtain a copy of the License at
+**
+**    http://www.apache.org/licenses/LICENSE-2.0
+**
+**  Unless required by applicable law or agreed to in writing, software
+**  distributed under the License is distributed on an "AS IS" BASIS,
+**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+**  See the License for the specific language governing permissions and
+**  limitations under the License.
+*/
+
+/*
 **  File Name:  cfe_psp.h
-**
-**      GSC-18128-1, "Core Flight Executive Version 6.6"
-**
-**      Copyright (c) 2006-2019 United States Government as represented by
-**      the Administrator of the National Aeronautics and Space Administration.
-**      All Rights Reserved.
-**
-**      Licensed under the Apache License, Version 2.0 (the "License");
-**      you may not use this file except in compliance with the License.
-**      You may obtain a copy of the License at
-**
-**        http://www.apache.org/licenses/LICENSE-2.0
-**
-**      Unless required by applicable law or agreed to in writing, software
-**      distributed under the License is distributed on an "AS IS" BASIS,
-**      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**      See the License for the specific language governing permissions and
-**      limitations under the License.
 **
 **  Author:  A. Cudmore
 **
@@ -28,15 +30,6 @@
 **            really considered part of the OS Abstraction, but are required
 **            for the cFE flight software implementation. It is possible that
 **            some of these routines could migrate into the OS AL.
-**
-**  $Log: cfe_psp.h  $
-**  Revision 1.3 2009/07/29 12:04:46GMT-05:00 acudmore 
-**  Added Bank parameter to EEPROM Power up/down and EEPROM write enable/disable functions.
-**  Revision 1.2 2009/07/22 17:34:10EDT acudmore 
-**  Added new watchdog API
-**  Revision 1.1 2009/06/10 09:28:44EDT acudmore 
-**  Initial revision
-**  Member added to project c:/MKSDATA/MKS-REPOSITORY/CFE-PSP-REPOSITORY/fsw/inc/project.pj
 **
 */
 
@@ -49,15 +42,6 @@
 
 #include "common_types.h"
 #include "osapi.h"
-
-/*
- * These internal header files should not be used in application code
- * They will not be accessible when using the newest build scripts
- */
-#if !defined(_ENHANCED_BUILD_) || defined(_CFE_PSP_)
-#include "cfe_psp_config.h"
-#include "psp_version.h"
-#endif
 
 /*
 ** Macro Definitions
@@ -152,18 +136,11 @@
 #define CFE_PSP_RST_SUBTYPE_MAX                   10  /**< \brief  Placeholder to indicate 1+ the maximum value that the PSP will ever use. */
 /** \} */
 
-/* Replacements for the "version" macros */
-#ifdef _ENHANCED_BUILD_
-
+/* Implement the "version" macros */
 #define CFE_PSP_MAJOR_VERSION          (GLOBAL_PSP_CONFIGDATA.PSP_VersionInfo.MajorVersion)
 #define CFE_PSP_MINOR_VERSION          (GLOBAL_PSP_CONFIGDATA.PSP_VersionInfo.MinorVersion)
 #define CFE_PSP_REVISION               (GLOBAL_PSP_CONFIGDATA.PSP_VersionInfo.Revision)
 #define CFE_PSP_MISSION_REV            (GLOBAL_PSP_CONFIGDATA.PSP_VersionInfo.MissionRev)
-
-/* For backwards compatibility */
-#define CFE_PSP_SUBMINOR_VERSION       CFE_PSP_REVISION
-
-#endif
 
 /*
 ** Type Definitions
@@ -188,7 +165,7 @@ typedef struct
 /*
 ** PSP entry point and reset routines
 */
-extern void          CFE_PSP_Main(uint32 ModeId, char *StartupFilePath);
+extern void          CFE_PSP_Main(void);
 
 /*
 ** CFE_PSP_Main is the entry point that the real time OS calls to start our
@@ -285,7 +262,7 @@ extern int32 CFE_PSP_GetCDSSize(uint32 *SizeOfCDS);
 ** CFE_PSP_GetCDSSize fetches the size of the OS Critical Data Store area.
 */
 
-extern int32 CFE_PSP_WriteToCDS(void *PtrToDataToWrite, uint32 CDSOffset, uint32 NumBytes);
+extern int32 CFE_PSP_WriteToCDS(const void *PtrToDataToWrite, uint32 CDSOffset, uint32 NumBytes);
 /*
 ** CFE_PSP_WriteToCDS writes to the CDS Block.
 */
@@ -411,7 +388,7 @@ int32 CFE_PSP_MemWrite16        (cpuaddr MemoryAddress, uint16 uint16Value);
 int32 CFE_PSP_MemRead32         (cpuaddr MemoryAddress, uint32 *uint32Value);
 int32 CFE_PSP_MemWrite32        (cpuaddr MemoryAddress, uint32 uint32Value);
 
-int32 CFE_PSP_MemCpy            (void *dest, void *src, uint32 n);
+int32 CFE_PSP_MemCpy            (void *dest, const void *src, uint32 n);
 int32 CFE_PSP_MemSet            (void *dest, uint8 value, uint32 n);
 
 int32  CFE_PSP_MemValidateRange (cpuaddr Address, uint32 Size, uint32 MemoryType);

@@ -22,7 +22,7 @@
 ** File   : cfe_psp_voltab.c
 ** Author : Nicholas Yanchik / GSFC Code 582
 **
-** OS Volume table for file systems
+** PSP Volume table for file systems
 */
 
 /****************************************************************************************
@@ -31,29 +31,35 @@
 #include "common_types.h"
 #include "osapi.h"
 
-
 /* 
-**  volume table. This table has the OS_ name, since it belongs to the OSAL, not the CFE_PSP
+** OSAL volume table. This is the only file in the PSP that still has the 
+** OS_ naming convention, since it belongs to the OSAL. 
 */
 OS_VolumeInfo_t OS_VolumeTable [NUM_TABLE_ENTRIES] = 
 {
 /* Dev Name  Phys Dev  Vol Type        Volatile?  Free?     IsMounted? Volname  MountPt BlockSz */
 
 /* cFE RAM Disk */
-{ "/ramdev0", "/ram",  FS_BASED,     true,      true,     false,     " ",   " ",     512        },
+{"/ramdev0", " ",      RAM_DISK,        true,      true,     false,     " ",      " ",     0        },
 
 /* cFE non-volatile Disk -- Auto-Mapped to an existing CF disk */
-{"/eedev0",  "/eeprom",  FS_BASED,  false,     false,  true,  "CF",  "/cf",        512   },
+{"/eedev0",  "CF:0",      FS_BASED,        false,     false,     true,     "CF",      "/cf",     512        },
 
-{"unused",   "unused",    FS_BASED,        true,      true,     false,     " ",      " ",     0        },
-{"unused",   "unused",    FS_BASED,        true,      true,     false,     " ",      " ",     0        },
-{"unused",   "unused",    FS_BASED,        true,      true,     false,     " ",      " ",     0        },
-{"unused",   "unused",    FS_BASED,        true,      true,     false,     " ",      " ",     0        },
-{"unused",   "unused",    FS_BASED,        true,      true,     false,     " ",      " ",     0        },
+/* 
+** Spare RAM disks to be used for SSR and other RAM disks 
+*/
+{"/ramdev1", " ",      RAM_DISK,        true,      true,     false,     " ",      " ",     0        },
+{"/ramdev2", " ",      RAM_DISK,        true,      true,     false,     " ",      " ",     0        },
+{"/ramdev3", " ",      RAM_DISK,        true,      true,     false,     " ",      " ",     0        },
+{"/ramdev4", " ",      RAM_DISK,        true,      true,     false,     " ",      " ",     0        },
+{"/ramdev5", " ",      RAM_DISK,        true,      true,     false,     " ",      " ",     0        },
 
-{"unused",   "unused",    FS_BASED,        true,      true,     false,     " ",      " ",     0        },
-{"unused",   "unused",    FS_BASED,        true,      true,     false,     " ",      " ",     0        },
-{"unused",   "unused",    FS_BASED,        true,      true,     false,     " ",      " ",     0        },
+/* 
+** Hard disk mappings 
+*/
+{"/ssrdev0",  "/hd:0/SSR1", FS_BASED,        true,      true,     false,     " ",      " ",     0        },
+{"/ssrdev1",  "/hd:0/SSR2", FS_BASED,        true,      true,     false,     " ",      " ",     0        },
+{"/ssrdev2",  "/hd:0/SSR3", FS_BASED,        true,      true,     false,     " ",      " ",     0        },
 
 {"unused",   "unused",    FS_BASED,        true,      true,     false,     " ",      " ",     0        },
 {"unused",   "unused",    FS_BASED,        true,      true,     false,     " ",      " ",     0        },
