@@ -56,18 +56,21 @@ To setup the cFS BUNDLE directly from the latest set of interoperable repositori
     git submodule init
     git submodule update
 
-If running on a standard linux build, likely need to increase message queues.  Recommendation is to set /proc/sys/fs/mqueue/msg_max to 128 or greater:
+Copy in the default makefile and definitions:
 
-    root# echo 128 > /proc/sys/fs/mqueue/msg_max
+    cp cfe/cmake/Makefile.sample Makefile
+    cp -r cfe/cmake/sample_defs sample_defs
+
+If running on a standard linux build as a normal user, define OSAL_DEBUG_PERMISSIVE_MODE for best effort message queue depth and task priorities.
+
+    sed -i 's/undef OSAL_DEBUG_PERMISSIVE_MODE/define OSAL_DEBUG_PERMISSIVE_MODE/g' sample_defs/default_osconfig.h
 
 ## Build and Run
 
 The cFS Framework including sample applications will build and run on the pc-linux platform support package (should run on most Linux distributions), via the steps described in https://github.com/nasa/cFE/tree/master/cmake/README.md.  Quick-start is below:
 
-To compile and run (from cFS directory above):
+To prep, compile, and run (from cFS directory above):
 
-    cp cfe/cmake/Makefile.sample Makefile
-    cp -r cfe/cmake/sample_defs sample_defs
     make prep
     make
     make install
