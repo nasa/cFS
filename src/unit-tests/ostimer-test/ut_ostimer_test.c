@@ -29,9 +29,9 @@ extern UT_OsLogInfo_t  g_logInfo;
 **--------------------------------------------------------------------------------*/
 
 int32  g_skipTestCase = -1;
-char*  g_skipTestCaseResult = " ";
+const char*  g_skipTestCaseResult = " ";
 
-char*  g_timerNames[UT_OS_TIMER_LIST_LEN];
+const char*  g_timerNames[UT_OS_TIMER_LIST_LEN];
 char   g_longTimerName[OS_MAX_API_NAME+5];
 
 uint32  g_cbLoopCntMax = 5;

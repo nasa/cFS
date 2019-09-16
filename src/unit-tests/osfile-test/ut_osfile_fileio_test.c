@@ -2091,7 +2091,7 @@ void UT_os_outputtofile_test()
 {
     int32 idx=0;
     UT_OsApiInfo_t apiInfo;
-	char* cmd=NULL;
+    const char* cmd=NULL;
     const char* testDesc=NULL;
 
     UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
@@ -2236,7 +2236,7 @@ void UT_os_getfdinfo_test()
     UT_OsApiInfo_t apiInfo;
     OS_file_prop_t fdProps;
     const char* testDesc=NULL;
-    char* fileName="GetInfo_Nom.txt";
+    const char* fileName="GetInfo_Nom.txt";
 
     UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
 

@@ -31,14 +31,14 @@ extern UT_OsLogInfo_t  g_logInfo;
 char* g_fsAddrPtr = NULL;
 
 int32  g_skipTestCase = -1;
-char*  g_skipTestCaseResult = " ";
+const char*  g_skipTestCaseResult = " ";
 
 char  g_longPathName[OS_MAX_PATH_LEN+5];
 char  g_longFileName[OS_MAX_PATH_LEN];
 char  g_invalidPath[OS_MAX_PATH_LEN];
 
-char* g_devName = "/ramdev3";
-char* g_mntName = "/drive3";
+const char* g_devName = "/ramdev3";
+const char* g_mntName = "/drive3";
 
 /*--------------------------------------------------------------------------------*
 ** External function prototypes
