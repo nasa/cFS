@@ -1,0 +1,34 @@
+dist: xenial
+sudo: required
+language:
+  - c
+compiler:
+  - gcc
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - cmake
+      - gcc-multilib
+      - g++-multilib
+
+before_install:
+# needed for compiling 32bit software on 64bit machine
+  - sudo apt-get install gcc-multilib g++-multilib cppcheck
+
+script:
+  - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib32/:/usr/lib/gcc/x86_64-linux-gnu/7/x32/
+  - ls /usr/lib32/
+  # Check versions of gcc, g++ and cmake
+  - gcc -v && g++ -v && cmake --version
+  # Run your build commands next
+  - git submodule init
+  - git submodule update
+  - cp cfe/cmake/Makefile.sample Makefile
+  - cp -r cfe/cmake/sample_defs sample_defs
+  - cppcheck --force .
+  - make prep
+  - make
+  - make install
+  - ls build/exe/cpu1/

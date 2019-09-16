@@ -134,3 +134,5 @@ The following list is user submitted, and not CCB controlled.  They are released
     - TBD
   - Other PSPs
     - TBD
+
+Auto build status: [![Build Status](https://travis-ci.com/travis-r-wheatley/cFS.svg?branch=master)](https://travis-ci.com/travis-r-wheatley/cFS)
