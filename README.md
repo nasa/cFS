@@ -24,10 +24,7 @@ Version description document contains references to internal repositories and so
 The version description document details two build warnings in linux that will be resolved in the future.
 
 Major known issues (not noted in version description document):
-  - elf2cfetbl doesn't build 64bit tables, there is a patch (contact forum below)
-  - TIME services can lock up if CFE_TIME_GetReference is called from a higher priority task/ISR, there is a patch (contact forum below)
-  
-Unit test - the nominal os timer test occasionally failes on standard Linux systems (non-RTOS)
+Unit test - the nominal os timer test occasionally fails on standard Linux systems (non-RTOS)
 
 ## Major future work
 
@@ -39,7 +36,6 @@ Unit test - the nominal os timer test occasionally failes on standard Linux syst
   - Symmetric multi-processing APIs
   - Electronic Data Sheet integration
   - Toolchain updates
-  - Next Gen OSAL
 
 ## Getting Help
 
@@ -133,6 +129,8 @@ The following list is user submitted, and not CCB controlled.  They are released
   - Other Tools
     - CCDD: Command and Data Dictionary Tool at https://github.com/nasa/CCDD
     - Perfutils-java: Java based performance analyzer for cFS at https://github.com/nasa/perfutils-java
+    - gen_msgids: Deprecated tool that prints ApIDs
+    - gen_sch_tbl: Tool to generated SCH app tables
   - Other OSALs
     - TBD
   - Other PSPs
