@@ -36,9 +36,9 @@
  * up to reflect the official version number, it is not going to break the build in the meantime).
  */
 
-#define OS_MAJOR_VERSION 4
-#define OS_MINOR_VERSION 2
-#define OS_REVISION      93
+#define OS_MAJOR_VERSION 5
+#define OS_MINOR_VERSION 0
+#define OS_REVISION      0
 #define OS_MISSION_REV   0
 
 /**
