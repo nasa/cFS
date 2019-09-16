@@ -13,12 +13,19 @@ This distribution contains:
 
 1. The OS Abstraction Layer Library
 2. Tests and example applications
-3.  for the following targets:
-    - Generic PPC running vxWorks 6.x ( Tested on vxWorks 6.4 )
-    - Axiom m5235BCC Coldfire Evaluation board running the RTEMS 4.10 Operating System
-    - A PC running Linux ( Tested on CentOS 5.x and 6.x 32 bit )
-    - The sparc/sis simulator running RTEMS 4.10.2
-4. A directory structure and makefiles to manage it all.
+3. A directory structure and makefiles to manage it all.
+
+Release Notes:
+==============
+
+- 5.0.0: RELEASE CANDIDATE
+  - In build verification testing to be considered for official release
+  - Release documentation in work
+  - This is a point release from an internal repository
+- **4.2.1a OFFICIAL RELEASE**
+  - Released under the NOSA license, see [LICENSE](LICENSE)
+  - See [version description document](OSAL%204.2.1.0%20Version%20Description%20Document.pdf)
+  - This is a point release from an internal repository
 
 Getting Started:
 ================
