@@ -63,21 +63,22 @@
 int32 OS_Posix_FileSysAPI_Impl_Init(void)
 {
     return OS_SUCCESS;
-}
+} /* end OS_Posix_FileSysAPI_Impl_Init */
 
 
 /*
  * System Level API
  */
 
-/*---------------------------------------------------------------------------------------
-    Name: OS_FileSysStartVolume_Impl
-
-    Purpose: Starts/Registers a file system on the target
-
-    Returns: OS_FS_SUCCESS on creating the disk
-
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_FileSysStartVolume_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_FileSysStartVolume_Impl (uint32 filesys_id)
 {
     OS_filesys_internal_record_t  *local = &OS_filesys_table[filesys_id];
@@ -161,14 +162,14 @@ int32 OS_FileSysStartVolume_Impl (uint32 filesys_id)
 } /* end OS_FileSysStartVolume_Impl */
 
 
-/*---------------------------------------------------------------------------------------
-    Name: OS_FileSysStopVolume_Impl
-
-    Purpose: Stops/Unregisters a file system on the target
-
-    Returns: OS_FS_SUCCESS on creating the disk
-
----------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------
+ *
+ * Function: OS_FileSysStopVolume_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_FileSysStopVolume_Impl (uint32 filesys_id)
 {
     /*
@@ -182,16 +183,16 @@ int32 OS_FileSysStopVolume_Impl (uint32 filesys_id)
      */
     return OS_SUCCESS;
 
-} /* end OS_FileSysStartVolume_Impl */
+} /* end OS_FileSysStopVolume_Impl */
 
-/*---------------------------------------------------------------------------------------
-    Name: OS_FileSysFormatVolume_Impl
-
-    Purpose: Formats a file system on the target to prepare it for use
-
-    Returns: OS_FS_SUCCESS on creating the disk
-
----------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------
+ *
+ * Function: OS_FileSysFormatVolume_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_FileSysFormatVolume_Impl (uint32 filesys_id)
 {
     /*
@@ -205,17 +206,17 @@ int32 OS_FileSysFormatVolume_Impl (uint32 filesys_id)
      */
     return OS_SUCCESS;
 
-} /* end OS_FileSysStartVolume_Impl */
+} /* end OS_FileSysFormatVolume_Impl */
 
 
-/*--------------------------------------------------------------------------------------
-    Name: OS_mount
-
-    Purpose: mounts a drive.
-
-    Returns: OS_FS_SUCCESS if success
----------------------------------------------------------------------------------------*/
-
+/*----------------------------------------------------------------
+ *
+ * Function: OS_FileSysMountVolume_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_FileSysMountVolume_Impl (uint32 filesys_id)
 {
     OS_filesys_internal_record_t  *local = &OS_filesys_table[filesys_id];
@@ -261,16 +262,16 @@ int32 OS_FileSysMountVolume_Impl (uint32 filesys_id)
 
     return OS_FS_SUCCESS;
 
-}/* end OS_mount */
+} /* end OS_FileSysMountVolume_Impl */
 
-/*--------------------------------------------------------------------------------------
-    Name: OS_FileSysUnmountVolume_Impl
-
-    Purpose: unmounts a drive.
-
-    Returns: OS_FS_SUCCESS if success
----------------------------------------------------------------------------------------*/
-
+/*----------------------------------------------------------------
+ *
+ * Function: OS_FileSysUnmountVolume_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_FileSysUnmountVolume_Impl (uint32 filesys_id)
 {
     /*
@@ -282,15 +283,16 @@ int32 OS_FileSysUnmountVolume_Impl (uint32 filesys_id)
      */
     return OS_FS_SUCCESS;
 
-}/* end OS_umount */
+} /* end OS_FileSysUnmountVolume_Impl */
 
-/*--------------------------------------------------------------------------------------
-    Name: OS_FileSysStatVolume_Impl
-
-    Purpose: Returns stats about a volume
-
-    Returns: OS_FS_SUCCESS or OS_FS_ERROR if the OS call failed
----------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------
+ *
+ * Function: OS_FileSysStatVolume_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_FileSysStatVolume_Impl (uint32 filesys_id, OS_statvfs_t *result)
 {
    OS_filesys_internal_record_t  *local = &OS_filesys_table[filesys_id];
@@ -298,7 +300,7 @@ int32 OS_FileSysStatVolume_Impl (uint32 filesys_id, OS_statvfs_t *result)
 
    if ( statvfs(local->system_mountpt, &stat_buf) != 0 )
    {
-       return OS_FS_ERROR;
+       return OS_ERROR;
    }
 
    result->block_size = stat_buf.f_bsize;
@@ -306,19 +308,19 @@ int32 OS_FileSysStatVolume_Impl (uint32 filesys_id, OS_statvfs_t *result)
    result->total_blocks = stat_buf.f_blocks;
 
    return(OS_FS_SUCCESS);
-}/* end OS_fsBlocksFree */
+} /* end OS_FileSysStatVolume_Impl */
 
 
-/*--------------------------------------------------------------------------------------
-    Name: OS_FileSysCheckVolume_Impl
-
-    Purpose: Checks the drives for inconsisenties and either repairs it or not
-
-    Returns: OS_FS_SUCCESS if success
-
----------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------
+ *
+ * Function: OS_FileSysCheckVolume_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_FileSysCheckVolume_Impl (uint32 filesys_id, bool repair)
 {
-    return OS_FS_UNIMPLEMENTED;
-}/* end OS_FileSysCheckVolume_Impl */
+    return OS_ERR_NOT_IMPLEMENTED;
+} /* end OS_FileSysCheckVolume_Impl */
 

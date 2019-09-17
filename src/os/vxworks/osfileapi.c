@@ -95,6 +95,15 @@ const int OS_IMPL_REGULAR_FILE_FLAGS = 0;
  * defines the e.g. mkdir() system calls differently.
  */
 
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_DirCreate_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_DirCreate_Impl(const char *local_path, uint32 access)
 {
    int32 return_code;
@@ -109,8 +118,16 @@ int32 OS_DirCreate_Impl(const char *local_path, uint32 access)
    }
 
    return return_code;
-}
-
+} /* end OS_DirCreate_Impl */
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_DirOpen_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_DirOpen_Impl(uint32 local_id, const char *local_path)
 {
    OS_impl_dir_table[local_id] = opendir(local_path);
@@ -119,15 +136,31 @@ int32 OS_DirOpen_Impl(uint32 local_id, const char *local_path)
       return OS_FS_ERROR;
    }
    return OS_FS_SUCCESS;
-}
-
+} /* end OS_DirOpen_Impl */
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_DirClose_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_DirClose_Impl(uint32 local_id)
 {
    closedir(OS_impl_dir_table[local_id]);
    OS_impl_dir_table[local_id] = NULL;
    return OS_FS_SUCCESS;
-}
-
+} /* end OS_DirClose_Impl */
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_DirRead_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_DirRead_Impl(uint32 local_id, os_dirent_t *dirent)
 {
    struct dirent *de;
@@ -151,14 +184,30 @@ int32 OS_DirRead_Impl(uint32 local_id, os_dirent_t *dirent)
    dirent->FileName[OS_MAX_PATH_LEN - 1] = 0;
 
    return OS_FS_SUCCESS;
-}
-
+} /* end OS_DirRead_Impl */
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_DirRewind_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_DirRewind_Impl(uint32 local_id)
 {
    rewinddir(OS_impl_dir_table[local_id]);
    return OS_FS_SUCCESS;
-}
-
+} /* end OS_DirRewind_Impl */
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_DirRemove_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_DirRemove_Impl(const char *local_path)
 {
    if ( rmdir(local_path) < 0 )
@@ -167,7 +216,7 @@ int32 OS_DirRemove_Impl(const char *local_path)
    }
 
    return OS_FS_SUCCESS;
-}
+} /* end OS_DirRemove_Impl */
 
 
 /****************************************************************************************
@@ -181,6 +230,14 @@ int32 OS_DirRemove_Impl(const char *local_path)
 #define OS_SHELL_CMD_TASK_PRIORITY   250
 
 
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_VxWorks_StreamAPI_Impl_Init
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_VxWorks_StreamAPI_Impl_Init(void)
 {
     uint32 local_id;
@@ -195,24 +252,32 @@ int32 OS_VxWorks_StreamAPI_Impl_Init(void)
     }
 
     return OS_SUCCESS;
-}
+} /* end OS_VxWorks_StreamAPI_Impl_Init */
 
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_VxWorks_DirAPI_Impl_Init
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_VxWorks_DirAPI_Impl_Init(void)
 {
    memset(OS_impl_dir_table, 0, sizeof(OS_impl_dir_table));
    return OS_SUCCESS;
-}
+} /* end OS_VxWorks_DirAPI_Impl_Init */
 
 
-/* --------------------------------------------------------------------------------------
-    Name: OS_ShellOutputToFile
-
-    Purpose: Takes a shell command in and writes the output of that command to the specified file
-
-    Returns: OS_FS_ERROR if the command was not executed properly
-             OS_FS_ERR_INVALID_FD if the file descriptor passed in is invalid
-             OS_SUCCESS if success
- ---------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_ShellOutputToFile_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_ShellOutputToFile_Impl(uint32 file_id, const char *Cmd)
 {
     int32 ReturnCode = OS_FS_ERROR;
@@ -259,5 +324,5 @@ int32 OS_ShellOutputToFile_Impl(uint32 file_id, const char *Cmd)
 
     return ReturnCode;
 
-}/* end OS_ShellOutputToFile */
+} /* end OS_ShellOutputToFile_Impl */
 

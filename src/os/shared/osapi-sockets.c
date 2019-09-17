@@ -47,6 +47,14 @@ enum
                                 Init Functions
  ***************************************************************************************/
 
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_SocketAPI_Init
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_SocketAPI_Init(void)
 {
     /*
@@ -55,7 +63,7 @@ int32 OS_SocketAPI_Init(void)
      * cases where OS_INCLUDE_NETWORK is off
      */
     return OS_SUCCESS;
-}
+} /* end OS_SocketAPI_Init */
 
 #ifdef OS_INCLUDE_NETWORK
 
@@ -63,6 +71,14 @@ int32 OS_SocketAPI_Init(void)
                                 Local Helper Functions
  ***************************************************************************************/
 
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_CreateSocketName
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *
+ *-----------------------------------------------------------------*/
 static void OS_CreateSocketName(OS_stream_internal_record_t *sock, const OS_SockAddr_t *Addr, const char *parent_name)
 {
    int32 len;
@@ -86,12 +102,17 @@ static void OS_CreateSocketName(OS_stream_internal_record_t *sock, const OS_Sock
       snprintf(&sock->stream_name[len], sizeof(sock->stream_name) - len, "-%s", parent_name);
       sock->stream_name[sizeof(sock->stream_name) - 1] = 0;
    }
-}
+} /* end OS_CreateSocketName */
 
-/****************************************************************************************
-                                  SOCKETS API
- ***************************************************************************************/
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_SocketOpen
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_SocketOpen(uint32 *sock_id, OS_SocketDomain_t Domain, OS_SocketType_t Type)
 {
    OS_common_record_t *record;
@@ -122,8 +143,16 @@ int32 OS_SocketOpen(uint32 *sock_id, OS_SocketDomain_t Domain, OS_SocketType_t T
    }
 
    return return_code;
-}
-
+} /* end OS_SocketOpen */
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_SocketBind
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_SocketBind(uint32 sock_id, const OS_SockAddr_t *Addr)
 {
    OS_common_record_t *record;
@@ -167,8 +196,16 @@ int32 OS_SocketBind(uint32 sock_id, const OS_SockAddr_t *Addr)
 
    return return_code;
 
-}
-
+} /* end OS_SocketBind */
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_SocketAccept
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_SocketAccept(uint32 sock_id, uint32 *connsock_id, OS_SockAddr_t *Addr, int32 timeout)
 {
    OS_common_record_t *record;
@@ -255,8 +292,16 @@ int32 OS_SocketAccept(uint32 sock_id, uint32 *connsock_id, OS_SockAddr_t *Addr, 
    }
 
    return return_code;
-}
-
+} /* end OS_SocketAccept */
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_SocketConnect
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_SocketConnect(uint32 sock_id, const OS_SockAddr_t *Addr, int32 Timeout)
 {
    OS_common_record_t *record;
@@ -304,8 +349,16 @@ int32 OS_SocketConnect(uint32 sock_id, const OS_SockAddr_t *Addr, int32 Timeout)
 
 
    return return_code;
-}
-
+} /* end OS_SocketConnect */
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_SocketRecvFrom
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_SocketRecvFrom(uint32 sock_id, void *buffer, uint32 buflen, OS_SockAddr_t *RemoteAddr, int32 timeout)
 {
    OS_common_record_t *record;
@@ -339,8 +392,16 @@ int32 OS_SocketRecvFrom(uint32 sock_id, void *buffer, uint32 buflen, OS_SockAddr
    }
 
    return return_code;
-}
-
+} /* end OS_SocketRecvFrom */
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_SocketSendTo
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_SocketSendTo(uint32 sock_id, const void *buffer, uint32 buflen, const OS_SockAddr_t *RemoteAddr)
 {
    OS_common_record_t *record;
@@ -369,20 +430,17 @@ int32 OS_SocketSendTo(uint32 sock_id, const void *buffer, uint32 buflen, const O
    }
 
    return return_code;
-}
+} /* end OS_SocketSendTo */
 
-/*--------------------------------------------------------------------------------------
-    Name: OS_SocketGetIdByName
-
-    Purpose: This function tries to find a socket id given the name of the socket
-             The id is returned through sock_id
-
-    Returns: OS_INVALID_POINTER is id or name are NULL pointers
-             OS_ERR_NAME_TOO_LONG if the name given is to long to have been stored
-             OS_ERR_NAME_NOT_FOUND if the name was not found in the table
-             OS_SUCCESS if success
-
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_SocketGetIdByName
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_SocketGetIdByName (uint32 *sock_id, const char *sock_name)
 {
    int32 return_code;
@@ -395,19 +453,17 @@ int32 OS_SocketGetIdByName (uint32 *sock_id, const char *sock_name)
    return_code = OS_ObjectIdFindByName(LOCAL_OBJID_TYPE, sock_name, sock_id);
 
    return return_code;
-}/* end OS_SocketGetIdByName */
+} /* end OS_SocketGetIdByName */
 
-/*---------------------------------------------------------------------------------------
-    Name: OS_SocketGetInfo
-
-    Purpose: This function will pass back a pointer to structure that contains
-             all of the relevant info( name and creator) about the specified socket
-
-    Returns: OS_ERR_INVALID_ID if the id passed in is not a valid semaphore
-             OS_INVALID_POINTER if the count_prop pointer is null
-             OS_SUCCESS if success
----------------------------------------------------------------------------------------*/
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_SocketGetInfo
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_SocketGetInfo (uint32 sock_id, OS_socket_prop_t *sock_prop)
 {
    OS_common_record_t *record;
@@ -433,9 +489,16 @@ int32 OS_SocketGetInfo (uint32 sock_id, OS_socket_prop_t *sock_prop)
    }
 
    return return_code;
-} /* end OS_CountSemGetInfo */
-
-
+} /* end OS_SocketGetInfo */
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_SocketAddrInit
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_SocketAddrInit(OS_SockAddr_t *Addr, OS_SocketDomain_t Domain)
 {
     if (Addr == NULL)
@@ -444,8 +507,16 @@ int32 OS_SocketAddrInit(OS_SockAddr_t *Addr, OS_SocketDomain_t Domain)
     }
 
     return OS_SocketAddrInit_Impl(Addr, Domain);
-}
-
+} /* end OS_SocketAddrInit */
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_SocketAddrToString
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_SocketAddrToString(char *buffer, uint32 buflen, const OS_SockAddr_t *Addr)
 {
     if (Addr == NULL || buffer == NULL || buflen == 0)
@@ -454,8 +525,16 @@ int32 OS_SocketAddrToString(char *buffer, uint32 buflen, const OS_SockAddr_t *Ad
     }
 
     return OS_SocketAddrToString_Impl(buffer, buflen, Addr);
-}
-
+} /* end OS_SocketAddrToString */
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_SocketAddrFromString
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_SocketAddrFromString(OS_SockAddr_t *Addr, const char *string)
 {
     if (Addr == NULL || string == NULL)
@@ -464,8 +543,16 @@ int32 OS_SocketAddrFromString(OS_SockAddr_t *Addr, const char *string)
     }
 
     return OS_SocketAddrFromString_Impl(Addr, string);
-}
-
+} /* end OS_SocketAddrFromString */
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_SocketAddrGetPort
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_SocketAddrGetPort(uint16 *PortNum, const OS_SockAddr_t *Addr)
 {
     if (PortNum == NULL || Addr == NULL)
@@ -474,8 +561,16 @@ int32 OS_SocketAddrGetPort(uint16 *PortNum, const OS_SockAddr_t *Addr)
     }
 
     return OS_SocketAddrGetPort_Impl(PortNum, Addr);
-}
-
+} /* end OS_SocketAddrGetPort */
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_SocketAddrSetPort
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_SocketAddrSetPort(OS_SockAddr_t *Addr, uint16 PortNum)
 {
     if (Addr == NULL)
@@ -484,7 +579,7 @@ int32 OS_SocketAddrSetPort(OS_SockAddr_t *Addr, uint16 PortNum)
     }
 
     return OS_SocketAddrSetPort_Impl(Addr, PortNum);
-}
+} /* end OS_SocketAddrSetPort */
 
 #endif
 

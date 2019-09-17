@@ -75,34 +75,30 @@ typedef union
                                   DIRECTORY API
  ***************************************************************************************/
 
-/*---------------------------------------------------------------------------------------
-   Name: OS_DirAPI_Init
-
-   Purpose: Init function for OS-independent layer
-
-   Returns: OS_SUCCESS
-
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_DirAPI_Init
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *           Init function for OS-independent layer
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_DirAPI_Init(void)
 {
    memset(OS_dir_table, 0, sizeof(OS_dir_table));
    return OS_SUCCESS;
-}
+} /* end OS_DirAPI_Init */
 
-/*--------------------------------------------------------------------------------------
-    Name: OS_mkdir
-
-    Purpose: makes a directory specified by path.
-
-    Returns: OS_FS_ERR_INVALID_POINTER if path is NULL
-             OS_FS_ERR_PATH_TOO_LONG if the path is too long to be stored locally
-             OS_FS_ERR_PATH_INVALID if path cannot be parsed
-             OS_FS_ERROR if the OS call fails
-             OS_FS_SUCCESS if success
-
-    Note: The access parameter is currently unused.
----------------------------------------------------------------------------------------*/
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_mkdir
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_mkdir (const char *path, uint32 access)
 {
    int32 return_code;
@@ -116,16 +112,17 @@ int32 OS_mkdir (const char *path, uint32 access)
 
    return return_code;
 
-}/* end OS_mkdir */
+} /* end OS_mkdir */
 
-/*--------------------------------------------------------------------------------------
-    Name: OS_DirectoryOpen
-
-    Purpose: opens a directory for searching, OSAL-style API
-
-    Returns: OS_SUCCESS or error code
-
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_DirectoryOpen
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_DirectoryOpen(uint32 *dir_id, const char *path)
 {
     char local_path[OS_MAX_LOCAL_PATH_LEN];
@@ -161,15 +158,15 @@ int32 OS_DirectoryOpen(uint32 *dir_id, const char *path)
 } /* end OS_DirectoryOpen */
 
 
-/*--------------------------------------------------------------------------------------
-    Name: OS_DirectoryClose
-
-    Purpose: close a directory
-
-    Returns: OS_FS_SUCCESS if success
-             OS_FS_ERROR if close failed
----------------------------------------------------------------------------------------*/
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_DirectoryClose
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_DirectoryClose(uint32 dir_id)
 {
    OS_common_record_t *record;
@@ -195,13 +192,15 @@ int32 OS_DirectoryClose(uint32 dir_id)
    return return_code;
 } /* end OS_DirectoryClose */
 
-/*--------------------------------------------------------------------------------------
-    Name: OS_DirectoryRead
-
-    Purpose: obtains directory entry data for the next file from an open directory
-
-    Returns: OS_SUCCESS or error code
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_DirectoryRead
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_DirectoryRead(uint32 dir_id, os_dirent_t *dirent)
 {
    OS_common_record_t *record;
@@ -236,13 +235,15 @@ int32 OS_DirectoryRead(uint32 dir_id, os_dirent_t *dirent)
 
 } /* end OS_DirectoryRead */
 
-/*--------------------------------------------------------------------------------------
-    Name: OS_DirectoryRewind
-
-    Purpose: rewind a directory
-
-    Returns: OS_SUCCESS or error code
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_DirectoryRewind
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_DirectoryRewind(uint32 dir_id)
 {
    OS_common_record_t *record;
@@ -259,18 +260,15 @@ int32 OS_DirectoryRewind(uint32 dir_id)
    return return_code;
 } /* end OS_DirectoryRewind */
 
-/*--------------------------------------------------------------------------------------
-    Name: OS_rmdir
-
-    Purpose: removes a directory from  the structure (must be an empty directory)
-
-    Returns: OS_FS_ERR_INVALID_POINTER if path is NULL
-             OS_FS_ERR_PATH_INVALID if path cannot be parsed
-             OS_FS_ER_PATH_TOO_LONG
-             OS_FS_SUCCESS on success
-             OS_FS_ERROR if the directory remove operation failed
----------------------------------------------------------------------------------------*/
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_rmdir
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32  OS_rmdir (const char *path)
 {
    int32 return_code;
@@ -284,23 +282,20 @@ int32  OS_rmdir (const char *path)
 
    return return_code;
 
-}/* end OS_rmdir */
+} /* end OS_rmdir */
 
 /*
  * Compatibility layers for old-style API
  */
 #ifndef OSAL_OMIT_DEPRECATED
-/*--------------------------------------------------------------------------------------
-    Name: OS_opendir
-
-    Purpose: opens a directory for searching
-             Backward-compatible API
-
-    Returns: NULL if there is an error
-             a "pointer" to a directory if success
-
----------------------------------------------------------------------------------------*/
-
+                        
+/*----------------------------------------------------------------
+  
+ * Function: OS_opendir
+ *
+ *  Purpose: Open a directory.  Deprecated function.
+ *
+ *-----------------------------------------------------------------*/
 os_dirp_t OS_opendir (const char *path)
 {
     OS_Dirp_Xltr_t  dirdescptr;
@@ -309,17 +304,16 @@ os_dirp_t OS_opendir (const char *path)
     OS_DirectoryOpen(&dirdescptr.dir_id, path);
 
     return dirdescptr.dirp;
-}
+} /* end OS_opendir */
 
-/*--------------------------------------------------------------------------------------
-    Name: OS_closedir
-
-    Purpose: closes a directory
-
-    Returns: OS_FS_SUCCESS if success
-             OS_FS_ERROR if close failed
----------------------------------------------------------------------------------------*/
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_closedir
+ *
+ *  Purpose: closes a directory.  Deprecated function.
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_closedir (os_dirp_t directory)
 {
     OS_Dirp_Xltr_t  dirdescptr;
@@ -331,21 +325,18 @@ int32 OS_closedir (os_dirp_t directory)
     dirdescptr.dirp = directory;
 
     return (OS_DirectoryClose(dirdescptr.dir_id));
-}
+} /* end OS_closedir */
 
-/*--------------------------------------------------------------------------------------
-    Name: OS_readdir
-
-    Purpose: obtains directory entry data for the next file from an open directory
-
-    Returns: a pointer to the next entry for success
-             NULL if error or end of directory is reached
-
-    NOTE: this function is not thread-safe, and it cannot ever be thread-safe.
-          Whoever implemented this originally copied the old UNIX API which is also broken.
-          The problem is that the returned pointer might be overwritten by another
-          call to OS_readdir by another thread.
----------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------
+ *
+ * Function: OS_readdir
+ *
+ *  Purpose: read a directory.  Deprecated function.
+ *
+ *  NOTE: this function is not thread-safe, and it cannot ever be thread-safe,
+ *  which is one reason why this is deprecated.
+ *
+ *-----------------------------------------------------------------*/
 os_dirent_t *OS_readdir (os_dirp_t directory)
 {
     OS_Dirp_Xltr_t  dirdescptr;
@@ -362,14 +353,15 @@ os_dirent_t *OS_readdir (os_dirp_t directory)
     }
 
     return tempptr;
-}
-/*--------------------------------------------------------------------------------------
-    Name: OS_rewinddir
+} /* end OS_readdir */
 
-    Purpose: Rewinds the directory pointer
-
-    Returns: N/A
----------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------
+ *
+ * Function: OS_rewinddir
+ *
+ *  Purpose: Rewinds the directory pointer.  Deprecated Function.
+ *
+ *-----------------------------------------------------------------*/
 void  OS_rewinddir (os_dirp_t directory )
 {
     OS_Dirp_Xltr_t  dirdescptr;
@@ -377,7 +369,7 @@ void  OS_rewinddir (os_dirp_t directory )
     dirdescptr.dirp = directory;
 
     OS_DirectoryRewind(dirdescptr.dir_id);
-}
+} /* end OS_rewinddir */
 
 #endif
 

@@ -56,19 +56,22 @@ enum
 OS_task_internal_record_t    OS_task_table          [LOCAL_NUM_OBJECTS];
 
 
-/*---------------------------------------------------------------------------------------
-   Name: OS_TaskPrepare
-
-   Purpose: Helper function for registering new tasks in the global database.
-            This maps the given task_id back to the array entry (OS_task_internal_record_t)
-            so that the caller can call the real entry point.
-
-            In the process, this also verifies that the task_id is valid and
-            it matches the expected entry, and this calls the implementation's
-            "Register" function to make sure that the appropriate thread-specific
-            variables are set - this guarantees that GetTaskId will work.
-
----------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------
+ *
+ * Function: OS_TaskPrepare
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *           Helper function for registering new tasks in the global database.
+ *           This maps the given task_id back to the array entry (OS_task_internal_record_t)
+ *           so that the caller can call the real entry point.
+ *
+ *           In the process, this also verifies that the task_id is valid and
+ *           it matches the expected entry, and this calls the implementation's
+ *           "Register" function to make sure that the appropriate thread-specific
+ *           variables are set - this guarantees that GetTaskId will work.
+ *
+ *
+ *-----------------------------------------------------------------*/
 static int32 OS_TaskPrepare(uint32 task_id, osal_task_entry *entrypt)
 {
    int32 return_code;
@@ -111,18 +114,20 @@ static int32 OS_TaskPrepare(uint32 task_id, osal_task_entry *entrypt)
    }
 
    return return_code;
-}
+} /* end OS_TaskPrepare */
 
-/*---------------------------------------------------------------------------------------
-   Name: OS_TaskEntryPoint
-
-   Purpose: The entry point for all OSAL tasks
-            This function is called from the OS-specific layers after a task is spawned
-            and is the first thing to run under the context of the task itself.
-            This will register the task appropriately in the global data structures and
-            call the user's intended entry point function.
-
----------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------
+ *
+ * Function: OS_TaskEntryPoint
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *           The entry point for all OSAL tasks
+ *           This function is called from the OS-specific layers after a task is spawned
+ *           and is the first thing to run under the context of the task itself.
+ *           This will register the task appropriately in the global data structures and
+ *           call the user's intended entry point function.
+ *
+ *-----------------------------------------------------------------*/
 void OS_TaskEntryPoint(uint32 task_id)
 {
     osal_task_entry task_entry;
@@ -137,7 +142,7 @@ void OS_TaskEntryPoint(uint32 task_id)
 
    /* If the function returns, treat as a normal exit and do the proper cleanup */
    OS_TaskExit();
-}
+} /* end OS_TaskEntryPoint */
 
 /*
  *********************************************************************************
@@ -145,37 +150,30 @@ void OS_TaskEntryPoint(uint32 task_id)
  *********************************************************************************
  */
 
-/*---------------------------------------------------------------------------------------
-   Name: OS_TaskAPI_Init
-
-   Purpose: Init function for OS-independent layer
-
-   Returns: OS_SUCCESS
-
----------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------
+ *
+ * Function: OS_TaskAPI_Init
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *           Init function for OS-independent layer
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_TaskAPI_Init(void)
 {
    memset(OS_task_table, 0, sizeof(OS_task_table));
    return OS_SUCCESS;
-}
+} /* end OS_TaskAPI_Init */
 
 
-/*---------------------------------------------------------------------------------------
-   Name: OS_TaskCreate
-
-   Purpose: Creates a task and starts running it.
-
-   returns: OS_INVALID_POINTER if any of the necessary pointers are NULL
-            OS_ERR_NAME_TOO_LONG if the name of the task is too long to be copied
-            OS_ERR_INVALID_PRIORITY if the priority is bad
-            OS_ERR_NO_FREE_IDS if there can be no more tasks created
-            OS_ERR_NAME_TAKEN if the name specified is already used by a task
-            OS_ERROR if the operating system calls fail
-            OS_SUCCESS if success
-
-    NOTES: task_id is passed back to the user as the ID. stack_pointer is usually null.
-
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_TaskCreate
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_TaskCreate (uint32 *task_id, const char *task_name, osal_task_entry function_pointer,
                       uint32 *stack_pointer, uint32 stack_size, uint32 priority, uint32 flags)
 {
@@ -226,18 +224,18 @@ int32 OS_TaskCreate (uint32 *task_id, const char *task_name, osal_task_entry fun
 
 
    return return_code;
-}/* end OS_TaskCreate */
+} /* end OS_TaskCreate */
 
 
-/*--------------------------------------------------------------------------------------
-     Name: OS_TaskDelete
-
-    Purpose: Deletes the specified Task and removes it from the OS_task_table.
-
-    returns: OS_ERR_INVALID_ID if the ID given to it is invalid
-             OS_ERROR if the OS delete call fails
-             OS_SUCCESS if success
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_TaskDelete
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_TaskDelete (uint32 task_id)
 {
    OS_common_record_t *record;
@@ -277,16 +275,17 @@ int32 OS_TaskDelete (uint32 task_id)
    }
 
    return return_code;
-}/* end OS_TaskDelete */
+} /* end OS_TaskDelete */
 
-/*--------------------------------------------------------------------------------------
-     Name: OS_TaskExit
-
-    Purpose: Exits the calling task and removes it from the OS_task_table.
-
-    returns: Nothing
----------------------------------------------------------------------------------------*/
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_TaskExit
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 void OS_TaskExit()
 {
    OS_common_record_t *record;
@@ -305,33 +304,32 @@ void OS_TaskExit()
    OS_TaskExit_Impl();
 
    /* Impl function never returns */
-}/*end OS_TaskExit */
+} /* end OS_TaskExit */
 
-/*---------------------------------------------------------------------------------------
-   Name: OS_TaskDelay
-
-   Purpose: Delay a task for specified amount of milliseconds
-
-   returns: OS_ERROR if sleep fails or millisecond = 0
-            OS_SUCCESS if success
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_TaskDelay
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_TaskDelay(uint32 millisecond)
 {
    /* just call the implementation */
    return OS_TaskDelay_Impl(millisecond);
-}/* end OS_TaskDelay */
+} /* end OS_TaskDelay */
 
-/*---------------------------------------------------------------------------------------
-   Name: OS_TaskSetPriority
-
-   Purpose: Sets the given task to a new priority
-
-    returns: OS_ERR_INVALID_ID if the ID passed to it is invalid
-             OS_ERR_INVALID_PRIORITY if the priority is greater than the max
-             allowed
-             OS_ERROR if the OS call to change the priority fails
-             OS_SUCCESS if success
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_TaskSetPriority
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_TaskSetPriority (uint32 task_id, uint32 new_priority)
 {
    OS_common_record_t *record;
@@ -365,15 +363,15 @@ int32 OS_TaskSetPriority (uint32 task_id, uint32 new_priority)
 } /* end OS_TaskSetPriority */
 
 
-/*---------------------------------------------------------------------------------------
-   Name: OS_TaskRegister
-
-   Purpose: Obsolete function retained for compatibility purposes.  Does Nothing.
-            Formerly this would register the task ID in the global table for later lookup,
-            but that function is now done automatically when the task is spawned.
-
-   Returns: OS_SUCCESS
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_TaskRegister
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_TaskRegister (void)
 {
     OS_common_record_t *record;
@@ -384,15 +382,17 @@ int32 OS_TaskRegister (void)
      * this will return NON success when called from a non-task context
      */
     return OS_ObjectIdGetById(OS_LOCK_MODE_NONE, LOCAL_OBJID_TYPE, OS_TaskGetId_Impl(), &local_id, &record);
-}/* end OS_TaskRegister */
+} /* end OS_TaskRegister */
 
-/*---------------------------------------------------------------------------------------
-   Name: OS_TaskGetId
-
-   Purpose: This function returns the task id of the calling task
-
-   Returns: Task ID, or zero if the operation failed (zero is never a valid ID for anything)
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_TaskGetId
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 uint32 OS_TaskGetId (void)
 {
    OS_common_record_t *record;
@@ -409,19 +409,17 @@ uint32 OS_TaskGetId (void)
    }
 
    return(task_id);
-}/* end OS_TaskGetId */
+} /* end OS_TaskGetId */
 
-/*--------------------------------------------------------------------------------------
-    Name: OS_TaskGetIdByName
-
-    Purpose: This function tries to find a task Id given the name of a task
-
-    Returns: OS_INVALID_POINTER if the pointers passed in are NULL
-             OS_ERR_NAME_TOO_LONG if th ename to found is too long to begin with
-             OS_ERR_NAME_NOT_FOUND if the name wasn't found in the table
-             OS_SUCCESS if SUCCESS
----------------------------------------------------------------------------------------*/
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_TaskGetIdByName
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_TaskGetIdByName (uint32 *task_id, const char *task_name)
 {
    int32 return_code;
@@ -435,20 +433,17 @@ int32 OS_TaskGetIdByName (uint32 *task_id, const char *task_name)
 
    return return_code;
 
-}/* end OS_TaskGetIdByName */
+} /* end OS_TaskGetIdByName */
 
-/*---------------------------------------------------------------------------------------
-    Name: OS_TaskGetInfo
-
-    Purpose: This function will pass back a pointer to structure that contains
-             all of the relevant info (creator, stack size, priority, name) about the
-             specified task.
-
-    Returns: OS_ERR_INVALID_ID if the ID passed to it is invalid
-             OS_INVALID_POINTER if the task_prop pointer is NULL
-             OS_SUCCESS if it copied all of the relevant info over
-
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_TaskGetInfo
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_TaskGetInfo (uint32 task_id, OS_task_prop_t *task_prop)
 {
    OS_common_record_t *record;
@@ -484,14 +479,15 @@ int32 OS_TaskGetInfo (uint32 task_id, OS_task_prop_t *task_prop)
 
 } /* end OS_TaskGetInfo */
 
-/*--------------------------------------------------------------------------------------
-     Name: OS_TaskInstallDeleteHandler
-
-    Purpose: Installs a handler for when the task is deleted.
-
-    returns: status
----------------------------------------------------------------------------------------*/
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_TaskInstallDeleteHandler
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_TaskInstallDeleteHandler(osal_task_entry function_pointer)
 {
    OS_common_record_t *record;
@@ -512,4 +508,4 @@ int32 OS_TaskInstallDeleteHandler(osal_task_entry function_pointer)
    }
 
    return return_code;
-}/*end OS_TaskInstallDeleteHandler */
+} /* end OS_TaskInstallDeleteHandler */

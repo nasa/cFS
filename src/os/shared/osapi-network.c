@@ -38,22 +38,28 @@
                                   NETWORK API
  ***************************************************************************************/
 
-/* Initialization function */
+/*----------------------------------------------------------------
+ *
+ * Function: OS_NetworkAPI_Init
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_NetworkAPI_Init(void)
 {
     return OS_SUCCESS;
-}
+} /* end OS_NetworkAPI_Init */
 
 
-/*--------------------------------------------------------------------------------------
-    Name: OS_NetworkGetHostName
-
-    Purpose: Gets the name of the current host
-
-    Returns: OS_ERROR if the  host name could not be found
-             OS_SUCCESS if the name was copied to host_name successfully
----------------------------------------------------------------------------------------*/
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_NetworkGetHostName
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_NetworkGetHostName (char *host_name, uint32 name_len)
 {
    uint32 return_code;
@@ -79,21 +85,19 @@ int32 OS_NetworkGetHostName (char *host_name, uint32 name_len)
    }
 
    return(return_code);
-}/* end OS_NetworkGetHostName */
+} /* end OS_NetworkGetHostName */
 
 
 
-/*--------------------------------------------------------------------------------------
-    Name: OS_NetworkGetID
-
-    Purpose: Gets the ID of the current Network
-
-    Returns: The ID or fixed value of -1 if the host id could not be found
-             Note this is _not_ an OS_ERROR code -- it is not possible
-             to differentiate between error codes and valid network IDs here.
-             It is assumed, however, that -1 is never a valid ID.
-
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_NetworkGetID
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_NetworkGetID             (void)
 {
     int32 IdBuf;
@@ -107,6 +111,6 @@ int32 OS_NetworkGetID             (void)
 
     return IdBuf;
 
-}/* end OS_NetworkGetID */
+} /* end OS_NetworkGetID */
 
 

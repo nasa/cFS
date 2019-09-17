@@ -33,14 +33,15 @@
 #include "os-impl.h"
 
 
-/*---------------------------------------------------------------------------------------
-   Name: OS_HeapGetInfo
-
-   Purpose: Return current info on the heap
-
-   Parameters:
-
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_HeapGetInfo
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_HeapGetInfo       (OS_heap_prop_t *heap_prop)
 {
     if (heap_prop == NULL)
@@ -49,5 +50,5 @@ int32 OS_HeapGetInfo       (OS_heap_prop_t *heap_prop)
     }
 
     return OS_HeapGetInfo_Impl(heap_prop);
-}
+} /* end OS_HeapGetInfo */
 

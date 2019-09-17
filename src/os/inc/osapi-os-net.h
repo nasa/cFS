@@ -107,19 +107,21 @@ typedef struct
  * --------------------------------------------------------------------------------------
  */
 
+/*-------------------------------------------------------------------------------------*/
 /**
- * Initialize a socket address structure to hold an address of the given family
+ * @brief Initialize a socket address structure to hold an address of the given family
  *
  * The address is set to a suitable default value for the family.
  *
- * @param  Addr         The address buffer to initialize
- * @param  Domain       The address family
+ * @param[out]  Addr         The address buffer to initialize
+ * @param[in]   Domain       The address family
  * @returns OS_SUCCESS if successful
  */
 int32 OS_SocketAddrInit(OS_SockAddr_t *Addr, OS_SocketDomain_t Domain);
 
+/*-------------------------------------------------------------------------------------*/
 /**
- * Get a string representation of a network host address
+ * @brief Get a string representation of a network host address
  *
  * The specific format of the output string depends on the address family.
  *
@@ -129,15 +131,16 @@ int32 OS_SocketAddrInit(OS_SockAddr_t *Addr, OS_SocketDomain_t Domain);
  *
  * @note For IPv4, this would typically be the dotted-decimal format (X.X.X.X).
  *
- * @param  buffer       Buffer to hold the output string
- * @param  buflen       Maximum length of the output string
- * @param  Addr         The network address buffer to convert
+ * @param[out]  buffer       Buffer to hold the output string
+ * @param[in]   buflen       Maximum length of the output string
+ * @param[in]   Addr         The network address buffer to convert
  * @returns OS_SUCCESS if successful
  */
 int32 OS_SocketAddrToString(char *buffer, uint32 buflen, const OS_SockAddr_t *Addr);
 
+/*-------------------------------------------------------------------------------------*/
 /**
- * Set a network host address from a string representation
+ * @brief Set a network host address from a string representation
  *
  * The specific format of the output string depends on the address family.
  *
@@ -150,34 +153,36 @@ int32 OS_SocketAddrToString(char *buffer, uint32 buflen, const OS_SockAddr_t *Ad
  * Since many embedded deployments do not have name services, this should
  * not be relied upon.
  *
- * @param  Addr         The address buffer to initialize
- * @param  string       The string to initialize the address from.
+ * @param[out]  Addr         The address buffer to initialize
+ * @param[in]   string       The string to initialize the address from.
  * @returns OS_SUCCESS if successful
  */
 int32 OS_SocketAddrFromString(OS_SockAddr_t *Addr, const char *string);
 
+/*-------------------------------------------------------------------------------------*/
 /**
- * Get the port number of a network address
+ * @brief Get the port number of a network address
  *
  * For network prototcols that have the concept of a port number (such
  * as TCP/IP and UDP/IP) this function gets the port number from the
  * address structure.
  *
- * @param  PortNum      Buffer to store the port number
- * @param  Addr         The network address buffer
+ * @param[out]  PortNum      Buffer to store the port number
+ * @param[in]   Addr         The network address buffer
  * @returns OS_SUCCESS if successful
  */
 int32 OS_SocketAddrGetPort(uint16 *PortNum, const OS_SockAddr_t *Addr);
 
+/*-------------------------------------------------------------------------------------*/
 /**
- * Get the port number of a network address
+ * @brief Set the port number of a network address
  *
  * For network prototcols that have the concept of a port number (such
- * as TCP/IP and UDP/IP) this function gets the port number from the
+ * as TCP/IP and UDP/IP) this function sets the port number from the
  * address structure.
  *
- * @param  PortNum      Buffer to store the port number
- * @param  Addr         The network address buffer
+ * @param[in]   PortNum      The port number to set
+ * @param[out]  Addr         The network address buffer
  * @returns OS_SUCCESS if successful
  */
 int32 OS_SocketAddrSetPort(OS_SockAddr_t *Addr, uint16 PortNum);
@@ -202,19 +207,21 @@ int32 OS_SocketAddrSetPort(OS_SockAddr_t *Addr, uint16 PortNum);
  */
 
 /**
- * Opens a socket.
+ * @brief Opens a socket.
  *
  * A new, unconnected and unbound socket is allocated of the given domain and type.
  *
- * @param  sock_id  Buffer to hold the OSAL ID
- * @param  Domain   The domain / address family of the socket (INET or INET6, etc)
- * @param  Type     The type of the socket (STREAM or DATAGRAM)
+ * @param[out]  sock_id  Buffer to hold the OSAL ID
+ * @param[in]   Domain   The domain / address family of the socket (INET or INET6, etc)
+ * @param[in]   Type     The type of the socket (STREAM or DATAGRAM)
+ *
  * @returns OS_SUCCESS if successful
  */
 int32 OS_SocketOpen(uint32 *sock_id, OS_SocketDomain_t Domain, OS_SocketType_t Type);
 
+/*-------------------------------------------------------------------------------------*/
 /**
- * Binds a socket to a given local address.
+ * @brief Binds a socket to a given local address.
  *
  * The specified socket will be bound to the local address and port, if available.
  *
@@ -223,28 +230,30 @@ int32 OS_SocketOpen(uint32 *sock_id, OS_SocketDomain_t Domain, OS_SocketType_t T
  * If the socket is connection-oriented (stream), then this will also put the
  * socket into a listening state for incoming connections at the local address.
  *
- * @param  sock_id  The socket ID
- * @param  Addr     The local address to bind to
+ * @param[in]   sock_id  The socket ID
+ * @param[in]   Addr     The local address to bind to
  * @returns OS_SUCCESS if successful
  */
 int32 OS_SocketBind(uint32 sock_id, const OS_SockAddr_t *Addr);
 
+/*-------------------------------------------------------------------------------------*/
 /**
- * Connects a socket to a given remote address.
+ * @brief Connects a socket to a given remote address.
  *
  * The socket will be connected to the remote address and port, if available.
  * This only applies to stream-oriented sockets.  Calling this on a datagram
  * socket will return an error (these sockets should use SendTo/RecvFrom).
  *
- * @param  sock_id  The socket ID
- * @param  Addr     The remote address to connect to
- * @param  timeout  The maximum amount of time to wait, or OS_PEND to wait forever
+ * @param[in]   sock_id  The socket ID
+ * @param[in]   Addr     The remote address to connect to
+ * @param[in]   timeout  The maximum amount of time to wait, or OS_PEND to wait forever
  * @returns OS_SUCCESS if successful
  */
 int32 OS_SocketConnect(uint32 sock_id, const OS_SockAddr_t *Addr, int32 timeout);
 
+/*-------------------------------------------------------------------------------------*/
 /**
- * Waits for and accept the next incoming connection on the given socket
+ * @brief Waits for and accept the next incoming connection on the given socket
  *
  * This is used for sockets operating in a "server" role.  The socket must be
  * a stream type (connection-oriented) and previously bound to a local address
@@ -254,85 +263,113 @@ int32 OS_SocketConnect(uint32 sock_id, const OS_SockAddr_t *Addr, int32 timeout)
  * The new stream connection is then returned to the caller and the original
  * server socket ID can be reused for the next connection.
  *
- * @param  sock_id      The server socket ID, previously bound using OS_SocketBind()
- * @param  connsock_id  The connection socket, a new ID that can be read/written
- * @param  Addr         The remote address of the incoming connection
- * @param  timeout      The maximum amount of time to wait, or OS_PEND to wait forever
+ * @param[in]   sock_id      The server socket ID, previously bound using OS_SocketBind()
+ * @param[out]  connsock_id  The connection socket, a new ID that can be read/written
+ * @param[in]   Addr         The remote address of the incoming connection
+ * @param[in]   timeout      The maximum amount of time to wait, or OS_PEND to wait forever
+ *
  * @returns OS_SUCCESS if successful
  */
 int32 OS_SocketAccept(uint32 sock_id, uint32 *connsock_id, OS_SockAddr_t *Addr, int32 timeout);
 
+/*-------------------------------------------------------------------------------------*/
 /**
- * Reads data from a message-oriented (datagram) socket
+ * @brief Reads data from a message-oriented (datagram) socket
  *
  * If a message is already available on the socket, this should immediately return
  * that data without blocking.  Otherwise, it may block up to the given timeout.
  *
- * @param  sock_id      The socket ID, previously bound using OS_SocketBind()
- * @param  buffer       Pointer to message data receive buffer
- * @param  buflen       The maximum length of the message data to receive
- * @param  RemoteAddr   Buffer to store the remote network address (may be NULL)
- * @param  timeout      The maximum amount of time to wait, or OS_PEND to wait forever
- * @returns OS_SUCCESS if successful
+ * @param[in]   sock_id      The socket ID, previously bound using OS_SocketBind()
+ * @param[out]  buffer       Pointer to message data receive buffer
+ * @param[in]   buflen       The maximum length of the message data to receive
+ * @param[out]  RemoteAddr   Buffer to store the remote network address (may be NULL)
+ * @param[in]   timeout      The maximum amount of time to wait, or OS_PEND to wait forever
+ *
+ * @returns non-negative count of actual bytes received if successful, or an appropriate error code
  */
 int32 OS_SocketRecvFrom(uint32 sock_id, void *buffer, uint32 buflen, OS_SockAddr_t *RemoteAddr, int32 timeout);
 
+/*-------------------------------------------------------------------------------------*/
 /**
- * Sends data to a message-oriented (datagram) socket
+ * @brief Sends data to a message-oriented (datagram) socket
  *
  * This sends data in a non-blocking mode.  If the socket is not currently able to
  * queue the message, such as if its outbound buffer is full, then this returns
  * an error code.
  *
- * @param  sock_id      The socket ID, which must be of the datagram type
- * @param  buffer       Pointer to message data to send
- * @param  buflen       The length of the message data to send
- * @param  RemoteAddr   Buffer containing the remote network address to send to
- * @returns OS_SUCCESS if successful
+ * @param[in]   sock_id      The socket ID, which must be of the datagram type
+ * @param[in]   buffer       Pointer to message data to send
+ * @param[in]   buflen       The length of the message data to send
+ * @param[in]   RemoteAddr   Buffer containing the remote network address to send to
+ *
+ * @returns non-negative count of actual bytes sent if successful, or an appropriate error code
  */
 int32 OS_SocketSendTo(uint32 sock_id, const void *buffer, uint32 buflen, const OS_SockAddr_t *RemoteAddr);
 
+/*-------------------------------------------------------------------------------------*/
 /**
- * Gets an OSAL ID from a given name
+ * @brief Gets an OSAL ID from a given name
  *
- * OSAL Sockets use generated names according to the address and type.
+ * @note OSAL Sockets use generated names according to the address and type.
  *
  * @sa OS_SocketGetInfo()
  *
- * @param  sock_id      Buffer to hold result
- * @param  sock_name    Name of socket to find
- * @returns OS_SUCCESS if successful
+ * @param[out]  sock_id      Buffer to hold result
+ * @param[in]   sock_name    Name of socket to find
+ *
+ * @returns OS_SUCCESS if successful, or appropriate error code
+ * OS_INVALID_POINTER is id or name are NULL pointers
+ * OS_ERR_NAME_TOO_LONG if the name given is to long to have been stored
+ * OS_ERR_NAME_NOT_FOUND if the name was not found in the table
  */
 int32 OS_SocketGetIdByName (uint32 *sock_id, const char *sock_name);
 
+/*-------------------------------------------------------------------------------------*/
 /**
- * Gets information about an OSAL Socket ID
+ * @brief Gets information about an OSAL Socket ID
  *
  * OSAL Sockets use generated names according to the address and type.
  * This allows applications to find the name of a given socket.
  *
- * @param  sock_id      The socket ID
- * @param  sock_prop    Buffer to hold socket information
- * @returns OS_SUCCESS if successful
+ * @param[in]   sock_id      The socket ID
+ * @param[out]  sock_prop    Buffer to hold socket information
+ *
+ * @returns OS_SUCCESS if successful, or appropriate error code
+ * OS_ERR_INVALID_ID if the id passed in is not a valid semaphore
+ * OS_INVALID_POINTER if the count_prop pointer is null
  */
 int32 OS_SocketGetInfo (uint32 sock_id, OS_socket_prop_t *sock_prop);
 
 
-/*
-** OS_NetworkGetID is currently [[deprecated]] as its behavior is
-** unknown and not consistent across operating systems.
-*/
+/*-------------------------------------------------------------------------------------*/
+/**
+ * @brief  Gets the network ID of the local machine
+ *
+ * The ID is an implementation-defined value and may not be consistent
+ * in meaning across different platform types.
+ *
+ * @note this API may be removed in a future version of OSAL due to
+ * inconsistencies between platforms.
+ *
+ * @returns The ID or fixed value of -1 if the host id could not be found
+ *
+ * Note it is not possible to differentiate between error codes and valid
+ * network IDs here. It is assumed, however, that -1 is never a valid ID.
+ *
+ */
 int32 OS_NetworkGetID             (void);
 
 
+/*-------------------------------------------------------------------------------------*/
 /**
- * Gets the local machine network host name
+ * @brief Gets the local machine network host name
  *
  * If configured in the underlying network stack,
  * this function retrieves the local hostname of the system.
  *
- * @param  host_name    Buffer to hold name information
- * @param  name_len     Maximum length of host name buffer
+ * @param[out]  host_name    Buffer to hold name information
+ * @param[in]   name_len     Maximum length of host name buffer
+ *
  * @returns OS_SUCCESS if successful
  */
 int32 OS_NetworkGetHostName       (char *host_name, uint32 name_len);

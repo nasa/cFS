@@ -31,17 +31,15 @@
  */
 #include "../portable/os-impl-posix-dl.c"
 
-/*--------------------------------------------------------------------------------------
-    Name: OS_ModuleInfo
-
-    Purpose: Returns information about the loadable module
-
-    Parameters:
-
-    Returns: OS_ERR_INVALID_ID if the module id invalid
-             OS_INVALID_POINTER if the pointer to the ModuleInfo structure is invalid
-             OS_SUCCESS if the module info was filled out successfuly
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_ModuleGetInfo_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_ModuleGetInfo_Impl ( uint32 module_id, OS_module_prop_t *module_prop )
 {
    /*
@@ -51,25 +49,22 @@ int32 OS_ModuleGetInfo_Impl ( uint32 module_id, OS_module_prop_t *module_prop )
     */
     return(OS_SUCCESS);
 
-}/* end OS_ModuleInfo */
+} /* end OS_ModuleGetInfo_Impl */
 
 
-/*--------------------------------------------------------------------------------------
-    Name: OS_SymbolTableDump_Impl
-
-    Purpose: Dumps the system symbol table to a file
-
-    Parameters:
-
-    Returns: OS_ERROR if the symbol table could not be read or dumped
-             OS_INVALID_FILE  if the file could not be opened or written
-             OS_SUCCESS if the symbol is found
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_SymbolTableDump_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_SymbolTableDump_Impl ( const char *filename, uint32 SizeLimit )
 {
 
    return(OS_ERR_NOT_IMPLEMENTED);
 
-}/* end OS_SymbolTableDump */
-
+} /* end OS_SymbolTableDump_Impl */
 

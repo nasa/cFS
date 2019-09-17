@@ -83,9 +83,15 @@ static const OS_ErrorTable_Entry_t OS_GLOBAL_ERROR_NAME_TABLE[] =
  */
 
 
-/*---------------------------------------------------------------------------------------
- *  Name: OS_GetErrorName()
- *---------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_GetErrorName
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_GetErrorName(int32 error_num, os_err_name_t* err_name)
 {
     uint32 return_code;
@@ -125,5 +131,5 @@ int32 OS_GetErrorName(int32 error_num, os_err_name_t* err_name)
     (*err_name)[OS_ERROR_NAME_LENGTH - 1] = '\0';
 
     return return_code;
-}
+} /* end OS_GetErrorName */
 

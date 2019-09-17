@@ -32,31 +32,15 @@
 #include "common_types.h"
 #include "os-impl.h"
 
-/*---------------------------------------------------------------------------------------
- * Name: OS_IntAttachHandler
+                        
+/*----------------------------------------------------------------
  *
- * Purpose:
- *      The call associates a specified C routine to a specified interrupt
- *      number.Upon occurring of the InterruptNumber , the InerruptHandler
- *      routine will be called and passed the parameter.
+ * Function: OS_IntAttachHandler
  *
- * Assumptions and Notes:
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
  *
- * Parameters:
- *      InterruptNumber : The Interrupt Number that will cause the start of
- *                        the ISR
- *      InerruptHandler : The ISR associatd with this interrupt
- *      parameter :The parameter that is passed to the ISR
- *
- * Global Inputs: None
- *
- * Global Outputs: None
- *
- *
- * Return Values:
- *     OS_SUCCESS on success
- *     OS_INVALID_POINTER if the Interrupt handler pointer is NULL
----------------------------------------------------------------------------------------*/
+ *-----------------------------------------------------------------*/
 int32 OS_IntAttachHandler  (uint32 InterruptNumber, osal_task_entry InterruptHandler, int32 parameter)
 {
     if (InterruptHandler == NULL)
@@ -65,145 +49,89 @@ int32 OS_IntAttachHandler  (uint32 InterruptNumber, osal_task_entry InterruptHan
     }
 
     return OS_IntAttachHandler_Impl(InterruptNumber, InterruptHandler, parameter);
-}
+} /* end OS_IntAttachHandler */
 
-/*---------------------------------------------------------------------------------------
- * Name: OS_IntUnlock
- * Purpose:
- *      Enable the interrupts.
+                        
+/*----------------------------------------------------------------
  *
- * Assumptions and Notes:
+ * Function: OS_IntUnlock
  *
- * Parameters:
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
  *
- * Global Inputs: None
- *
- * Global Outputs: None
- *
- *
- * Return Values:
- *      OS_SUCCESS
----------------------------------------------------------------------------------------*/
+ *-----------------------------------------------------------------*/
 int32 OS_IntUnlock (int32 IntFlags)
 {
     return OS_IntUnlock_Impl(IntFlags);
-}
+} /* end OS_IntUnlock */
 
-/*---------------------------------------------------------------------------------------
- * Name: OS_Intlock
- * Purpose:
- *      Disable the interrupts.
+                        
+/*----------------------------------------------------------------
  *
- * Assumptions and Notes:
+ * Function: OS_IntLock
  *
- * Parameters:
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
  *
- * Global Inputs: None
- *
- * Global Outputs: None
- *
- *
- * Return Values:
- *      OS_SUCCESS
----------------------------------------------------------------------------------------*/
+ *-----------------------------------------------------------------*/
 int32 OS_IntLock ( void )
 {
     return OS_IntLock_Impl();
-}
+} /* end OS_IntLock */
 
-/*---------------------------------------------------------------------------------------
- * Name: OS_IntEnable
- * Purpose:
- *      Enables interrupts through Level
+                        
+/*----------------------------------------------------------------
  *
- * Assumptions and Notes:
+ * Function: OS_IntEnable
  *
- * Parameters:
- *              Level - the interrupts to enable
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
  *
- * Global Inputs: None
- *
- * Global Outputs: None
- *
- *
- * Return Values:
- *      OS_SUCCESS
----------------------------------------------------------------------------------------*/
+ *-----------------------------------------------------------------*/
 int32 OS_IntEnable(int32 Level)
 {
     return OS_IntEnable_Impl(Level);
-}
+} /* end OS_IntEnable */
 
-/*---------------------------------------------------------------------------------------
- * Name: OS_IntDisable
- * Purpose:
- *      Disables interrupts through Level
+                        
+/*----------------------------------------------------------------
  *
- * Assumptions and Notes:
+ * Function: OS_IntDisable
  *
- * Parameters:
- *              Level - the interrupts to disable
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
  *
- * Global Inputs: None
- *
- * Global Outputs: None
- *
- *
- * Return Values:
- *      OS_SUCCESS
----------------------------------------------------------------------------------------*/
-
+ *-----------------------------------------------------------------*/
 int32 OS_IntDisable(int32 Level)
 {
     return OS_IntDisable_Impl(Level);
-}
+} /* end OS_IntDisable */
 
-/*---------------------------------------------------------------------------------------
- * Name: OS_SetMask
- * Purpose:
- *      Set the masking register to mask and unmask interrupts
+                        
+/*----------------------------------------------------------------
  *
- * Assumptions and Notes:
- *      HW interrupt control is not supported from a user task
+ * Function: OS_IntSetMask
  *
- * Parameters:
- *      MaskSetting :the value to be written into the mask register
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
  *
- * Global Inputs: None
- *
- * Global Outputs: None
- *
- *
- * Return Values:
- *
----------------------------------------------------------------------------------------*/
+ *-----------------------------------------------------------------*/
 int32 OS_IntSetMask ( uint32 MaskSetting )
 {
     return OS_IntSetMask_Impl(MaskSetting);
-}
+} /* end OS_IntSetMask */
 
-/*--------------------------------------------------------------------------------------
- * Name: OS_GetMask
- * Purpose:
- *      Read and report the setting of the cpu mask register.
+                        
+/*----------------------------------------------------------------
  *
- * Assumptions and Notes:
- *      HW interrupt control is not supported from a user task
+ * Function: OS_IntGetMask
  *
- * Parameters:
- *      MaskSettingPtr : pointer to a location where the function store the
- *                               reading of the cpu mask register.
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
  *
- * Global Inputs: None
- *
- * Global Outputs: None
- *
- *
- * Return Values:
- *
----------------------------------------------------------------------------------------*/
+ *-----------------------------------------------------------------*/
 int32 OS_IntGetMask ( uint32 * MaskSettingPtr )
 {
     return OS_IntGetMask_Impl(MaskSettingPtr);
-}
+} /* end OS_IntGetMask */
 

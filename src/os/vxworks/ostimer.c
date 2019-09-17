@@ -90,16 +90,41 @@ static uint32      OS_ClockAccuracyNsec;
                                 INTERNAL FUNCTIONS
 ****************************************************************************************/
 
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_TimeBaseLock_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void OS_TimeBaseLock_Impl(uint32 local_id)
 {
     semTake(OS_impl_timebase_table[local_id].handler_mutex, WAIT_FOREVER);
-}
-
+} /* end OS_TimeBaseLock_Impl */
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_TimeBaseUnlock_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void OS_TimeBaseUnlock_Impl(uint32 local_id)
 {
     semGive(OS_impl_timebase_table[local_id].handler_mutex);
-}
+} /* end OS_TimeBaseUnlock_Impl */
 
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_Impl_UsecToTimespec
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *
+ *-----------------------------------------------------------------*/
 static void OS_Impl_UsecToTimespec(uint32 usecs, struct timespec *time_spec)
 {
    if ( usecs < 1000000 )
@@ -112,8 +137,17 @@ static void OS_Impl_UsecToTimespec(uint32 usecs, struct timespec *time_spec)
       time_spec->tv_sec = usecs / 1000000;
       time_spec->tv_nsec = (usecs % 1000000) * 1000;
    }
-}
+} /* end OS_Impl_UsecToTimespec */
 
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_VxWorks_SigWait
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *           Blocks the calling task until the timer tick arrives
+ *
+ *-----------------------------------------------------------------*/
 static uint32 OS_VxWorks_SigWait(uint32 local_id)
 {
     OS_impl_timebase_internal_record_t *local;
@@ -161,8 +195,16 @@ static uint32 OS_VxWorks_SigWait(uint32 local_id)
     }
 
     return interval_time;
-}
+} /* end OS_VxWorks_SigWait */
 
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_VxWorks_RegisterTimer
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *
+ *-----------------------------------------------------------------*/
 static void OS_VxWorks_RegisterTimer(uint32 local_id)
 {
     OS_impl_timebase_internal_record_t *local;
@@ -198,11 +240,19 @@ static void OS_VxWorks_RegisterTimer(uint32 local_id)
     {
         local->timer_state = OS_TimerRegState_SUCCESS;
     }
-}
+} /* end OS_VxWorks_RegisterTimer */
 
 /****************************************************************************************
                       Entry point for helper thread
 ****************************************************************************************/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_VxWorks_TimeBaseTask
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *
+ *-----------------------------------------------------------------*/
 static int OS_VxWorks_TimeBaseTask(int arg)
 {
     uint32 local_id;
@@ -214,7 +264,7 @@ static int OS_VxWorks_TimeBaseTask(int arg)
     }
 
     return 0;
-}
+} /* end OS_VxWorks_TimeBaseTask */
 
 
 
@@ -222,6 +272,14 @@ static int OS_VxWorks_TimeBaseTask(int arg)
 /****************************************************************************************
                                 INITIALIZATION FUNCTION
 ****************************************************************************************/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_VxWorks_TimeBaseAPI_Impl_Init
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *
+ *-----------------------------------------------------------------*/
 int32  OS_VxWorks_TimeBaseAPI_Impl_Init ( void )
 {
     int clockRate;
@@ -257,21 +315,21 @@ int32  OS_VxWorks_TimeBaseAPI_Impl_Init ( void )
     OS_SharedGlobalVars.MicroSecPerTick = (OS_ClockAccuracyNsec + 500) / 1000;
 
     return(OS_SUCCESS);
-}
+} /* end OS_VxWorks_TimeBaseAPI_Impl_Init */
 
 /****************************************************************************************
                                    Time Base API
 ****************************************************************************************/
 
-/******************************************************************************
-**  Function:  OS_TimeBaseCreate
-**
-**  Purpose:  Create a new OSAL Time base
-**
-**  Arguments:
-**
-**  Return:
-*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_TimeBaseCreate_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_TimeBaseCreate_Impl(uint32 timer_id)
 {
     /*
@@ -443,19 +501,17 @@ int32 OS_TimeBaseCreate_Impl(uint32 timer_id)
 
 
     return return_code;
-}
+} /* end OS_TimeBaseCreate_Impl */
 
-/******************************************************************************
-**  Function:  OS_TimeBaseSet
-**
-**  Purpose:
-**
-**  Arguments:
-**    (none)
-**
-**  Return:
-**    (none)
-*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_TimeBaseSet_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_TimeBaseSet_Impl(uint32 timer_id, int32 start_time, int32 interval_time)
 {
     OS_impl_timebase_internal_record_t *local;
@@ -495,20 +551,18 @@ int32 OS_TimeBaseSet_Impl(uint32 timer_id, int32 start_time, int32 interval_time
     }
 
     return return_code;
-}
+} /* end OS_TimeBaseSet_Impl */
 
 
-/******************************************************************************
-**  Function:  OS_TimerDelete
-**
-**  Purpose:
-**
-**  Arguments:
-**    (none)
-**
-**  Return:
-**    (none)
-*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_TimeBaseDelete_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_TimeBaseDelete_Impl(uint32 timer_id)
 {
     OS_impl_timebase_internal_record_t *local;
@@ -533,23 +587,22 @@ int32 OS_TimeBaseDelete_Impl(uint32 timer_id)
     local->handler_task = 0;
 
     return return_code;
-}
+} /* end OS_TimeBaseDelete_Impl */
 
-/***************************************************************************************
-**    Name: OS_TimerGetInfo
-**
-**    Purpose: This function will pass back a pointer to structure that contains
-**             all of the relevant info( name and creator) about the specified timer.
-**
-**    Returns: OS_ERR_INVALID_ID if the id passed in is not a valid timer
-**             OS_INVALID_POINTER if the timer_prop pointer is null
-**             OS_SUCCESS if success
-*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_TimeBaseGetInfo_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_TimeBaseGetInfo_Impl (uint32 timer_id, OS_timebase_prop_t *timer_prop)
 {
     return OS_SUCCESS;
 
-} /* end OS_TimerGetInfo */
+} /* end OS_TimeBaseGetInfo_Impl */
 
 /****************************************************************************************
                   Other Time-Related API Implementation

@@ -63,21 +63,20 @@ const int OS_IMPL_SOCKET_FLAGS = O_NONBLOCK;
              These are specific to this particular operating system
  ****************************************************************************************/
 
-/*--------------------------------------------------------------------------------------
-    Name: OS_NetworkGetID
-
-    Purpose: Gets the ID of the current Network
-
-    NOTE: This is included here outside the portable bsd socket block
-    because even though it is a BSD-defined function, it is a historical one
-    and not all BSD socket implementations actually have it.
----------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------
+ *
+ * Function: OS_NetworkGetID_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_NetworkGetID_Impl             (int32 *IdBuf)
 {
     /* BSD-style gethostid() has no failure modes */
     *IdBuf = gethostid();
     return OS_SUCCESS;
-}
+} /* end OS_NetworkGetID_Impl */
 
 #else       /* OS_INCLUDE_NETWORK */
 

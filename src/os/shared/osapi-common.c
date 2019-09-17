@@ -51,14 +51,15 @@ OS_SharedGlobalVars_t OS_SharedGlobalVars =
  */
 
 
-/*---------------------------------------------------------------------------------------
-   Name: OS_API_Init
-
-   Purpose: Initialize the tables that the OS API uses to keep track of information
-            about objects
-
-   returns: OS_SUCCESS or OS_ERROR
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_API_Init
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_API_Init(void)
 {
    int32  return_code = OS_SUCCESS;
@@ -161,21 +162,17 @@ int32 OS_API_Init(void)
    }
 
    return(return_code);
-}
+} /* end OS_API_Init */
 
-/*---------------------------------------------------------------------------------------
-   Name: OS_ApplicationExit
-
-   Purpose: Indicates that the OSAL application should exit and return control to the OS
-         This is intended for e.g. scripted unit testing where the test needs to end
-         without user intervention.
-
-   Returns: None
-
-    NOTES: This exits the entire process including tasks that have been created.
-       It does not return.  Production code typically should not ever call this.
-
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_ApplicationExit
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 void OS_ApplicationExit(int32 Status)
 {
    if (Status == OS_SUCCESS)
@@ -186,7 +183,7 @@ void OS_ApplicationExit(int32 Status)
    {
       exit(EXIT_FAILURE);
    }
-}
+} /* end OS_ApplicationExit */
 
 /*---------------------------------------------------------------------------------------
    Name: OS_CleanUpObject
@@ -197,6 +194,14 @@ void OS_ApplicationExit(int32 Status)
    Returns: None
 
 ---------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_CleanUpObject
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *
+ *-----------------------------------------------------------------*/
 void OS_CleanUpObject(uint32 object_id, void *arg)
 {
     uint32 *ObjectCount;
@@ -238,15 +243,17 @@ void OS_CleanUpObject(uint32 object_id, void *arg)
     default:
         break;
     }
-}
+} /* end OS_CleanUpObject */
 
-/*---------------------------------------------------------------------------------------
-   Name: OS_DeleteAllObjects
-
-   Purpose: Clean up routine, delete all resources created in OSAL.
-
-   returns: no value
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_DeleteAllObjects
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 void OS_DeleteAllObjects(void)
 {
     uint32 ObjectCount;
@@ -269,17 +276,17 @@ void OS_DeleteAllObjects(void)
         OS_TaskDelay(5);
     }
     while (ObjectCount > 0 && TryCount < 5);
-}
+} /* end OS_DeleteAllObjects */
 
-/*---------------------------------------------------------------------------------------
-   Name: OS_IdleLoop
-
-   Purpose: Should be called after all initialization is done
-            This thread may be used to wait for and handle external events
-            Typically just waits forever until "OS_shutdown" flag becomes true.
-
-   returns: no value
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_IdleLoop
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 void OS_IdleLoop()
 {
     /*
@@ -291,18 +298,18 @@ void OS_IdleLoop()
    {
       OS_IdleLoop_Impl();
    }
-}
+} /* end OS_IdleLoop */
 
 
-/*---------------------------------------------------------------------------------------
-   Name: OS_ApplicationShutdown
-
-   Purpose: Indicates that the OSAL application should perform an orderly shutdown
-       of ALL tasks, clean up all resources, and exit the application.
-
-   returns: none
-
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_ApplicationShutdown
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 void OS_ApplicationShutdown(uint8 flag)
 {
    if (flag == true)
@@ -316,5 +323,5 @@ void OS_ApplicationShutdown(uint8 flag)
     * should do whatever is needed to wake that task up.
     */
    OS_ApplicationShutdown_Impl();
-}
+} /* end OS_ApplicationShutdown */
 

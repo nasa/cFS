@@ -32,12 +32,15 @@
 #include "common_types.h"
 #include "os-impl.h"
 
-/*---------------------------------------------------------------------------------------
- * Name: OS_GetLocalTime
+                        
+/*----------------------------------------------------------------
  *
- * Purpose: This functions get the local time of the machine its on
- * ------------------------------------------------------------------------------------*/
-
+ * Function: OS_GetLocalTime
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_GetLocalTime(OS_time_t *time_struct)
 {
     if (time_struct == NULL)
@@ -47,14 +50,17 @@ int32 OS_GetLocalTime(OS_time_t *time_struct)
 
     return OS_GetLocalTime_Impl(time_struct);
 
-}/* end OS_GetLocalTime */
+} /* end OS_GetLocalTime */
 
-/*---------------------------------------------------------------------------------------
- * Name: OS_SetLocalTime
+                        
+/*----------------------------------------------------------------
  *
- * Purpose: This functions set the local time of the machine its on
- * ------------------------------------------------------------------------------------*/
-
+ * Function: OS_SetLocalTime
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_SetLocalTime(OS_time_t *time_struct)
 {
     if (time_struct == NULL)
@@ -64,5 +70,4 @@ int32 OS_SetLocalTime(OS_time_t *time_struct)
 
     return OS_SetLocalTime_Impl(time_struct);
 
-} /*end OS_SetLocalTime */
-
+} /* end OS_SetLocalTime */

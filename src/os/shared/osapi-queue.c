@@ -61,35 +61,30 @@ OS_queue_internal_record_t    OS_queue_table          [LOCAL_NUM_OBJECTS];
                                 MESSAGE QUEUE API
  ***************************************************************************************/
 
-/*---------------------------------------------------------------------------------------
-   Name: OS_QueueAPI_Init
-
-   Purpose: Init function for OS-independent layer
-
-   Returns: OS_SUCCESS
-
----------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------
+ *
+ * Function: OS_QueueAPI_Init
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *           Init function for OS-independent layer
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_QueueAPI_Init(void)
 {
    memset(OS_queue_table, 0, sizeof(OS_queue_table));
    return OS_SUCCESS;
-}
+} /* end OS_QueueAPI_Init */
 
 
-/*---------------------------------------------------------------------------------------
- Name: OS_QueueCreate
-
- Purpose: Create a message queue which can be referred to by name or ID
-
- Returns: OS_INVALID_POINTER if a pointer passed in is NULL
- OS_ERR_NAME_TOO_LONG if the name passed in is too long
- OS_ERR_NO_FREE_IDS if there are already the max queues created
- OS_ERR_NAME_TAKEN if the name is already being used on another queue
- OS_ERROR if the OS create call fails
- OS_SUCCESS if success
-
- Notes: the flags parameter is unused.
- ---------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_QueueCreate
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_QueueCreate (uint32 *queue_id, const char *queue_name, uint32 queue_depth, uint32 data_size, uint32 flags)
 {
    OS_common_record_t *record;
@@ -126,20 +121,17 @@ int32 OS_QueueCreate (uint32 *queue_id, const char *queue_name, uint32 queue_dep
 
    return return_code;
 
-}/* end OS_QueueCreate */
+} /* end OS_QueueCreate */
 
-/*--------------------------------------------------------------------------------------
- Name: OS_QueueDelete
-
- Purpose: Deletes the specified message queue.
-
- Returns: OS_ERR_INVALID_ID if the id passed in does not exist
- OS_ERROR if the OS call to delete the queue fails
- OS_SUCCESS if success
-
- Notes: If There are messages on the queue, they will be lost and any subsequent
- calls to QueueGet or QueuePut to this queue will result in errors
- ---------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_QueueDelete
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_QueueDelete (uint32 queue_id)
 {
    OS_common_record_t *record;
@@ -165,17 +157,15 @@ int32 OS_QueueDelete (uint32 queue_id)
 
 } /* end OS_QueueDelete */
 
-/*---------------------------------------------------------------------------------------
- Name: OS_QueueGet
-
- Purpose: Receive a message on a message queue.  Will pend or timeout on the receive.
- Returns: OS_ERR_INVALID_ID if the given ID does not exist
- OS_ERR_INVALID_POINTER if a pointer passed in is NULL
- OS_QUEUE_EMPTY if the Queue has no messages on it to be recieved
- OS_QUEUE_TIMEOUT if the timeout was OS_PEND and the time expired
- OS_QUEUE_INVALID_SIZE if the size copied from the queue was not correct
- OS_SUCCESS if success
- ---------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_QueueGet
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_QueueGet (uint32 queue_id, void *data, uint32 size, uint32 *size_copied, int32 timeout)
 {
    OS_common_record_t *record;
@@ -210,17 +200,15 @@ int32 OS_QueueGet (uint32 queue_id, void *data, uint32 size, uint32 *size_copied
    return return_code;
 } /* end OS_QueueGet */
 
-/*---------------------------------------------------------------------------------------
- Name: OS_QueuePut
-
- Purpose: Put a message on a message queue.
-
- Returns: OS_ERR_INVALID_ID if the queue id passed in is not a valid queue
- OS_INVALID_POINTER if the data pointer is NULL
- OS_QUEUE_FULL if the queue cannot accept another message
- OS_ERROR if the OS call returns an error
- OS_SUCCESS if SUCCESS
- ---------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_QueuePut
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_QueuePut (uint32 queue_id, const void *data, uint32 size, uint32 flags)
 {
    OS_common_record_t *record;
@@ -245,19 +233,15 @@ int32 OS_QueuePut (uint32 queue_id, const void *data, uint32 size, uint32 flags)
 } /* end OS_QueuePut */
 
 
-/*--------------------------------------------------------------------------------------
-    Name: OS_QueueGetIdByName
-
-    Purpose: This function tries to find a queue Id given the name of the queue. The
-             id of the queue is passed back in queue_id
-
-    Returns: OS_INVALID_POINTER if the name or id pointers are NULL
-             OS_ERR_NAME_TOO_LONG the name passed in is too long
-             OS_ERR_NAME_NOT_FOUND the name was not found in the table
-             OS_SUCCESS if success
-
----------------------------------------------------------------------------------------*/
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_QueueGetIdByName
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_QueueGetIdByName (uint32 *queue_id, const char *queue_name)
 {
    int32 return_code;
@@ -271,18 +255,17 @@ int32 OS_QueueGetIdByName (uint32 *queue_id, const char *queue_name)
 
    return return_code;
 
-}/* end OS_QueueGetIdByName */
+} /* end OS_QueueGetIdByName */
 
-/*---------------------------------------------------------------------------------------
-    Name: OS_QueueGetInfo
-
-    Purpose: This function will pass back a pointer to structure that contains
-             all of the relevant info (name and creator) about the specified queue.
-
-    Returns: OS_INVALID_POINTER if queue_prop is NULL
-             OS_ERR_INVALID_ID if the ID given is not  a valid queue
-             OS_SUCCESS if the info was copied over correctly
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_QueueGetInfo
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_QueueGetInfo (uint32 queue_id, OS_queue_prop_t *queue_prop)
 {
    OS_common_record_t *record;

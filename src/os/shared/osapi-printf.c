@@ -94,6 +94,14 @@ OS_console_internal_record_t        OS_console_table[OS_MAX_CONSOLES];
  *********************************************************************************
  */
 
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_ConsoleAPI_Init
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_ConsoleAPI_Init(void)
 {
     OS_console_internal_record_t *console;
@@ -133,7 +141,7 @@ int32 OS_ConsoleAPI_Init(void)
     }
 
     return OS_SUCCESS;
-}
+} /* end OS_ConsoleAPI_Init */
 
 /*
  *********************************************************************************
@@ -141,17 +149,22 @@ int32 OS_ConsoleAPI_Init(void)
  *********************************************************************************
  */
 
-/**
- * Write into the console ring buffer
+/*----------------------------------------------------------------
  *
- * The NextWritePos is an input-output and contains the position
- * in the ring buffer to start writing into.  This may or may not
- * be the same as the value in the global.  It is only updated
- * if the string is written in its entirety.
+ * Function: OS_Console_CopyOut
  *
- * The intent is to avoid truncating a string if it does not fit.
- * Either the entire string should be written, or none of it.
- */
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *    Write into the console ring buffer
+ *
+ *    The NextWritePos is an input-output and contains the position
+ *    in the ring buffer to start writing into.  This may or may not
+ *    be the same as the value in the global.  It is only updated
+ *    if the string is written in its entirety.
+ *
+ *    The intent is to avoid truncating a string if it does not fit.
+ *    Either the entire string should be written, or none of it.
+ *
+ *-----------------------------------------------------------------*/
 static int32 OS_Console_CopyOut(OS_console_internal_record_t *console, const char *Str, uint32 *NextWritePos)
 {
     const char *pmsg;
@@ -188,7 +201,7 @@ static int32 OS_Console_CopyOut(OS_console_internal_record_t *console, const cha
     }
 
     return return_code;
-}
+} /* end OS_Console_CopyOut */
 
 /*
  *********************************************************************************
@@ -196,9 +209,15 @@ static int32 OS_Console_CopyOut(OS_console_internal_record_t *console, const cha
  *********************************************************************************
  */
 
-/**
- * Write into the console ring buffer
- */
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_ConsoleWrite
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *           Write into the console ring buffer
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_ConsoleWrite(uint32 console_id, const char *Str)
 {
     int32 return_code;
@@ -253,16 +272,18 @@ int32 OS_ConsoleWrite(uint32 console_id, const char *Str)
 
 
     return return_code;
-}
+} /* end OS_ConsoleWrite */
 
 
-/* ---------------------------------------------------------------------------
- * Name: OS_printf
+                        
+/*----------------------------------------------------------------
  *
- * Purpose: This function abstracts out the printf type statements. This is
- *          useful for using OS- specific thats that will allow non-polled
- *          print statements for the real time systems.
- ---------------------------------------------------------------------------*/
+ * Function: OS_printf
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 void OS_printf( const char *String, ...)
 {
     va_list va;
@@ -316,27 +337,33 @@ void OS_printf( const char *String, ...)
         OS_ConsoleWrite(OS_SharedGlobalVars.PrintfConsoleId, msg_buffer);
     }
 
-}/* end OS_printf*/
+} /* end OS_printf */
 
-/* ---------------------------------------------------------------------------
- * Name: OS_printf_disable
+                        
+/*----------------------------------------------------------------
  *
- * Purpose: This function disables the output to the UART from OS_printf.
+ * Function: OS_printf_disable
  *
- ---------------------------------------------------------------------------*/
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 void OS_printf_disable(void)
 {
    OS_SharedGlobalVars.PrintfEnabled = false;
-}/* end OS_printf_disable*/
+} /* end OS_printf_disable */
 
-/* ---------------------------------------------------------------------------
- * Name: OS_printf_enable
+                        
+/*----------------------------------------------------------------
  *
- * Purpose: This function enables the output to the UART through OS_printf.
+ * Function: OS_printf_enable
  *
- ---------------------------------------------------------------------------*/
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 void OS_printf_enable(void)
 {
    OS_SharedGlobalVars.PrintfEnabled = true;
-}/* end OS_printf_enable*/
+} /* end OS_printf_enable */
 

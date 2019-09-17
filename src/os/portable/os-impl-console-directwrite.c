@@ -17,6 +17,9 @@
  *      using a standard file descriptor provided by the C library using
  *      the write() call.
  *
+ * NOTE: This is a "template" file and not a directly usable source file.
+ *       It must be adapted/instantiated from within the OS-specific
+ *       implementation on platforms that wish to use this template.
  */
 
 /****************************************************************************************
@@ -29,13 +32,15 @@
                                 CONSOLE OUTPUT
  ***************************************************************************************/
 
-/*
- *   Name: OS_ConsoleOutput_Impl
+                        
+/*----------------------------------------------------------------
  *
- *   Purpose: Transfer output data to the real console.
+ * Function: OS_ConsoleOutput_Impl
  *
- *   The data is already formatted, this just writes the characters.
- */
+ *  Purpose: Implemented per internal OSAL API
+ *           See description in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void  OS_ConsoleOutput_Impl(uint32 local_id)
 {
     uint32 StartPos;
@@ -83,7 +88,7 @@ void  OS_ConsoleOutput_Impl(uint32 local_id)
 
     /* Update the global with the new read location */
     console->ReadPos = StartPos;
-}
+} /* end OS_ConsoleOutput_Impl */
 
 
 

@@ -81,26 +81,30 @@ extern SYMTAB_ID sysSymTbl;
 /****************************************************************************************
                                 INITIALIZATION FUNCTION
  ***************************************************************************************/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_VxWorks_ModuleAPI_Impl_Init
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_VxWorks_ModuleAPI_Impl_Init(void)
 {
    memset(&OS_impl_module_global, 0, sizeof(OS_impl_module_global));
    return(OS_SUCCESS);
-}
+} /* end OS_VxWorks_ModuleAPI_Impl_Init */
 
 
-/*--------------------------------------------------------------------------------------
-    Name: OS_SymbolLookup
-
-    Purpose: Find the Address of a Symbol
-
-    Parameters:
-
-    Returns: OS_ERROR if the symbol could not be found
-             OS_SUCCESS if the symbol is found
-             OS_INVALID_POINTER if the pointer passed in is invalid
-
-             The address of the symbol will be stored in the pointer that is passed in.
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_SymbolLookup_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_SymbolLookup_Impl( cpuaddr *SymbolAddress, const char *SymbolName )
 {
    STATUS    vxStatus;
@@ -149,26 +153,28 @@ int32 OS_SymbolLookup_Impl( cpuaddr *SymbolAddress, const char *SymbolName )
 
    return(OS_SUCCESS);
 
-}/* end OS_SymbolLookup */
+} /* end OS_SymbolLookup_Impl */
 
-
-/*--------------------------------------------------------------------------------------
-    Name: OS_SymTableIterator ( local function, not part of the public API )
-
-    Purpose: Function called by vxWorks to iterate the vxworks symbol table
-
-    Parameters:
-             name - The symbol name
-             val  - The symbol address value
-             type - The vxWorks symbol type ( not used )
-             max_size - The maximum size of the file that is written to.
-             group - The vxWorks symbol group ( not used )
-
-    Returns: true to tell vxWorks to continue to iterate the symbol table
-             false to tell vxWorks to stop iterating the symbol table
-
-             The address of the symbol will be stored in the pointer that is passed in.
----------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------
+ *
+ * Function: OS_SymTableIterator_Impl
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *           Function called by vxWorks to iterate the vxworks symbol table
+ *
+ * Parameters:
+ *           name - The symbol name
+ *           val  - The symbol address value
+ *           type - The vxWorks symbol type ( not used )
+ *           max_size - The maximum size of the file that is written to.
+ *           group - The vxWorks symbol group ( not used )
+ *
+ *  Returns: true to tell vxWorks to continue to iterate the symbol table
+ *           false to tell vxWorks to stop iterating the symbol table
+ *
+ *           The address of the symbol will be stored in the pointer that is passed in.
+ *
+ *-----------------------------------------------------------------*/
 static BOOL  OS_SymTableIterator_Impl ( char *name, SYM_VALUE val,  SYM_TYPE type,  _Vx_usr_arg_t arg, SYM_GROUP group )
 {
    SymbolRecord_t symRecord;
@@ -231,20 +237,17 @@ static BOOL  OS_SymTableIterator_Impl ( char *name, SYM_VALUE val,  SYM_TYPE typ
    ** It's OK to continue
    */
    return(true);
-}
+} /* end OS_SymTableIterator_Impl */
 
-/*--------------------------------------------------------------------------------------
-    Name: OS_SymbolTableDump
-
-    Purpose: Dumps the system symbol table to a file
-
-    Parameters:
-
-    Returns: OS_ERROR if the symbol table could not be read or dumped
-             OS_INVALID_POINTER if the filename is NULL
-             OS_FS_ERR_PATH_INVALID  if the filename/path is invalid
-             OS_SUCCESS if the symbol is found
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_SymbolTableDump_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_SymbolTableDump_Impl ( const char *local_filename, uint32 SizeLimit )
 {
     SymbolDumpState_t *state;
@@ -279,26 +282,21 @@ int32 OS_SymbolTableDump_Impl ( const char *local_filename, uint32 SizeLimit )
 
    return(state->StatusCode);
 
-}/* end OS_SymbolTableDump */
+} /* end OS_SymbolTableDump_Impl */
 
 /****************************************************************************************
                                     Module Loader API
 ****************************************************************************************/
 
-/*--------------------------------------------------------------------------------------
-    Name: OS_ModuleLoad
-
-    Purpose: Loads an object file into the running operating system
-
-    Parameters:
-
-    Returns: OS_ERROR if the module cannot be loaded
-             OS_INVALID_POINTER if one of the parameters is NULL
-             OS_ERR_NO_FREE_IDS if the module table is full
-             OS_ERR_NAME_TAKEN if the name is in use
-             OS_SUCCESS if the module is loaded successfuly
-
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_ModuleLoad_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_ModuleLoad_Impl ( uint32 local_id, char *translated_path )
 {
    int32       return_code;
@@ -344,18 +342,17 @@ int32 OS_ModuleLoad_Impl ( uint32 local_id, char *translated_path )
 
    return(return_code);
 
-}/* end OS_ModuleLoad */
+} /* end OS_ModuleLoad_Impl */
 
-/*--------------------------------------------------------------------------------------
-    Name: OS_ModuleUnload
-
-    Purpose: Unloads the module file from the running operating system
-
-    Parameters:
-
-    Returns: OS_ERROR if the module is invalid or cannot be unloaded
-             OS_SUCCESS if the module was unloaded successfuly
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_ModuleUnload_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_ModuleUnload_Impl ( uint32 local_id )
 {
    STATUS vxStatus;
@@ -372,19 +369,17 @@ int32 OS_ModuleUnload_Impl ( uint32 local_id )
 
    return(OS_SUCCESS);
 
-}/* end OS_ModuleUnload */
+} /* end OS_ModuleUnload_Impl */
 
-/*--------------------------------------------------------------------------------------
-    Name: OS_ModuleInfo
-
-    Purpose: Returns information about the loadable module
-
-    Parameters:
-
-    Returns: OS_ERR_INVALID_ID if the module id invalid
-             OS_INVALID_POINTER if the pointer to the ModuleInfo structure is invalid
-             OS_SUCCESS if the module info was filled out successfuly
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_ModuleGetInfo_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_ModuleGetInfo_Impl ( uint32 local_id, OS_module_prop_t *module_prop )
 {
    MODULE_INFO  vxModuleInfo;
@@ -414,5 +409,5 @@ int32 OS_ModuleGetInfo_Impl ( uint32 local_id, OS_module_prop_t *module_prop )
 
    return(OS_SUCCESS);
 
-}/* end OS_ModuleInfo */
+} /* end OS_ModuleGetInfo_Impl */
 

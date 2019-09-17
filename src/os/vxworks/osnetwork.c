@@ -47,14 +47,15 @@ typedef u_short in_port_t;
 #include "../portable/os-impl-bsd-sockets.c"
 
 
-/*--------------------------------------------------------------------------------------
-    Name: OS_NetworkGetID
-
-    Purpose: Gets the ID of the current Network
-
-    Returns: OS_ERROR if the  host id could not be found
-             a 32 bit host id if success
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_NetworkGetID_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_NetworkGetID_Impl             (int32 *IdBuf)
 {
     int    host_id;
@@ -78,7 +79,7 @@ int32 OS_NetworkGetID_Impl             (int32 *IdBuf)
 
     return status;
 
-}/* end OS_NetworkGetID */
+} /* end OS_NetworkGetID_Impl */
 
 
 #endif

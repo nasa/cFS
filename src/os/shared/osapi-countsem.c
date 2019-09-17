@@ -59,39 +59,31 @@ OS_apiname_internal_record_t    OS_count_sem_table          [LOCAL_NUM_OBJECTS];
                                   SEMAPHORE API
  ***************************************************************************************/
 
-/*---------------------------------------------------------------------------------------
-   Name: OS_CountSemAPI_Init
-
-   Purpose: Init function for OS-independent layer
-
-   Returns: OS_SUCCESS
-
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_CountSemAPI_Init
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *           Init function for OS-independent layer
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_CountSemAPI_Init(void)
 {
    memset(OS_count_sem_table, 0, sizeof(OS_count_sem_table));
    return OS_SUCCESS;
-}
+} /* end OS_CountSemAPI_Init */
 
 
-/*---------------------------------------------------------------------------------------
-   Name: OS_CountSemCreate
-
-   Purpose: Creates a counting semaphore with initial value specified by
-            sem_initial_value and name specified by sem_name. sem_id will be
-            returned to the caller
-
-   Returns: OS_INVALID_POINTER if sen name or sem_id are NULL
-            OS_ERR_NAME_TOO_LONG if the name given is too long
-            OS_ERR_NO_FREE_IDS if all of the semaphore ids are taken
-            OS_ERR_NAME_TAKEN if this is already the name of a counting semaphore
-            OS_SEM_FAILURE if the OS call failed
-            OS_INVALID_SEM_VALUE if the semaphore value is too high
-            OS_SUCCESS if success
-
-
-   Notes: options is an unused parameter
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_CountSemCreate
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_CountSemCreate (uint32 *sem_id, const char *sem_name, uint32 sem_initial_value,
                         uint32 options)
 {
@@ -127,21 +119,17 @@ int32 OS_CountSemCreate (uint32 *sem_id, const char *sem_name, uint32 sem_initia
 
    return return_code;
 
-}/* end OS_CountSemCreate */
+} /* end OS_CountSemCreate */
 
-/*--------------------------------------------------------------------------------------
-     Name: OS_CountSemDelete
-
-    Purpose: Deletes the specified Countary Semaphore.
-
-    Returns: OS_ERR_INVALID_ID if the id passed in is not a valid counting semaphore
-             OS_SEM_FAILURE the OS call failed
-             OS_SUCCESS if success
-
-    Notes: Since we can't delete a semaphore which is currently locked by some task
-           (as it may be crucial to completing the task), the semaphore must be full to
-           allow deletion.
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_CountSemDelete
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_CountSemDelete (uint32 sem_id)
 {
    OS_common_record_t *record;
@@ -165,25 +153,18 @@ int32 OS_CountSemDelete (uint32 sem_id)
 
    return return_code;
 
-}/* end OS_CountSemDelete */
+} /* end OS_CountSemDelete */
 
 
-/*---------------------------------------------------------------------------------------
-    Name: OS_CountSemGive
-
-    Purpose: The function  unlocks the semaphore referenced by sem_id by performing
-             a semaphore unlock operation on that semaphore.If the semaphore value
-             resulting from this operation is positive, then no threads were blocked
-             waiting for the semaphore to become unlocked; the semaphore value is
-             simply incremented for this semaphore.
-
-
-    Returns: OS_SEM_FAILURE the semaphore was not previously  initialized or is not
-             in the array of semaphores defined by the system
-             OS_ERR_INVALID_ID if the id passed in is not a counting semaphore
-             OS_SUCCESS if success
-
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_CountSemGive
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_CountSemGive ( uint32 sem_id )
 {
    OS_common_record_t *record;
@@ -199,22 +180,17 @@ int32 OS_CountSemGive ( uint32 sem_id )
 
     return return_code;
 
-}/* end OS_CountSemGive */
+} /* end OS_CountSemGive */
 
-/*---------------------------------------------------------------------------------------
-    Name:    OS_CountSemTake
-
-    Purpose: The locks the semaphore referenced by sem_id by performing a
-             semaphore lock operation on that semaphore.If the semaphore value
-             is currently zero, then the calling thread shall not return from
-             the call until it either locks the semaphore or the call is
-             interrupted by a signal.
-
-    Return:  OS_ERR_INVALID_ID the Id passed in is not a valid counting semaphore
-             OS_SEM_FAILURE if the OS call failed
-             OS_SUCCESS if success
-
-----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_CountSemTake
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_CountSemTake ( uint32 sem_id )
 {
    OS_common_record_t *record;
@@ -229,23 +205,17 @@ int32 OS_CountSemTake ( uint32 sem_id )
    }
 
    return return_code;
-}/* end OS_CountSemTake */
+} /* end OS_CountSemTake */
 
-/*---------------------------------------------------------------------------------------
-    Name: OS_CountSemTimedWait
-
-    Purpose: The function locks the semaphore referenced by sem_id . However,
-             if the semaphore cannot be locked without waiting for another process
-             or thread to unlock the semaphore , this wait shall be terminated when
-             the specified timeout ,msecs, expires.
-
-    Returns: OS_SEM_TIMEOUT if semaphore was not relinquished in time
-             OS_SUCCESS if success
-             OS_SEM_FAILURE the semaphore was not previously initialized or is not
-             in the array of semaphores defined by the system
-             OS_ERR_INVALID_ID if the ID passed in is not a valid semaphore ID
-
-----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_CountSemTimedWait
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_CountSemTimedWait ( uint32 sem_id, uint32 msecs )
 {
    OS_common_record_t *record;
@@ -260,20 +230,17 @@ int32 OS_CountSemTimedWait ( uint32 sem_id, uint32 msecs )
    }
 
    return return_code;
-}
+} /* end OS_CountSemTimedWait */
 
-/*--------------------------------------------------------------------------------------
-    Name: OS_CountSemGetIdByName
-
-    Purpose: This function tries to find a counting sem Id given the name of a count_sem
-             The id is returned through sem_id
-
-    Returns: OS_INVALID_POINTER is semid or sem_name are NULL pointers
-             OS_ERR_NAME_TOO_LONG if the name given is to long to have been stored
-             OS_ERR_NAME_NOT_FOUND if the name was not found in the table
-             OS_SUCCESS if success
-
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_CountSemGetIdByName
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_CountSemGetIdByName (uint32 *sem_id, const char *sem_name)
 {
    int32 return_code;
@@ -286,20 +253,17 @@ int32 OS_CountSemGetIdByName (uint32 *sem_id, const char *sem_name)
    return_code = OS_ObjectIdFindByName(LOCAL_OBJID_TYPE, sem_name, sem_id);
 
    return return_code;
-}/* end OS_CountSemGetIdByName */
+} /* end OS_CountSemGetIdByName */
 
-/*---------------------------------------------------------------------------------------
-    Name: OS_CountSemGetInfo
-
-    Purpose: This function will pass back a pointer to structure that contains
-             all of the relevant info( name and creator) about the specified counting
-             semaphore.
-
-    Returns: OS_ERR_INVALID_ID if the id passed in is not a valid semaphore
-             OS_INVALID_POINTER if the count_prop pointer is null
-             OS_SUCCESS if success
----------------------------------------------------------------------------------------*/
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_CountSemGetInfo
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_CountSemGetInfo (uint32 sem_id, OS_count_sem_prop_t *count_prop)
 {
    OS_common_record_t *record;

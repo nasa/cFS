@@ -78,12 +78,14 @@ OS_impl_timebase_internal_record_t OS_impl_timebase_table[OS_MAX_TIMEBASES];
  ***************************************************************************************/
 
 
-/******************************************************************************
- **  Function:  OS_UsecToTimespec
- **
- **  Purpose:  Convert Microseconds to a POSIX timespec structure.
- **
- */
+/*----------------------------------------------------------------
+ *
+ * Function: OS_UsecToTimespec
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *           Convert Microseconds to a POSIX timespec structure.
+ *
+ *-----------------------------------------------------------------*/
 static void OS_UsecToTimespec(uint32 usecs, struct timespec *time_spec)
 {
 
@@ -97,18 +99,42 @@ static void OS_UsecToTimespec(uint32 usecs, struct timespec *time_spec)
       time_spec->tv_sec = usecs / 1000000;
       time_spec->tv_nsec = (usecs % 1000000) * 1000;
    }
-}
-
+} /* end OS_UsecToTimespec */
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_TimeBaseLock_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void OS_TimeBaseLock_Impl(uint32 local_id)
 {
     pthread_mutex_lock(&OS_impl_timebase_table[local_id].handler_mutex);
-}
-
+} /* end OS_TimeBaseLock_Impl */
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_TimeBaseUnlock_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void OS_TimeBaseUnlock_Impl(uint32 local_id)
 {
     pthread_mutex_unlock(&OS_impl_timebase_table[local_id].handler_mutex);
-}
+} /* end OS_TimeBaseUnlock_Impl */
 
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_TimeBase_SoftWaitImpl
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *
+ *-----------------------------------------------------------------*/
 static uint32 OS_TimeBase_SoftWaitImpl(uint32 timer_id)
 {
     int ret;
@@ -171,7 +197,7 @@ static uint32 OS_TimeBase_SoftWaitImpl(uint32 timer_id)
     while (ret != 0);
 
     return interval_time;
-}
+} /* end OS_TimeBase_SoftWaitImpl */
 
 
 /****************************************************************************************
@@ -293,7 +319,7 @@ int32 OS_Posix_TimeBaseAPI_Impl_Init(void)
 
 
    return(return_code);
-}
+} /* end OS_Posix_TimeBaseAPI_Impl_Init */
 
 /****************************************************************************************
                                    Time Base API
@@ -308,15 +334,14 @@ static void *OS_TimeBasePthreadEntry(void *arg)
     return NULL;
 }
 
-/******************************************************************************
- *  Function:  OS_TimeBaseCreate
+/*----------------------------------------------------------------
  *
- *  Purpose:  Create a new OSAL Time base
+ * Function: OS_TimeBaseCreate_Impl
  *
- *  Arguments:
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
  *
- *  Return:
- */
+ *-----------------------------------------------------------------*/
 int32 OS_TimeBaseCreate_Impl(uint32 timer_id)
 {
     int32  return_code;
@@ -447,19 +472,16 @@ int32 OS_TimeBaseCreate_Impl(uint32 timer_id)
     }
 
     return return_code;
-}
+} /* end OS_TimeBaseCreate_Impl */
 
-/******************************************************************************
- *  Function:  OS_TimeBaseSet
+/*----------------------------------------------------------------
  *
- *  Purpose:
+ * Function: OS_TimeBaseSet_Impl
  *
- *  Arguments:
- *    (none)
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
  *
- *  Return:
- *    (none)
- */
+ *-----------------------------------------------------------------*/
 int32 OS_TimeBaseSet_Impl(uint32 timer_id, int32 start_time, int32 interval_time)
 {
     OS_impl_timebase_internal_record_t *local;
@@ -505,20 +527,18 @@ int32 OS_TimeBaseSet_Impl(uint32 timer_id, int32 start_time, int32 interval_time
 
     local->reset_flag = (return_code == OS_SUCCESS);
     return return_code;
-}
+} /* end OS_TimeBaseSet_Impl */
 
 
-/******************************************************************************
- *  Function:  OS_TimerDelete
+                        
+/*----------------------------------------------------------------
  *
- *  Purpose:
+ * Function: OS_TimeBaseDelete_Impl
  *
- *  Arguments:
- *    (none)
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
  *
- *  Return:
- *    (none)
- */
+ *-----------------------------------------------------------------*/
 int32 OS_TimeBaseDelete_Impl(uint32 timer_id)
 {
     OS_impl_timebase_internal_record_t *local;
@@ -544,23 +564,22 @@ int32 OS_TimeBaseDelete_Impl(uint32 timer_id)
     }
 
     return OS_SUCCESS;
-}
+} /* end OS_TimeBaseDelete_Impl */
 
-/***************************************************************************************
- *    Name: OS_TimerGetInfo
+                        
+/*----------------------------------------------------------------
  *
- *    Purpose: This function will pass back a pointer to structure that contains
- *             all of the relevant info( name and creator) about the specified timer.
+ * Function: OS_TimeBaseGetInfo_Impl
  *
- *    Returns: OS_ERR_INVALID_ID if the id passed in is not a valid timer
- *             OS_INVALID_POINTER if the timer_prop pointer is null
- *             OS_SUCCESS if success
- */
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_TimeBaseGetInfo_Impl (uint32 timer_id, OS_timebase_prop_t *timer_prop)
 {
     return OS_SUCCESS;
 
-} /* end OS_TimerGetInfo */
+} /* end OS_TimeBaseGetInfo_Impl */
 
 /****************************************************************************************
                   Other Time-Related API Implementation

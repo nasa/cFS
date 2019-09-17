@@ -66,15 +66,18 @@ extern const OS_VolumeInfo_t OS_VolumeTable[];
 #define OS_COMPAT_VOLTAB_SIZE       0
 #endif
 
-/*---------------------------------------------------------------------------------------
-    Name: OS_FileSys_FindVirtMountPoint
-
-    Purpose: Checks if the filesys table index matches the "virtual_mountpt" field.
-             Function is Compatible with the Search object lookup routine
-
-    Returns: true if the entry matches, false if it does not match
-
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_FileSys_FindVirtMountPoint
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *           Checks if the filesys table index matches the "virtual_mountpt" field.
+ *           Function is Compatible with the Search object lookup routine
+ *
+ *  Returns: true if the entry matches, false if it does not match
+ *
+ *-----------------------------------------------------------------*/
 static bool OS_FileSys_FindVirtMountPoint(void *ref, uint32 local_id, const OS_common_record_t *obj)
 {
     OS_filesys_internal_record_t *rec = &OS_filesys_table[local_id];
@@ -89,17 +92,20 @@ static bool OS_FileSys_FindVirtMountPoint(void *ref, uint32 local_id, const OS_c
     mplen = strlen(rec->virtual_mountpt);
     return (mplen > 0 && strncmp(target, rec->virtual_mountpt, mplen) == 0 &&
             (target[mplen] == '/' || target[mplen] == 0));
-}
+} /* end OS_FileSys_FindVirtMountPoint */
 
-/*---------------------------------------------------------------------------------------
-    Name: OS_FileSys_InitLocalFromVolTable
-
-    Purpose: Pre-populates a local filesys table entry from the classic OS_VolumeTable
-             This provides backward compatibility with existing PSP/BSP implementations.
-
-    Returns: OS_SUCCESS on success or appropriate error code.
-
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_FileSys_InitLocalFromVolTable
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *           Pre-populates a local filesys table entry from the classic OS_VolumeTable
+ *           This provides backward compatibility with existing PSP/BSP implementations.
+ *
+ *  Returns: OS_SUCCESS on success or appropriate error code.
+ *
+ *-----------------------------------------------------------------*/
 static int32 OS_FileSys_InitLocalFromVolTable(OS_filesys_internal_record_t *local, const OS_VolumeInfo_t *Vol)
 {
     int32 return_code = OS_SUCCESS;
@@ -186,17 +192,20 @@ static int32 OS_FileSys_InitLocalFromVolTable(OS_filesys_internal_record_t *loca
     }
 
     return return_code;
-}
+} /* end OS_FileSys_InitLocalFromVolTable */
 
-/* ---------------------------------------------------------------------------------------
-    Name: OS_FileSys_GetInitialParamsForDevice
-
-    Purpose: Pre-populates a local filesys table entry from the classic OS_VolumeTable
-             This provides backward compatibility with existing PSP/BSP implementations.
-
-    Returns: OS_SUCCESS on success or appropriate error code.
-
- ---------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_FileSys_SetupInitialParamsForDevice
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *           Pre-populates a local filesys table entry from the classic OS_VolumeTable
+ *           This provides backward compatibility with existing PSP/BSP implementations.
+ *
+ *  Returns: OS_SUCCESS on success or appropriate error code.
+ *
+ *-----------------------------------------------------------------*/
 static int32 OS_FileSys_SetupInitialParamsForDevice(const char *devname, OS_filesys_internal_record_t *local)
 {
     const OS_VolumeInfo_t *Vol;
@@ -217,17 +226,20 @@ static int32 OS_FileSys_SetupInitialParamsForDevice(const char *devname, OS_file
     }
 
     return return_code;
-}
+} /* end OS_FileSys_SetupInitialParamsForDevice */
 
-/* ---------------------------------------------------------------------------------------
-    Name: OS_FileSys_Initialize
-
-    Purpose: Implements Common code between the mkfs and initfs calls -
-            mkfs passes the "should_format" as true and initfs passes as false.
-
-    Returns: OS_FS_SUCCESS on creating the disk, or appropriate error code.
-
- ---------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_FileSys_Initialize
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *           Implements Common code between the mkfs and initfs calls -
+ *           mkfs passes the "should_format" as true and initfs passes as false.
+ *
+ *  Returns: OS_FS_SUCCESS on creating the disk, or appropriate error code.
+ *
+ *-----------------------------------------------------------------*/
 static int32 OS_FileSys_Initialize(char *address, const char *fsdevname, const char * fsvolname, uint32 blocksize,
                uint32 numblocks, bool should_format)
 {
@@ -326,13 +338,21 @@ static int32 OS_FileSys_Initialize(char *address, const char *fsdevname, const c
 
     return return_code;
 
-} /* end OS_FileSysInitialize */
+} /* end OS_FileSys_Initialize */
 
 
 /****************************************************************************************
                                   INITIALIZATION
  ***************************************************************************************/
 
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_FileSysAPI_Init
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_FileSysAPI_Init(void)
 {
     uint32 i;
@@ -390,12 +410,17 @@ int32 OS_FileSysAPI_Init(void)
     }
 
     return return_code;
-}
+} /* end OS_FileSysAPI_Init */
 
-/****************************************************************************************
-                                  FILE SYSTEM API
- ***************************************************************************************/
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_FileSysAddFixedMap
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_FileSysAddFixedMap(uint32 *filesys_id, const char *phys_path, const char *virt_path)
 {
     OS_common_record_t *global;
@@ -464,20 +489,17 @@ int32 OS_FileSysAddFixedMap(uint32 *filesys_id, const char *phys_path, const cha
     }
 
     return return_code;
-}
+} /* end OS_FileSysAddFixedMap */
 
-/*---------------------------------------------------------------------------------------
-    Name: OS_mkfs
-
-    Purpose: Makes a file system on the target
-
-    Returns: OS_FS_ERR_INVALID_POINTER if devname is NULL
-             OS_FS_ERR_DRIVE_NOT_CREATED if the OS calls to create the the drive failed
-             OS_FS_ERR_DEVICE_NOT_FREE if the volume table is full
-             OS_FS_SUCCESS on creating the disk
-
----------------------------------------------------------------------------------------*/
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_mkfs
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_mkfs (char *address, const char *devname, const char * volname, uint32 blocksize,
                uint32 numblocks)
 {
@@ -502,16 +524,15 @@ int32 OS_mkfs (char *address, const char *devname, const char * volname, uint32 
 
 } /* end OS_mkfs */
 
-/*---------------------------------------------------------------------------------------
-    Name: OS_rmfs
-
-    Purpose: Inititalizes a file system on the target
-
-    Returns: OS_FS_ERR_INVALID_POINTER if devname is NULL
-             OS_FS_ERROR is the drive specified cannot be located
-             OS_FS_SUCCESS on removing  the disk
----------------------------------------------------------------------------------------*/
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_rmfs
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_rmfs (const char *devname)
 {
     int32 return_code;
@@ -564,20 +585,17 @@ int32 OS_rmfs (const char *devname)
     }
 
     return return_code;
-}/* end OS_rmfs */
+} /* end OS_rmfs */
 
-/*---------------------------------------------------------------------------------------
-    Name: OS_initfs
-
-    Purpose: Inititalizes a file system on the target
-
-    Returns: OS_FS_ERR_INVALID_POINTER if devname or volname are  NULL
-             OS_FS_ERR_PATH_TOO_LONG if the name is too long
-             OS_FS_ERR_DEVICE_NOT_FREE if the volume table is full
-             OS_FS_ERR_DRIVE_NOT_CREATED on error
-             OS_FS_SUCCESS on creating the disk
-
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_initfs
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_initfs (char *address,const char *devname, const char *volname,
                 uint32 blocksize, uint32 numblocks)
 {
@@ -600,15 +618,17 @@ int32 OS_initfs (char *address,const char *devname, const char *volname,
 
     return return_code;
 
-}/* end OS_initfs */
+} /* end OS_initfs */
 
-/*--------------------------------------------------------------------------------------
-    Name: OS_mount
-
-    Purpose: mounts a drive.
-
----------------------------------------------------------------------------------------*/
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_mount
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_mount (const char *devname, const char* mountpoint)
 {
     int32 return_code;
@@ -683,20 +703,17 @@ int32 OS_mount (const char *devname, const char* mountpoint)
 
     return return_code;
 
-}/* end OS_mount */
+} /* end OS_mount */
 
-/*--------------------------------------------------------------------------------------
-    Name: OS_unmount
-
-    Purpose: unmounts a drive. and therefore makes all file descriptors pointing into
-             the drive obsolete.
-
-    Returns: OS_FS_ERR_INVALID_POINTER if name is NULL
-             OS_FS_ERR_PATH_TOO_LONG if the absolute path given is too long
-             OS_FS_ERROR if the OS calls failed
-             OS_FS_SUCCESS if success
----------------------------------------------------------------------------------------*/
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_unmount
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_unmount (const char *mountpoint)
 {
     int32 return_code;
@@ -770,18 +787,17 @@ int32 OS_unmount (const char *mountpoint)
     }
 
     return return_code;
-}/* end OS_umount */
+} /* end OS_unmount */
 
-/*--------------------------------------------------------------------------------------
-    Name: OS_fsBlocksFree
-
-    Purpose: Returns the number of free blocks in a volume
-
-    Returns: OS_FS_ERR_INVALID_POINTER if name is NULL
-             OS_FS_ERR_PATH_TOO_LONG if the name is too long
-             OS_FS_ERROR if the OS call failed
-             The number of blocks free in a volume if success
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_fsBlocksFree
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_fsBlocksFree (const char *name)
 {
     int32 return_code;
@@ -823,18 +839,17 @@ int32 OS_fsBlocksFree (const char *name)
 
     return return_code;
 
-}/* end OS_fsBlocksFree */
+} /* end OS_fsBlocksFree */
 
-/*--------------------------------------------------------------------------------------
-    Name: OS_fsBytesFree
-
-    Purpose: Returns the number of free bytes in a volume
-
-    Returns: OS_FS_ERR_INVALID_POINTER if name is NULL
-             OS_FS_ERR_PATH_TOO_LONG if the name is too long
-             OS_FS_ERROR if the OS call failed
-             OS_FS_SUCCESS if success
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_fsBytesFree
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_fsBytesFree (const char *name, uint64 *bytes_free)
 {
     int32 return_code;
@@ -876,19 +891,18 @@ int32 OS_fsBytesFree (const char *name, uint64 *bytes_free)
 
     return return_code;
 
-}/* end OS_fsBytesFree */
+} /* end OS_fsBytesFree */
 
 
-/*--------------------------------------------------------------------------------------
-    Name: OS_chkfs
-
-    Purpose: Checks the drives for inconsistencies and either repairs it or not
-
-    Returns: OS_FS_ERR_INVALID_POINTER if name is NULL
-             OS_FS_SUCCESS if success
-             OS_FS_ERROR if the OS calls fail
-
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_chkfs
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_chkfs (const char *name, bool repair)
 {
     uint32 local_id;
@@ -926,18 +940,17 @@ int32 OS_chkfs (const char *name, bool repair)
 
     return return_code;
 
-}/* end OS_chkfs */
+} /* end OS_chkfs */
 
-/*--------------------------------------------------------------------------------------
-    Name: OS_FS_GetPhysDriveName
-
-    Purpose: Returns the name of the physical volume associated with the drive,
-             when given the OSAL mount point of the drive
-
-    Returns: OS_FS_ERR_INVALID_POINTER if either  parameter is NULL
-             OS_SUCCESS if success
-             OS_FS_ERROR if the mountpoint could not be found
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_FS_GetPhysDriveName
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_FS_GetPhysDriveName(char * PhysDriveName, const char * MountPoint)
 {
     uint32 local_id;
@@ -984,19 +997,18 @@ int32 OS_FS_GetPhysDriveName(char * PhysDriveName, const char * MountPoint)
 
 
     return return_code;
-}/* end OS_FS_GetPhysDriveName */
+} /* end OS_FS_GetPhysDriveName */
 
 
-/*--------------------------------------------------------------------------------------
-     Name: OS_GetFsInfo
-
-     Purpose: returns information about the file system in an os_fsinfo_t
-
-     Returns: OS_FS_ERR_INVALID_POINTER if filesys_info is NULL
-              OS_FS_SUCCESS if success
-
-     Note: The information returned is in the structure pointed to by filesys_info
- ---------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_GetFsInfo
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_GetFsInfo(os_fsinfo_t  *filesys_info)
 {
    int i;
@@ -1039,15 +1051,17 @@ int32 OS_GetFsInfo(os_fsinfo_t  *filesys_info)
    OS_Unlock_Global_Impl(OS_OBJECT_TYPE_OS_FILESYS);
 
    return(OS_FS_SUCCESS);
-}
+} /* end OS_GetFsInfo */
 
-/*-------------------------------------------------------------------------------------
- * Name: OS_TranslatePath
+                        
+/*----------------------------------------------------------------
  *
- * Purpose: Because of the abstraction of the filesystem across OSes, we have to change
- *          the name of the {file, directory, drive} to be what the OS can actually
- *          accept
----------------------------------------------------------------------------------------*/
+ * Function: OS_TranslatePath
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_TranslatePath(const char *VirtualPath, char *LocalPath)
 {
     uint32 local_id;
