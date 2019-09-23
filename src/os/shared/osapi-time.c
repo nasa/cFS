@@ -313,6 +313,11 @@ int32 OS_TimerSet(uint32 timer_id, uint32 start_time, uint32 interval_time)
    {
        return OS_TIMER_ERR_INVALID_ARGS;
    }
+   
+   if (start_time == 0 && interval_time == 0)
+   {
+       return OS_ERROR;
+   }
 
    /*
     * Check our context.  Not allowed to use the timer API from a timer callback.
