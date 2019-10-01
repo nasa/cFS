@@ -1,4 +1,4 @@
-Auto build status: [![Build Status](https://travis-ci.com/travis-r-wheatley/cFS.svg?branch=master)](https://travis-ci.com/travis-r-wheatley/cFS)
+Travis-CI: [![Build Status](https://travis-ci.com/nasa/cFS.svg)](https://travis-ci.com/nasa/cFS)
 
 # Core Flight System - BUNDLE
 
