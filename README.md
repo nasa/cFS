@@ -1,3 +1,5 @@
+Auto build status: [![Build Status](https://travis-ci.com/travis-r-wheatley/cFS.svg?branch=master)](https://travis-ci.com/travis-r-wheatley/cFS)
+
 # Core Flight System - BUNDLE
 
 This repository is a bundle of submodules that make up the Core Flight System (cFS) framework.  Note the "lab" apps are intended as examples only, and enable this bundle to build, execute, receive commands, and send telemetry.  This is not a flight distribution, which is typically made up of the cFE, OSAL, PSP, and a selection of flight apps that coorespond to specific mission requirements.
@@ -135,3 +137,4 @@ The following list is user submitted, and not CCB controlled.  They are released
     - TBD
   - Other PSPs
     - TBD
+
