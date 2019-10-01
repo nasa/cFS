@@ -181,7 +181,15 @@ enum
 };
 
 const OS_ErrorTable_Entry_t OS_IMPL_ERROR_NAME_TABLE[] = { { 0, NULL } };
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_Lock_Global_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_Lock_Global_Impl(uint32 idtype)
 {
     VxWorks_GlobalMutex_t *mut;
@@ -204,8 +212,16 @@ int32 OS_Lock_Global_Impl(uint32 idtype)
     }
 
     return OS_SUCCESS;
-}
-
+} /* end OS_Lock_Global_Impl */
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_Unlock_Global_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_Unlock_Global_Impl(uint32 idtype)
 {
     VxWorks_GlobalMutex_t *mut;
@@ -228,7 +244,7 @@ int32 OS_Unlock_Global_Impl(uint32 idtype)
     }
 
     return OS_SUCCESS;
-}
+} /* end OS_Unlock_Global_Impl */
 
 
 
@@ -236,14 +252,14 @@ int32 OS_Unlock_Global_Impl(uint32 idtype)
                                 INITIALIZATION FUNCTION
 ****************************************************************************************/
 
-/*---------------------------------------------------------------------------------------
-   Name: OS_API_Init
-
-   Purpose: Initialize the tables that the OS API uses to keep track of information
-            about objects
-
-   returns: OS_SUCCESS or OS_ERROR
----------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------
+ *
+ * Function: OS_API_Impl_Init
+ *
+ *  Purpose: Initialize the tables that the OS API uses to keep track of information
+ *           about objects
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_API_Impl_Init(uint32 idtype)
 {
    int32    return_code = OS_SUCCESS;
@@ -303,35 +319,37 @@ int32 OS_API_Impl_Init(uint32 idtype)
 
 
    return(return_code);
-}
+} /* end OS_API_Impl_Init */
 
-/*---------------------------------------------------------------------------------------
-   Name: OS_IdleLoop
-
-   Purpose: Wait for external events.
-
-   returns: no value
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_IdleLoop_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void OS_IdleLoop_Impl()
 {
     TASK_ID tid = taskIdSelf();
     OS_idle_task_id = tid;
     taskSuspend(tid);
-}
+} /* end OS_IdleLoop_Impl */
 
-/*---------------------------------------------------------------------------------------
-   Name: OS_ApplicationShutdown_Impl
-
-   Purpose: Ensures that the thread waiting in OS_IdleLoop_Impl is waken up
-
-   returns: no value
-
-   NOTE: Might be called from an ISR/signal handler
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_ApplicationShutdown_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void OS_ApplicationShutdown_Impl()
 {
     taskResume(OS_idle_task_id);
-}
+} /* end OS_ApplicationShutdown_Impl */
 
 
 
@@ -347,7 +365,7 @@ static int OS_VxWorksEntry(int arg)
 {
     OS_TaskEntryPoint((uint32)arg);
     return 0;
-}
+} /* end OS_VxWorksEntry */
 
 
 
@@ -355,30 +373,29 @@ static int OS_VxWorksEntry(int arg)
                                     TASK API
 ****************************************************************************************/
 
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_VxWorks_TaskAPI_Impl_Init
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_VxWorks_TaskAPI_Impl_Init(void)
 {
     memset(OS_impl_task_table, 0, sizeof(OS_impl_task_table));
     return (OS_SUCCESS);
-}
+} /* end OS_VxWorks_TaskAPI_Impl_Init */
 
-/*---------------------------------------------------------------------------------------
-   Name: OS_TaskCreate
-
-   Purpose: Creates a task and starts running it.
-
-   returns: OS_INVALID_POINTER if any of the necessary pointers are NULL
-            OS_ERR_NAME_TOO_LONG if the name of the task is too long to be copied
-            OS_ERR_INVALID_PRIORITY if the priority is bad
-            OS_ERR_NO_FREE_IDS if there can be no more tasks created
-            OS_ERR_NAME_TAKEN if the name specified is already used by a task
-            OS_ERROR if the operating system calls fail
-            OS_SUCCESS if success
-
-    NOTES: task_id is passed back to the user as the ID. stack_pointer is usually null.
-
-
----------------------------------------------------------------------------------------*/
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_TaskCreate_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_TaskCreate_Impl (uint32 task_id, uint32 flags)
 {
     STATUS status;
@@ -524,16 +541,15 @@ int32 OS_TaskCreate_Impl (uint32 task_id, uint32 flags)
 
 } /* end OS_TaskCreate_Impl */
 
-/*--------------------------------------------------------------------------------------
-     Name: OS_TaskDelete
-
-    Purpose: Deletes the specified Task and removes it from the OS_task_table.
-
-    returns: OS_ERR_INVALID_ID if the ID given to it is invalid
-             OS_ERROR if the OS delete call fails
-             OS_SUCCESS if success
----------------------------------------------------------------------------------------*/
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_TaskDelete_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_TaskDelete_Impl (uint32 task_id)
 {
     /*
@@ -551,28 +567,31 @@ int32 OS_TaskDelete_Impl (uint32 task_id)
     OS_impl_task_table[task_id].vxid = 0;
     return OS_SUCCESS;
 
-}/* end OS_TaskDelete_Impl */
+} /* end OS_TaskDelete_Impl */
 
-/*--------------------------------------------------------------------------------------
-     Name:    OS_TaskExit
-
-     Purpose: Exits the calling task and removes it from the OS_task_table.
-
-     returns: Nothing
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_TaskExit_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void OS_TaskExit_Impl()
 {
     taskExit(0);
-}/*end OS_TaskExit_Impl */
+} /* end OS_TaskExit_Impl */
 
-/*---------------------------------------------------------------------------------------
-   Name: OS_TaskDelay
-
-   Purpose: Delay a task for specified amount of milliseconds
-
-   returns: OS_ERROR if sleep fails
-            OS_SUCCESS if success
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_TaskDelay_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_TaskDelay_Impl (uint32 milli_second)
 {
     /* msecs rounded to the closest system tick count */
@@ -587,19 +606,17 @@ int32 OS_TaskDelay_Impl (uint32 milli_second)
     }
     return OS_SUCCESS;
 
-}/* end OS_TaskDelay_Impl */
+} /* end OS_TaskDelay_Impl */
 
-/*---------------------------------------------------------------------------------------
-   Name: OS_TaskSetPriority
-
-   Purpose: Sets the given task to a new priority
-
-    returns: OS_ERR_INVALID_ID if the ID passed to it is invalid
-             OS_ERR_INVALID_PRIORITY if the priority is greater than the max
-             allowed
-             OS_ERROR if the OS call to change the priority fails
-             OS_SUCCESS if success
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_TaskSetPriority_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_TaskSetPriority_Impl (uint32 task_id, uint32 new_priority)
 {
     /* Set VxWorks Task Priority */
@@ -610,16 +627,17 @@ int32 OS_TaskSetPriority_Impl (uint32 task_id, uint32 new_priority)
 
     return OS_SUCCESS;
 
-}/* end OS_TaskSetPriority_Impl */
+} /* end OS_TaskSetPriority_Impl */
 
-/*--------------------------------------------------------------------------------------
-     Name: OS_TaskMatch
-
-    Purpose: Determines if the caller matches the given task_id
-
-    returns: OS_ERROR if not a match
-             OS_SUCCESS if match
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_TaskMatch_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_TaskMatch_Impl(uint32 task_id)
 {
     /*
@@ -634,30 +652,29 @@ int32 OS_TaskMatch_Impl(uint32 task_id)
    return OS_SUCCESS;
 } /* end OS_TaskMatch_Impl */
 
-/*---------------------------------------------------------------------------------------
-   Name: OS_TaskRegister
-
-   Purpose: Registers the calling task id with the task by adding the var to the tcb
-
-   Returns: OS_ERR_INVALID_ID if there the specified ID could not be found
-            OS_ERROR if the OS call fails
-            OS_SUCCESS if success
----------------------------------------------------------------------------------------*/
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_TaskRegister_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_TaskRegister_Impl (uint32 global_task_id)
 {
     return OS_SUCCESS;
-}/* end OS_TaskRegister_Impl */
+} /* end OS_TaskRegister_Impl */
 
-/*---------------------------------------------------------------------------------------
-   Name: OS_TaskGetId
-
-   Purpose: This function returns the OSAL task id of the calling task
-
-   Notes: The OS_task_key is initialized by the task switch if AND ONLY IF the
-          OS_task_key has been registered via OS_TaskRegister(..).  If this is not
-          called prior to this call, the value will be old and wrong.
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_TaskGetId_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 uint32 OS_TaskGetId_Impl (void)
 {
     OS_impl_task_internal_record_t *lrec;
@@ -678,20 +695,17 @@ uint32 OS_TaskGetId_Impl (void)
 
     return id;
 
-}/* end OS_TaskGetId_Impl */
+} /* end OS_TaskGetId_Impl */
 
-/*---------------------------------------------------------------------------------------
-    Name: OS_TaskGetInfo
-
-    Purpose: This function will pass back a pointer to structure that contains
-             all of the relevant info (creator, stack size, priority, name) about the
-             specified task.
-
-    Returns: OS_ERR_INVALID_ID if the ID passed to it is invalid
-             OS_INVALID_POINTER if the task_prop pointer is NULL
-             OS_SUCCESS if it copied all of the relevant info over
-
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_TaskGetInfo_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_TaskGetInfo_Impl (uint32 task_id, OS_task_prop_t *task_prop)
 {
     union
@@ -718,27 +732,29 @@ int32 OS_TaskGetInfo_Impl (uint32 task_id, OS_task_prop_t *task_prop)
                                 MESSAGE QUEUE API
 ****************************************************************************************/
 
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_VxWorks_QueueAPI_Impl_Init
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_VxWorks_QueueAPI_Impl_Init(void)
 {
     memset(OS_impl_queue_table, 0, sizeof(OS_impl_queue_table));
     return (OS_SUCCESS);
-}
+} /* end OS_VxWorks_QueueAPI_Impl_Init */
 
-/*---------------------------------------------------------------------------------------
-   Name: OS_QueueCreate
-
-   Purpose: Create a message queue which can be refered to by name or ID
-
-   Returns: OS_INVALID_POINTER if a pointer passed in is NULL
-            OS_ERR_NAME_TOO_LONG if the name passed in is too long
-            OS_ERR_NO_FREE_IDS if there are already the max queues created
-            OS_ERR_NAME_TAKEN if the name is already being used on another queue
-            OS_ERROR if the OS create call fails
-            OS_SUCCESS if success
-
-   Notes: the flags parameter is unused.
----------------------------------------------------------------------------------------*/
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_QueueCreate_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_QueueCreate_Impl (uint32 queue_id, uint32 flags)
 {
     MSG_Q_ID tmp_msgq_id;
@@ -760,18 +776,15 @@ int32 OS_QueueCreate_Impl (uint32 queue_id, uint32 flags)
 
 } /* end OS_QueueCreate_Impl */
 
-/*--------------------------------------------------------------------------------------
-    Name: OS_QueueDelete
-
-    Purpose: Deletes the specified message queue.
-
-    Returns: OS_ERR_INVALID_ID if the id passed in does not exist
-             OS_ERROR if the OS call to delete the queue fails
-             OS_SUCCESS if success
-
-    Notes: If There are messages on the queue, they will be lost and any subsequent
-           calls to QueueGet or QueuePut to this queue will result in errors
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_QueueDelete_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_QueueDelete_Impl (uint32 queue_id)
 {
     /* Try to delete the queue */
@@ -787,18 +800,15 @@ int32 OS_QueueDelete_Impl (uint32 queue_id)
 } /* end OS_QueueDelete_Impl */
 
 
-/*---------------------------------------------------------------------------------------
-   Name: OS_QueueGet
-
-   Purpose: Receive a message on a message queue.  Will pend or timeout on the receive.
-   Returns: OS_ERR_INVALID_ID if the given ID does not exist
-            OS_INVALID_POINTER if a pointer passed in is NULL
-            OS_QUEUE_EMPTY if the Queue has no messages on it to be recieved
-            OS_QUEUE_TIMEOUT if the timeout was OS_PEND and the time expired
-            OS_QUEUE_INVALID_SIZE if the size passed in may be too small for the message
-            OS_SUCCESS if success
----------------------------------------------------------------------------------------*/
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_QueueGet_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_QueueGet_Impl (uint32 queue_id, void *data, uint32 size, uint32 *size_copied,
                     int32 timeout)
 {
@@ -847,23 +857,17 @@ int32 OS_QueueGet_Impl (uint32 queue_id, void *data, uint32 size, uint32 *size_c
     }
 
     return return_code;
-}/* end OS_QueueGet_Impl */
+} /* end OS_QueueGet_Impl */
 
-/*---------------------------------------------------------------------------------------
-   Name: OS_QueuePut
-
-   Purpose: Put a message on a message queue.
-
-   Returns: OS_ERR_INVALID_ID if the queue id passed in is not a valid queue
-            OS_INVALID_POINTER if the data pointer is NULL
-            OS_QUEUE_FULL if the queue cannot accept another message
-            OS_ERROR if the OS call returns an error
-            OS_SUCCESS if SUCCESS
-
-   Notes: The flags parameter is not used.  The message put is always configured to
-            immediately return an error if the receiving message queue is full.
----------------------------------------------------------------------------------------*/
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_QueuePut_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_QueuePut_Impl (uint32 queue_id, const void *data, uint32 size, uint32 flags)
 {
     int32              return_code;
@@ -884,19 +888,17 @@ int32 OS_QueuePut_Impl (uint32 queue_id, const void *data, uint32 size, uint32 f
 
     return return_code;
 
-}/* end OS_QueuePut_Impl */
+} /* end OS_QueuePut_Impl */
 
-/*---------------------------------------------------------------------------------------
-    Name: OS_QueueGetInfo
-
-    Purpose: This function will pass back a pointer to structure that contains
-             all of the relevant info (name and creator) about the specified queue.
-
-    Returns: OS_INVALID_POINTER if queue_prop is NULL
-             OS_ERR_INVALID_ID if the ID given is not  a valid queue
-             OS_SUCCESS if the info was copied over correctly
----------------------------------------------------------------------------------------*/
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_QueueGetInfo_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_QueueGetInfo_Impl (uint32 queue_id, OS_queue_prop_t *queue_prop)
 {
     /* No extra info for queues in the OS implementation */
@@ -917,6 +919,14 @@ int32 OS_QueueGetInfo_Impl (uint32 queue_id, OS_queue_prop_t *queue_prop)
  * Therefore all semaphore actions can just invoke these generic actions
  * -----------------------------------
  */
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_VxWorks_GenericSemGive
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *
+ *-----------------------------------------------------------------*/
 static int32 OS_VxWorks_GenericSemGive(SEM_ID vxid)
 {
     /* Give VxWorks Semaphore */
@@ -926,8 +936,16 @@ static int32 OS_VxWorks_GenericSemGive(SEM_ID vxid)
         return OS_SEM_FAILURE;
     }
     return OS_SUCCESS;
-}
+} /* end OS_VxWorks_GenericSemGive */
 
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_VxWorks_GenericSemTake
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *
+ *-----------------------------------------------------------------*/
 static int32 OS_VxWorks_GenericSemTake(SEM_ID vxid, int sys_ticks)
 {
     int vx_status;
@@ -951,35 +969,34 @@ static int32 OS_VxWorks_GenericSemTake(SEM_ID vxid, int sys_ticks)
     }
 
     return OS_SUCCESS;
-}
+} /* end OS_VxWorks_GenericSemTake */
 
 /****************************************************************************************
                              BINARY SEMAPHORE API
 ****************************************************************************************/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_VxWorks_BinSemAPI_Impl_Init
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_VxWorks_BinSemAPI_Impl_Init(void)
 {
     memset(OS_impl_bin_sem_table, 0, sizeof(OS_impl_bin_sem_table));
     return (OS_SUCCESS);
-}
+} /* end OS_VxWorks_BinSemAPI_Impl_Init */
 
-/*---------------------------------------------------------------------------------------
-   Name: OS_BinSemCreate
-
-   Purpose: Creates a binary semaphore with initial value specified by
-            sem_initial_value and name specified by sem_name. sem_id will be
-            returned to the caller
-
-   Returns: OS_INVALID_POINTER if sen name or sem_id are NULL
-            OS_ERR_NAME_TOO_LONG if the name given is too long
-            OS_ERR_NO_FREE_IDS if all of the semaphore ids are taken
-            OS_ERR_NAME_TAKEN if this is already the name of a binary semaphore
-            OS_SEM_FAILURE if the OS call failed
-            OS_SUCCESS if success
-
-
-   Notes: options is an unused parameter
----------------------------------------------------------------------------------------*/
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_BinSemCreate_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_BinSemCreate_Impl (uint32 sem_id, uint32 sem_initial_value, uint32 options)
 {
     SEM_ID tmp_sem_id;
@@ -998,20 +1015,18 @@ int32 OS_BinSemCreate_Impl (uint32 sem_id, uint32 sem_initial_value, uint32 opti
     OS_impl_bin_sem_table[sem_id].vxid = tmp_sem_id;
     return OS_SUCCESS;
 
-}/* end OS_BinSemCreate_Impl */
+} /* end OS_BinSemCreate_Impl */
 
 
-/*--------------------------------------------------------------------------------------
-     Name: OS_BinSemDelete
-
-    Purpose: Deletes the specified Binary Semaphore.
-
-    Returns: OS_ERR_INVALID_ID if the id passed in is not a valid binary semaphore
-             OS_SEM_FAILURE the OS call failed
-             OS_SUCCESS if success
-
----------------------------------------------------------------------------------------*/
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_BinSemDelete_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_BinSemDelete_Impl (uint32 sem_id)
 {
     /*
@@ -1020,44 +1035,32 @@ int32 OS_BinSemDelete_Impl (uint32 sem_id)
     OS_impl_bin_sem_table[sem_id].vxid = 0;
     return OS_SUCCESS;
 
-}/* end OS_BinSemDelete_Impl */
+} /* end OS_BinSemDelete_Impl */
 
-/*---------------------------------------------------------------------------------------
-    Name: OS_BinSemGive
-
-    Purpose: The function  unlocks the semaphore referenced by sem_id by performing
-             a semaphore unlock operation on that semaphore.If the semaphore value
-             resulting from this operation is positive, then no threads were blocked
-             waiting for the semaphore to become unlocked; the semaphore value is
-             simply incremented for this semaphore.
-
-
-    Returns: OS_SEM_FAILURE the semaphore was not previously  initialized or is not
-             in the array of semaphores defined by the system
-             OS_ERR_INVALID_ID if the id passed in is not a binary semaphore
-             OS_SUCCESS if success
-
----------------------------------------------------------------------------------------*/
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_BinSemGive_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_BinSemGive_Impl (uint32 sem_id)
 {
     /* Use common routine */
     return OS_VxWorks_GenericSemGive(OS_impl_bin_sem_table[sem_id].vxid);
-}/* end OS_BinSemGive_Impl */
+} /* end OS_BinSemGive_Impl */
 
-/*---------------------------------------------------------------------------------------
-    Name: OS_BinSemFlush
-
-    Purpose: The function  releases all the tasks pending on this semaphore. Note
-             that the state of the semaphore is not changed by this operation.
-
-    Returns: OS_SEM_FAILURE the semaphore was not previously  initialized or is not
-             in the array of semaphores defined by the system
-             OS_ERR_INVALID_ID if the id passed in is not a binary semaphore
-             OS_SUCCESS if success
-
----------------------------------------------------------------------------------------*/
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_BinSemFlush_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_BinSemFlush_Impl (uint32 sem_id)
 {
     /* Flush VxWorks Semaphore */
@@ -1068,63 +1071,47 @@ int32 OS_BinSemFlush_Impl (uint32 sem_id)
     }
 
     return OS_SUCCESS;
-}/* end OS_BinSemFlush_Impl */
+} /* end OS_BinSemFlush_Impl */
 
-/*---------------------------------------------------------------------------------------
-    Name:    OS_BinSemTake
-
-    Purpose: The locks the semaphore referenced by sem_id by performing a
-             semaphore lock operation on that semaphore.If the semaphore value
-             is currently zero, then the calling thread shall not return from
-             the call until it either locks the semaphore or the call is
-             interrupted by a signal.
-
-    Return:  OS_ERR_INVALID_ID : the semaphore was not previously initialized
-             or is not in the array of semaphores defined by the system
-             OS_SEM_FAILURE if the OS call failed and the semaphore is not obtained
-             OS_SUCCESS if success
-
-----------------------------------------------------------------------------------------*/
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_BinSemTake_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_BinSemTake_Impl (uint32 sem_id)
 {
     /* Use common routine */
     return OS_VxWorks_GenericSemTake(OS_impl_bin_sem_table[sem_id].vxid, WAIT_FOREVER);
 
-}/* end OS_BinSemTake_Impl */
+} /* end OS_BinSemTake_Impl */
 
-/*---------------------------------------------------------------------------------------
-    Name: OS_BinSemTimedWait
-
-    Purpose: The function locks the semaphore referenced by sem_id . However,
-             if the semaphore cannot be locked without waiting for another process
-             or thread to unlock the semaphore , this wait shall be terminated when
-             the specified timeout ,msecs, expires.
-
-    Returns: OS_SEM_TIMEOUT if semaphore was not relinquished in time
-             OS_SUCCESS if success
-             OS_SEM_FAILURE the semaphore was not previously initialized or is not
-             in the array of semaphores defined by the system
-             OS_ERR_INVALID_ID if the ID passed in is not a valid semaphore ID
-----------------------------------------------------------------------------------------*/
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_BinSemTimedWait_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_BinSemTimedWait_Impl (uint32 sem_id, uint32 msecs)
 {
     return OS_VxWorks_GenericSemTake(OS_impl_bin_sem_table[sem_id].vxid, OS_Milli2Ticks(msecs));
-}/* end OS_BinSemTimedWait_Impl */
+} /* end OS_BinSemTimedWait_Impl */
 
-/*---------------------------------------------------------------------------------------
-    Name: OS_BinSemGetInfo
-
-    Purpose: This function will pass back a pointer to structure that contains
-             all of the relevant info( name and creator) about the specified binary
-             semaphore.
-
-    Returns: OS_ERR_INVALID_ID if the id passed in is not a valid semaphore
-             OS_INVALID_POINTER if the bin_prop pointer is null
-             OS_SUCCESS if success
----------------------------------------------------------------------------------------*/
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_BinSemGetInfo_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_BinSemGetInfo_Impl (uint32 sem_id, OS_bin_sem_prop_t *bin_prop)
 {
     /* VxWorks has no API for obtaining the current value of a semaphore */
@@ -1136,30 +1123,30 @@ int32 OS_BinSemGetInfo_Impl (uint32 sem_id, OS_bin_sem_prop_t *bin_prop)
                              COUNTING SEMAPHORE API
 ****************************************************************************************/
 
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_VxWorks_CountSemAPI_Impl_Init
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_VxWorks_CountSemAPI_Impl_Init(void)
 {
     memset(OS_impl_count_sem_table, 0, sizeof(OS_impl_count_sem_table));
     return (OS_SUCCESS);
-}
+} /* end OS_VxWorks_CountSemAPI_Impl_Init */
 
 
-/*---------------------------------------------------------------------------------------
-   Name: OS_CountSemCreate
-
-   Purpose: Creates a countary semaphore with initial value specified by
-            sem_initial_value and name specified by sem_name. sem_id will be
-            returned to the caller
-
-   Returns: OS_INVALID_POINTER if sen name or sem_id are NULL
-            OS_ERR_NAME_TOO_LONG if the name given is too long
-            OS_ERR_NO_FREE_IDS if all of the semaphore ids are taken
-            OS_ERR_NAME_TAKEN if this is already the name of a countary semaphore
-            OS_SEM_FAILURE if the OS call failed
-            OS_SUCCESS if success
-
-   Notes: options is an unused parameter
----------------------------------------------------------------------------------------*/
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_CountSemCreate_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_CountSemCreate_Impl (uint32 sem_id, uint32 sem_initial_value, uint32 options)
 {
     SEM_ID tmp_sem_id;
@@ -1178,19 +1165,17 @@ int32 OS_CountSemCreate_Impl (uint32 sem_id, uint32 sem_initial_value, uint32 op
     OS_impl_count_sem_table[sem_id].vxid = tmp_sem_id;
     return OS_SUCCESS;
 
-}/* end OS_CountSemCreate_Impl */
+} /* end OS_CountSemCreate_Impl */
 
-/*--------------------------------------------------------------------------------------
-     Name: OS_CountSemDelete
-
-    Purpose: Deletes the specified Counting Semaphore.
-
-    Returns: OS_ERR_INVALID_ID if the id passed in is not a valid countary semaphore
-             OS_SEM_FAILURE the OS call failed
-             OS_SUCCESS if success
-
----------------------------------------------------------------------------------------*/
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_CountSemDelete_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_CountSemDelete_Impl (uint32 sem_id)
 {
     /*
@@ -1199,121 +1184,97 @@ int32 OS_CountSemDelete_Impl (uint32 sem_id)
     OS_impl_count_sem_table[sem_id].vxid = 0;
     return OS_SUCCESS;
 
-}/* end OS_CountSemDelete_Impl */
+} /* end OS_CountSemDelete_Impl */
 
-/*---------------------------------------------------------------------------------------
-    Name: OS_CountSemGive
-
-    Purpose: The function  unlocks the semaphore referenced by sem_id by performing
-             a semaphore unlock operation on that semaphore.If the semaphore value
-             resulting from this operation is positive, then no threads were blocked
-             waiting for the semaphore to become unlocked; the semaphore value is
-             simply incremented for this semaphore.
-
-
-    Returns: OS_SEM_FAILURE the semaphore was not previously  initialized or is not
-             in the array of semaphores defined by the system
-             OS_ERR_INVALID_ID if the id passed in is not a countary semaphore
-             OS_SUCCESS if success
-
----------------------------------------------------------------------------------------*/
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_CountSemGive_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_CountSemGive_Impl (uint32 sem_id)
 {
     /* Give VxWorks Semaphore */
     return OS_VxWorks_GenericSemGive(OS_impl_count_sem_table[sem_id].vxid);
-}/* end OS_CountSemGive_Impl */
+} /* end OS_CountSemGive_Impl */
 
-/*---------------------------------------------------------------------------------------
-    Name:    OS_CountSemTake
-
-    Purpose: The locks the semaphore referenced by sem_id by performing a
-             semaphore lock operation on that semaphore.If the semaphore value
-             is currently zero, then the calling thread shall not return from
-             the call until it either locks the semaphore or the call is
-             interrupted by a signal.
-
-    Return:  OS_SEM_FAILURE : the semaphore was not previously initialized
-             or is not in the array of semaphores defined by the system
-             OS_ERR_INVALID_ID the Id passed in is not a valid countar semaphore
-             OS_SEM_FAILURE if the OS call failed
-             OS_SUCCESS if success
-
-----------------------------------------------------------------------------------------*/
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_CountSemTake_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_CountSemTake_Impl (uint32 sem_id)
 {
     return OS_VxWorks_GenericSemTake(OS_impl_count_sem_table[sem_id].vxid, WAIT_FOREVER);
-}/* end OS_CountSemTake_Impl */
+} /* end OS_CountSemTake_Impl */
 
 
-/*---------------------------------------------------------------------------------------
-    Name: OS_CountSemTimedWait
-
-    Purpose: The function locks the semaphore referenced by sem_id . However,
-             if the semaphore cannot be locked without waiting for another process
-             or thread to unlock the semaphore , this wait shall be terminated when
-             the specified timeout ,msecs, expires.
-
-    Returns: OS_SEM_TIMEOUT if semaphore was not relinquished in time
-             OS_SUCCESS if success
-             OS_SEM_FAILURE the semaphore was not previously initialized or is not
-             in the array of semaphores defined by the system
-             OS_ERR_INVALID_ID if the ID passed in is not a valid semaphore ID
-----------------------------------------------------------------------------------------*/
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_CountSemTimedWait_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_CountSemTimedWait_Impl (uint32 sem_id, uint32 msecs)
 {
     return OS_VxWorks_GenericSemTake(OS_impl_count_sem_table[sem_id].vxid,
             OS_Milli2Ticks(msecs));
-}/* end OS_CountSemTimedWait_Impl */
+} /* end OS_CountSemTimedWait_Impl */
 
-/*---------------------------------------------------------------------------------------
-    Name: OS_CountSemGetInfo
-
-    Purpose: This function will pass back a pointer to structure that contains
-             all of the relevant info( name and creator) about the specified countary
-             semaphore.
-
-    Returns: OS_ERR_INVALID_ID if the id passed in is not a valid semaphore
-             OS_INVALID_POINTER if the count_prop pointer is null
-             OS_SUCCESS if success
----------------------------------------------------------------------------------------*/
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_CountSemGetInfo_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_CountSemGetInfo_Impl (uint32 sem_id, OS_count_sem_prop_t *count_prop)
 {
     /* VxWorks does not provide an API to get the value */
     return OS_SUCCESS;
 
-} /* end OS_CountSemGetInfo */
+} /* end OS_CountSemGetInfo_Impl */
 
 /****************************************************************************************
                                   MUTEX API
 ****************************************************************************************/
 
 
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_VxWorks_MutexAPI_Impl_Init
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_VxWorks_MutexAPI_Impl_Init(void)
 {
     memset(OS_impl_mut_sem_table, 0, sizeof(OS_impl_mut_sem_table));
     return (OS_SUCCESS);
-}
+} /* end OS_VxWorks_MutexAPI_Impl_Init */
 
-/*---------------------------------------------------------------------------------------
-    Name: OS_MutSemCreate
-
-    Purpose: Creates a mutex semaphore initially full.
-
-    Returns: OS_INVALID_POINTER if sem_id or sem_name are NULL
-             OS_ERR_NAME_TOO_LONG if the sem_name is too long to be stored
-             OS_ERR_NO_FREE_IDS if there are no more free mutex Ids
-             OS_ERR_NAME_TAKEN if there is already a mutex with the same name
-             OS_SEM_FAILURE if the OS call failed
-             OS_SUCCESS if success
-
-    Notes: the options parameter is not used in this implementation
-
----------------------------------------------------------------------------------------*/
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_MutSemCreate_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_MutSemCreate_Impl (uint32 sem_id, uint32 options)
 {
     SEM_ID tmp_sem_id;
@@ -1330,19 +1291,17 @@ int32 OS_MutSemCreate_Impl (uint32 sem_id, uint32 options)
 
     OS_impl_mut_sem_table[sem_id].vxid = tmp_sem_id;
     return OS_SUCCESS;
-}/* end OS_MutSemCreate_Impl */
+} /* end OS_MutSemCreate_Impl */
 
-/*--------------------------------------------------------------------------------------
-     Name: OS_MutSemDelete
-
-    Purpose: Deletes the specified Mutex Semaphore.
-
-    Returns: OS_ERR_INVALID_ID if the id passed in is not a valid mutex
-             OS_SEM_FAILURE if the OS call failed
-             OS_SUCCESS if success
-
----------------------------------------------------------------------------------------*/
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_MutSemDelete_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_MutSemDelete_Impl (uint32 sem_id)
 {
     /*
@@ -1351,63 +1310,48 @@ int32 OS_MutSemDelete_Impl (uint32 sem_id)
     OS_impl_mut_sem_table[sem_id].vxid = 0;
     return OS_SUCCESS;
 
-}/* end OS_MutSemDelete_Impl */
+} /* end OS_MutSemDelete_Impl */
 
 
-/*---------------------------------------------------------------------------------------
-    Name: OS_MutSemGive
-
-    Purpose: The function releases the mutex object referenced by sem_id.The
-             manner in which a mutex is released is dependent upon the mutex's type
-             attribute.  If there are threads blocked on the mutex object referenced by
-             mutex when this function is called, resulting in the mutex becoming
-             available, the scheduling policy shall determine which thread shall
-             acquire the mutex.
-
-    Returns: OS_SUCCESS if success
-             OS_SEM_FAILURE if the semaphore was not previously  initialized
-             OS_ERR_INVALID_ID if the id passed in is not a valid mutex
-
----------------------------------------------------------------------------------------*/
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_MutSemGive_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_MutSemGive_Impl (uint32 sem_id)
 {
     /* Give VxWorks Semaphore */
     return OS_VxWorks_GenericSemGive(OS_impl_mut_sem_table[sem_id].vxid);
-}/* end OS_MutSemGive_Impl */
+} /* end OS_MutSemGive_Impl */
 
-/*---------------------------------------------------------------------------------------
-    Name: OS_MutSemTake
-
-    Purpose: The mutex object referenced by sem_id shall be locked by calling this
-             function. If the mutex is already locked, the calling thread shall
-             block until the mutex becomes available. This operation shall return
-             with the mutex object referenced by mutex in the locked state with the
-             calling thread as its owner.
-
-    Returns: OS_SUCCESS if success
-             OS_SEM_FAILURE if the semaphore was not previously initialized or is
-             not in the array of semaphores defined by the system
-             OS_ERR_INVALID_ID the id passed in is not a valid mutex
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_MutSemTake_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_MutSemTake_Impl (uint32 sem_id)
 {
     /* Take VxWorks Semaphore */
     return OS_VxWorks_GenericSemTake(OS_impl_mut_sem_table[sem_id].vxid, WAIT_FOREVER);
-}/* end OS_MutSemTake_Impl */
+} /* end OS_MutSemTake_Impl */
 
-/*---------------------------------------------------------------------------------------
-    Name: OS_MutSemGetInfo
-
-    Purpose: This function will pass back a pointer to structure that contains
-             all of the relevant info( name and creator) about the specified mutex
-             semaphore.
-
-    Returns: OS_ERR_INVALID_ID if the id passed in is not a valid semaphore
-             OS_INVALID_POINTER if the mut_prop pointer is null
-             OS_SUCCESS if success
----------------------------------------------------------------------------------------*/
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_MutSemGetInfo_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_MutSemGetInfo_Impl (uint32 sem_id, OS_mut_sem_prop_t *mut_prop)
 {
     /* VxWorks provides no additional info */
@@ -1423,19 +1367,15 @@ int32 OS_MutSemGetInfo_Impl (uint32 sem_id, OS_mut_sem_prop_t *mut_prop)
                                  INT API
 ****************************************************************************************/
 
-/*---------------------------------------------------------------------------------------
-   Name: OS_IntAttachHandler
-
-   Purpose: The call associates a specified C routine to a specified interrupt
-            number.Upon occurring of the InterruptNumber the InerruptHandler
-            routine will be called and passed the parameter.
-
-   Parameters:
-        InterruptNumber : The Interrupt Number that will cause the start of the ISR
-        InerruptHandler : The ISR associatd with this interrupt
-        parameter :The parameter that is passed to the ISR
-
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_IntAttachHandler_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_IntAttachHandler_Impl  (uint32 InterruptNumber, osal_task_entry InterruptHandler, int32 parameter)
 {
     /* The Xenomai-VxWorks emulation layer does not support interrupt control */
@@ -1446,47 +1386,46 @@ int32 OS_IntAttachHandler_Impl  (uint32 InterruptNumber, osal_task_entry Interru
     }
 
     return OS_SUCCESS;
-}/* end OS_IntAttachHandler_Impl */
-/*---------------------------------------------------------------------------------------
-   Name: OS_IntUnlock
-
-   Purpose: Enable previous state of interrupts
-
-   Parameters:
-        IntLevel : The Interrupt Level to be reinstated
----------------------------------------------------------------------------------------*/
-
+} /* end OS_IntAttachHandler_Impl */
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_IntUnlock_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_IntUnlock_Impl (int32 IntLevel)
 {
     intUnlock(IntLevel);
     return(OS_SUCCESS);
-}/* end OS_IntUnlock_Impl */
+} /* end OS_IntUnlock_Impl */
 
-/*---------------------------------------------------------------------------------------
-   Name: OS_IntLock
-
-   Purpose: Disable interrupts.
-
-   Parameters:
-
-   Returns: Interrupt level
----------------------------------------------------------------------------------------*/
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_IntLock_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_IntLock_Impl (void)
 {
     return (int32)intLock();
-}/* end OS_IntLock_Impl */
+} /* end OS_IntLock_Impl */
 
 
-/*---------------------------------------------------------------------------------------
-   Name: OS_IntEnable
-
-   Purpose: Enable previous state of interrupts
-
-   Parameters:
-        IntLevel : The Interrupt Level to be reinstated
----------------------------------------------------------------------------------------*/
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_IntEnable_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_IntEnable_Impl (int32 Level)
 {
     int32 RetCode;
@@ -1504,18 +1443,17 @@ int32 OS_IntEnable_Impl (int32 Level)
     }
 
     return RetCode;
-}/* end OS_IntEnable_Impl */
+} /* end OS_IntEnable_Impl */
 
-/*---------------------------------------------------------------------------------------
-   Name: OS_IntDisable
-
-   Purpose: Disable the corresponding interrupt number.
-
-   Parameters:
-
-   Returns: Interrupt level before OS_IntDisable Call
----------------------------------------------------------------------------------------*/
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_IntDisable_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_IntDisable_Impl (int32 Level)
 {
     int32 RetCode;
@@ -1533,16 +1471,17 @@ int32 OS_IntDisable_Impl (int32 Level)
     }
 
     return RetCode;
-}/* end OS_IntDisable_Impl */
+} /* end OS_IntDisable_Impl */
 
-/*---------------------------------------------------------------------------------------
-   Name: OS_HeapGetInfo
-
-   Purpose: Return current info on the heap
-
-   Parameters:
-
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_HeapGetInfo_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_HeapGetInfo_Impl       (OS_heap_prop_t *heap_prop)
 {
     MEM_PART_STATS stats;
@@ -1562,56 +1501,43 @@ int32 OS_HeapGetInfo_Impl       (OS_heap_prop_t *heap_prop)
     return (OS_SUCCESS);
 } /* end OS_HeapGetInfo_Impl */
 
-/*---------------------------------------------------------------------------------------
-** Name: OS_SetMask
-** Purpose:
-**      Set the masking register to mask and unmask interrupts
-**
-** Assumptions and Notes:
-**      HW interrupt control is not supported from a user task
-**
-** Parameters:
-**      MaskSetting :the value to be written into the mask register
-**
-** Global Inputs: None
-**
-** Global Outputs: None
-**
-**
-** Return Values:
-**
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_IntSetMask_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_IntSetMask_Impl ( uint32 MaskSetting )
 {
     return(OS_ERR_NOT_IMPLEMENTED);
 } /* end OS_IntSetMask_Impl */
 
-/*--------------------------------------------------------------------------------------
-** Name: OS_GetMask
-** Purpose:
-**      Read and report the setting of the cpu mask register.
-**
-** Assumptions and Notes:
-**      HW interrupt control is not supported from a user task
-**
-** Parameters:
-**      MaskSettingPtr : pointer to a location where the function store the
-**                               reading of the cpu mask register.
-**
-** Global Inputs: None
-**
-** Global Outputs: None
-**
-**
-** Return Values:
-**
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_IntGetMask_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_IntGetMask_Impl ( uint32 * MaskSettingPtr )
 {
     *MaskSettingPtr = 0;
     return(OS_ERR_NOT_IMPLEMENTED);
 } /* end OS_IntGetMask_Impl */
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_FPUExcAttachHandler_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_FPUExcAttachHandler_Impl(uint32 ExceptionNumber, void * ExceptionHandler,
                                  int32 parameter)
 {
@@ -1620,7 +1546,15 @@ int32 OS_FPUExcAttachHandler_Impl(uint32 ExceptionNumber, void * ExceptionHandle
     */
     return(OS_ERR_NOT_IMPLEMENTED);
 } /* end OS_FPUExcAttachHandler_Impl */
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_FPUExcEnable_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_FPUExcEnable_Impl(int32 ExceptionNumber)
 {
     /*
@@ -1628,7 +1562,15 @@ int32 OS_FPUExcEnable_Impl(int32 ExceptionNumber)
     */
     return(OS_SUCCESS);
 } /* end OS_FPUExcEnable_Impl */
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_FPUExcDisable_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_FPUExcDisable_Impl(int32 ExceptionNumber)
 {
     /*
@@ -1637,15 +1579,15 @@ int32 OS_FPUExcDisable_Impl(int32 ExceptionNumber)
     return(OS_SUCCESS);
 } /* end OS_FPUExcDisable_Impl */
 
-/*
-**
-**   Name: OS_FPUExcSetMask
-**
-**   Purpose: This function sets the FPU exception mask
-**
-**   Notes: The exception environment is local to each task Therefore this must be
-**          called for each task that that wants to do floating point and catch exceptions.
-*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_FPUExcSetMask_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_FPUExcSetMask_Impl(uint32 mask)
 {
     int32 Status;
@@ -1664,15 +1606,15 @@ int32 OS_FPUExcSetMask_Impl(uint32 mask)
     return Status;
 } /* end OS_FPUExcSetMask_Impl */
 
-/*
-**
-**   Name: OS_FPUExcGetMask
-**
-**   Purpose: This function gets the FPU exception mask
-**
-**   Notes: The exception environment is local to each task Therefore this must be
-**          called for each task that that wants to do floating point and catch exceptions.
-*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_FPUExcGetMask_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_FPUExcGetMask_Impl(uint32 *mask)
 {
     int32 Status;
@@ -1691,13 +1633,15 @@ int32 OS_FPUExcGetMask_Impl(uint32 *mask)
 /********************************************************************/
 
 
-/*
- *   Name: OS_ConsoleOutput_Impl
+                        
+/*----------------------------------------------------------------
  *
- *   Purpose: Transfer output data to the real console.
+ * Function: OS_ConsoleOutput_Impl
  *
- *   The data is already formatted, this just writes the characters.
- */
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void  OS_ConsoleOutput_Impl(uint32 local_id)
 {
     uint32 StartPos;
@@ -1721,7 +1665,15 @@ void  OS_ConsoleOutput_Impl(uint32 local_id)
     /* Update the global with the new read location */
     console->ReadPos = StartPos;
 } /* end OS_ConsoleOutput_Impl */
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_ConsoleWakeup_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void  OS_ConsoleWakeup_Impl(uint32 local_id)
 {
     OS_impl_console_internal_record_t *local = &OS_impl_console_table[local_id];
@@ -1741,6 +1693,14 @@ void  OS_ConsoleWakeup_Impl(uint32 local_id)
     }
 } /* end OS_ConsoleWakeup_Impl */
 
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_ConsoleTask_Entry
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *
+ *-----------------------------------------------------------------*/
 static void OS_ConsoleTask_Entry(int arg)
 {
     uint32 local_id = arg;
@@ -1757,7 +1717,15 @@ static void OS_ConsoleTask_Entry(int arg)
         }
     }
 } /* end OS_ConsoleTask_Entry */
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_ConsoleCreate_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_ConsoleCreate_Impl(uint32 local_id)
 {
     OS_impl_console_internal_record_t *local = &OS_impl_console_table[local_id];

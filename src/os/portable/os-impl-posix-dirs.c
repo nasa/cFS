@@ -15,6 +15,9 @@
  * Purpose: This file Contains all of the api calls for manipulating files
  *      in a file system / C library that implements the UNIX-style file API
  *
+ * NOTE: This is a "template" file and not a directly usable source file.
+ *       It must be adapted/instantiated from within the OS-specific
+ *       implementation on platforms that wish to use this template.
  */
 
 /****************************************************************************************
@@ -35,10 +38,15 @@
                                    GLOBAL DATA
  ***************************************************************************************/
 
-/*
- * Directory API implementation
- */
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_DirCreate_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See description in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_DirCreate_Impl(const char *local_path, uint32 access)
 {
    struct stat st;
@@ -63,8 +71,16 @@ int32 OS_DirCreate_Impl(const char *local_path, uint32 access)
    }
 
    return return_code;
-}
-
+} /* end OS_DirCreate_Impl */
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_DirOpen_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See description in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_DirOpen_Impl(uint32 local_id, const char *local_path)
 {
    OS_impl_dir_table[local_id] = opendir(local_path);
@@ -73,15 +89,31 @@ int32 OS_DirOpen_Impl(uint32 local_id, const char *local_path)
       return OS_FS_ERROR;
    }
    return OS_FS_SUCCESS;
-}
-
+} /* end OS_DirOpen_Impl */
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_DirClose_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See description in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_DirClose_Impl(uint32 local_id)
 {
    closedir(OS_impl_dir_table[local_id]);
    OS_impl_dir_table[local_id] = NULL;
    return OS_FS_SUCCESS;
-}
-
+} /* end OS_DirClose_Impl */
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_DirRead_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See description in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_DirRead_Impl(uint32 local_id, os_dirent_t *dirent)
 {
    struct dirent *de;
@@ -105,14 +137,30 @@ int32 OS_DirRead_Impl(uint32 local_id, os_dirent_t *dirent)
    dirent->FileName[OS_MAX_PATH_LEN - 1] = 0;
 
    return OS_FS_SUCCESS;
-}
-
+} /* end OS_DirRead_Impl */
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_DirRewind_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See description in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_DirRewind_Impl(uint32 local_id)
 {
    rewinddir(OS_impl_dir_table[local_id]);
    return OS_FS_SUCCESS;
-}
-
+} /* end OS_DirRewind_Impl */
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_DirRemove_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See description in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_DirRemove_Impl(const char *local_path)
 {
    if ( rmdir(local_path) < 0 )
@@ -121,4 +169,4 @@ int32 OS_DirRemove_Impl(const char *local_path)
    }
 
    return OS_FS_SUCCESS;
-}
+} /* end OS_DirRemove_Impl */

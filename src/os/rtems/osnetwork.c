@@ -42,21 +42,21 @@ const int OS_IMPL_SOCKET_FLAGS = O_NONBLOCK;
 /* Leverage the portable BSD sockets implementation */
 #include "../portable/os-impl-bsd-sockets.c"
 
-/*--------------------------------------------------------------------------------------
-    Name: OS_NetworkGetID
-
-    Purpose: Gets the ID of the current Network
-
-    Returns: OS_ERROR if the  host id could not be found
-             a 32 bit host id if success
----------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------
+ *
+ * Function: OS_NetworkGetID_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_NetworkGetID_Impl          (int32 *IdBuf)
 {
     /* RTEMS does not have the GetHostId call -
      * it is deprecated in other OS's anyway and not a good idea to use it
      */
     return OS_ERR_NOT_IMPLEMENTED;
-}/* end OS_NetworkGetID */
+} /* end OS_NetworkGetID_Impl */
 
 #else  /* OS_INCLUDE_NETWORK */
 

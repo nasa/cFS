@@ -81,13 +81,15 @@ extern OS_static_symbol_record_t OS_STATIC_SYMTABLE_SOURCE[];
 /* there is no static symbol table, use NULL */
 #define OS_STATIC_SYMTABLE_SOURCE   NULL
 #endif /* OS_STATIC_SYMTABLE_SOURCE */
-/*
- * Internal Helper function to implement the static symbol table lookup
- *  (not called externally - only used within OS_SymbolLookup())
+
+/*----------------------------------------------------------------
  *
- * If OS_STATIC_LOADER is not defined then this returns OS_ERR_NOT_IMPLEMENTED
- * Otherwise it searches the static symbol table for a match.
- */
+ * Function: OS_SymbolLookup_Static
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *           Checks for a symbol name in the static symbol table
+ *
+ *-----------------------------------------------------------------*/
 static int32 OS_SymbolLookup_Static(cpuaddr *SymbolAddress, const char *SymbolName)
 {
     int32 return_code = OS_ERR_NOT_IMPLEMENTED;
@@ -115,8 +117,17 @@ static int32 OS_SymbolLookup_Static(cpuaddr *SymbolAddress, const char *SymbolNa
     }
 
     return return_code;
-}
+} /* end OS_SymbolLookup_Static */
 
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_ModuleLoad_Static
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *           Checks for a module name in the static symbol table
+ *
+ *-----------------------------------------------------------------*/
 static int32 OS_ModuleLoad_Static(const char *ModuleName)
 {
     int32 return_code = OS_ERR_NAME_NOT_FOUND;
@@ -141,43 +152,38 @@ static int32 OS_ModuleLoad_Static(const char *ModuleName)
     }
 
     return return_code;
-}
+} /* end OS_ModuleLoad_Static */
 
 /****************************************************************************************
                                    Module API
  ***************************************************************************************/
 
 
-/*---------------------------------------------------------------------------------------
-   Name: OS_ModuleAPI_Init
-
-   Purpose: Init function for OS-independent layer
-
-   Returns: OS_SUCCESS
-
----------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------
+ *
+ * Function: OS_ModuleAPI_Init
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *           Init function for OS-independent layer
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_ModuleAPI_Init(void)
 {
 #if (OS_MAX_MODULES > 0)
    memset(OS_module_table, 0, sizeof(OS_module_table));
 #endif
    return OS_SUCCESS;
-}
+} /* end OS_ModuleAPI_Init */
 
 
-/*--------------------------------------------------------------------------------------
-    Name: OS_ModuleLoad
-
-    Purpose: Loads an object file into the running operating system
-
-    Parameters:
-
-    Returns: OS_ERROR if the module cannot be loaded
-             OS_INVALID_POINTER if one of the parameters is NULL
-             OS_ERR_NO_FREE_IDS if the module table is full
-             OS_ERR_NAME_TAKEN if the name is in use
-             OS_SUCCESS if the module is loaded successfuly
----------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------
+ *
+ * Function: OS_ModuleLoad
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_ModuleLoad ( uint32 *module_id, const char *module_name, const char *filename )
 {
     char        translated_path[OS_MAX_LOCAL_PATH_LEN];
@@ -244,18 +250,16 @@ int32 OS_ModuleLoad ( uint32 *module_id, const char *module_name, const char *fi
 
     return(return_code);
 
-}/* end OS_ModuleLoad */
+} /* end OS_ModuleLoad */
 
-/*--------------------------------------------------------------------------------------
-    Name: OS_ModuleUnload
-
-    Purpose: Unloads the module file from the running operating system
-
-    Parameters:
-
-    Returns: OS_ERROR if the module is invalid or cannot be unloaded
-             OS_SUCCESS if the module was unloaded successfuly
----------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------
+ *
+ * Function: OS_ModuleUnload
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_ModuleUnload ( uint32 module_id )
 {
     OS_common_record_t *record;
@@ -281,19 +285,16 @@ int32 OS_ModuleUnload ( uint32 module_id )
     }
 
     return return_code;
-}/* end OS_ModuleUnload */
+} /* end OS_ModuleUnload */
 
-/*--------------------------------------------------------------------------------------
-    Name: OS_ModuleInfo
-
-    Purpose: Returns information about the loadable module
-
-    Parameters:
-
-    Returns: OS_ERR_INVALID_ID if the module id invalid
-             OS_INVALID_POINTER if the pointer to the ModuleInfo structure is invalid
-             OS_SUCCESS if the module info was filled out successfuly
----------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------
+ *
+ * Function: OS_ModuleInfo
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_ModuleInfo ( uint32 module_id, OS_module_prop_t *module_prop )
 {
     OS_common_record_t *record;
@@ -325,25 +326,17 @@ int32 OS_ModuleInfo ( uint32 module_id, OS_module_prop_t *module_prop )
 
     return return_code;
 
-}/* end OS_ModuleInfo */
+} /* end OS_ModuleInfo */
 
 
-/*--------------------------------------------------------------------------------------
-    Name: OS_SymbolLookup
-
-    Purpose: Find the Address of a Symbol
-        This calls to the OS dynamic symbol lookup implementation,
-        and/or checks a static symbol table for a matching symbol name.
-
-        The static table is intended to support embedded targets that do
-        not have module loading capability or have it disabled.
-
-    Parameters:
-
-    Returns: OS_ERROR if the symbol could not be found
-             OS_SUCCESS if the symbol is found
-             OS_INVALID_POINTER if one of the pointers passed in are NULL
----------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------
+ *
+ * Function: OS_SymbolLookup
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_SymbolLookup( cpuaddr *SymbolAddress, const char *SymbolName )
 {
     int32 return_code;
@@ -389,19 +382,16 @@ int32 OS_SymbolLookup( cpuaddr *SymbolAddress, const char *SymbolName )
 
     return (return_code);
 
-}/* end OS_SymbolLookup */
+} /* end OS_SymbolLookup */
 
-/*--------------------------------------------------------------------------------------
-    Name: OS_SymbolTableDump
-
-    Purpose: Dumps the system symbol table to a file
-
-    Parameters:
-
-    Returns: OS_ERROR if the symbol table could not be read or dumped
-             OS_INVALID_FILE  if the file could not be opened or written
-             OS_SUCCESS if the symbol is found
----------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------
+ *
+ * Function: OS_SymbolTableDump
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_SymbolTableDump ( const char *filename, uint32 SizeLimit )
 {
     int32 return_code;
@@ -442,7 +432,7 @@ int32 OS_SymbolTableDump ( const char *filename, uint32 SizeLimit )
 
     return(return_code);
 
-}/* end OS_SymbolTableDump */
+} /* end OS_SymbolTableDump */
 
 
 

@@ -14,6 +14,10 @@
  *
  * Purpose: This file contains the network functionality for for
  *      systems which implement the BSD-style socket API.
+ *
+ * NOTE: This is a "template" file and not a directly usable source file.
+ *       It must be adapted/instantiated from within the OS-specific
+ *       implementation on platforms that wish to use this template.
  */
 
 /****************************************************************************************
@@ -54,14 +58,15 @@ typedef union
                                     Network API
  ***************************************************************************************/
 
-/*--------------------------------------------------------------------------------------
-    Name: OS_NetworkGetHostName
-
-    Purpose: Gets the name of the current host
-
-    Returns: OS_ERROR if the  host name could not be found
-             OS_SUCCESS if the name was copied to host_name successfully
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_NetworkGetHostName_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See description in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_NetworkGetHostName_Impl       (char *host_name, uint32 name_len)
 {
     int32 return_code;
@@ -81,16 +86,18 @@ int32 OS_NetworkGetHostName_Impl       (char *host_name, uint32 name_len)
     }
 
     return(return_code);
-}/* end OS_NetworkGetHostName */
+} /* end OS_NetworkGetHostName_Impl */
 
 
-/*---------------------------------------------------------------------------------------
-   Name: OS_SocketOpen_Impl
-
-   Purpose: Opens the OS socket indicated by the sock_id table entry
-
-   returns: OS_SUCCESS or error code
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_SocketOpen_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See description in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_SocketOpen_Impl(uint32 sock_id)
 {
    int os_domain;
@@ -173,15 +180,17 @@ int32 OS_SocketOpen_Impl(uint32 sock_id)
            ((os_flags & O_NONBLOCK) != 0);
 
    return OS_SUCCESS;
-}
+} /* end OS_SocketOpen_Impl */
 
-/*---------------------------------------------------------------------------------------
-   Name: OS_SocketBind_Impl
-
-   Purpose: Binds the indicated socket table entry to the passed-in address
-
-   returns: OS_SUCCESS or error code
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_SocketBind_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See description in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_SocketBind_Impl(uint32 sock_id, const OS_SockAddr_t *Addr)
 {
    int os_result;
@@ -228,15 +237,17 @@ int32 OS_SocketBind_Impl(uint32 sock_id, const OS_SockAddr_t *Addr)
       }
    }
    return OS_SUCCESS;
-}
+} /* end OS_SocketBind_Impl */
 
-/*---------------------------------------------------------------------------------------
-   Name: OS_SocketConnect_Impl
-
-   Purpose: Connects the socket to a remote address.  Socket must be of the STREAM variety.
-
-   returns: OS_SUCCESS or error code
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_SocketConnect_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See description in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_SocketConnect_Impl(uint32 sock_id, const OS_SockAddr_t *Addr, int32 timeout)
 {
    int32 return_code;
@@ -304,18 +315,17 @@ int32 OS_SocketConnect_Impl(uint32 sock_id, const OS_SockAddr_t *Addr, int32 tim
        }
    }
    return return_code;
-}
+} /* end OS_SocketConnect_Impl */
 
-/*---------------------------------------------------------------------------------------
-   Name: OS_SocketAccept_Impl
-
-   Purpose: Accept an incoming connection on the indicated socket (must be a STREAM socket)
-            Will wait up to "timeout" milliseconds for an incoming connection
-            Will wait forever if timeout is negative
-
-   returns: OS_SUCCESS or OS_ERROR
-            Bits in "SelectFlags" will be unset according to activity
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_SocketAccept_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See description in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_SocketAccept_Impl(uint32 sock_id, uint32 connsock_id, OS_SockAddr_t *Addr, int32 timeout)
 {
    int32 return_code;
@@ -367,19 +377,17 @@ int32 OS_SocketAccept_Impl(uint32 sock_id, uint32 connsock_id, OS_SockAddr_t *Ad
    }
 
    return return_code;
-}
+} /* end OS_SocketAccept_Impl */
 
-/*---------------------------------------------------------------------------------------
-   Name: OS_SocketRecvFrom_Impl
-
-   Purpose: Receives a datagram from the specified socket (must be of the DATAGRAM type)
-            Stores the datagram in "buffer" which has a maximum size of "buflen"
-            Stores the remote address (sender of the datagram) in "RemoteAddr"
-            Will wait up to "timeout" milliseconds to receive a packet
-             (zero to poll, negative to wait forever)
-
-   returns: OS_SUCCESS or error code
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_SocketRecvFrom_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See description in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_SocketRecvFrom_Impl(uint32 sock_id, void *buffer, uint32 buflen, OS_SockAddr_t *RemoteAddr, int32 timeout)
 {
    int32 return_code;
@@ -459,17 +467,17 @@ int32 OS_SocketRecvFrom_Impl(uint32 sock_id, void *buffer, uint32 buflen, OS_Soc
 
 
    return return_code;
-}
+} /* end OS_SocketRecvFrom_Impl */
 
-/*---------------------------------------------------------------------------------------
-   Name: OS_SocketSendTo_Impl
-
-   Purpose: Sends a datagram from the specified socket (must be of the DATAGRAM type)
-            to the remote address specified by "RemoteAddr"
-            The datagram to send must be stored in "buffer" with a size of "buflen"
-
-   returns: OS_SUCCESS or error code
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_SocketSendTo_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See description in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_SocketSendTo_Impl(uint32 sock_id, const void *buffer, uint32 buflen, const OS_SockAddr_t *RemoteAddr)
 {
    int os_result;
@@ -505,28 +513,32 @@ int32 OS_SocketSendTo_Impl(uint32 sock_id, const void *buffer, uint32 buflen, co
    }
 
    return os_result;
-}
+} /* end OS_SocketSendTo_Impl */
 
 
-/*---------------------------------------------------------------------------------------
-   Name: OS_SocketGetInfo_Impl
-
-   Purpose: No operation, sockets do not have extra properties at this layer
-
-   returns: OS_SUCCESS or error code
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_SocketGetInfo_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See description in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_SocketGetInfo_Impl (uint32 sock_id, OS_socket_prop_t *sock_prop)
 {
    return OS_SUCCESS;
-}
+} /* end OS_SocketGetInfo_Impl */
 
-/*---------------------------------------------------------------------------------------
-   Name: OS_SocketAddrInit
-
-   Purpose: Initializes an OSAL SockAddr structure to the given address domain
-
-   returns: OS_SUCCESS or OS_ERR_NOT_IMPLEMENTED if the socket domain is not supported
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_SocketAddrInit_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See description in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_SocketAddrInit_Impl(OS_SockAddr_t *Addr, OS_SocketDomain_t Domain)
 {
    sa_family_t sa_family;
@@ -562,16 +574,17 @@ int32 OS_SocketAddrInit_Impl(OS_SockAddr_t *Addr, OS_SocketDomain_t Domain)
    Accessor->sockaddr.sa_family = sa_family;
 
    return OS_SUCCESS;
-}
+} /* end OS_SocketAddrInit_Impl */
 
-/*---------------------------------------------------------------------------------------
-   Name: OS_SocketAddrToString
-
-   Purpose: Converts a Socket Address structure to a printable string
-            Useful for including a dotted-decimal IP address in a message or log
-
-   returns: OS_SUCCESS or error code
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_SocketAddrToString_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See description in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_SocketAddrToString_Impl(char *buffer, uint32 buflen, const OS_SockAddr_t *Addr)
 {
    const void *addrbuffer;
@@ -600,16 +613,17 @@ int32 OS_SocketAddrToString_Impl(char *buffer, uint32 buflen, const OS_SockAddr_
    }
 
    return OS_SUCCESS;
-}
+} /* end OS_SocketAddrToString_Impl */
 
-/*---------------------------------------------------------------------------------------
-   Name: OS_SocketAddrFromString
-
-   Purpose: Sets the Address portion of the SockAddr structure according to the strign
-            For IPV4 (SocketDomain_INET) this will parse the dotted decimal IP address.
-
-   returns: OS_SUCCESS or error code
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_SocketAddrFromString_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See description in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_SocketAddrFromString_Impl(OS_SockAddr_t *Addr, const char *string)
 {
    void *addrbuffer;
@@ -638,18 +652,17 @@ int32 OS_SocketAddrFromString_Impl(OS_SockAddr_t *Addr, const char *string)
    }
 
    return OS_SUCCESS;
-}
+} /* end OS_SocketAddrFromString_Impl */
 
-/*---------------------------------------------------------------------------------------
-   Name: OS_SocketAddrGetPort
-
-   Purpose: Retrieve the TCP/UDP port number from the SockAddr structure
-
-   NOTE: The port number is output to the caller in native byte order
-            (the value is converted from network order before return)
-
-   returns: OS_SUCCESS or OS_ERR_BAD_ADDRESS
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_SocketAddrGetPort_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See description in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_SocketAddrGetPort_Impl(uint16 *PortNum, const OS_SockAddr_t *Addr)
 {
    in_port_t sa_port;
@@ -675,18 +688,17 @@ int32 OS_SocketAddrGetPort_Impl(uint16 *PortNum, const OS_SockAddr_t *Addr)
    *PortNum = ntohs(sa_port);
 
    return OS_SUCCESS;
-}
+} /* end OS_SocketAddrGetPort_Impl */
 
-/*---------------------------------------------------------------------------------------
-   Name: OS_SocketAddrSetPort
-
-   Purpose: Set the TCP/UDP port number in the SockAddr structure
-
-   NOTE: The port number should be passed in native byte order
-             (this function will convert to network order)
-
-   returns: OS_SUCCESS or OS_ERR_BAD_ADDRESS
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_SocketAddrSetPort_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See description in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_SocketAddrSetPort_Impl(OS_SockAddr_t *Addr, uint16 PortNum)
 {
    in_port_t sa_port;
@@ -710,7 +722,7 @@ int32 OS_SocketAddrSetPort_Impl(OS_SockAddr_t *Addr, uint16 PortNum)
    }
 
    return OS_SUCCESS;
-}
+} /* end OS_SocketAddrSetPort_Impl */
 
 
 

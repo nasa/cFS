@@ -17,6 +17,19 @@
  *         in a generic/common manner.  They are used internally within
  *         OSAL by all the various modules.
  *
+ * In order to add additional verification capabilities, each class of fundamental
+ * objects will use its own ID space within the 32-bit integer ID value.  This way
+ * one could not mistake a Task ID for a Queue ID or vice versa.  Also, all IDs will
+ * become nonzero and an ID of zero is ALWAYS invalid.
+ *
+ * These functions provide a consistent way to validate a 32-bit OSAL ID as
+ * well as determine its internal type and index.
+ *
+ * The map/unmap functions are not part of the public API -- applications
+ * should be treating OSAL IDs as opaque objects.
+ *
+ * NOTE: The only exception is OS_ConvertToArrayIndex() as this is necessary to
+ * assist applications when storing OSAL IDs in a table.
  */
 
 /****************************************************************************************
@@ -80,32 +93,28 @@ OS_common_record_t * const OS_global_console_table    = &OS_common_table[OS_CONS
  *********************************************************************************
  */
 
-/*
- * Initialization function --- clears the entire table
- * and brings it to a proper initial state
- */
+/*----------------------------------------------------------------
+ *
+ * Function: OS_ObjectIdInit
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *           clears the entire table and brings it to a proper initial state
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_ObjectIdInit(void)
 {
     memset(OS_common_table, 0, sizeof(OS_common_table));
     memset(OS_last_id_issued, 0, sizeof(OS_last_id_issued));
     return OS_SUCCESS;
-}
+} /* end OS_ObjectIdInit */
 
-/*
- * In order to add additional verification capabilities, each class of fundamental
- * objects will use its own ID space within the 32-bit integer ID value.  This way
- * one could not mistake a Task ID for a Queue ID or vice versa.  Also, all IDs will
- * become nonzero and an ID of zero is ALWAYS invalid.
+/*----------------------------------------------------------------
  *
- * These functions provide a consistent way to validate a 32-bit OSAL ID as
- * well as determine its internal type and index.
+ * Function: OS_ObjectIdMap
  *
- * The map/unmap functions are not part of the public API -- applications
- * should be treating OSAL IDs as opaque objects.
+ *  Purpose: Local helper routine, not part of OSAL API.
  *
- * NOTE: The only exception is OS_ConvertToArrayIndex() as this is necessary to
- * assist applications when storing OSAL IDs in a table.
- */
+ *-----------------------------------------------------------------*/
 int32 OS_ObjectIdMap(uint32 idtype, uint32 idvalue, uint32 *result)
 {
    *result = (idtype << OS_OBJECT_TYPE_SHIFT) | idvalue;
@@ -117,8 +126,16 @@ int32 OS_ObjectIdMap(uint32 idtype, uint32 idvalue, uint32 *result)
    }
 
    return OS_SUCCESS;
-}
+} /* end OS_ObjectIdMap */
 
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_ObjectIdUnMap
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_ObjectIdUnMap(uint32 id, uint32 idtype, uint32 *idvalue)
 {
    *idvalue = id & OS_OBJECT_INDEX_MASK;
@@ -129,8 +146,16 @@ int32 OS_ObjectIdUnMap(uint32 id, uint32 idtype, uint32 *idvalue)
    }
 
    return OS_SUCCESS;
-}
+} /* end OS_ObjectIdUnMap */
 
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_GetMaxForObjectType
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *
+ *-----------------------------------------------------------------*/
 uint32 OS_GetMaxForObjectType(uint32 idtype)
 {
    switch(idtype)
@@ -149,8 +174,16 @@ uint32 OS_GetMaxForObjectType(uint32 idtype)
    case OS_OBJECT_TYPE_OS_CONSOLE:  return OS_MAX_CONSOLES;
    default:                         return 0;
    }
-}
+} /* end OS_GetMaxForObjectType */
 
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_GetBaseForObjectType
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *
+ *-----------------------------------------------------------------*/
 uint32 OS_GetBaseForObjectType(uint32 idtype)
 {
    switch(idtype)
@@ -169,89 +202,98 @@ uint32 OS_GetBaseForObjectType(uint32 idtype)
    case OS_OBJECT_TYPE_OS_CONSOLE:  return OS_CONSOLE_BASE;
    default:                         return 0;
    }
-}
+} /* end OS_GetBaseForObjectType */
 
 /**************************************************************
  * LOCAL HELPER FUNCTIONS
  * (not used outside of this unit)
  **************************************************************/
 
-/*--------------------------------------------------------------------------------------
-     Name: OS_ObjectNameMatch
-
-    Purpose: A matching function to compare the name of the record against
-             a reference value (which must be a const char* string).
-
-             This allows OS_ObjectIdFindByName() to be implemented using the
-             generic OS_ObjectIdSearch() routine.
-
-    returns: true if match, false otherwise
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_ObjectNameMatch
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *           A matching function to compare the name of the record against
+ *           a reference value (which must be a const char* string).
+ *
+ *           This allows OS_ObjectIdFindByName() to be implemented using the
+ *           generic OS_ObjectIdSearch() routine.
+ *
+ *  returns: true if match, false otherwise
+ *
+ *-----------------------------------------------------------------*/
 static bool OS_ObjectNameMatch(void *ref, uint32 local_id, const OS_common_record_t *obj)
 {
     return (obj->name_entry != NULL &&
             strcmp((const char*)ref, obj->name_entry) == 0);
-}
+} /* end OS_ObjectNameMatch */
 
-/*--------------------------------------------------------------------------------------
-     Name: OS_ObjectIdInitiateLock
-
-     Purpose:
-     Initiate the locking process for the given mode and ID type, prior
-     to looking up a specific object.
-
-     For any lock_mode other than OS_LOCK_MODE_NONE, this acquires the
-     global table lock for that ID type.
-
-     Once the lookup operation is completed, the OS_ObjectIdConvertLock()
-     routine should be used to convert this global lock into the actual
-     lock type requested (lock_mode).
-
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_ObjectIdInitiateLock
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *   Initiate the locking process for the given mode and ID type, prior
+ *   to looking up a specific object.
+ *
+ *   For any lock_mode other than OS_LOCK_MODE_NONE, this acquires the
+ *   global table lock for that ID type.
+ *
+ *   Once the lookup operation is completed, the OS_ObjectIdConvertLock()
+ *   routine should be used to convert this global lock into the actual
+ *   lock type requested (lock_mode).
+ *
+ *-----------------------------------------------------------------*/
 static void OS_ObjectIdInitiateLock(OS_lock_mode_t lock_mode, uint32 idtype)
 {
     if (lock_mode != OS_LOCK_MODE_NONE)
     {
         OS_Lock_Global_Impl(idtype);
     }
-}
+} /* end OS_ObjectIdInitiateLock */
 
-/*--------------------------------------------------------------------------------------
-     Name: OS_ObjectIdConvertLock
-
-     Purpose:
-     Selectively convert the existing lock on a given resource, depending on the lock mode.
-
-     For any lock_mode other than OS_LOCK_MODE_NONE, the global table lock **must**
-     already be held prior to entering this function.  This function may or may
-     not unlock the global table, depending on the lock_mode and state of the entry.
-
-     For all modes, this verifies that the reference_id passed in and the active_id
-     within the record are a match.  If they do not match, then OS_ERR_INVALID_ID
-     is returned.
-
-     If lock_mode is set to either OS_LOCK_MODE_NONE or OS_LOCK_MODE_GLOBAL,
-     no additional operation is performed, as the existing lock (if any) is
-     sufficient and no conversion is necessary.
-
-     If lock_mode is set to OS_LOCK_MODE_REFCOUNT, then this increments
-     the reference count within the object itself and releases the table lock,
-     so long as there is no "exclusive" request already pending.
-
-     If lock_mode is set to OS_LOCK_MODE_EXCLUSIVE, then this verifies
-     that the refcount is zero, but also keeps the global lock held.
-
-     For EXCLUSIVE and REFCOUNT style locks, if the state is not appropriate,
-     this may unlock the global table and re-lock it several times
-     while waiting for the state to change.
-
-     Returns: OS_SUCCESS if operation was successful,
-              or suitable error code if operation was not successful.
-
-     NOTE: Upon failure, the global table lock is always released for
-           all lock modes other than OS_LOCK_MODE_NONE.
-
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_ObjectIdConvertLock
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *
+ *   Selectively convert the existing lock on a given resource, depending on the lock mode.
+ *
+ *   For any lock_mode other than OS_LOCK_MODE_NONE, the global table lock **must**
+ *   already be held prior to entering this function.  This function may or may
+ *   not unlock the global table, depending on the lock_mode and state of the entry.
+ *
+ *   For all modes, this verifies that the reference_id passed in and the active_id
+ *   within the record are a match.  If they do not match, then OS_ERR_INVALID_ID
+ *   is returned.
+ *
+ *   If lock_mode is set to either OS_LOCK_MODE_NONE or OS_LOCK_MODE_GLOBAL,
+ *   no additional operation is performed, as the existing lock (if any) is
+ *   sufficient and no conversion is necessary.
+ *
+ *   If lock_mode is set to OS_LOCK_MODE_REFCOUNT, then this increments
+ *   the reference count within the object itself and releases the table lock,
+ *   so long as there is no "exclusive" request already pending.
+ *
+ *   If lock_mode is set to OS_LOCK_MODE_EXCLUSIVE, then this verifies
+ *   that the refcount is zero, but also keeps the global lock held.
+ *
+ *   For EXCLUSIVE and REFCOUNT style locks, if the state is not appropriate,
+ *   this may unlock the global table and re-lock it several times
+ *   while waiting for the state to change.
+ *
+ *   Returns: OS_SUCCESS if operation was successful,
+ *            or suitable error code if operation was not successful.
+ *
+ *   NOTE: Upon failure, the global table lock is always released for
+ *         all lock modes other than OS_LOCK_MODE_NONE.
+ *
+ *-----------------------------------------------------------------*/
 static int32 OS_ObjectIdConvertLock(OS_lock_mode_t lock_mode, uint32 idtype, uint32 reference_id, OS_common_record_t *obj)
 {
     int32 return_code = OS_ERROR;
@@ -367,20 +409,22 @@ static int32 OS_ObjectIdConvertLock(OS_lock_mode_t lock_mode, uint32 idtype, uin
 
     return return_code;
 
-}
+} /* end OS_ObjectIdConvertLock */
 
-/*--------------------------------------------------------------------------------------
-     Name: OS_ObjectIdGetBySearch
-
-    Purpose: Locate an existing object using the supplied Match function.
-             Matching object ID is stored in the object_id pointer
-
-             This is an internal function and no table locking is performed here.
-             Locking must be done by the calling function.
-
-    returns: OS_ERR_NAME_NOT_FOUND if not found, OS_SUCCESS if match is found
-
----------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------
+ *
+ * Function: OS_ObjectIdSearch
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *           Locate an existing object using the supplied Match function.
+ *           Matching object ID is stored in the object_id pointer
+ *
+ *           This is an internal function and no table locking is performed here.
+ *           Locking must be done by the calling function.
+ *
+ *  returns: OS_ERR_NAME_NOT_FOUND if not found, OS_SUCCESS if match is found
+ *
+ *-----------------------------------------------------------------*/
 static int32 OS_ObjectIdSearch(uint32 idtype, OS_ObjectMatchFunc_t MatchFunc, void *arg, OS_common_record_t **record)
 {
     int32 return_code;
@@ -417,23 +461,25 @@ static int32 OS_ObjectIdSearch(uint32 idtype, OS_ObjectMatchFunc_t MatchFunc, vo
     }
 
     return return_code;
-}
+} /* end OS_ObjectIdSearch */
 
-/*--------------------------------------------------------------------------------------
-     Name: OS_ObjectIdFindNext
-
-    Purpose: Find the next available Object ID of the given type
-             Searches the global name/id table for an open entry of the given type.
-             The search will start at the location of the last-issued ID.
-
-             Note: This is an internal helper function and no locking is performed.
-             The appropriate global table lock must be held prior to calling this.
-
-    Outputs: *record is set to point to the global entry and active_id member is set
-             *array_index updated to the offset of the found entry (local_id)
-
-    returns: OS_SUCCESS if an empty location was found.
----------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------
+ *
+ * Function: OS_ObjectIdFindNext
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *           Find the next available Object ID of the given type
+ *           Searches the global name/id table for an open entry of the given type.
+ *           The search will start at the location of the last-issued ID.
+ *
+ *           Note: This is an internal helper function and no locking is performed.
+ *           The appropriate global table lock must be held prior to calling this.
+ *
+ *  Outputs: *record is set to point to the global entry and active_id member is set
+ *           *array_index updated to the offset of the found entry (local_id)
+ *
+ *  returns: OS_SUCCESS if an empty location was found.
+ *-----------------------------------------------------------------*/
 static int32 OS_ObjectIdFindNext(uint32 idtype, uint32 *array_index, OS_common_record_t **record)
 {
    uint32 max_id;
@@ -504,7 +550,7 @@ static int32 OS_ObjectIdFindNext(uint32 idtype, uint32 *array_index, OS_common_r
    }
 
    return return_code;
-}
+} /* end OS_ObjectIdFindNext */
 
 
 /*
@@ -516,17 +562,19 @@ static int32 OS_ObjectIdFindNext(uint32 idtype, uint32 *array_index, OS_common_r
  *********************************************************************************
  */
 
-/*--------------------------------------------------------------------------------------
-     Name: OS_ObjectIdToArrayIndex
-
-    Purpose: Convert an object ID (which must be of the given type) to a number suitable
-             for use as an array index.  The array index will be in the range of:
-              0 <= ArrayIndex < OS_MAX_<OBJTYPE>
-
-    returns: If the passed-in ID is not of the proper type, OS_ERROR is returned
-             Otherwise OS_SUCCESS is returned.
-
----------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------
+ *
+ * Function: OS_ObjectIdToArrayIndex
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *           Convert an object ID (which must be of the given type) to a number suitable
+ *           for use as an array index.  The array index will be in the range of:
+ *            0 <= ArrayIndex < OS_MAX_<OBJTYPE>
+ *
+ *  returns: If the passed-in ID is not of the proper type, OS_ERROR is returned
+ *           Otherwise OS_SUCCESS is returned.
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_ObjectIdToArrayIndex(uint32 idtype, uint32 id, uint32 *ArrayIndex)
 {
    uint32 max_id;
@@ -546,22 +594,24 @@ int32 OS_ObjectIdToArrayIndex(uint32 idtype, uint32 id, uint32 *ArrayIndex)
    return return_code;
 } /* end OS_ObjectIdToArrayIndex */
 
-/*--------------------------------------------------------------------------------------
-     Name: OS_ObjectIdFinalizeNew
-
-    Purpose: Called when the initialization of a newly-issued object ID is fully complete,
-             to perform finalization of the object and record state.
-
-             If the operation_status was successful (OS_SUCCESS) then the ID is exported
-             to the caller through the "outid" pointer.
-
-             If the operation_status is unsuccessful, then the temporary id in the record
-             is cleared and an ID value of 0 is exported to the caller.
-
-    returns: The same operation_status value passed-in, or OS_ERR_INVALID_ID if problems
-             were detected while validating the ID.
-
----------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------
+ *
+ * Function: OS_ObjectIdFinalizeNew
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *           Called when the initialization of a newly-issued object ID is fully complete,
+ *           to perform finalization of the object and record state.
+ *
+ *           If the operation_status was successful (OS_SUCCESS) then the ID is exported
+ *           to the caller through the "outid" pointer.
+ *
+ *           If the operation_status is unsuccessful, then the temporary id in the record
+ *           is cleared and an ID value of 0 is exported to the caller.
+ *
+ *  returns: The same operation_status value passed-in, or OS_ERR_INVALID_ID if problems
+ *           were detected while validating the ID.
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_ObjectIdFinalizeNew(int32 operation_status, OS_common_record_t *record, uint32 *outid)
 {
     uint32 idtype = record->active_id >> OS_OBJECT_TYPE_SHIFT;
@@ -599,21 +649,23 @@ int32 OS_ObjectIdFinalizeNew(int32 operation_status, OS_common_record_t *record,
     OS_Unlock_Global_Impl(idtype);
 
     return operation_status;
-}
+} /* end OS_ObjectIdFinalizeNew */
 
 
-/*--------------------------------------------------------------------------------------
-     Name: OS_ObjectIdGetBySearch
-
-    Purpose: Locate an existing object using the supplied Match function.
-             Matching object ID is stored in the object_id pointer
-
-             Global locking is performed according to the lock_mode
-             parameter.
-
-    returns: OS_ERR_NAME_NOT_FOUND if not found, OS_SUCCESS if match is found
-
----------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------
+ *
+ * Function: OS_ObjectIdGetBySearch
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *           Locate an existing object using the supplied Match function.
+ *           Matching object ID is stored in the object_id pointer
+ *
+ *           Global locking is performed according to the lock_mode
+ *           parameter.
+ *
+ *  returns: OS_ERR_NAME_NOT_FOUND if not found, OS_SUCCESS if match is found
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_ObjectIdGetBySearch(OS_lock_mode_t lock_mode, uint32 idtype, OS_ObjectMatchFunc_t MatchFunc, void *arg, OS_common_record_t **record)
 {
     int32 return_code;
@@ -643,34 +695,40 @@ int32 OS_ObjectIdGetBySearch(OS_lock_mode_t lock_mode, uint32 idtype, OS_ObjectM
     }
 
     return return_code;
-}
+} /* end OS_ObjectIdGetBySearch */
 
 
-/*--------------------------------------------------------------------------------------
-     Name: OS_ObjectIdGetByName
-
-    Purpose: Locate an existing object with matching name and type
-             Matching record is stored in the record pointer
-
-             Global locking is performed according to the lock_mode
-             parameter.
-
-    returns: OS_ERR_NAME_NOT_FOUND if not found, OS_SUCCESS if match is found
----------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------
+ *
+ * Function: OS_ObjectIdGetByName
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *           Locate an existing object with matching name and type
+ *           Matching record is stored in the record pointer
+ *
+ *           Global locking is performed according to the lock_mode
+ *           parameter.
+ *
+ *  returns: OS_ERR_NAME_NOT_FOUND if not found, OS_SUCCESS if match is found
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_ObjectIdGetByName (OS_lock_mode_t lock_mode, uint32 idtype, const char *name, OS_common_record_t **record)
 {
     return  OS_ObjectIdGetBySearch(lock_mode, idtype, OS_ObjectNameMatch, (void*)name, record);
 
-}/* end OS_ObjectIdGetByName */
+} /* end OS_ObjectIdGetByName */
 
-/*--------------------------------------------------------------------------------------
-     Name: OS_ObjectFindIdByName
-
-    Purpose: Locate an existing object with matching name and type
-             Matching object ID is stored in the object_id pointer
-
-    returns: OS_ERR_NAME_NOT_FOUND if not found, OS_SUCCESS if match is found
----------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------
+ *
+ * Function: OS_ObjectIdFindByName
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *           Locate an existing object with matching name and type
+ *           Matching object ID is stored in the object_id pointer
+ *
+ *  returns: OS_ERR_NAME_NOT_FOUND if not found, OS_SUCCESS if match is found
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_ObjectIdFindByName (uint32 idtype, const char *name, uint32 *object_id)
 {
     int32 return_code;
@@ -700,25 +758,26 @@ int32 OS_ObjectIdFindByName (uint32 idtype, const char *name, uint32 *object_id)
 
     return return_code;
 
-}/* end OS_ObjectIdFindByName */
+} /* end OS_ObjectIdFindByName */
 
 
 
-/*--------------------------------------------------------------------------------------
-     Name: OS_ObjectIdGetById
-
-    Purpose: Gets the resource record pointer and index associated with the given resource ID.
-             If successful, this returns with the item locked according to "lock_mode".
-
-             IMPORTANT: when this function returns OS_SUCCESS with lock_mode something
-             other than NONE, then the caller must take appropriate action to UN lock
-             after completing the respective operation.  The OS_ObjectIdRelease()
-             function may be used to release the lock appropriately for the lock_mode.
-
-             If this returns something other than OS_SUCCESS then the global is NOT locked.
-
-    returns: status
----------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------
+ *
+ * Function: OS_ObjectIdGetById
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *           Gets the resource record pointer and index associated with the given resource ID.
+ *           If successful, this returns with the item locked according to "lock_mode".
+ *
+ *           IMPORTANT: when this function returns OS_SUCCESS with lock_mode something
+ *           other than NONE, then the caller must take appropriate action to UN lock
+ *           after completing the respective operation.  The OS_ObjectIdRelease()
+ *           function may be used to release the lock appropriately for the lock_mode.
+ *
+ *           If this returns something other than OS_SUCCESS then the global is NOT locked.
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_ObjectIdGetById(OS_lock_mode_t lock_mode, uint32 idtype, uint32 id, uint32 *array_index, OS_common_record_t **record)
 {
    int32 return_code;
@@ -764,14 +823,17 @@ int32 OS_ObjectIdGetById(OS_lock_mode_t lock_mode, uint32 idtype, uint32 id, uin
 } /* end OS_ObjectIdGetById */
 
 
-/*--------------------------------------------------------------------------------------
-     Name: OS_ObjectIdRefcountDecr
-
-    Purpose: Decrement the reference count on the resource record, which must have been
-             acquired (incremented) by the caller prior to this.
-
-    returns: OS_SUCCESS if decremented successfully.
----------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------
+ *
+ * Function: OS_ObjectIdRefcountDecr
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *           Decrement the reference count on the resource record, which must have been
+ *           acquired (incremented) by the caller prior to this.
+ *
+ *  returns: OS_SUCCESS if decremented successfully.
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_ObjectIdRefcountDecr(OS_common_record_t *record)
 {
    int32 return_code;
@@ -801,34 +863,36 @@ int32 OS_ObjectIdRefcountDecr(OS_common_record_t *record)
    return return_code;
 } /* end OS_ObjectIdRefcountDecr */
 
-/*--------------------------------------------------------------------------------------
-     Name: OS_ObjectIdAllocateNew
-
-    Purpose: Locks the global table for the indicated ID type and allocates a
-             new object of the given type with the given name.
-
-     Inputs: last_alloc_id represents the previously issued ID of this type.
-                (The search for a free entry will start here +1 to avoid repeats).
-
-    Outputs: *record is set to point to the global entry and active_id member is set
-
-    returns: OS_SUCCESS if a NEW object was allocated and the table remains locked.
-
-    IMPORTANT: The global table is remains in a locked state if this returns OS_SUCCESS,
-               so that additional initialization can be performed in an atomic manner.
-
-               If this fails for any reason (i.e. a duplicate name or no free slots)
-               then the global table is unlocked inside this function prior to
-               returning to the caller.
-
-               If OS_SUCCESS is returned, then the global lock MUST be either unlocked
-               or converted to a different style lock (see OS_ObjectIdConvertLock) once
-               the initialization of the new object is completed.
-
-               For any return code other than OS_SUCCESS, the caller must NOT
-               manipulate the global lock at all.
-
----------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------
+ *
+ * Function: OS_ObjectIdAllocateNew
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *           Locks the global table for the indicated ID type and allocates a
+ *           new object of the given type with the given name.
+ *
+ *   Inputs: last_alloc_id represents the previously issued ID of this type.
+ *              (The search for a free entry will start here +1 to avoid repeats).
+ *
+ *  Outputs: *record is set to point to the global entry and active_id member is set
+ *
+ *  returns: OS_SUCCESS if a NEW object was allocated and the table remains locked.
+ *
+ *  IMPORTANT: The global table is remains in a locked state if this returns OS_SUCCESS,
+ *             so that additional initialization can be performed in an atomic manner.
+ *
+ *             If this fails for any reason (i.e. a duplicate name or no free slots)
+ *             then the global table is unlocked inside this function prior to
+ *             returning to the caller.
+ *
+ *             If OS_SUCCESS is returned, then the global lock MUST be either unlocked
+ *             or converted to a different style lock (see OS_ObjectIdConvertLock) once
+ *             the initialization of the new object is completed.
+ *
+ *             For any return code other than OS_SUCCESS, the caller must NOT
+ *             manipulate the global lock at all.
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_ObjectIdAllocateNew(uint32 idtype, const char *name, uint32 *array_index, OS_common_record_t **record)
 {
    int32 return_code;
@@ -884,17 +948,14 @@ int32 OS_ObjectIdAllocateNew(uint32 idtype, const char *name, uint32 *array_inde
  *********************************************************************************
  */
 
-/*--------------------------------------------------------------------------------------
-     Name: OS_ConvertToArrayIndex
-
-    Purpose: Converts any abstract ID into a number suitable for use as an array index.
-             This is necessary for code that breaks when IDs are converted
-             to nonzero ranges.  Note that this does NOT verify the validity of the ID,
-             that is left to the caller.  This is only the conversion logic.
-
-    returns: status
-
----------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------
+ *
+ * Function: OS_ConvertToArrayIndex
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_ConvertToArrayIndex(uint32 object_id, uint32 *ArrayIndex)
 {
     uint32 max_id;
@@ -914,14 +975,15 @@ int32 OS_ConvertToArrayIndex(uint32 object_id, uint32 *ArrayIndex)
     return return_code;
 } /* end OS_ConvertToArrayIndex */
 
-/*--------------------------------------------------------------------------------------
-     Name: OS_ForEachObject
-
-    Purpose: Loops through all defined OSAL objects and calls callback_ptr on each one
-             If creator_id is nonzero then only objects with matching creator id are processed.
-
-    returns: None
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_ForEachObject
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 void OS_ForEachObject (uint32 creator_id, OS_ArgCallback_t callback_ptr, void *callback_arg)
 {
     uint32 obj_index;
@@ -956,17 +1018,18 @@ void OS_ForEachObject (uint32 creator_id, OS_ArgCallback_t callback_ptr, void *c
             OS_Unlock_Global_Impl(idtype);
         }
     }
-}
+} /* end OS_ForEachObject */
 
-/*---------------------------------------------------------------------------------------
-   Name: OS_IdentifyObject
-
-   Purpose: Given an arbitrary object ID, get the type of the object
-
-   returns: The type of object that the ID represents
----------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------
+ *
+ * Function: OS_IdentifyObject
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 uint32 OS_IdentifyObject       (uint32 object_id)
 {
     return (object_id >> OS_OBJECT_TYPE_SHIFT);
-}
+} /* end OS_IdentifyObject */
 

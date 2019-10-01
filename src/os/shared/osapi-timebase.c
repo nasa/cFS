@@ -66,30 +66,30 @@ OS_timebase_internal_record_t    OS_timebase_table           [OS_MAX_TIMEBASES];
  ***************************************************************************************/
 
 
-/*---------------------------------------------------------------------------------------
-   Name: OS_TimeBaseAPI_Init
-
-   Purpose: Init function for OS-independent layer
-
-   Returns: OS_SUCCESS
-
----------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------
+ *
+ * Function: OS_TimeBaseAPI_Init
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *           Init function for OS-independent layer
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_TimeBaseAPI_Init(void)
 {
     memset(OS_timebase_table, 0, sizeof(OS_timebase_table));
     return OS_SUCCESS;
-}
+} /* end OS_TimeBaseAPI_Init */
 
 
-/******************************************************************************
- *  Function:  OS_TimeBaseCreate
+                        
+/*----------------------------------------------------------------
  *
- *  Purpose:  Create a new OSAL TimeBase
+ * Function: OS_TimeBaseCreate
  *
- *  Arguments:
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
  *
- *  Return:
- */
+ *-----------------------------------------------------------------*/
 int32 OS_TimeBaseCreate(uint32 *timer_id, const char *timebase_name, OS_TimerSync_t external_sync)
 {
     OS_common_record_t *record;
@@ -155,8 +155,16 @@ int32 OS_TimeBaseCreate(uint32 *timer_id, const char *timebase_name, OS_TimerSyn
     }
 
     return return_code;
-}
-
+} /* end OS_TimeBaseCreate */
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_TimeBaseSet
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_TimeBaseSet(uint32 timer_id, uint32 start_time, uint32 interval_time)
 {
     OS_common_record_t *record;
@@ -207,19 +215,17 @@ int32 OS_TimeBaseSet(uint32 timer_id, uint32 start_time, uint32 interval_time)
     }
 
     return return_code;
-}
+} /* end OS_TimeBaseSet */
 
-/******************************************************************************
- *  Function:  OS_TimeBaseDelete
+                        
+/*----------------------------------------------------------------
  *
- *  Purpose:
+ * Function: OS_TimeBaseDelete
  *
- *  Arguments:
- *    (none)
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
  *
- *  Return:
- *    (none)
- */
+ *-----------------------------------------------------------------*/
 int32 OS_TimeBaseDelete(uint32 timer_id)
 {
     OS_common_record_t *record;
@@ -252,21 +258,17 @@ int32 OS_TimeBaseDelete(uint32 timer_id)
     }
 
     return return_code;
-}
+} /* end OS_TimeBaseDelete */
 
-/***********************************************************************************
+                        
+/*----------------------------------------------------------------
  *
- *    Name: OS_TimerGetIdByName
+ * Function: OS_TimeBaseGetIdByName
  *
- *    Purpose: This function tries to find a Timer Id given the name
- *             The id is returned through timer_id
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
  *
- *    Returns: OS_INVALID_POINTER if timer_id or timer_name are NULL pointers
- *             OS_ERR_NAME_TOO_LONG if the name given is to long to have been stored
- *             OS_ERR_NAME_NOT_FOUND if the name was not found in the table
- *             OS_SUCCESS if success
- *
- */
+ *-----------------------------------------------------------------*/
 int32 OS_TimeBaseGetIdByName (uint32 *timer_id, const char *timebase_name)
 {
     int32 return_code;
@@ -291,18 +293,17 @@ int32 OS_TimeBaseGetIdByName (uint32 *timer_id, const char *timebase_name)
     return_code = OS_ObjectIdFindByName(OS_OBJECT_TYPE_OS_TIMEBASE, timebase_name, timer_id);
 
     return return_code;
-}/* end OS_TimerGetIdByName */
+} /* end OS_TimeBaseGetIdByName */
 
-/***************************************************************************************
- *    Name: OS_TimeBaseGetInfo
+                        
+/*----------------------------------------------------------------
  *
- *    Purpose: This function will pass back a pointer to structure that contains
- *             all of the relevant info( name and creator) about the specified timebase.
+ * Function: OS_TimeBaseGetInfo
  *
- *    Returns: OS_ERR_INVALID_ID if the id passed in is not a valid timebase
- *             OS_INVALID_POINTER if the timebase_prop pointer is null
- *             OS_SUCCESS if success
- */
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_TimeBaseGetInfo (uint32 timebase_id, OS_timebase_prop_t *timebase_prop)
 {
     OS_common_record_t *record;
@@ -344,16 +345,15 @@ int32 OS_TimeBaseGetInfo (uint32 timebase_id, OS_timebase_prop_t *timebase_prop)
     return return_code;
 } /* end OS_TimeBaseGetInfo */
 
-/***************************************************************************************
- *    Name: OS_TimeBaseGetFreeRun
+                        
+/*----------------------------------------------------------------
  *
- *    Purpose: Poll the timer "freerun" counter in a lightweight fashion.
- *          (Intentionally does not lock to avoid possible context switch)
+ * Function: OS_TimeBaseGetFreeRun
  *
- *    Returns: OS_ERR_INVALID_ID if the id passed in is not a valid timebase
- *             OS_INVALID_POINTER if the timebase_prop pointer is null
- *             OS_SUCCESS if success
- */
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_TimeBaseGetFreeRun     (uint32 timebase_id, uint32 *freerun_val)
 {
     OS_common_record_t *record;
@@ -368,23 +368,27 @@ int32 OS_TimeBaseGetFreeRun     (uint32 timebase_id, uint32 *freerun_val)
     }
 
     return return_code;
-}
+} /* end OS_TimeBaseGetFreeRun */
 
-/***************************************************************************************
- *    Name: OS_TimeBase_CallbackThread
+/*----------------------------------------------------------------
  *
- *    Purpose: This is executed in a dedicated thread context (typically elevated priority)
- *             and performs two basic functions:
+ * Function: OS_TimeBase_CallbackThread
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *           Implementation of the time base "helper thread"
+ *
+ *           This is executed in a dedicated thread context (typically elevated priority)
+ *           and performs two basic functions:
  *             1) call the BSP-specified delay routine to sync with the time reference (tick)
  *             2) process the requested Application callbacks each time the tick occurs
- *
  *
  *    Returns: None.
  *
  *    Note: Application callbacks will be done under this thread context.
  *          Doing callbacks directly as an ISR or signal handler can be dangerous, as the
  *          available C library calls are very limited in that context.
- */
+ *
+ *-----------------------------------------------------------------*/
 void OS_TimeBase_CallbackThread(uint32 timebase_id)
 {
     OS_TimerSync_t syncfunc;
@@ -524,7 +528,7 @@ void OS_TimeBase_CallbackThread(uint32 timebase_id)
         OS_TimeBaseUnlock_Impl(local_id);
 
     }
-}
+} /* end OS_TimeBase_CallbackThread */
 
 /****************************************************************************************
                   Other Time-Related API Implementation
@@ -536,51 +540,29 @@ void OS_TimeBase_CallbackThread(uint32 timebase_id)
  * OS ticks directly.
  */
 
-/*---------------------------------------------------------------------------------------
- * Name: OS_Tick2Micros
+                        
+/*----------------------------------------------------------------
  *
- * Purpose:
- * This function returns the duration of a system tick in micro seconds.
+ * Function: OS_Tick2Micros
  *
- * Assumptions and Notes:
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
  *
- * Parameters: None
- *
- * Global Inputs: None
- *
- * Global Outputs: None
- *
- * Return Values: duration of a system tick in microseconds
- *
- * Note - care is taken to ensure this does not return "0" since it is often used
- *  as the divisor in mathematical operations
- *
----------------------------------------------------------------------------------------*/
+ *-----------------------------------------------------------------*/
 int32 OS_Tick2Micros (void)
 {
    return (OS_SharedGlobalVars.MicroSecPerTick);
-}
+} /* end OS_Tick2Micros */
 
-/*---------------------------------------------------------------------------------------
- * Name: OS_Milli2Ticks
+                        
+/*----------------------------------------------------------------
  *
- * Purpose:
- * This function accepts a time interval in milliseconds, as an input and
- * returns the tick equivalent  for this time period. The tick value is
- *  rounded up.
+ * Function: OS_Milli2Ticks
  *
- * Assumptions and Notes:
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
  *
- * Parameters:
- *      milli_seconds : the time interval, in milliseconds, to be translated
- *
- * Global Inputs: None
- *
- * Global Outputs: None
- *
- *
- * Return Values: the number of ticks rounded up.
----------------------------------------------------------------------------------------*/
+ *-----------------------------------------------------------------*/
 int32 OS_Milli2Ticks(uint32 milli_seconds)
 {
     unsigned long num_of_ticks;
@@ -590,7 +572,7 @@ int32 OS_Milli2Ticks(uint32 milli_seconds)
     num_of_ticks = (num_of_ticks + 999) / 1000;
 
     return((uint32)num_of_ticks);
-}
+} /* end OS_Milli2Ticks */
 
 
 

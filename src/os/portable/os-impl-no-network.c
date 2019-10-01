@@ -17,6 +17,10 @@
  *      systems which do not implement any networking (OS_INCLUDE_NETWORK is false).
  *
  * It implements the required calls and returns OS_ERR_NOT_IMPLEMENTED for all of them.
+ *
+ * NOTE: This is a "template" file and not a directly usable source file.
+ *       It must be adapted/instantiated from within the OS-specific
+ *       implementation on platforms that wish to use this template.
  */
 
 
@@ -25,29 +29,34 @@
  ***************************************************************************************/
 
 
-/*--------------------------------------------------------------------------------------
-    Name: OS_NetworkGetID
-
-    Purpose: Gets the ID of the current Network
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_NetworkGetID_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See description in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_NetworkGetID_Impl             (int32 *IdBuf)
 {
     return OS_ERR_NOT_IMPLEMENTED;
-}/* end OS_NetworkGetID */
+} /* end OS_NetworkGetID_Impl */
 
 
 
-/*--------------------------------------------------------------------------------------
-    Name: OS_NetworkGetHostName
-
-    Purpose: Gets the name of the current host
-
-    Returns: OS_ERROR if the  host name could not be found
-             OS_SUCCESS if the name was copied to host_name successfully
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_NetworkGetHostName_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See description in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_NetworkGetHostName_Impl       (char *host_name, uint32 name_len)
 {
     return OS_ERR_NOT_IMPLEMENTED;
-}/* end OS_NetworkGetHostName */
+} /* end OS_NetworkGetHostName_Impl */
 
 

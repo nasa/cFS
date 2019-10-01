@@ -156,15 +156,18 @@ void Test_OS_TimerSet(void)
      * Test Case For:
      * int32 OS_TimerSet(uint32 timer_id, uint32 start_time, uint32 interval_time)
      */
-    int32 expected = OS_SUCCESS;
+    int32 expected = OS_ERROR;
     int32 actual = OS_TimerSet(1, 0, 0);
+    UtAssert_True(actual == expected, "OS_TimerSet() (%ld) == OS_ERROR", (long)actual);
 
+    expected = OS_SUCCESS;
+    actual = OS_TimerSet(1, 0, 1);
     UtAssert_True(actual == expected, "OS_TimerSet() (%ld) == OS_SUCCESS", (long)actual);
 
     OS_timecb_table[2].timebase_ref = 0;
     OS_timecb_table[2].flags = TIMECB_FLAG_DEDICATED_TIMEBASE;
     OS_global_timebase_table[0].active_id = 2;
-    actual = OS_TimerSet(2, 0, 0);
+    actual = OS_TimerSet(2, 0, 1);
     UtAssert_True(actual == expected, "OS_TimerSet() (%ld) == OS_SUCCESS", (long)actual);
     memset(OS_timecb_table, 0, sizeof(OS_timecb_table));
 
@@ -172,10 +175,9 @@ void Test_OS_TimerSet(void)
     actual = OS_TimerSet(2, 1 << 31, 1 << 31);
     UtAssert_True(actual == expected, "OS_TimerSet() (%ld) == OS_TIMER_ERR_INVALID_ARGS", (long)actual);
 
-
     UT_SetForceFail(UT_KEY(OS_TaskGetId_Impl), 1 | (OS_OBJECT_TYPE_OS_TIMEBASE << OS_OBJECT_TYPE_SHIFT));
     expected = OS_ERR_INCORRECT_OBJ_STATE;
-    actual = OS_TimerSet(2, 0, 0);
+    actual = OS_TimerSet(2, 0, 1);
     UtAssert_True(actual == expected, "OS_TimerSet() (%ld) == OS_ERR_INCORRECT_OBJ_STATE", (long)actual);
     UT_ClearForceFail(UT_KEY(OS_TaskGetId_Impl));
 }

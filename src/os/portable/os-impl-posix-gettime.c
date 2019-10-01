@@ -18,6 +18,9 @@
  *      The OS-specific code must #include the correct headers that define the
  *      prototypes for these functions before including this implementation file.
  *
+ * NOTE: This is a "template" file and not a directly usable source file.
+ *       It must be adapted/instantiated from within the OS-specific
+ *       implementation on platforms that wish to use this template.
  */
 
 /****************************************************************************************
@@ -31,12 +34,15 @@
                                 FUNCTIONS
  ***************************************************************************************/
 
-/*---------------------------------------------------------------------------------------
- * Name: OS_GetLocalTime
+                        
+/*----------------------------------------------------------------
  *
- * Purpose: This functions get the local time of the machine its on
- * ------------------------------------------------------------------------------------*/
-
+ * Function: OS_GetLocalTime_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See description in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_GetLocalTime_Impl(OS_time_t *time_struct)
 {
     int             Status;
@@ -58,14 +64,17 @@ int32 OS_GetLocalTime_Impl(OS_time_t *time_struct)
     }
 
     return ReturnCode;
-}/* end OS_GetLocalTime */
+} /* end OS_GetLocalTime_Impl */
 
-/*---------------------------------------------------------------------------------------
- * Name: OS_SetLocalTime
+                        
+/*----------------------------------------------------------------
  *
- * Purpose: This functions set the local time of the machine its on
- * ------------------------------------------------------------------------------------*/
-
+ * Function: OS_SetLocalTime_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See description in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_SetLocalTime_Impl(const OS_time_t *time_struct)
 {
     int             Status;
@@ -88,5 +97,5 @@ int32 OS_SetLocalTime_Impl(const OS_time_t *time_struct)
 
     return ReturnCode;
 
-} /*end OS_SetLocalTime */
+} /* end OS_SetLocalTime_Impl */
 

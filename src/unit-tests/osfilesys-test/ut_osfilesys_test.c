@@ -37,7 +37,7 @@ int32 g_blkSize = UT_OS_FS_BLOCK_SIZE;
 int32 g_blkCnt  = UT_OS_FS_MAX_BLOCKS;
 
 int32  g_skipTestCase = -1;
-char*  g_skipTestCaseResult = " ";
+const char*  g_skipTestCaseResult = " ";
 
 char  g_fsLongName[OS_MAX_PATH_LEN+5];
 char  g_physDriveName[OS_MAX_PATH_LEN];

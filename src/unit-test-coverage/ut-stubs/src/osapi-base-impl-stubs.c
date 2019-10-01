@@ -105,7 +105,6 @@ UT_DEFAULT_STUB(OS_MutSemCreate_Impl,(uint32 sem_id, uint32 options))
 UT_DEFAULT_STUB(OS_MutSemGive_Impl,(uint32 sem_id))
 UT_DEFAULT_STUB(OS_MutSemTake_Impl,(uint32 sem_id))
 UT_DEFAULT_STUB(OS_MutSemDelete_Impl,(uint32 sem_id))
-UT_DEFAULT_STUB(OS_MutSemGetIdByName_Impl,(uint32 *sem_id, const char *sem_name))
 UT_DEFAULT_STUB(OS_MutSemGetInfo_Impl,(uint32 sem_id, OS_mut_sem_prop_t *mut_prop))
 
 /*

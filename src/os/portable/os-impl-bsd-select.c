@@ -14,6 +14,9 @@
  *
  * Purpose: This file contains wrappers around the select() system call
  *
+ * NOTE: This is a "template" file and not a directly usable source file.
+ *       It must be adapted/instantiated from within the OS-specific
+ *       implementation on platforms that wish to use this template.
  */
 
 /****************************************************************************************
@@ -38,14 +41,16 @@
                                 LOCAL FUNCTIONS
  ***************************************************************************************/
 
-/*---------------------------------------------------------------------------------------
-   Name: OS_FdSet_ConvertIn_Impl
-
-   Purpose: Helper function to convert an OS_FdSet (OSAL) structure into an fd_set (POSIX)
-            which can then be passed to the POSIX select function.
-
-   returns: Highest numbered file descriptor in the output fd_set
----------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------
+ * Function: OS_FdSet_ConvertIn_Impl
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *
+ *          Convert an OS_FdSet (OSAL) structure into an fd_set (POSIX)
+ *          which can then be passed to the POSIX select function.
+ *
+ * returns: Highest numbered file descriptor in the output fd_set
+ *-----------------------------------------------------------------*/
 static int OS_FdSet_ConvertIn_Impl(fd_set *os_set, OS_FdSet *OSAL_set)
 {
    uint32 offset;
@@ -81,19 +86,19 @@ static int OS_FdSet_ConvertIn_Impl(fd_set *os_set, OS_FdSet *OSAL_set)
    }
 
    return maxfd;
-}
+} /* end OS_FdSet_ConvertIn_Impl */
 
-/*---------------------------------------------------------------------------------------
-   Name: OS_FdSet_ConvertOut_Impl
-
-   Purpose: Helper function to convert a POSIX fd_set structure into an OSAL OS_FdSet
-            which can then be returned back to the application.
-
-            This actually un-sets any bits in the "Input" parameter which are also set in
-            the "output" parameter.
-
-   returns: None
----------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------
+ * Function: OS_FdSet_ConvertOut_Impl
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *
+ *          Convert a POSIX fd_set structure into an OSAL OS_FdSet
+ *          which can then be returned back to the application.
+ *
+ *          This actually un-sets any bits in the "Input" parameter
+ *          which are also set in the "output" parameter.
+ *-----------------------------------------------------------------*/
 static void OS_FdSet_ConvertOut_Impl(fd_set *output, OS_FdSet *Input)
 {
    uint32 offset;
@@ -121,16 +126,16 @@ static void OS_FdSet_ConvertOut_Impl(fd_set *output, OS_FdSet *Input)
          objids >>= 1;
       }
    }
-}
+} /* end OS_FdSet_ConvertOut_Impl */
 
-/*---------------------------------------------------------------------------------------
-   Name: OS_DoSelect
-
-   Purpose: Local helper function with actual implementation of select() call
-            Used by SelectSingle and SelectMultiple implementations (below)
-
-   returns: OS_SUCCESS or OS_ERROR
----------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------
+ * Function: OS_DoSelect
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *
+ *          Actual implementation of select() call
+ *          Used by SelectSingle and SelectMultiple implementations (below)
+ *-----------------------------------------------------------------*/
 static int32 OS_DoSelect(int maxfd, fd_set *rd_set, fd_set *wr_set, int32 msecs)
 {
    int os_status;
@@ -210,24 +215,21 @@ static int32 OS_DoSelect(int maxfd, fd_set *rd_set, fd_set *wr_set, int32 msecs)
    }
 
    return return_code;
-}
+} /* end OS_DoSelect */
 
 /****************************************************************************************
                                 SELECT API
  ***************************************************************************************/
 
-/*---------------------------------------------------------------------------------------
-   Name: OS_SelectSingle_Impl
-
-   Purpose: Waits for activity on a single file descriptor
-            This wrapper is usable by the File or Socket API
-            The type of activity to wait for is indicated by "SelectFlags"
-            msecs indicates the timeout.  Positive values will wait up to that many milliseconds.
-            Zero will not wait (poll) or negative values will wait forever (pend)
-
-   returns: OS_SUCCESS or OS_ERROR
-            Bits in "SelectFlags" will be unset according to activity
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_SelectSingle_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See description in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_SelectSingle_Impl(uint32 stream_id, uint32 *SelectFlags, int32 msecs)
 {
    int32 return_code;
@@ -272,28 +274,17 @@ int32 OS_SelectSingle_Impl(uint32 stream_id, uint32 *SelectFlags, int32 msecs)
    }
 
    return return_code;
-}
+} /* end OS_SelectSingle_Impl */
 
-/*---------------------------------------------------------------------------------------
-   Name: OS_SelectMultiple
-
-   Purpose: Waits for activity on multiple file descriptors
-            This wrapper is usable by the File or Socket API
-            Will wait for any file descriptor in "ReadSet" to be readable OR
-            any descriptor in "WriteSet" to be writable.
-            Time-Limited to "msecs" (negative to wait forever, zero to poll)
-
-   Notes: It is not possible for this function to verify that the file descriptors
-          passed in are actually valid.  In order to do so would require a different
-          approach to the OS_FdSet structure (this is currently just a bitmask so
-          the actual file descriptor value is lost in translation).
-
-          Using an array of uint32's would solve the problem but make the structures
-          much bigger.
-
-   returns: OS_SUCCESS or OS_ERROR
-            File descriptors in sets be modified according to activity
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_SelectMultiple_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See description in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_SelectMultiple_Impl(OS_FdSet *ReadSet, OS_FdSet *WriteSet, int32 msecs)
 {
    fd_set wr_set;
@@ -337,7 +328,7 @@ int32 OS_SelectMultiple_Impl(OS_FdSet *ReadSet, OS_FdSet *WriteSet, int32 msecs)
    }
 
    return return_code;
-}
+} /* end OS_SelectMultiple_Impl */
 
 
 

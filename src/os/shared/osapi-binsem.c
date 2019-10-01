@@ -66,30 +66,30 @@ OS_apiname_internal_record_t    OS_bin_sem_table          [LOCAL_NUM_OBJECTS];
    Returns: OS_SUCCESS
 
 ---------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_BinSemAPI_Init
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_BinSemAPI_Init(void)
 {
    memset(OS_bin_sem_table, 0, sizeof(OS_bin_sem_table));
    return OS_SUCCESS;
-}
+} /* end OS_BinSemAPI_Init */
 
 
-/*---------------------------------------------------------------------------------------
-   Name: OS_BinSemCreate
-
-   Purpose: Creates a binary semaphore with initial value specified by
-            sem_initial_value and name specified by sem_name. sem_id will be
-            returned to the caller
-
-   Returns: OS_INVALID_POINTER if sen name or sem_id are NULL
-            OS_ERR_NAME_TOO_LONG if the name given is too long
-            OS_ERR_NO_FREE_IDS if all of the semaphore ids are taken
-            OS_ERR_NAME_TAKEN if this is already the name of a binary semaphore
-            OS_SEM_FAILURE if the OS call failed
-            OS_SUCCESS if success
-
-
-   Notes: options is an unused parameter
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_BinSemCreate
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_BinSemCreate (uint32 *sem_id, const char *sem_name, uint32 sem_initial_value,
                         uint32 options)
 {
@@ -126,21 +126,17 @@ int32 OS_BinSemCreate (uint32 *sem_id, const char *sem_name, uint32 sem_initial_
 
    return return_code;
 
-}/* end OS_BinSemCreate */
+} /* end OS_BinSemCreate */
 
-/*--------------------------------------------------------------------------------------
-     Name: OS_BinSemDelete
-
-    Purpose: Deletes the specified Binary Semaphore.
-
-    Returns: OS_ERR_INVALID_ID if the id passed in is not a valid binary semaphore
-             OS_SEM_FAILURE the OS call failed
-             OS_SUCCESS if success
-
-    Notes: Since we can't delete a semaphore which is currently locked by some task
-           (as it may ber crucial to completing the task), the semaphore must be full to
-           allow deletion.
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_BinSemDelete
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_BinSemDelete (uint32 sem_id)
 {
    OS_common_record_t *record;
@@ -164,25 +160,18 @@ int32 OS_BinSemDelete (uint32 sem_id)
 
    return return_code;
 
-}/* end OS_BinSemDelete */
+} /* end OS_BinSemDelete */
 
 
-/*---------------------------------------------------------------------------------------
-    Name: OS_BinSemGive
-
-    Purpose: The function  unlocks the semaphore referenced by sem_id by performing
-             a semaphore unlock operation on that semaphore.If the semaphore value
-             resulting from this operation is positive, then no threads were blocked
-             waiting for the semaphore to become unlocked; the semaphore value is
-             simply incremented for this semaphore.
-
-
-    Returns: OS_SEM_FAILURE the semaphore was not previously  initialized or is not
-             in the array of semaphores defined by the system
-             OS_ERR_INVALID_ID if the id passed in is not a binary semaphore
-             OS_SUCCESS if success
-
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_BinSemGive
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_BinSemGive ( uint32 sem_id )
 {
    OS_common_record_t *record;
@@ -198,21 +187,17 @@ int32 OS_BinSemGive ( uint32 sem_id )
 
     return return_code;
 
-}/* end OS_BinSemGive */
+} /* end OS_BinSemGive */
 
-/*---------------------------------------------------------------------------------------
-    Name: OS_BinSemFlush
-
-    Purpose: The function unblocks all tasks pending on the specified semaphore. However,
-             this function does not change the state of the semaphore.
-
-
-    Returns: OS_SEM_FAILURE the semaphore was not previously  initialized or is not
-             in the array of semaphores defined by the system
-             OS_ERR_INVALID_ID if the id passed in is not a binary semaphore
-             OS_SUCCESS if success
-
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_BinSemFlush
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_BinSemFlush (uint32 sem_id)
 {
    OS_common_record_t *record;
@@ -227,22 +212,17 @@ int32 OS_BinSemFlush (uint32 sem_id)
    }
 
    return return_code;
-}/* end OS_BinSemFlush */
+} /* end OS_BinSemFlush */
 
-/*---------------------------------------------------------------------------------------
-    Name:    OS_BinSemTake
-
-    Purpose: The locks the semaphore referenced by sem_id by performing a
-             semaphore lock operation on that semaphore.If the semaphore value
-             is currently zero, then the calling thread shall not return from
-             the call until it either locks the semaphore or the call is
-             interrupted by a signal.
-
-    Return:  OS_ERR_INVALID_ID the Id passed in is not a valid binary semaphore
-             OS_SEM_FAILURE if the OS call failed
-             OS_SUCCESS if success
-
-----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_BinSemTake
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_BinSemTake ( uint32 sem_id )
 {
    OS_common_record_t *record;
@@ -257,23 +237,17 @@ int32 OS_BinSemTake ( uint32 sem_id )
    }
 
    return return_code;
-}/* end OS_BinSemTake */
+} /* end OS_BinSemTake */
 
-/*---------------------------------------------------------------------------------------
-    Name: OS_BinSemTimedWait
-
-    Purpose: The function locks the semaphore referenced by sem_id . However,
-             if the semaphore cannot be locked without waiting for another process
-             or thread to unlock the semaphore , this wait shall be terminated when
-             the specified timeout ,msecs, expires.
-
-    Returns: OS_SEM_TIMEOUT if semaphore was not relinquished in time
-             OS_SUCCESS if success
-             OS_SEM_FAILURE the semaphore was not previously initialized or is not
-             in the array of semaphores defined by the system
-             OS_ERR_INVALID_ID if the ID passed in is not a valid semaphore ID
-
-----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_BinSemTimedWait
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_BinSemTimedWait ( uint32 sem_id, uint32 msecs )
 {
    OS_common_record_t *record;
@@ -288,19 +262,16 @@ int32 OS_BinSemTimedWait ( uint32 sem_id, uint32 msecs )
    }
 
    return return_code;
-}
-/*--------------------------------------------------------------------------------------
-    Name: OS_BinSemGetIdByName
-
-    Purpose: This function tries to find a binary sem Id given the name of a bin_sem
-             The id is returned through sem_id
-
-    Returns: OS_INVALID_POINTER is semid or sem_name are NULL pointers
-             OS_ERR_NAME_TOO_LONG if the name given is to long to have been stored
-             OS_ERR_NAME_NOT_FOUND if the name was not found in the table
-             OS_SUCCESS if success
-
----------------------------------------------------------------------------------------*/
+} /* end OS_BinSemTimedWait */
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_BinSemGetIdByName
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_BinSemGetIdByName (uint32 *sem_id, const char *sem_name)
 {
    int32 return_code;
@@ -313,19 +284,17 @@ int32 OS_BinSemGetIdByName (uint32 *sem_id, const char *sem_name)
    return_code = OS_ObjectIdFindByName(LOCAL_OBJID_TYPE, sem_name, sem_id);
 
    return return_code;
-}/* end OS_BinSemGetIdByName */
+} /* end OS_BinSemGetIdByName */
 
-/*---------------------------------------------------------------------------------------
-    Name: OS_BinSemGetInfo
-
-    Purpose: This function will pass back a pointer to structure that contains
-             all of the relevant info( name and creator) about the specified binary
-             semaphore.
-
-    Returns: OS_ERR_INVALID_ID if the id passed in is not a valid semaphore
-             OS_INVALID_POINTER if the bin_prop pointer is null
-             OS_SUCCESS if success
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_BinSemGetInfo
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_BinSemGetInfo (uint32 sem_id, OS_bin_sem_prop_t *bin_prop)
 {
    OS_common_record_t *record;

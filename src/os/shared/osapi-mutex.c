@@ -59,34 +59,29 @@ OS_apiname_internal_record_t    OS_mutex_table          [LOCAL_NUM_OBJECTS];
                                   MUTEX API
  ***************************************************************************************/
 
-/*---------------------------------------------------------------------------------------
-   Name: OS_MutexAPI_Init
-
-   Purpose: Init function for OS-independent layer
-
-   Returns: OS_SUCCESS
-
----------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------
+ *
+ * Function: OS_MutexAPI_Init
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *           Init function for OS-independent layer
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_MutexAPI_Init(void)
 {
    memset(OS_mutex_table, 0, sizeof(OS_mutex_table));
    return OS_SUCCESS;
-}
+} /* end OS_MutexAPI_Init */
 
 
-/*---------------------------------------------------------------------------------------
-    Name: OS_MutSemCreate
-
-    Purpose: Creates a mutex semaphore initially full.
-
-    Returns: OS_INVALID_POINTER if sem_id or sem_name are NULL
-             OS_ERR_NAME_TOO_LONG if the sem_name is too long to be stored
-             OS_ERR_NO_FREE_IDS if there are no more free mutex Ids
-             OS_ERR_NAME_TAKEN if there is already a mutex with the same name
-             OS_SEM_FAILURE if the OS call failed
-             OS_SUCCESS if success
-
----------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------
+ *
+ * Function: OS_MutSemCreate
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_MutSemCreate (uint32 *sem_id, const char *sem_name, uint32 options)
 {
    OS_common_record_t *record;
@@ -121,21 +116,16 @@ int32 OS_MutSemCreate (uint32 *sem_id, const char *sem_name, uint32 options)
 
    return return_code;
 
-}/* end OS_MutexSemCreate */
+} /* end OS_MutSemCreate */
 
-/*--------------------------------------------------------------------------------------
-     Name: OS_MutSemDelete
-
-    Purpose: Deletes the specified Mutex Semaphore.
-
-    Returns: OS_ERR_INVALID_ID if the id passed in is not a valid mutex
-             OS_SEM_FAILURE if the OS call failed
-             OS_SUCCESS if success
-
-    Notes: The mutex must be full to take it, so we have to check for fullness
-
----------------------------------------------------------------------------------------*/
-
+/*----------------------------------------------------------------
+ *
+ * Function: OS_MutSemDelete
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_MutSemDelete (uint32 sem_id)
 {
    OS_common_record_t *record;
@@ -159,24 +149,17 @@ int32 OS_MutSemDelete (uint32 sem_id)
 
    return return_code;
 
-}/* end OS_MutSemDelete */
+} /* end OS_MutSemDelete */
 
-/*---------------------------------------------------------------------------------------
-    Name: OS_MutSemGive
-
-    Purpose: The function releases the mutex object referenced by sem_id.The
-             manner in which a mutex is released is dependent upon the mutex's type
-             attribute.  If there are threads blocked on the mutex object referenced by
-             mutex when this function is called, resulting in the mutex becoming
-             available, the scheduling policy shall determine which thread shall
-             acquire the mutex.
-
-    Returns: OS_SUCCESS if success
-             OS_SEM_FAILURE if the semaphore was not previously  initialized
-             OS_ERR_INVALID_ID if the id passed in is not a valid mutex
-
----------------------------------------------------------------------------------------*/
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_MutSemGive
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_MutSemGive ( uint32 sem_id )
 {
    OS_common_record_t *record;
@@ -194,20 +177,15 @@ int32 OS_MutSemGive ( uint32 sem_id )
 
 } /* end OS_MutSemGive */
 
-/*---------------------------------------------------------------------------------------
-    Name: OS_MutSemTake
-
-    Purpose: The mutex object referenced by sem_id shall be locked by calling this
-             function. If the mutex is already locked, the calling thread shall
-             block until the mutex becomes available. This operation shall return
-             with the mutex object referenced by mutex in the locked state with the
-             calling thread as its owner.
-
-    Returns: OS_SUCCESS if success
-             OS_SEM_FAILURE if the semaphore was not previously initialized or is
-             not in the array of semaphores defined by the system
-             OS_ERR_INVALID_ID the id passed in is not a valid mutex
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_MutSemTake
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_MutSemTake ( uint32 sem_id )
 {
    OS_common_record_t *record;
@@ -223,19 +201,16 @@ int32 OS_MutSemTake ( uint32 sem_id )
 
     return return_code;
 
-}
-/*--------------------------------------------------------------------------------------
-    Name: OS_MutSemGetIdByName
-
-    Purpose: This function tries to find a mutex sem Id given the name of a mut_sem
-             The id is returned through sem_id
-
-    Returns: OS_INVALID_POINTER is semid or sem_name are NULL pointers
-             OS_ERR_NAME_TOO_LONG if the name given is to long to have been stored
-             OS_ERR_NAME_NOT_FOUND if the name was not found in the table
-             OS_SUCCESS if success
-
----------------------------------------------------------------------------------------*/
+} /* end OS_MutSemTake */
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_MutSemGetIdByName
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_MutSemGetIdByName (uint32 *sem_id, const char *sem_name)
 {
    int32 return_code;
@@ -249,20 +224,17 @@ int32 OS_MutSemGetIdByName (uint32 *sem_id, const char *sem_name)
 
    return return_code;
 
-}/* end OS_MutSemGetIdByName */
+} /* end OS_MutSemGetIdByName */
 
-/*---------------------------------------------------------------------------------------
-    Name: OS_MutSemGetInfo
-
-    Purpose: This function will pass back a pointer to structure that contains
-             all of the relevant info( name and creator) about the specified mutex
-             semaphore.
-
-    Returns: OS_ERR_INVALID_ID if the id passed in is not a valid semaphore
-             OS_INVALID_POINTER if the mut_prop pointer is null
-             OS_SUCCESS if success
----------------------------------------------------------------------------------------*/
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_MutSemGetInfo
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_MutSemGetInfo (uint32 sem_id, OS_mut_sem_prop_t *mut_prop)
 {
    OS_common_record_t *record;

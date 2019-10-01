@@ -15,6 +15,9 @@
  * Purpose: This file Contains all of the api calls for manipulating files
  *      in a file system / C library that implements the POSIX-style file API
  *
+ * NOTE: This is a "template" file and not a directly usable source file.
+ *       It must be adapted/instantiated from within the OS-specific
+ *       implementation on platforms that wish to use this template.
  */
 
 /****************************************************************************************
@@ -34,13 +37,15 @@
 
 
 
-/*---------------------------------------------------------------------------------------
-   Name: OS_FileOpen_Impl
-
-   Purpose: Opens the file indicated by "local_path"
-
-   returns: OS_SUCCESS or OS_ERROR
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_FileOpen_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See description in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_FileOpen_Impl(uint32 local_id, const char *local_path, int32 flags, int32 access)
 {
    int os_perm;
@@ -94,8 +99,16 @@ int32 OS_FileOpen_Impl(uint32 local_id, const char *local_path, int32 flags, int
            ((os_perm & O_NONBLOCK) != 0);
 
    return OS_FS_SUCCESS;
-}
-
+} /* end OS_FileOpen_Impl */
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_FileStat_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See description in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_FileStat_Impl(const char *local_path, os_fstat_t *FileStats)
 {
    struct stat st;
@@ -152,15 +165,17 @@ int32 OS_FileStat_Impl(const char *local_path, os_fstat_t *FileStats)
    }
 
    return OS_FS_SUCCESS;
-}
+} /* end OS_FileStat_Impl */
 
-/*--------------------------------------------------------------------------------------
-    Name: OS_FileChmod_Impl
-
-    Returns: OS_FS_SUCCESS if success
-             OS_FS_ERROR if the OS calls fail
-
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_FileChmod_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See description in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_FileChmod_Impl(const char *local_path, uint32 access)
 {
     mode_t readbits;
@@ -229,11 +244,16 @@ int32 OS_FileChmod_Impl(const char *local_path, uint32 access)
 
     return OS_SUCCESS;
 
-}/* end OS_FileSysChmod_Impl */
-
-
-
-
+} /* end OS_FileChmod_Impl */
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_FileRemove_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See description in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_FileRemove_Impl(const char *local_path)
 {
    if ( remove (local_path) < 0 )
@@ -242,8 +262,16 @@ int32 OS_FileRemove_Impl(const char *local_path)
    }
 
    return OS_SUCCESS;
-}
-
+} /* end OS_FileRemove_Impl */
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_FileRename_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See description in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_FileRename_Impl(const char *old_path, const char *new_path)
 {
    if ( rename (old_path, new_path) < 0 )
@@ -252,5 +280,5 @@ int32 OS_FileRename_Impl(const char *old_path, const char *new_path)
    }
 
    return OS_SUCCESS;
-}
+} /* end OS_FileRename_Impl */
 

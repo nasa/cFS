@@ -120,7 +120,7 @@ int32 OS_Rtems_StreamAPI_Impl_Init(void)
     }
 
     return OS_SUCCESS;
-}
+} /* end OS_Rtems_StreamAPI_Impl_Init */
 
 /* --------------------------------------------------------------------------------------
     Name: OS_Rtems_DirAPI_Impl_Init
@@ -133,20 +133,20 @@ int32 OS_Rtems_DirAPI_Impl_Init(void)
 {
    memset(OS_impl_dir_table, 0, sizeof(OS_impl_dir_table));
    return OS_SUCCESS;
-}
+} /* end OS_Rtems_DirAPI_Impl_Init */
 
 
 /* FIXME - need to do something better here */
 
-/* --------------------------------------------------------------------------------------
-    Name: OS_ShellOutputToFile
-
-    Purpose: Takes a shell command in and writes the output of that command to the specified file
-
-    Returns: OS_FS_ERROR if the command was not executed properly
-             OS_FS_ERR_INVALID_FD if the file descriptor passed in is invalid
-             OS_SUCCESS if success
- ---------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_ShellOutputToFile_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_ShellOutputToFile_Impl(uint32 file_id, const char *Cmd)
 {
    /*
@@ -179,5 +179,5 @@ int32 OS_ShellOutputToFile_Impl(uint32 file_id, const char *Cmd)
       return OS_FS_ERROR;
    }
    return OS_SUCCESS;
-}/* end OS_ShellOutputToFile */
+} /* end OS_ShellOutputToFile_Impl */
 

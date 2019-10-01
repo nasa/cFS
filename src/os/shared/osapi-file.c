@@ -54,18 +54,16 @@ enum
 
 OS_stream_internal_record_t         OS_stream_table[OS_MAX_NUM_OPEN_FILES];
 
-/* --------------------------------------------------------------------------------------
-    Name: OS_check_name_length
-
-    Purpose: Checks the length of the file name at the end of the path.
-
-    Returns: OS_FS_ERROR if path is NULL, path is too long, there is no '/' in the path
-             name, the name is too long
-             OS_SUCCESS if success
-
-    NOTE: This is only an internal function and is not intended for use by the user
- ---------------------------------------------------------------------------------------*/
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_check_name_length
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *           Validates that the path length is within spec and
+ *           contains at least one directory separator (/) char.
+ *
+ *-----------------------------------------------------------------*/
 static int32 OS_check_name_length(const char *path)
 {
     char* name_ptr;
@@ -89,35 +87,37 @@ static int32 OS_check_name_length(const char *path)
 
     return OS_FS_SUCCESS;
 
-}/* end OS_check_name_length */
+} /* end OS_check_name_length */
 
 /****************************************************************************************
                                   FILE API
  ***************************************************************************************/
 
-/*---------------------------------------------------------------------------------------
-   Name: OS_StreamAPI_Init
-
-   Purpose: Init function for OS-independent layer
-
-   Returns: OS_SUCCESS
-
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_FileAPI_Init
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *           Init function for OS-independent layer
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_FileAPI_Init(void)
 {
    memset(OS_stream_table, 0, sizeof(OS_stream_table));
    return OS_SUCCESS;
-}
+} /* end OS_FileAPI_Init */
 
 
-/*---------------------------------------------------------------------------------------
-   Name: OS_OpenCreate
-
-   Purpose: Local function to implement both "open" and "creat"
-            (The difference is a matter of what flags are passed in)
-
-   returns: OS_SUCCESS or OS_ERROR
----------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------
+ *
+ * Function: OS_OpenCreate
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *           Implements both "open" and "creat" file operations
+ *           (The difference is a matter of what flags are passed in)
+ *
+ *-----------------------------------------------------------------*/
 static int32 OS_OpenCreate(uint32 *filedes, const char *path, int32 flags, int32 access)
 {
    int32 return_code;
@@ -157,25 +157,17 @@ static int32 OS_OpenCreate(uint32 *filedes, const char *path, int32 flags, int32
    }
 
    return return_code;
-}
+} /* end OS_OpenCreate */
 
-/*--------------------------------------------------------------------------------------
-    Name: OS_creat
-
-    Purpose: creates a file specified by const char *path, with read/write
-             permissions by access. The file is also automatically opened by the
-             create call.
-
-    Returns: OS_FS_ERR_INVALID_POINTER if path is NULL
-             OS_FS_ERR_PATH_TOO_LONG if path exceeds the maximum number of chars
-             OS_FS_ERR_PATH_INVALID if path cannot be parsed
-             OS_FS_ERR_NAME_TOO_LONG if the name of the file is too long
-             OS_FS_ERROR if permissions are unknown or OS call fails
-             OS_FS_ERR_NO_FREE_FDS if there are no free file descripors left
-             OS_FS_SUCCESS if success
-
----------------------------------------------------------------------------------------*/
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_creat
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_creat  (const char *path, int32  access)
 {
    uint32 filedes;
@@ -205,21 +197,15 @@ int32 OS_creat  (const char *path, int32  access)
    return return_code;
 } /* end OS_creat */
 
-/*--------------------------------------------------------------------------------------
-    Name: OS_open
-
-    Purpose: Opens a file. access parameters are OS_READ_ONLY,OS_WRITE_ONLY, or
-             OS_READ_WRITE
-
-    Returns: OS_FS_ERR_INVALID_POINTER if path is NULL
-             OS_FS_ERR_PATH_TOO_LONG if path exceeds the maximum number of chars
-             OS_FS_ERR_PATH_INVALID if path cannot be parsed
-             OS_FS_ERR_NAME_TOO_LONG if the name of the file is too long
-             OS_FS_ERROR if permissions are unknown or OS call fails
-             OS_FS_ERR_NO_FREE_FDS if there are no free file descriptors left
-             a file descriptor if success
----------------------------------------------------------------------------------------*/
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_open
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_open   (const char *path,  int32 access,  uint32  mode)
 {
    uint32 filedes;
@@ -249,16 +235,15 @@ int32 OS_open   (const char *path,  int32 access,  uint32  mode)
 } /* end OS_open */
 
 
-/*--------------------------------------------------------------------------------------
-    Name: OS_close
-
-    Purpose: Closes a file.
-
-    Returns: OS_FS_ERROR if file  descriptor could not be closed
-             OS_FS_ERR_INVALID_FD if the file descriptor passed in is invalid
-             OS_FS_SUCCESS if success
----------------------------------------------------------------------------------------*/
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_close
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_close (uint32 filedes)
 {
     OS_common_record_t *record;
@@ -283,16 +268,17 @@ int32 OS_close (uint32 filedes)
 
     return return_code;
 
-}/* end OS_close */
+} /* end OS_close */
 
-/*--------------------------------------------------------------------------------------
-    Name: OS_TimedRead
-
-    Purpose: reads up to nbytes from a stream, and puts them into buffer.
-             Will wait up to the time specified in timeout (OS_PEND = forever)
-
-    Returns: number of bytes read if success, <0 on error
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_TimedRead
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_TimedRead(uint32  filedes, void *buffer, uint32 nbytes, int32 timeout)
 {
    OS_common_record_t *record;
@@ -313,16 +299,17 @@ int32 OS_TimedRead(uint32  filedes, void *buffer, uint32 nbytes, int32 timeout)
    }
 
    return return_code;
-}/* end OS_read */
+} /* end OS_TimedRead */
 
-/*--------------------------------------------------------------------------------------
-    Name: OS_TimedWrite
-
-    Purpose: writes to a stream up to a maximum of nbytes to the file described in filedes
-             Will wait up to the time specified in timeout (OS_PEND = forever)
-
-    Returns: number of bytes written if success, <0 on error
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_TimedWrite
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_TimedWrite(uint32  filedes, const void *buffer, uint32 nbytes, int32 timeout)
 {
    OS_common_record_t *record;
@@ -343,47 +330,46 @@ int32 OS_TimedWrite(uint32  filedes, const void *buffer, uint32 nbytes, int32 ti
    }
 
    return return_code;
-}/* end OS_write */
+} /* end OS_TimedWrite */
 
-/*--------------------------------------------------------------------------------------
-    Name: OS_read
-
-    Purpose: reads up to nbytes from a file, and puts them into buffer.
-
-    Returns: OS_FS_ERR_INVALID_POINTER if buffer is a null pointer
-             OS_FS_ERROR if OS call failed
-             OS_FS_ERR_INVALID_FD if the file descriptor passed in is invalid
-             number of bytes read if success
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_read
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_read  (uint32  filedes, void *buffer, uint32 nbytes)
 {
    return OS_TimedRead(filedes, buffer, nbytes, OS_PEND);
-}/* end OS_read */
+} /* end OS_read */
 
-/*--------------------------------------------------------------------------------------
-    Name: OS_write
-
-    Purpose: writes to a file. copies up to a maximum of nbtyes of buffer to the file
-             described in filedes
-
-    Returns: OS_FS_ERR_INVALID_POINTER if buffer is NULL
-             OS_FS_ERROR if OS call failed
-             OS_FS_ERR_INVALID_FD if the file descriptor passed in is invalid
-             number of bytes written if success
----------------------------------------------------------------------------------------*/
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_write
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_write (uint32  filedes, const void *buffer, uint32 nbytes)
 {
     return OS_TimedWrite(filedes, buffer, nbytes, OS_PEND);
-}/* end OS_write */
+} /* end OS_write */
 
 
-/*--------------------------------------------------------------------------------------
-    Name: OS_chmod
-
-    Notes: This is not going to be implemented because there is no use for this function.
----------------------------------------------------------------------------------------*/
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_chmod
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_chmod  (const char *path, uint32 access)
 {
     char local_path[OS_MAX_LOCAL_PATH_LEN];
@@ -399,21 +385,15 @@ int32 OS_chmod  (const char *path, uint32 access)
 
 } /* end OS_chmod */
 
-/*--------------------------------------------------------------------------------------
-    Name: OS_stat
-
-    Purpose: returns information about a file or directory in a os_fs_stat structure
-
-    Returns: OS_FS_ERR_INVALID_POINTER if path or filestats is NULL
-             OS_FS_ERR_PATH_TOO_LONG if the path is too long to be stored locally
- ****        OS_FS_ERR_NAME_TOO_LONG if the name of the file is too long to be stored
-             OS_FS_ERR_PATH_INVALID if path cannot be parsed
-             OS_FS_ERROR id the OS call failed
-             OS_FS_SUCCESS if success
-
-    Note: The information returned is in the structure pointed to by filestats
----------------------------------------------------------------------------------------*/
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_stat
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_stat   (const char *path, os_fstat_t *filestats)
 {
    int32 return_code;
@@ -435,17 +415,15 @@ int32 OS_stat   (const char *path, os_fstat_t *filestats)
    return return_code;
 } /* end OS_stat */
 
-/*--------------------------------------------------------------------------------------
-    Name: OS_lseek
-
-    Purpose: sets the read/write pointer to a specific offset in a specific file.
-             Whence is either OS_SEEK_SET,OS_SEEK_CUR, or OS_SEEK_END
-
-    Returns: the new offset from the beginning of the file
-             OS_FS_ERR_INVALID_FD if the file descriptor passed in is invalid
-             OS_FS_ERROR if OS call failed
----------------------------------------------------------------------------------------*/
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_lseek
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_lseek  (uint32  filedes, int32 offset, uint32 whence)
 {
    OS_common_record_t *record;
@@ -461,22 +439,17 @@ int32 OS_lseek  (uint32  filedes, int32 offset, uint32 whence)
    }
 
    return return_code;
-}/* end OS_lseek */
+} /* end OS_lseek */
 
-/*--------------------------------------------------------------------------------------
-    Name: OS_remove
-
-    Purpose: removes a given filename from the drive
-
-    Returns: OS_FS_SUCCESS if the driver returns OK
-             OS_FS_ERROR if there is no device or the driver returns error
-             OS_FS_ERR_INVALID_POINTER if path is NULL
-             OS_FS_ERR_PATH_TOO_LONG if path is too long to be stored locally
-             OS_FS_ERR_PATH_INVALID if path cannot be parsed
-             OS_FS_ERR_NAME_TOO_LONG if the name of the file to remove is too long to be
-             stored locally
----------------------------------------------------------------------------------------*/
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_remove
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_remove (const char *path)
 {
    int32 return_code;
@@ -496,19 +469,15 @@ int32 OS_remove (const char *path)
 
 } /* end OS_remove */
 
-/*--------------------------------------------------------------------------------------
-    Name: OS_rename
-
-    Purpose: renames a file
-
-    Returns: OS_FS_SUCCESS if the rename works
-             OS_FS_ERROR if the file could not be opened or renamed.
-             OS_FS_ERR_INVALID_POINTER if old or new are NULL
-             OS_FS_ERR_PATH_INVALID if path cannot be parsed
-             OS_FS_ERR_PATH_TOO_LONG if the paths given are too long to be stored locally
-             OS_FS_ERR_NAME_TOO_LONG if the new name is too long to be stored locally
----------------------------------------------------------------------------------------*/
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_rename
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_rename (const char *old, const char *new)
 {
    int i;
@@ -552,22 +521,17 @@ int32 OS_rename (const char *old, const char *new)
 
     return return_code;
 
-}/*end OS_rename */
+} /* end OS_rename */
 
-/*--------------------------------------------------------------------------------------
-    Name: OS_cp
-
-    Purpose: Copies a single file from src to dest
-
-    Returns: OS_FS_SUCCESS if the operation worked
-             OS_FS_ERROR if the file could not be accessed
-             OS_FS_ERR_INVALID_POINTER if src or dest are NULL
-             OS_FS_ERR_PATH_INVALID if path cannot be parsed
-             OS_FS_ERR_PATH_TOO_LONG if the paths given are too long to be stored locally
-             OS_FS_ERR_NAME_TOO_LONG if the dest name is too long to be stored locally
-
----------------------------------------------------------------------------------------*/
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_cp
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_cp (const char *src, const char *dest)
 {
     int32 return_code;
@@ -580,7 +544,7 @@ int32 OS_cp (const char *src, const char *dest)
 
     if (src == NULL || dest == NULL)
     {
-        return OS_FS_ERR_INVALID_POINTER;
+        return OS_INVALID_POINTER;
     }
 
     return_code = OS_FS_SUCCESS;
@@ -635,21 +599,17 @@ int32 OS_cp (const char *src, const char *dest)
 
     return return_code;
 
-}/*end OS_cp */
+} /* end OS_cp */
 
-/*--------------------------------------------------------------------------------------
-    Name: OS_mv
-
-    Purpose: moves a single file from src to dest
-
-    Returns: OS_FS_SUCCESS if the rename works
-             OS_FS_ERROR if the file could not be opened or renamed.
-             OS_FS_ERR_INVALID_POINTER if src or dest are NULL
-             OS_FS_ERR_PATH_INVALID if path cannot be parsed
-             OS_FS_ERR_PATH_TOO_LONG if the paths given are too long to be stored locally
-             OS_FS_ERR_NAME_TOO_LONG if the dest name is too long to be stored locally
----------------------------------------------------------------------------------------*/
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_mv
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_mv (const char *src, const char *dest)
 {
    int32 return_code;
@@ -667,19 +627,19 @@ int32 OS_mv (const char *src, const char *dest)
 
    return (return_code);
 
-}/*end OS_mv */
+} /* end OS_mv */
 
 
 
-/* --------------------------------------------------------------------------------------
-Name: OS_FDGetInfo
-
-Purpose: Copies the information of the given file descriptor into a structure passed in
-
-Returns: OS_FS_ERR_INVALID_FD if the file descriptor passed in is invalid
-         OS_FS_SUCCESS if the copying was successfull
- ---------------------------------------------------------------------------------------*/
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_FDGetInfo
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_FDGetInfo (uint32 filedes, OS_file_prop_t *fd_prop)
 {
    OS_common_record_t *record;
@@ -706,16 +666,17 @@ int32 OS_FDGetInfo (uint32 filedes, OS_file_prop_t *fd_prop)
 
    return return_code;
 
-}/* end OS_FDGetInfo */
+} /* end OS_FDGetInfo */
 
-/* --------------------------------------------------------------------------------------
-   Name: OS_FileOpenCheck
-
-   Purpose: Checks to see if a file is open
-
-   Returns: OS_FS_ERROR if the file is not open
-            OS_FS_SUCCESS if the file is open
- ---------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_FileOpenCheck
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_FileOpenCheck(const char *Filename)
 {
    int32 return_code;
@@ -744,20 +705,18 @@ int32 OS_FileOpenCheck(const char *Filename)
    OS_Unlock_Global_Impl(LOCAL_OBJID_TYPE);
 
    return return_code;
-}/* end OS_FileOpenCheck */
+} /* end OS_FileOpenCheck */
 
 
-/* --------------------------------------------------------------------------------------
-   Name: OS_CloseFileByName
-
-   Purpose: Allows a file to be closed by name.
-            This will only work if the name passed in is the same name used to open
-            the file.
-
-   Returns: OS_FS_ERR_PATH_INVALID if the file is not found
-            OS_FS_ERROR   if the file close returned an error
-            OS_FS_SUCCESS if the file close suceeded
- ---------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_CloseFileByName
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_CloseFileByName(const char *Filename)
 {
    int32 return_code;
@@ -795,16 +754,17 @@ int32 OS_CloseFileByName(const char *Filename)
 
    return (return_code);
 
-}/* end OS_CloseFileByName */
+} /* end OS_CloseFileByName */
 
-/* --------------------------------------------------------------------------------------
-   Name: OS_CloseAllFiles
-
-   Purpose: Closes All open files that were opened through the OSAL
-
-   Returns: OS_FS_ERROR   if one or more file close returned an error
-            OS_FS_SUCCESS if the files were all closed without error
- ---------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_CloseAllFiles
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_CloseAllFiles(void)
 {
    int32 return_code;
@@ -835,17 +795,17 @@ int32 OS_CloseAllFiles(void)
 
    return (return_code);
 
-}/* end OS_CloseAllFiles */
+} /* end OS_CloseAllFiles */
 
-/* --------------------------------------------------------------------------------------
-    Name: OS_ShellOutputToFile
-
-    Purpose: Takes a shell command in and writes the output of that command to the specified file
-
-    Returns: OS_FS_ERROR if the command was not executed properly
-             OS_FS_ERR_INVALID_FD if the file descriptor passed in is invalid
-             OS_SUCCESS if success
- ---------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_ShellOutputToFile
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_ShellOutputToFile(const char* Cmd, uint32 filedes)
 {
    OS_common_record_t *record;
@@ -866,5 +826,5 @@ int32 OS_ShellOutputToFile(const char* Cmd, uint32 filedes)
    }
 
    return return_code;
-}/* end OS_ShellOutputToFile */
+} /* end OS_ShellOutputToFile */
 

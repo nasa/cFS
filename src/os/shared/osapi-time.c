@@ -52,31 +52,34 @@ OS_timecb_internal_record_t      OS_timecb_table             [OS_MAX_TIMERS];
                                    Timer API
  ***************************************************************************************/
 
-/*---------------------------------------------------------------------------------------
-   Name: OS_TimeCbAPI_Init
-
-   Purpose: Init function for OS-independent layer
-
-   Returns: OS_SUCCESS
-
----------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------
+ *
+ * Function: OS_TimerCbAPI_Init
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *           Init function for OS-independent layer
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_TimerCbAPI_Init(void)
 {
    memset(OS_timecb_table, 0, sizeof(OS_timecb_table));
    return OS_SUCCESS;
-}
+} /* end OS_TimerCbAPI_Init */
 
 
-/******************************************************************************
- *  Function:  OS_DoTimerAdd
+/*----------------------------------------------------------------
  *
- *  Purpose:  Adds new OSAL Timer based on an existing timebase
- *            Internal function used by TimerCreate and TimerAdd API calls
+ * Function: OS_DoTimerAdd
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *           Adds new OSAL Timer based on an existing timebase
+ *           Internal function used by TimerCreate and TimerAdd API calls
  *
  *  Arguments:  flags to specify the internal bits to set in the created record
  *
  *  Return:     OS_SUCCESS or error code
- */
+ *
+ *-----------------------------------------------------------------*/
 static int32 OS_DoTimerAdd(uint32 *timer_id, const char *timer_name, uint32 timebase_ref_id, OS_ArgCallback_t  callback_ptr, void *callback_arg, uint32 flags)
 {
     OS_common_record_t *timebase;
@@ -181,24 +184,31 @@ static int32 OS_DoTimerAdd(uint32 *timer_id, const char *timer_name, uint32 time
     }
 
     return return_code;
-}
+} /* end OS_DoTimerAdd */
 
-/******************************************************************************
- *  Function:  OS_TimerAdd
+                        
+/*----------------------------------------------------------------
  *
- *  Purpose:  Adds new OSAL Timer based on an existing timebase (external call)
- *            Just calls OS_DoTimerAdd with zero flags
+ * Function: OS_TimerAdd
  *
- *  Arguments:
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
  *
- *  Return:     OS_SUCCESS or error code
- */
+ *-----------------------------------------------------------------*/
 int32 OS_TimerAdd(uint32 *timer_id, const char *timer_name, uint32 timebase_ref_id, OS_ArgCallback_t  callback_ptr, void *callback_arg)
 {
     return (OS_DoTimerAdd(timer_id, timer_name, timebase_ref_id, callback_ptr, callback_arg, 0));
-}
+} /* end OS_TimerAdd */
 
 
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_Timer_NoArgCallback
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *
+ *-----------------------------------------------------------------*/
 static void OS_Timer_NoArgCallback(uint32 objid, void *arg)
 {
     OS_U32ValueWrapper_t Conv;
@@ -209,21 +219,17 @@ static void OS_Timer_NoArgCallback(uint32 objid, void *arg)
     */
    Conv.opaque_arg = arg;
    (*Conv.timer_callback_func)(objid);
-}
+} /* end OS_Timer_NoArgCallback */
 
-/******************************************************************************
- *  Function:  OS_TimerCreate
+                        
+/*----------------------------------------------------------------
  *
- *  Purpose:  Creates new OSAL Timer AND associated timebase to go with it
- *            This function exists for API compatibility.  It is a shortcut that
- *            creates both a software-driven timebase and a timer with the same
- *            interval.
+ * Function: OS_TimerCreate
  *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
  *
- *  Arguments:
- *
- *  Return:
- */
+ *-----------------------------------------------------------------*/
 int32 OS_TimerCreate(uint32 *timer_id, const char *timer_name, uint32 *accuracy, OS_TimerCallback_t  callback_ptr)
 {
     int32             return_code;
@@ -285,20 +291,18 @@ int32 OS_TimerCreate(uint32 *timer_id, const char *timer_name, uint32 *accuracy,
     }
 
     return return_code;
-}
+} /* end OS_TimerCreate */
 
 
-/******************************************************************************
- *  Function:  OS_TimerSet
+                        
+/*----------------------------------------------------------------
  *
- *  Purpose:
+ * Function: OS_TimerSet
  *
- *  Arguments:
- *    (none)
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
  *
- *  Return:
- *    (none)
- */
+ *-----------------------------------------------------------------*/
 int32 OS_TimerSet(uint32 timer_id, uint32 start_time, uint32 interval_time)
 {
    OS_common_record_t *record;
@@ -312,6 +316,11 @@ int32 OS_TimerSet(uint32 timer_id, uint32 start_time, uint32 interval_time)
    if (start_time >= INT_MAX || interval_time >= INT_MAX)
    {
        return OS_TIMER_ERR_INVALID_ARGS;
+   }
+   
+   if (start_time == 0 && interval_time == 0)
+   {
+       return OS_ERROR;
    }
 
    /*
@@ -364,20 +373,18 @@ int32 OS_TimerSet(uint32 timer_id, uint32 start_time, uint32 interval_time)
        return_code = OS_TimeBaseSet(dedicated_timebase_id, start_time, interval_time);
    }
    return return_code;
-}
+} /* end OS_TimerSet */
 
 
-/******************************************************************************
- *  Function:  OS_TimerDelete
+                        
+/*----------------------------------------------------------------
  *
- *  Purpose:
+ * Function: OS_TimerDelete
  *
- *  Arguments:
- *    (none)
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
  *
- *  Return:
- *    (none)
- */
+ *-----------------------------------------------------------------*/
 int32 OS_TimerDelete(uint32 timer_id)
 {
     OS_timecb_internal_record_t *local;
@@ -464,21 +471,17 @@ int32 OS_TimerDelete(uint32 timer_id)
     }
 
     return return_code;
-}
+} /* end OS_TimerDelete */
 
-/***********************************************************************************
+                        
+/*----------------------------------------------------------------
  *
- *    Name: OS_TimerGetIdByName
+ * Function: OS_TimerGetIdByName
  *
- *    Purpose: This function tries to find a Timer Id given the name
- *             The id is returned through timer_id
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
  *
- *    Returns: OS_INVALID_POINTER if timer_id or timer_name are NULL pointers
- *             OS_ERR_NAME_TOO_LONG if the name given is to long to have been stored
- *             OS_ERR_NAME_NOT_FOUND if the name was not found in the table
- *             OS_SUCCESS if success
- *
- */
+ *-----------------------------------------------------------------*/
 int32 OS_TimerGetIdByName (uint32 *timer_id, const char *timer_name)
 {
     int32 return_code;
@@ -503,18 +506,17 @@ int32 OS_TimerGetIdByName (uint32 *timer_id, const char *timer_name)
     return_code = OS_ObjectIdFindByName(OS_OBJECT_TYPE_OS_TIMECB, timer_name, timer_id);
 
     return return_code;
-}/* end OS_TimerGetIdByName */
+} /* end OS_TimerGetIdByName */
 
-/***************************************************************************************
- *    Name: OS_TimerGetInfo
+                        
+/*----------------------------------------------------------------
  *
- *    Purpose: This function will pass back a pointer to structure that contains
- *             all of the relevant info( name and creator) about the specified timer.
+ * Function: OS_TimerGetInfo
  *
- *    Returns: OS_ERR_INVALID_ID if the id passed in is not a valid timer
- *             OS_INVALID_POINTER if the timer_prop pointer is null
- *             OS_SUCCESS if success
- */
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_TimerGetInfo (uint32 timer_id, OS_timer_prop_t *timer_prop)
 {
     OS_common_record_t *record;

@@ -31,8 +31,15 @@
  */
 #include "common_types.h"
 #include "os-impl.h"
-
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_FPUExcAttachHandler
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_FPUExcAttachHandler   (uint32 ExceptionNumber, void * ExceptionHandler ,
                                  int32 parameter)
 {
@@ -42,44 +49,60 @@ int32 OS_FPUExcAttachHandler   (uint32 ExceptionNumber, void * ExceptionHandler 
     }
 
     return OS_FPUExcAttachHandler_Impl(ExceptionNumber, ExceptionHandler, parameter);
-}
+} /* end OS_FPUExcAttachHandler */
 
-/*
+                        
+/*----------------------------------------------------------------
  *
- *   Name: OS_FPUExcSetMask
+ * Function: OS_FPUExcSetMask
  *
- *   Purpose: This function sets the FPU exception mask
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
  *
- *   Notes: The exception environment is local to each task Therefore this must be
- *          called for each task that that wants to do floating point and catch exceptions.
- */
+ *-----------------------------------------------------------------*/
 int32 OS_FPUExcSetMask(uint32 mask)
 {
     return OS_FPUExcSetMask_Impl(mask);
-}
+} /* end OS_FPUExcSetMask */
 
-/*
+                        
+/*----------------------------------------------------------------
  *
- *   Name: OS_FPUExcGetMask
+ * Function: OS_FPUExcGetMask
  *
- *   Purpose: This function gets the FPU exception mask
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
  *
- *   Notes: The exception environment is local to each task Therefore this must be
- *          called for each task that that wants to do floating point and catch exceptions.
- */
+ *-----------------------------------------------------------------*/
 int32 OS_FPUExcGetMask(uint32 *mask)
 {
     return OS_FPUExcGetMask_Impl(mask);
-}
-
+} /* end OS_FPUExcGetMask */
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_FPUExcEnable
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_FPUExcEnable          (int32 ExceptionNumber)
 {
     return OS_FPUExcEnable_Impl(ExceptionNumber);
-}
-
+} /* end OS_FPUExcEnable */
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_FPUExcDisable
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_FPUExcDisable         (int32 ExceptionNumber)
 {
     return OS_FPUExcDisable_Impl(ExceptionNumber);
-}
+} /* end OS_FPUExcDisable */
 
 

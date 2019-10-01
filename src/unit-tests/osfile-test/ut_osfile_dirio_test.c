@@ -40,7 +40,7 @@ char  g_dirName[UT_OS_SM_TEXT_LEN];
 char  g_fileName[UT_OS_SM_TEXT_LEN];
 
 char  g_subdirNames[UT_OS_FILE_MAX_DIRS][UT_OS_SM_TEXT_LEN];
-char* g_tgtSubdirs[UT_OS_FILE_MAX_DIRS] = {"subdir1", "subdir2"};
+const char* g_tgtSubdirs[UT_OS_FILE_MAX_DIRS] = {"subdir1", "subdir2"};
 
 char  g_dirItems[UT_OS_FILE_MAX_DIRS][UT_OS_SM_TEXT_LEN];
 
@@ -520,7 +520,6 @@ void UT_os_readdir_test()
 {
     int32 idx=0;
     uint32 dirh;
-    os_dirent_t* dirEntry=NULL;
     UT_OsApiInfo_t apiInfo;
     const char* testDesc=NULL;
 

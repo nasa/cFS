@@ -16,6 +16,9 @@
  *      that implement a POSIX-style dynamic module loader.  This includes
  *      RTEMS even if built without its native POSIX API.
  *
+ * NOTE: This is a "template" file and not a directly usable source file.
+ *       It must be adapted/instantiated from within the OS-specific
+ *       implementation on platforms that wish to use this template.
  */
 
 /****************************************************************************************
@@ -81,28 +84,34 @@ OS_impl_module_internal_record_t OS_impl_module_table[OS_MAX_MODULES];
 /****************************************************************************************
                                 INITIALIZATION FUNCTION
  ***************************************************************************************/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_Posix_ModuleAPI_Impl_Init
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_Posix_ModuleAPI_Impl_Init(void)
 {
 #if (OS_MAX_MODULES > 0)
    memset(OS_impl_module_table, 0, sizeof(OS_impl_module_table));
 #endif
    return(OS_SUCCESS);
-}
+} /* end OS_Posix_ModuleAPI_Impl_Init */
 
 /****************************************************************************************
                                     Symbol table API
  ***************************************************************************************/
-/*--------------------------------------------------------------------------------------
-    Name: OS_SymbolLookup
-
-    Purpose: Find the Address of a Symbol
-
-    Parameters:
-
-    Returns: OS_SUCCESS if the symbol is found
-
-             The address of the symbol will be stored in the pointer that is passed in.
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_SymbolLookup_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See description in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_SymbolLookup_Impl( cpuaddr *SymbolAddress, const char *SymbolName )
 {
     int32        status = OS_ERROR;
@@ -125,26 +134,22 @@ int32 OS_SymbolLookup_Impl( cpuaddr *SymbolAddress, const char *SymbolName )
 
     return status;
 
-}/* end OS_SymbolLookup */
+} /* end OS_SymbolLookup_Impl */
 
 
 /****************************************************************************************
                                     Module Loader API
  ***************************************************************************************/
 
-/*--------------------------------------------------------------------------------------
-    Name: OS_ModuleLoad
-
-    Purpose: Loads an object file into the running operating system
-
-    Parameters:
-
-    Returns: OS_ERROR if the module cannot be loaded
-             OS_INVALID_POINTER if one of the parameters is NULL
-             OS_ERR_NO_FREE_IDS if the module table is full
-             OS_ERR_NAME_TAKEN if the name is in use
-             OS_SUCCESS if the module is loaded successfuly
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_ModuleLoad_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See description in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_ModuleLoad_Impl ( uint32 module_id, char *translated_path )
 {
     int32 status = OS_ERROR;
@@ -164,18 +169,17 @@ int32 OS_ModuleLoad_Impl ( uint32 module_id, char *translated_path )
 
    return status;
 
-}/* end OS_ModuleLoad */
+} /* end OS_ModuleLoad_Impl */
 
-/*--------------------------------------------------------------------------------------
-    Name: OS_ModuleUnload
-
-    Purpose: Unloads the module file from the running operating system
-
-    Parameters:
-
-    Returns: OS_ERROR if the module is invalid or cannot be unloaded
-             OS_SUCCESS if the module was unloaded successfuly
----------------------------------------------------------------------------------------*/
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_ModuleUnload_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See description in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_ModuleUnload_Impl ( uint32 module_id )
 {
     int32 status = OS_ERROR;
@@ -198,7 +202,7 @@ int32 OS_ModuleUnload_Impl ( uint32 module_id )
 
     return status;
 
-}/* end OS_ModuleUnload */
+} /* end OS_ModuleUnload_Impl */
 
 
 

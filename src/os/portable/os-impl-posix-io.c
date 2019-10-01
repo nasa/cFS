@@ -17,6 +17,10 @@
  *
  *      These generic ops may apply to regular files, sockets, pipes, or
  *      special devices, depending on the OS in use.
+ *
+ * NOTE: This is a "template" file and not a directly usable source file.
+ *       It must be adapted/instantiated from within the OS-specific
+ *       implementation on platforms that wish to use this template.
  */
 
 /****************************************************************************************
@@ -34,10 +38,15 @@
 #define GENERIC_IO_CONST_DATA_CAST
 #endif
 
-/****************************************************************************************
-                             Low Level  Input/Output  API
- ****************************************************************************************/
-
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_GenericClose_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See description in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_GenericClose_Impl(uint32 local_id)
 {
    int result;
@@ -60,8 +69,16 @@ int32 OS_GenericClose_Impl(uint32 local_id)
    }
    OS_impl_filehandle_table[local_id].fd = -1;
    return OS_FS_SUCCESS;
-}
-
+} /* end OS_GenericClose_Impl */
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_GenericSeek_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See description in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_GenericSeek_Impl (uint32 local_id, int32 offset, uint32 whence)
 {
    int where;
@@ -107,8 +124,16 @@ int32 OS_GenericSeek_Impl (uint32 local_id, int32 offset, uint32 whence)
    }
 
    return result;
-}
-
+} /* end OS_GenericSeek_Impl */
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_GenericRead_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See description in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_GenericRead_Impl (uint32 local_id, void *buffer, uint32 nbytes, int32 timeout)
 {
    int32 return_code;
@@ -150,8 +175,16 @@ int32 OS_GenericRead_Impl (uint32 local_id, void *buffer, uint32 nbytes, int32 t
    }
 
    return (return_code);
-}
-
+} /* end OS_GenericRead_Impl */
+                        
+/*----------------------------------------------------------------
+ *
+ * Function: OS_GenericWrite_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See description in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 OS_GenericWrite_Impl(uint32 local_id, const void *buffer, uint32 nbytes, int32 timeout)
 {
    int32 return_code;
@@ -196,5 +229,5 @@ int32 OS_GenericWrite_Impl(uint32 local_id, const void *buffer, uint32 nbytes, i
    }
 
    return (return_code);
-}
+} /* end OS_GenericWrite_Impl */
 
