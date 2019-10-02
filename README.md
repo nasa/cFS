@@ -15,9 +15,11 @@ This distribution contains:
 2. Tests and example applications
 3. A directory structure and makefiles to manage it all.
 
-Release Notes:
+Version Notes:
 ==============
 
+- 5.0.1:
+  - Minor updates (see https://github.com/nasa/osal/pull/264)
 - 5.0.0: RELEASE CANDIDATE
   - In build verification testing to be considered for official release
   - Release documentation in work
