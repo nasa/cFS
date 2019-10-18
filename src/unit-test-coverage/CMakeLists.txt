@@ -43,7 +43,7 @@ set(OSALCOVERAGE_USER_C_FLAGS "$ENV{OSALCOVERAGE_USER_C_FLAGS}" CACHE STRING "Us
 # The currently supported setup is to use the "pc-linux" BSP to execute the "vxworks6" 
 # code coverage analysis.  Because the actual underlying OS calls are stubbed out, there
 # is no dependency on the actual underlying OS.
-set(OSALCOVERAGE_TARGET_OSTYPE "vxworks6" CACHE STRING "OSAL target(s) to build coverage tests for")
+set(OSALCOVERAGE_TARGET_OSTYPE "vxworks;shared" CACHE STRING "OSAL target(s) to build coverage tests for")
 set(OSALCOVERAGE_HOST_BSPTYPE "pc-linux" CACHE STRING "OSAL unit test BSP to execute coverage tests")
 
 # OSALCOVERAGE_SYSTEM_OSTYPE indicates which of the BSP packages to include
