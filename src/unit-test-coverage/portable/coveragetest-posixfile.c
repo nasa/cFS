@@ -92,6 +92,46 @@ void Test_OS_FileStat_Impl(void)
 
 }
 
+void Test_OS_FileChmod_Impl(void)
+{
+    /*
+     * Test Case For:
+     * int32 OS_FileChmod_Impl(const char *local_path, uint32 access)
+     */
+    struct OCS_stat RefStat;
+
+    /* failure mode 1 (stat) */
+    UT_SetForceFail(UT_KEY(OCS_stat), -1);
+    OSAPI_TEST_FUNCTION_RC(OS_FileChmod_Impl("local",OS_READ_WRITE), OS_ERROR);
+    UT_ClearForceFail(UT_KEY(OCS_stat));
+
+    /* failure mode 2 (chmod) */
+    UT_SetForceFail(UT_KEY(OCS_chmod), -1);
+    OSAPI_TEST_FUNCTION_RC(OS_FileChmod_Impl("local",OS_READ_WRITE), OS_ERROR);
+    UT_ClearForceFail(UT_KEY(OCS_chmod));
+
+    /* all permission bits with uid/gid match */
+    RefStat.st_uid = Osapi_Internal_GetSelfEUID();
+    RefStat.st_gid = Osapi_Internal_GetSelfEGID();
+    RefStat.st_mode = ~0;
+    RefStat.st_size = 1234;
+    RefStat.st_mtime = 5678;
+    UT_SetDataBuffer(UT_KEY(OCS_stat), &RefStat, sizeof(RefStat), false);
+
+    /* nominal 1 - full permissions with file owned by own uid/gid */
+    OSAPI_TEST_FUNCTION_RC(OS_FileChmod_Impl("local",OS_READ_WRITE), OS_SUCCESS);
+
+    /* nominal 2 - partial permissions */
+    OSAPI_TEST_FUNCTION_RC(OS_FileChmod_Impl("local", OS_READ_ONLY), OS_SUCCESS);
+    OSAPI_TEST_FUNCTION_RC(OS_FileChmod_Impl("local", OS_WRITE_ONLY), OS_SUCCESS);
+
+    /* nominal 3 - non-owned file */
+    ++RefStat.st_uid;
+    ++RefStat.st_gid;
+    UT_SetDataBuffer(UT_KEY(OCS_stat), &RefStat, sizeof(RefStat), false);
+    OSAPI_TEST_FUNCTION_RC(OS_FileChmod_Impl("local",OS_READ_WRITE), OS_SUCCESS);
+}
+
 void Test_OS_FileRemove_Impl (void)
 {
     /*
@@ -156,6 +196,7 @@ void OS_Application_Startup(void)
 {
     ADD_TEST(OS_FileOpen_Impl);
     ADD_TEST(OS_FileStat_Impl);
+    ADD_TEST(OS_FileChmod_Impl);
     ADD_TEST(OS_FileRemove_Impl);
     ADD_TEST(OS_FileRename_Impl);
 }

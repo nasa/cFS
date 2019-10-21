@@ -19,6 +19,7 @@
  * Prototype for table init function (needs to be called from UT)
  */
 int32 OS_VxWorks_StreamAPI_Impl_Init(void);
+int32 OS_VxWorks_DirAPI_Impl_Init(void);
 
 /*
  * Allow UT to get the value of the OS_IMPL_SELF_EUID and

@@ -14,3 +14,8 @@ OS_stream_internal_record_t OS_stream_table[OS_MAX_NUM_OPEN_FILES];
 OS_common_record_t OS_stub_socket_table[OS_MAX_NUM_OPEN_FILES];
 OS_common_record_t * const OS_global_stream_table   = OS_stub_socket_table;
 
+void Osapi_Call_CreateSocketName_Static(OS_stream_internal_record_t *sock, const OS_SockAddr_t *Addr, const char *parent_name)
+{
+    OS_CreateSocketName(sock, Addr, parent_name);
+}
+

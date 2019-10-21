@@ -15,7 +15,9 @@
 #include "os-shared-coveragetest.h"
 #include "ut-osapi-printf.h"
 
-char TestConsoleBuffer[256];
+#include <overrides/stdio.h>
+
+char TestConsoleBuffer[16];
 
 void Test_OS_ConsoleAPI_Init(void)
 {
@@ -64,6 +66,23 @@ void Test_OS_printf(void)
     CallCount = UT_GetStubCount(UT_KEY(OS_ConsoleWakeup_Impl));
     UtAssert_True(CallCount == 1, "OS_ConsoleWakeup_Impl() call count (%lu) == 1", (unsigned long)CallCount);
     UtAssert_True(OS_console_table[0].WritePos >= 9, "WritePos (%lu) >= 9", (unsigned long)OS_console_table[0].WritePos);
+
+    /* print a long string that does not fit in the 16-char buffer */
+    OS_printf_enable();
+    OS_printf("UnitTest4BufferLengthExceeded");
+
+    /* test writing with a non-empty console name */
+    strncpy(OS_console_table[0].device_name,"ut",sizeof(OS_console_table[0].device_name)-1);
+    OS_printf("UnitTest5");
+
+    /*
+     * For coverage, exercise different paths depending on the return value
+     */
+    UT_SetForceFail(UT_KEY(OCS_vsnprintf), -1);
+    OS_printf("UnitTest6");
+
+    UT_SetForceFail(UT_KEY(OCS_vsnprintf), OS_BUFFER_SIZE+10);
+    OS_printf("UnitTest7");
 }
 
 /* Osapi_Task_Setup

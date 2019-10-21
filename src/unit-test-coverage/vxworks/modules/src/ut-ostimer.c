@@ -38,6 +38,26 @@ int Osapi_Internal_CallHelperTaskFunc(int arg)
     return OS_VxWorks_TimeBaseTask(arg);
 }
 
+void Osapi_Internal_CallRegisterTimer(uint32 local_id)
+{
+    OS_VxWorks_RegisterTimer(local_id);
+}
+
+bool Osapi_Internal_CheckTimeBaseRegisteredState(uint32 local_id)
+{
+    return (OS_impl_timebase_table[local_id].timer_state == OS_TimerRegState_SUCCESS);
+}
+
+bool Osapi_Internal_CheckTimeBaseErrorState(uint32 local_id)
+{
+    return (OS_impl_timebase_table[local_id].timer_state == OS_TimerRegState_ERROR);
+}
+
+void Osapi_Internal_ClearTimeBaseRegState(uint32 local_id)
+{
+    OS_impl_timebase_table[local_id].timer_state = OS_TimerRegState_INIT;
+}
+
 void Osapi_Internal_SetTimeBaseRegState(uint32 local_id, bool is_success)
 {
     /* Mimic the setting of the Reg state global, which
@@ -51,6 +71,11 @@ void Osapi_Internal_SetTimeBaseRegState(uint32 local_id, bool is_success)
     {
         OS_impl_timebase_table[local_id].timer_state = OS_TimerRegState_ERROR;
     }
+}
+
+void Osapi_Internal_UsecToTimespec(uint32 usecs, struct OCS_timespec *time_spec)
+{
+    OS_Impl_UsecToTimespec(usecs, time_spec);
 }
 
 void Osapi_Internal_ResetState(void)

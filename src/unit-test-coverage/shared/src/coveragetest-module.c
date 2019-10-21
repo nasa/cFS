@@ -82,6 +82,14 @@ void Test_OS_ModuleLoad(void)
     actual = OS_ModuleLoad(&objid, "UTS", "File2");
     expected = OS_ERR_NAME_TOO_LONG;
     UtAssert_True(actual == expected, "OS_ModuleLoad() (%ld) == OS_ERR_NAME_TOO_LONG", (long)actual);
+    UT_ResetState(UT_KEY(OCS_strlen));
+
+
+    UT_SetForceFail(UT_KEY(OS_TranslatePath), OS_ERROR);
+    actual = OS_ModuleLoad(&objid, "UT", "FileBad");
+    expected = OS_ERROR;
+    UtAssert_True(actual == expected, "OS_ModuleLoad() (%ld) == OS_ERROR", (long)actual);
+
 }
 
 void Test_OS_ModuleUnload(void)
@@ -126,6 +134,16 @@ void Test_OS_SymbolLookup(void)
     UtAssert_True(symaddr == testaddr, "OS_SymbolLookup(address=%lx) == %lx",
             (unsigned long)symaddr, (unsigned long)testaddr);
 
+    actual = OS_SymbolLookup(NULL, NULL);
+    expected = OS_INVALID_POINTER;
+    UtAssert_True(actual == expected, "OS_SymbolLookup(NULL) (%ld) == OS_INVALID_POINTER", (long)actual);
+
+    /*
+     * Look up a symbol that is present in the static symbol table
+     */
+    actual = OS_SymbolLookup(&symaddr, "UT_staticsym");
+    expected = OS_SUCCESS;
+    UtAssert_True(actual == expected, "OS_SymbolLookup(UT_staticsym) (%ld) == OS_SUCCESS", (long)actual);
 }
 
 void Test_OS_StaticSymbolLookup(void)
@@ -181,6 +199,14 @@ void Test_OS_SymbolTableDump(void)
     UtAssert_True(actual == expected,
             "OS_SymbolTableDump() (%ld) == OS_INVALID_POINTER",
             (long)actual);
+
+    UT_SetForceFail(UT_KEY(OS_TranslatePath), OS_ERROR);
+    expected = OS_ERROR;
+    actual = OS_SymbolTableDump ( "test", 555 );
+    UtAssert_True(actual == expected,
+            "OS_SymbolTableDump() (%ld) == OS_ERROR",
+            (long)actual);
+
 }
 
 void Test_OS_ModuleGetInfo(void)
@@ -209,6 +235,11 @@ void Test_OS_ModuleGetInfo(void)
             module_prop.filename);
     UtAssert_True(strcmp(module_prop.name, "ABC") == 0, "module_prop.name (%s) == ABC",
             module_prop.name);
+
+
+    actual = OS_ModuleInfo(1, NULL);
+    expected = OS_INVALID_POINTER;
+    UtAssert_True(actual == expected, "OS_ModuleGetInfo(NULL) (%ld) == OS_INVALID_POINTER", (long)actual);
 }
 
 

@@ -21,10 +21,6 @@
 
 #include <overrides/time.h>
 
-/* JPHFIX: FIXME: This should be in a header somehow, not here */
-extern int32 OS_GetLocalTime_Impl(OS_time_t *time_struct);
-extern int32 OS_SetLocalTime_Impl(const OS_time_t *time_struct);
-
 #define OSAPI_TEST_FUNCTION_RC(func,exp)   \
 {                                               \
     int32 rcexp = exp;                          \

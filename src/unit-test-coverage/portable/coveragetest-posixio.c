@@ -43,6 +43,13 @@ void Test_OS_GenericClose_Impl(void)
      * int32 OS_GenericClose_Impl(uint32 local_id)
      */
     OSAPI_TEST_FUNCTION_RC(OS_GenericClose_Impl,(0), OS_SUCCESS);
+
+    /*
+     * Test path where underlying close() fails.
+     * Should still return success.
+     */
+    UT_SetForceFail(UT_KEY(OCS_close), -1);
+    OSAPI_TEST_FUNCTION_RC(OS_GenericClose_Impl,(0), OS_SUCCESS);
 }
 
 void Test_OS_GenericSeek_Impl (void)

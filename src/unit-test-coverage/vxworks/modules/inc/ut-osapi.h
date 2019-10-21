@@ -5,6 +5,7 @@
 
 #include <common_types.h>
 #include <overrides/taskLib.h>
+#include <overrides/semLib.h>
 
 /*****************************************************
  *
@@ -36,10 +37,29 @@ void Osapi_Internal_ResetState(void);
 void Osapi_Internal_SetImplTaskId(uint32 local_id, OCS_TASK_ID TaskId);
 
 /**
- * Invokes OS_SymTableIterator_Impl() with the given arguments.
- * This is normally a static function but exposed via a non-static wrapper for UT purposes.
+ * Sets the "vxid" field on a global table mutex entry.
+ */
+void Osapi_Internal_SetImplTableMutex(uint32 idtype, OCS_SEM_ID vxid);
+
+/**
+ * Invokes the generic task entry point
  */
 int Osapi_Internal_CallEntryPoint(int arg);
+
+/**
+ * Invokes the console helper task entry point
+ */
+void Osapi_Internal_CallConsoleTask_Entry(int arg);
+
+/**
+ * Get the (fake) TCB structure for the given id.
+ */
+OCS_WIND_TCB* Osapi_Internal_GetTaskTcb(uint32 local_id);
+
+/**
+ * Force the "is_async" field to a given state for coverage testing
+ */
+void Osapi_Internal_SetConsoleAsync(uint32 local_id, bool is_async);
 
 #endif /* _OSAL_UT_OSAPI_H_ */
 

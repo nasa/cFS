@@ -17,14 +17,19 @@
 
 #include <overrides/stdio.h>
 #include <overrides/stdlib.h>
+#include <overrides/errno.h>
 #include <overrides/intLib.h>
 #include <overrides/taskLib.h>
+#include <overrides/errnoLib.h>
 #include <overrides/semLib.h>
+#include <overrides/msgQLib.h>
+#include <overrides/memPartLib.h>
 
 /*
  * A chunk of memory usable as a heap for malloc() emulation
  */
 unsigned long TestHeap[4096];
+int TestGlobalSem;
 
 void Test_OS_Lock_Global_Impl(void)
 {
@@ -33,8 +38,19 @@ void Test_OS_Lock_Global_Impl(void)
      * int32 OS_Lock_Global_Impl(uint32 idtype)
      */
     OSAPI_TEST_FUNCTION_RC(OS_Lock_Global_Impl(10000), OS_ERROR);
-    OSAPI_TEST_FUNCTION_RC(OS_Lock_Global_Impl(0), OS_ERROR);
+
+    /*
+     * Confirm that if vxid is 0/NULL that the function returns error
+     * and does not call semTake.
+     */
+    Osapi_Internal_SetImplTableMutex(OS_OBJECT_TYPE_OS_TASK, (OCS_SEM_ID)0);
+    OSAPI_TEST_FUNCTION_RC(OS_Lock_Global_Impl(OS_OBJECT_TYPE_OS_TASK), OS_ERROR);
+    UtAssert_True(UT_GetStubCount(UT_KEY(OCS_semTake)) == 0, "semTake() NOT called");
+
+    Osapi_Internal_SetImplTableMutex(OS_OBJECT_TYPE_OS_TASK, (OCS_SEM_ID)&TestGlobalSem);
     OSAPI_TEST_FUNCTION_RC(OS_Lock_Global_Impl(OS_OBJECT_TYPE_OS_TASK), OS_SUCCESS);
+    UtAssert_True(UT_GetStubCount(UT_KEY(OCS_semTake)) == 1, "semTake() called");
+
     UT_SetForceFail(UT_KEY(OCS_semTake), -1);
     OSAPI_TEST_FUNCTION_RC(OS_Lock_Global_Impl(OS_OBJECT_TYPE_OS_TASK), OS_ERROR);
 }
@@ -199,6 +215,9 @@ void Test_OS_TaskDelay_Impl(void)
      * int32 OS_TaskDelay_Impl(uint32 millisecond)
      */
     OSAPI_TEST_FUNCTION_RC(OS_TaskDelay_Impl(100), OS_SUCCESS);
+
+    UT_SetForceFail(UT_KEY(OCS_taskDelay), OCS_ERROR);
+    OSAPI_TEST_FUNCTION_RC(OS_TaskDelay_Impl(100), OS_ERROR);
 }
 
 void Test_OS_TaskSetPriority_Impl(void)
@@ -208,6 +227,9 @@ void Test_OS_TaskSetPriority_Impl(void)
      * int32 OS_TaskSetPriority_Impl (uint32 task_id, uint32 new_priority)
      */
     OSAPI_TEST_FUNCTION_RC(OS_TaskSetPriority_Impl(0, 100), OS_SUCCESS);
+
+    UT_SetForceFail(UT_KEY(OCS_taskPrioritySet), OCS_ERROR);
+    OSAPI_TEST_FUNCTION_RC(OS_TaskSetPriority_Impl(0, 100), OS_ERROR);
 }
 
 void Test_OS_TaskRegister_Impl(void)
@@ -225,7 +247,12 @@ void Test_OS_TaskGetId_Impl(void)
      * Test Case For:
      * uint32 OS_TaskGetId_Impl (void)
      */
-    OSAPI_TEST_FUNCTION_RC(OS_TaskGetId_Impl(), OS_SUCCESS);
+    OCS_WIND_TCB *TaskTcb;
+
+    OS_global_task_table[1].active_id = 0x12345;
+    TaskTcb = Osapi_Internal_GetTaskTcb(1);
+    UT_SetDataBuffer(UT_KEY(OCS_taskTcb), &TaskTcb, sizeof(TaskTcb), false);
+    OSAPI_TEST_FUNCTION_RC(OS_TaskGetId_Impl(), 0x12345);
 }
 
 void Test_OS_TaskGetInfo_Impl(void)
@@ -255,6 +282,9 @@ void Test_OS_QueueCreate_Impl(void)
      * int32 OS_QueueCreate_Impl (uint32 queue_id, uint32 flags)
      */
     OSAPI_TEST_FUNCTION_RC(OS_QueueCreate_Impl(0,0), OS_SUCCESS);
+
+    UT_SetForceFail(UT_KEY(OCS_msgQCreate), OCS_ERROR);
+    OSAPI_TEST_FUNCTION_RC(OS_QueueCreate_Impl(0,0), OS_ERROR);
 }
 
 void Test_OS_QueueDelete_Impl(void)
@@ -264,6 +294,9 @@ void Test_OS_QueueDelete_Impl(void)
      * int32 OS_QueueDelete_Impl (uint32 queue_id)
      */
     OSAPI_TEST_FUNCTION_RC(OS_QueueDelete_Impl(0), OS_SUCCESS);
+
+    UT_SetForceFail(UT_KEY(OCS_msgQDelete), OCS_ERROR);
+    OSAPI_TEST_FUNCTION_RC(OS_QueueDelete_Impl(0), OS_ERROR);
 }
 
 void Test_OS_QueueGet_Impl(void)
@@ -274,7 +307,18 @@ void Test_OS_QueueGet_Impl(void)
      */
     char Data[16];
     uint32 ActSz;
-    OSAPI_TEST_FUNCTION_RC(OS_QueueGet_Impl(0, &Data, sizeof(Data), &ActSz, 0), OS_SUCCESS);
+
+    OSAPI_TEST_FUNCTION_RC(OS_QueueGet_Impl(0, &Data, sizeof(Data), &ActSz, OS_PEND), OS_SUCCESS);
+    OSAPI_TEST_FUNCTION_RC(OS_QueueGet_Impl(0, &Data, sizeof(Data), &ActSz, OS_CHECK), OS_SUCCESS);
+    OSAPI_TEST_FUNCTION_RC(OS_QueueGet_Impl(0, &Data, sizeof(Data), &ActSz, 100), OS_SUCCESS);
+
+    UT_SetForceFail(UT_KEY(OCS_msgQReceive), OCS_ERROR);
+    OCS_errno = OCS_S_objLib_OBJ_TIMEOUT;
+    OSAPI_TEST_FUNCTION_RC(OS_QueueGet_Impl(0, &Data, sizeof(Data), &ActSz, OS_CHECK), OS_QUEUE_TIMEOUT);
+    OCS_errno = OCS_S_objLib_OBJ_UNAVAILABLE;
+    OSAPI_TEST_FUNCTION_RC(OS_QueueGet_Impl(0, &Data, sizeof(Data), &ActSz, OS_CHECK), OS_QUEUE_EMPTY);
+    OCS_errno = 0;
+    OSAPI_TEST_FUNCTION_RC(OS_QueueGet_Impl(0, &Data, sizeof(Data), &ActSz, OS_CHECK), OS_ERROR);
 }
 
 void Test_OS_QueuePut_Impl(void)
@@ -285,6 +329,12 @@ void Test_OS_QueuePut_Impl(void)
      */
     char Data[16] = "Test";
     OSAPI_TEST_FUNCTION_RC(OS_QueuePut_Impl(0, Data, sizeof(Data), 0), OS_SUCCESS);
+
+    UT_SetForceFail(UT_KEY(OCS_msgQSend), OCS_ERROR);
+    OCS_errno = OCS_S_objLib_OBJ_UNAVAILABLE;
+    OSAPI_TEST_FUNCTION_RC(OS_QueuePut_Impl(0, Data, sizeof(Data), 0), OS_QUEUE_FULL);
+    OCS_errno = 0;
+    OSAPI_TEST_FUNCTION_RC(OS_QueuePut_Impl(0, Data, sizeof(Data), 0), OS_ERROR);
 }
 
 void Test_OS_QueueGetInfo_Impl(void)
@@ -314,6 +364,9 @@ void Test_OS_BinSemCreate_Impl(void)
      * int32 OS_BinSemCreate_Impl (uint32 sem_id, uint32 initial_value, uint32 options)
      */
     OSAPI_TEST_FUNCTION_RC(OS_BinSemCreate_Impl(0,0,0), OS_SUCCESS);
+
+    UT_SetForceFail(UT_KEY(OCS_semBInitialize), OCS_ERROR);
+    OSAPI_TEST_FUNCTION_RC(OS_BinSemCreate_Impl(0,0,0), OS_SEM_FAILURE);
 }
 
 void Test_OS_BinSemDelete_Impl(void)
@@ -332,6 +385,9 @@ void Test_OS_BinSemGive_Impl(void)
      * int32 OS_BinSemGive_Impl ( uint32 sem_id )
      */
     OSAPI_TEST_FUNCTION_RC(OS_BinSemGive_Impl(0), OS_SUCCESS);
+
+    UT_SetForceFail(UT_KEY(OCS_semGive), OCS_ERROR);
+    OSAPI_TEST_FUNCTION_RC(OS_BinSemGive_Impl(0), OS_SEM_FAILURE);
 }
 
 void Test_OS_BinSemFlush_Impl(void)
@@ -341,6 +397,9 @@ void Test_OS_BinSemFlush_Impl(void)
      * int32 OS_BinSemFlush_Impl (uint32 sem_id)
      */
     OSAPI_TEST_FUNCTION_RC(OS_BinSemFlush_Impl(0), OS_SUCCESS);
+
+    UT_SetForceFail(UT_KEY(OCS_semFlush), OCS_ERROR);
+    OSAPI_TEST_FUNCTION_RC(OS_BinSemFlush_Impl(0), OS_SEM_FAILURE);
 }
 
 void Test_OS_BinSemTake_Impl(void)
@@ -359,6 +418,12 @@ void Test_OS_BinSemTimedWait_Impl(void)
      * int32 OS_BinSemTimedWait_Impl ( uint32 sem_id, uint32 msecs )
      */
     OSAPI_TEST_FUNCTION_RC(OS_BinSemTimedWait_Impl(0,100), OS_SUCCESS);
+
+    UT_SetForceFail(UT_KEY(OCS_semTake), OCS_ERROR);
+    OCS_errno = OCS_S_objLib_OBJ_TIMEOUT;
+    OSAPI_TEST_FUNCTION_RC(OS_BinSemTimedWait_Impl(0,100), OS_SEM_TIMEOUT);
+    OCS_errno = 0;
+    OSAPI_TEST_FUNCTION_RC(OS_BinSemTimedWait_Impl(0,100), OS_SEM_FAILURE);
 }
 
 void Test_OS_BinSemGetInfo_Impl(void)
@@ -388,6 +453,9 @@ void Test_OS_CountSemCreate_Impl(void)
      * int32 OS_CountSemCreate_Impl (uint32 sem_id, uint32 sem_initial_value, uint32 options)
      */
     OSAPI_TEST_FUNCTION_RC(OS_CountSemCreate_Impl(0,0,0), OS_SUCCESS);
+
+    UT_SetForceFail(UT_KEY(OCS_semCInitialize), OCS_ERROR);
+    OSAPI_TEST_FUNCTION_RC(OS_CountSemCreate_Impl(0,0,0), OS_SEM_FAILURE);
 }
 
 void Test_OS_CountSemDelete_Impl(void)
@@ -453,6 +521,9 @@ void Test_OS_MutSemCreate_Impl(void)
      * int32 OS_MutSemCreate_Impl (uint32 sem_id, uint32 options)
      */
     OSAPI_TEST_FUNCTION_RC(OS_MutSemCreate_Impl(0,0), OS_SUCCESS);
+
+    UT_SetForceFail(UT_KEY(OCS_semMInitialize), OCS_ERROR);
+    OSAPI_TEST_FUNCTION_RC(OS_MutSemCreate_Impl(0,0), OS_SEM_FAILURE);
 }
 
 void Test_OS_MutSemDelete_Impl(void)
@@ -500,6 +571,9 @@ void Test_OS_IntAttachHandler_Impl(void)
      * int32 OS_IntAttachHandler_Impl  (uint32 InterruptNumber, osal_task_entry InterruptHandler, int32 parameter)
      */
     OSAPI_TEST_FUNCTION_RC(OS_IntAttachHandler_Impl(0,NULL,0), OS_SUCCESS);
+
+    UT_SetForceFail(UT_KEY(OCS_intConnect), OCS_ERROR);
+    OSAPI_TEST_FUNCTION_RC(OS_IntAttachHandler_Impl(0,NULL,0), OS_ERROR);
 }
 
 void Test_OS_IntUnlock_Impl(void)
@@ -528,6 +602,9 @@ void Test_OS_IntEnable_Impl(void)
      * int32 OS_IntEnable_Impl(int32 Level)
      */
     OSAPI_TEST_FUNCTION_RC(OS_IntEnable_Impl(0), OS_SUCCESS);
+
+    UT_SetForceFail(UT_KEY(OCS_intEnable), OCS_ERROR);
+    OSAPI_TEST_FUNCTION_RC(OS_IntEnable_Impl(0), OS_ERROR);
 }
 
 void Test_OS_IntDisable_Impl(void)
@@ -537,6 +614,9 @@ void Test_OS_IntDisable_Impl(void)
      * int32 OS_IntDisable_Impl(int32 Level)
      */
     OSAPI_TEST_FUNCTION_RC(OS_IntDisable_Impl(0), OS_SUCCESS);
+
+    UT_SetForceFail(UT_KEY(OCS_intDisable), OCS_ERROR);
+    OSAPI_TEST_FUNCTION_RC(OS_IntDisable_Impl(0), OS_ERROR);
 }
 
 void Test_OS_HeapGetInfo_Impl(void)
@@ -549,6 +629,9 @@ void Test_OS_HeapGetInfo_Impl(void)
 
     memset(&heap_prop, 0xEE, sizeof(heap_prop));
     OSAPI_TEST_FUNCTION_RC(OS_HeapGetInfo_Impl(&heap_prop), OS_SUCCESS);
+
+    UT_SetForceFail(UT_KEY(OCS_memPartInfoGet), OCS_ERROR);
+    OSAPI_TEST_FUNCTION_RC(OS_HeapGetInfo_Impl(&heap_prop), OS_ERROR);
 }
 
 void Test_OS_IntSetMask_Impl(void)

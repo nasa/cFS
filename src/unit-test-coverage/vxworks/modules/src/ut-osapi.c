@@ -39,6 +39,11 @@ void Osapi_Internal_ResetState(void)
     memset(OS_stub_console_table, 0, sizeof(OS_stub_console_table));
 }
 
+void Osapi_Internal_SetImplTableMutex(uint32 idtype, OCS_SEM_ID vxid)
+{
+    VX_MUTEX_TABLE[idtype].vxid = vxid;
+}
+
 void Osapi_Internal_SetImplTaskId(uint32 local_id, OCS_TASK_ID TaskId)
 {
     OS_impl_task_table[local_id].vxid = TaskId;
@@ -52,5 +57,20 @@ void Osapi_Internal_SetImplTaskId(uint32 local_id, OCS_TASK_ID TaskId)
 int Osapi_Internal_CallEntryPoint(int arg)
 {
     return OS_VxWorksEntry(arg);
+}
+
+void Osapi_Internal_CallConsoleTask_Entry(int arg)
+{
+    OS_ConsoleTask_Entry(arg);
+}
+
+OCS_WIND_TCB* Osapi_Internal_GetTaskTcb(uint32 local_id)
+{
+    return &OS_impl_task_table[local_id].tcb;
+}
+
+void Osapi_Internal_SetConsoleAsync(uint32 local_id, bool is_async)
+{
+    OS_impl_console_table[local_id].is_async = is_async;
 }
 

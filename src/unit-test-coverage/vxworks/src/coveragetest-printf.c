@@ -12,19 +12,16 @@
  * Includes
  */
 
-#include <utassert.h>
-#include <uttest.h>
-#include <utstubs.h>
-
-#include <osapi.h>
-#include <os-impl.h>
+#include "os-vxworks-coveragetest.h"
+#include "ut-osapi.h"
 
 #include <overrides/unistd.h>
 #include <overrides/semLib.h>
 #include <overrides/taskLib.h>
+#include <overrides/errnoLib.h>
 #include <overrides/stdio.h>
 
-char TestConsoleBuffer[256];
+char TestConsoleBuffer[16];
 
 void Test_OS_ConsoleWakeup_Impl(void)
 {
@@ -34,23 +31,51 @@ void Test_OS_ConsoleWakeup_Impl(void)
      */
 
     /* no return code - check for coverage */
+    Osapi_Internal_SetConsoleAsync(0, true);
     OS_ConsoleWakeup_Impl(0);
-    UtAssert_True(UT_GetStubCount(UT_KEY(OCS_semGive)) == 1, "semGive() called");
+    UtAssert_True(UT_GetStubCount(UT_KEY(OCS_semGive)) == 1, "semGive() called in async mode");
+
+    UT_SetForceFail(UT_KEY(OCS_semGive), -1);
+    OS_ConsoleWakeup_Impl(0);
+
+    Osapi_Internal_SetConsoleAsync(0, false);
+    OS_console_table[0].WritePos = 1;
+    OS_ConsoleWakeup_Impl(0);
+    UtAssert_True(UT_GetStubCount(UT_KEY(OCS_putchar)) == 1, "putchar() called in sync mode");
 }
 
 void Test_OS_ConsoleCreate_Impl(void)
 {
-    OS_ConsoleCreate_Impl(0);
+    OSAPI_TEST_FUNCTION_RC(OS_ConsoleCreate_Impl(0), OS_SUCCESS);
     UtAssert_True(UT_GetStubCount(UT_KEY(OCS_taskSpawn)) == 1, "taskSpawn() called");
+
+    UT_SetForceFail(UT_KEY(OCS_semCInitialize), OCS_ERROR);
+    OSAPI_TEST_FUNCTION_RC(OS_ConsoleCreate_Impl(0), OS_SEM_FAILURE);
+    UT_ClearForceFail(UT_KEY(OCS_semCInitialize));
+
+    UT_SetForceFail(UT_KEY(OCS_taskSpawn), OCS_ERROR);
+    OSAPI_TEST_FUNCTION_RC(OS_ConsoleCreate_Impl(0), OS_ERROR);
+    UT_ClearForceFail(UT_KEY(OCS_taskSpawn));
+
+    OSAPI_TEST_FUNCTION_RC(OS_ConsoleCreate_Impl(OS_MAX_CONSOLES + 1), OS_ERR_NOT_IMPLEMENTED);
+
+    /* Also call the actual console task, to get coverage on it.
+     * This task has an infinite loop, which only exits if semTake fails */
+    UT_SetDeferredRetcode(UT_KEY(OCS_semTake), 2, OCS_ERROR);
+    Osapi_Internal_CallConsoleTask_Entry(0);
 }
 
 void Test_OS_ConsoleOutput_Impl(void)
 {
-    strcpy(TestConsoleBuffer, "ABCD");
-    OS_console_table[0].WritePos = 4;
+    memset(TestConsoleBuffer, 'x', sizeof(TestConsoleBuffer));
 
+    OS_console_table[0].WritePos = 4;
     OS_ConsoleOutput_Impl(0);
     UtAssert_True(UT_GetStubCount(UT_KEY(OCS_putchar)) == 4, "putchar() called");
+
+    OS_console_table[0].WritePos = 0;
+    OS_ConsoleOutput_Impl(0);
+    UtAssert_True(UT_GetStubCount(UT_KEY(OCS_putchar)) == sizeof(TestConsoleBuffer), "putchar() called");
 }
 
 

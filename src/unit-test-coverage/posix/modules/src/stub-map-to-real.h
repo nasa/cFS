@@ -44,6 +44,10 @@
 #define SEEK_CUR                     OCS_SEEK_CUR
 #define SEEK_END                     OCS_SEEK_END
 
+#define STDOUT_FILENO                OCS_STDOUT_FILENO
+#define STDIN_FILENO                 OCS_STDIN_FILENO
+#define STDERR_FILENO                OCS_STDERR_FILENO
+
 /* pthread-related identifiers */
 #define PTHREAD_PRIO_INHERIT         OCS_PTHREAD_PRIO_INHERIT
 #define PTHREAD_MUTEX_RECURSIVE      OCS_PTHREAD_MUTEX_RECURSIVE
@@ -161,6 +165,7 @@
 #define ntohs                           OCS_ntohs
 #define opendir                         OCS_opendir
 #define open                            OCS_open
+#define printf(...)                     OCS_printf(__VA_ARGS__)
 #define pthread_attr_destroy            OCS_pthread_attr_destroy
 #define pthread_attr_getschedparam      OCS_pthread_attr_getschedparam
 #define pthread_attr_init               OCS_pthread_attr_init
@@ -229,6 +234,7 @@
 #define stdout                          OCS_stdout
 #define strcmp                          OCS_strcmp
 #define strcpy                          OCS_strcpy
+#define strerror                        OCS_strerror
 #define strlen                          OCS_strlen
 #define strncmp                         OCS_strncmp
 #define strncpy                         OCS_strncpy

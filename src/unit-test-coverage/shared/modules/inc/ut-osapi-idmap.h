@@ -27,5 +27,12 @@ void Osapi_Internal_ResetState(void);
  */
 int32 Osapi_Call_ObjectIdFindNext(uint32 idtype, uint32 *array_index, OS_common_record_t **record);
 
+/**
+ * Wrapper around the OS_ObjectIdConvertLock call so the test code can invoke it
+ * (it is defined as static)
+ */
+int32 Osapi_Call_ObjectIdConvertLock(OS_lock_mode_t lock_mode, uint32 idtype, uint32 reference_id, OS_common_record_t *obj);
+
+
 #endif /* _OSAL_UT_OSAPI_IDMAP_H_ */
 
