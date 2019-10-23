@@ -63,6 +63,8 @@ typedef struct
     uint8               simulate_flag;
     uint8               reset_flag;
     rtems_interval      interval_ticks;
+    uint32              configured_start_time;
+    uint32              configured_interval_time;
 } OS_impl_timebase_internal_record_t;
 
 /****************************************************************************************
@@ -150,9 +152,14 @@ static rtems_timer_service_routine OS_TimeBase_ISR(rtems_id rtems_timer_id, void
 static uint32 OS_TimeBase_WaitImpl(uint32 local_id)
 {
     OS_impl_timebase_internal_record_t *local;
-    uint32 interval_time;
+    uint32 tick_time;
 
     local = &OS_impl_timebase_table[local_id];
+
+    /*
+     * Pend for the tick arrival
+     */
+    rtems_semaphore_obtain(local->tick_sem, RTEMS_WAIT, RTEMS_NO_TIMEOUT);
 
     /*
      * Determine how long this tick was.
@@ -163,21 +170,16 @@ static uint32 OS_TimeBase_WaitImpl(uint32 local_id)
      */
     if (local->reset_flag == 0)
     {
-        interval_time = OS_timebase_table[local_id].nominal_interval_time;
+        tick_time = local->configured_interval_time;
     }
     else
     {
-        interval_time = OS_timebase_table[local_id].nominal_start_time;
+        tick_time = local->configured_start_time;
         local->reset_flag = 0;
     }
 
-    /*
-     * Pend for the tick arrival
-     */
-    rtems_semaphore_obtain(local->tick_sem, RTEMS_WAIT, RTEMS_NO_TIMEOUT);
 
-
-    return interval_time;
+    return tick_time;
 } /* end OS_TimeBase_WaitImpl */
 
 
@@ -469,13 +471,34 @@ int32 OS_TimeBaseSet_Impl(uint32 timer_id, int32 start_time, int32 interval_time
            }
            else
            {
-               if (local->interval_ticks > 0)
+               local->configured_start_time = (10000 * start_ticks) / OS_SharedGlobalVars.TicksPerSecond;
+               local->configured_interval_time = (10000 * local->interval_ticks) / OS_SharedGlobalVars.TicksPerSecond;
+               local->configured_start_time *= 100;
+               local->configured_interval_time *= 100;
+
+               if (local->configured_start_time != start_time)
                {
-                   start_ticks = local->interval_ticks;
+                   OS_DEBUG("WARNING: timer %lu start_time requested=%luus, configured=%luus\n",
+                           (unsigned long)timer_id,
+                           (unsigned long)start_time,
+                           (unsigned long)local->configured_start_time);
+               }
+               if (local->configured_interval_time != interval_time)
+               {
+                   OS_DEBUG("WARNING: timer %lu interval_time requested=%luus, configured=%luus\n",
+                           (unsigned long)timer_id,
+                           (unsigned long)interval_time,
+                           (unsigned long)local->configured_interval_time);
                }
 
-               OS_timebase_table[timer_id].accuracy_usec = (start_ticks * 100000) / OS_SharedGlobalVars.TicksPerSecond;
-               OS_timebase_table[timer_id].accuracy_usec *= 10;
+               if (local->interval_ticks > 0)
+               {
+                   OS_timebase_table[timer_id].accuracy_usec = local->configured_interval_time;
+               }
+               else
+               {
+                   OS_timebase_table[timer_id].accuracy_usec = local->configured_start_time;
+               }
            }
         }
     }

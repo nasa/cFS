@@ -76,6 +76,9 @@ typedef struct
     TASK_ID             handler_task;
     timer_t             host_timerid;
     enum OS_TimerState  timer_state;
+    uint32              configured_start_time;
+    uint32              configured_interval_time;
+    bool                reset_flag;
 } OS_impl_timebase_internal_record_t;
 
 /****************************************************************************************
@@ -153,14 +156,14 @@ static uint32 OS_VxWorks_SigWait(uint32 local_id)
     OS_impl_timebase_internal_record_t *local;
     OS_common_record_t *global;
     uint32 active_id;
-    uint32 interval_time;
+    uint32 tick_time;
     int signo;
     int ret;
 
     local = &OS_impl_timebase_table[local_id];
     global = &OS_global_timebase_table[local_id];
     active_id = global->active_id;
-    interval_time = 0;
+    tick_time = 0;
 
     if (active_id != 0 && local->assigned_signal > 0)
     {
@@ -190,11 +193,20 @@ static uint32 OS_VxWorks_SigWait(uint32 local_id)
         if (ret == OK && signo == local->assigned_signal &&
                 global->active_id == active_id)
         {
-            interval_time = OS_timebase_table[local_id].nominal_interval_time;
+            if (local->reset_flag)
+            {
+                /* first interval after reset, use start time */
+                tick_time = local->configured_start_time;
+                local->reset_flag = false;
+            }
+            else
+            {
+                tick_time = local->configured_interval_time;
+            }
         }
     }
 
-    return interval_time;
+    return tick_time;
 } /* end OS_VxWorks_SigWait */
 
                         
@@ -354,6 +366,7 @@ int32 OS_TimeBaseCreate_Impl(uint32 timer_id)
     local->handler_mutex = (SEM_ID)0;
     local->host_timerid = 0;
     local->timer_state = OS_TimerRegState_INIT;
+    local->reset_flag = false;
 
     /*
      * Set up the necessary OS constructs
@@ -543,11 +556,59 @@ int32 OS_TimeBaseSet_Impl(uint32 timer_id, int32 start_time, int32 interval_time
         if (status == OK)
         {
             return_code = OS_SUCCESS;
+
+            /*
+             * VxWorks will round the interval up to the next higher
+             * system tick interval.  Sometimes this can make a substantial
+             * difference in the actual time, particularly as the error
+             * accumulates over time.
+             *
+             * timer_gettime() will reveal the actual interval programmed,
+             * after all rounding/adjustments, which can be used to determine
+             * the actual start_time/interval_time that will be realized.
+             *
+             * If this actual interval is different than the intended value,
+             * it may indicate the need for better tuning on the app/config/bsp
+             * side, and so a DEBUG message is generated.
+             */
+            status = timer_gettime(local->host_timerid, &timeout);
+            if (status == OK)
+            {
+                local->configured_start_time =
+                    (timeout.it_value.tv_sec * 1000000) +
+                        (timeout.it_value.tv_nsec / 1000);
+                local->configured_interval_time =
+                        (timeout.it_interval.tv_sec * 1000000) +
+                            (timeout.it_interval.tv_nsec / 1000);
+
+                if (local->configured_start_time != start_time)
+                {
+                    OS_DEBUG("WARNING: timer %lu start_time requested=%luus, configured=%luus\n",
+                            (unsigned long)timer_id,
+                            (unsigned long)start_time,
+                            (unsigned long)local->configured_start_time);
+                }
+                if (local->configured_interval_time != interval_time)
+                {
+                    OS_DEBUG("WARNING: timer %lu interval_time requested=%luus, configured=%luus\n",
+                            (unsigned long)timer_id,
+                            (unsigned long)interval_time,
+                            (unsigned long)local->configured_interval_time);
+                }
+
+            }
+
         }
         else
         {
             return_code = OS_TIMER_ERR_INVALID_ARGS;
         }
+
+    }
+
+    if (!local->reset_flag && return_code == OS_SUCCESS)
+    {
+        local->reset_flag = true;
     }
 
     return return_code;
