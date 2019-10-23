@@ -45,6 +45,8 @@ For best results, submit issues:questions or issues:help wanted requests to this
 
 Official cFS page: http://cfs.gsfc.nasa.gov
 
+Community email list subscription request: https://lists.nasa.gov/mailman/listinfo/cfs-community
+
 ## Setup
 
 To setup the cFS BUNDLE directly from the latest set of interoperable repositories:
