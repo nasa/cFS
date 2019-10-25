@@ -95,7 +95,7 @@ void Test_OS_TimeBaseCreate_Impl(void)
      * and therefore cause future calls to skip this block.
      */
     OS_global_timebase_table[1].active_id = 0x1;
-    Osapi_Internal_Setup(1,OCS_SIGRTMIN);
+    Osapi_Internal_Setup(1,OCS_SIGRTMIN, false);
     UT_SetForceFail(UT_KEY(OCS_sigismember), true);
     OSAPI_TEST_FUNCTION_RC(OS_TimeBaseCreate_Impl(0), OS_TIMER_ERR_UNAVAILABLE);
     UT_ResetState(UT_KEY(OCS_sigismember));
@@ -152,13 +152,18 @@ void Test_OS_VxWorks_SigWait(void)
     int signo = OCS_SIGRTMIN;
 
     OS_global_timebase_table[0].active_id = 0x12345;
+    OS_timebase_table[0].nominal_start_time = 8888;
     OS_timebase_table[0].nominal_interval_time = 5555;
 
-    Osapi_Internal_Setup(0, signo);
+    Osapi_Internal_Setup(0, signo, true);
+    UT_SetDataBuffer(UT_KEY(OCS_sigwait),&signo,sizeof(signo),false);
+    OSAPI_TEST_FUNCTION_RC(Osapi_Internal_CallSigWaitFunc(0), 8888);
+    UT_SetDataBuffer(UT_KEY(OCS_sigwait),&signo,sizeof(signo),false);
+    OSAPI_TEST_FUNCTION_RC(Osapi_Internal_CallSigWaitFunc(0), 5555);
     UT_SetDataBuffer(UT_KEY(OCS_sigwait),&signo,sizeof(signo),false);
     OSAPI_TEST_FUNCTION_RC(Osapi_Internal_CallSigWaitFunc(0), 5555);
 
-    Osapi_Internal_Setup(0, 0);
+    Osapi_Internal_Setup(0, 0, false);
     OS_global_timebase_table[0].active_id = 0;
     OS_timebase_table[0].nominal_interval_time = 0;
 }
@@ -170,7 +175,7 @@ void Test_OS_TimeBaseSet_Impl(void)
      */
     OSAPI_TEST_FUNCTION_RC(OS_TimeBaseSet_Impl(0,1,1), OS_ERR_NOT_IMPLEMENTED);
 
-    Osapi_Internal_Setup(0, OCS_SIGRTMIN);
+    Osapi_Internal_Setup(0, OCS_SIGRTMIN, false);
     OSAPI_TEST_FUNCTION_RC(OS_TimeBaseSet_Impl(0,1,1), OS_SUCCESS);
 
     UT_SetForceFail(UT_KEY(OCS_timer_settime), -1);
@@ -182,7 +187,7 @@ void Test_OS_TimeBaseDelete_Impl(void)
     /* Test Case For:
      * int32 OS_TimeBaseDelete_Impl(uint32 timer_id)
      */
-    Osapi_Internal_Setup(0, OCS_SIGRTMIN);
+    Osapi_Internal_Setup(0, OCS_SIGRTMIN, false);
     OSAPI_TEST_FUNCTION_RC(OS_TimeBaseDelete_Impl(0), OS_SUCCESS);
 }
 

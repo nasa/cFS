@@ -86,7 +86,7 @@ void Osapi_Internal_ResetState(void)
     memset(OS_stub_timecb_table, 0, sizeof(OS_stub_timecb_table));
 }
 
-void Osapi_Internal_Setup(uint32 local_id, int signo)
+void Osapi_Internal_Setup(uint32 local_id, int signo, bool reset_flag)
 {
     static int FAKE_TASK;
     static int FAKE_SEM;
@@ -94,5 +94,6 @@ void Osapi_Internal_Setup(uint32 local_id, int signo)
     OS_impl_timebase_table[local_id].assigned_signal = signo;
     OS_impl_timebase_table[local_id].handler_task = &FAKE_TASK;
     OS_impl_timebase_table[local_id].handler_mutex = &FAKE_SEM;
+    OS_impl_timebase_table[local_id].reset_flag = reset_flag;
 }
 

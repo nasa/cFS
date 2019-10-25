@@ -75,3 +75,17 @@ int OCS_timer_settime (OCS_timer_t timerid, int flags, const struct OCS_itimersp
     return Status;
 }
 
+int OCS_timer_gettime (OCS_timer_t timerid, struct OCS_itimerspec * value)
+{
+    int32 Status;
+
+    Status = UT_DEFAULT_IMPL(OCS_timer_gettime);
+
+    if (Status == 0 && UT_Stub_CopyToLocal(UT_KEY(OCS_timer_gettime), value, sizeof(*value)) < sizeof(*value))
+    {
+        memset(value, 0, sizeof(*value));
+    }
+
+    return Status;
+}
+

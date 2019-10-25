@@ -238,6 +238,7 @@
 #define timer_connect                   OCS_timer_connect
 #define timer_create                    OCS_timer_create
 #define timer_delete                    OCS_timer_delete
+#define timer_gettime                   OCS_timer_gettime
 #define timer_settime                   OCS_timer_settime
 #define timer_t                         OCS_timer_t
 #define timespec                        OCS_timespec

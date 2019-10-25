@@ -22,7 +22,7 @@
 int32 OS_VxWorks_TimeBaseAPI_Impl_Init(void);
 
 void Osapi_Internal_ResetState(void);
-void Osapi_Internal_Setup(uint32 local_id, int signo);
+void Osapi_Internal_Setup(uint32 local_id, int signo, bool reset_flag);
 
 /**
  * Invokes OS_VxWorks_SigWait() with the given arguments.

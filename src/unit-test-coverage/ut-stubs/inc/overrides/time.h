@@ -44,6 +44,7 @@ extern int OCS_clock_nanosleep (OCS_clockid_t clock_id, int flags, const struct 
 extern int OCS_clock_settime (OCS_clockid_t clock_id, const struct OCS_timespec * tp);
 extern int OCS_timer_create (OCS_clockid_t clock_id, struct OCS_sigevent * evp, OCS_timer_t * timerid);
 extern int OCS_timer_delete (OCS_timer_t timerid) ;
+extern int OCS_timer_gettime (OCS_timer_t timerid, struct OCS_itimerspec * value);
 extern int OCS_timer_settime (OCS_timer_t timerid, int flags, const struct OCS_itimerspec * value, struct OCS_itimerspec * ovalue);
 
 extern int OCS_timer_connect(OCS_timer_t, OCS_VOIDFUNCPTR, int);
