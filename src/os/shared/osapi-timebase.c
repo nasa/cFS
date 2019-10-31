@@ -494,7 +494,7 @@ void OS_TimeBase_CallbackThread(uint32 timebase_id)
                 timecb = &OS_timecb_table[curr_cb_local_id];
                 saved_wait_time = timecb->wait_time;
                 timecb->wait_time -= tick_time;
-                if (timecb->wait_time <= 0)
+                while (timecb->wait_time <= 0)
                 {
                     timecb->wait_time += timecb->interval_time;
 
@@ -518,6 +518,14 @@ void OS_TimeBase_CallbackThread(uint32 timebase_id)
                     if (saved_wait_time > 0 && timecb->callback_ptr != NULL)
                     {
                         (*timecb->callback_ptr)(curr_cb_public_id, timecb->callback_arg);
+                    }
+
+                    /*
+                     * Do not repeat the loop unless interval_time is configured.
+                     */
+                    if (timecb->interval_time <= 0)
+                    {
+                        break;
                     }
                 }
                 curr_cb_local_id = timecb->next_ref;

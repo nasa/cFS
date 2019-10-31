@@ -135,7 +135,7 @@ void OS_TimeBaseUnlock_Impl(uint32 local_id)
  *  Purpose: Local helper routine, not part of OSAL API.
  *
  *-----------------------------------------------------------------*/
-static uint32 OS_TimeBase_SoftWaitImpl(uint32 timer_id)
+static uint32 OS_TimeBase_SigWaitImpl(uint32 timer_id)
 {
     int ret;
     OS_impl_timebase_internal_record_t *local;
@@ -144,57 +144,34 @@ static uint32 OS_TimeBase_SoftWaitImpl(uint32 timer_id)
 
     local = &OS_impl_timebase_table[timer_id];
 
-    if (local->reset_flag == 0)
+    ret = sigwait(&local->sigset, &sig);
+
+    if (ret != 0)
     {
+        /*
+         * the sigwait call failed.
+         * returning 0 will cause the process to repeat.
+         */
+        interval_time = 0;
+    }
+    else if (local->reset_flag == 0)
+    {
+        /*
+         * Normal steady-state behavior.
+         * interval_time reflects the configured interval time.
+         */
         interval_time = OS_timebase_table[timer_id].nominal_interval_time;
     }
     else
     {
+        /*
+         * Reset/First interval behavior.
+         * timer_set() was invoked since the previous interval occurred (if any).
+         * interval_time reflects the configured start time.
+         */
         interval_time = OS_timebase_table[timer_id].nominal_start_time;
         local->reset_flag = 0;
     }
-
-    if (local->assigned_signal == 0)
-    {
-        /*
-         * If no signal is in use and this function got called,
-         * just implement it using a software delay.  This is the
-         * least accurate option, but it always works.
-         */
-        if (interval_time == 0)
-        {
-            /*
-             * Protect against a zero interval time causing a "spin loop"
-             * In this case sleep for 10ms.
-             */
-            interval_time = 10000;
-        }
-        local->softsleep.tv_nsec += 1000 * (interval_time % 1000000);
-        local->softsleep.tv_sec += interval_time / 1000000;
-        if (local->softsleep.tv_nsec > 1000000000)
-        {
-            local->softsleep.tv_nsec -= 1000000000;
-            ++local->softsleep.tv_sec;
-        }
-    }
-
-
-    do
-    {
-        /*
-         * Note that either of these calls can be interrupted by OTHER signals,
-         * so it needs to be repeated until it actually returns the proper code.
-         */
-        if (local->assigned_signal == 0)
-        {
-            ret = clock_nanosleep(OS_PREFERRED_CLOCK, TIMER_ABSTIME, &local->softsleep, NULL);
-        }
-        else
-        {
-            ret = sigwait(&local->sigset, &sig);
-        }
-    }
-    while (ret != 0);
 
     return interval_time;
 } /* end OS_TimeBase_SoftWaitImpl */
@@ -453,7 +430,7 @@ int32 OS_TimeBaseCreate_Impl(uint32 timer_id)
                 break;
             }
 
-            OS_timebase_table[timer_id].external_sync = OS_TimeBase_SoftWaitImpl;
+            OS_timebase_table[timer_id].external_sync = OS_TimeBase_SigWaitImpl;
         }
         while (0);
 

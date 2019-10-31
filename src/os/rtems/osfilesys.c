@@ -174,7 +174,7 @@ int32 OS_FileSysStartVolume_Impl (uint32 filesys_id)
         impl->mount_fstype = RTEMS_FILESYSTEM_TYPE_RFS;
 
         OS_DEBUG("OSAL: RAM disk initialized: volume=%s device=%s address=0x%08lX\n",
-                local->volume_name, impl->blockdev_name, local->address);
+                local->volume_name, impl->blockdev_name, (unsigned long)local->address);
 
         return_code = OS_SUCCESS;
         break;
