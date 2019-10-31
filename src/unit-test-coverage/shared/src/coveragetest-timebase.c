@@ -135,7 +135,6 @@ void Test_OS_TimeBaseDelete(void)
     expected = OS_ERR_INCORRECT_OBJ_STATE;
     actual = OS_TimeBaseDelete(1);
     UtAssert_True(actual == expected, "OS_TimeBaseDelete() (%ld) == OS_ERR_INCORRECT_OBJ_STATE", (long)actual);
-
 }
 
 void Test_OS_TimeBaseGetIdByName(void)

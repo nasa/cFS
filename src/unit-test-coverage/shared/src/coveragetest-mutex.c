@@ -15,6 +15,8 @@
 #include "os-shared-coveragetest.h"
 #include "ut-osapi-mutex.h"
 
+#include <overrides/string.h>
+
 /*
 **********************************************************************************
 **          PUBLIC API FUNCTIONS
@@ -46,6 +48,10 @@ void Test_OS_MutSemCreate(void)
 
     UtAssert_True(actual == expected, "OS_MutSemCreate() (%ld) == OS_SUCCESS", (long)actual);
     UtAssert_True(objid != 0, "objid (%lu) != 0", (unsigned long)objid);
+
+    OSAPI_TEST_FUNCTION_RC(OS_MutSemCreate(NULL, NULL, 0), OS_INVALID_POINTER);
+    UT_SetForceFail(UT_KEY(OCS_strlen), 10 + OS_MAX_API_NAME);
+    OSAPI_TEST_FUNCTION_RC(OS_MutSemCreate(&objid, "UT", 0), OS_ERR_NAME_TOO_LONG);
 }
 
 void Test_OS_MutSemDelete(void)
@@ -111,6 +117,9 @@ void Test_OS_MutSemGetIdByName(void)
     actual = OS_MutSemGetIdByName(&objid, "NF");
     UtAssert_True(actual == expected, "OS_MutSemGetIdByName() (%ld) == %ld",
             (long)actual, (long)expected);
+
+    OSAPI_TEST_FUNCTION_RC(OS_MutSemGetIdByName(NULL, NULL), OS_INVALID_POINTER);
+
 }
 
 void Test_OS_MutSemGetInfo(void)
@@ -138,6 +147,9 @@ void Test_OS_MutSemGetInfo(void)
             (unsigned long)prop.creator);
     UtAssert_True(strcmp(prop.name, "ABC") == 0, "prop.name (%s) == ABC",
             prop.name);
+
+    OSAPI_TEST_FUNCTION_RC(OS_MutSemGetInfo(0, NULL), OS_INVALID_POINTER);
+
 }
 
 

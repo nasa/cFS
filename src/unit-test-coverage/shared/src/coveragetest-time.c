@@ -206,8 +206,17 @@ void Test_OS_TimerDelete(void)
     actual = OS_TimerDelete(1);
     UtAssert_True(actual == expected, "OS_TimerDelete() (%ld) == OS_SUCCESS", (long)actual);
 
-    memset(OS_timecb_table, 0, sizeof(OS_timecb_table));
+    /* verify deletion of the dedicated timebase objects
+     * these are implicitly created as part of timer creation for API compatibility */
+    OS_TimeBaseCreate(&OS_global_timebase_table[0].active_id,"ut",NULL);
+    OS_timecb_table[1].flags = TIMECB_FLAG_DEDICATED_TIMEBASE;
+    OS_timecb_table[1].timebase_ref = 0;
+    actual = OS_TimerDelete(1);
+    UtAssert_True(actual == expected, "OS_TimerDelete() (%ld) == OS_SUCCESS", (long)actual);
+    UtAssert_True(UT_GetStubCount(UT_KEY(OS_TimeBaseDelete)) == 1, "OS_TimerDelete() invoked OS_TimeBaseDelete()");
 
+    memset(OS_timecb_table, 0, sizeof(OS_timecb_table));
+    memset(OS_timebase_table, 0, sizeof(OS_timebase_table));
 
     UT_SetForceFail(UT_KEY(OS_TaskGetId_Impl), 1 | (OS_OBJECT_TYPE_OS_TIMEBASE << OS_OBJECT_TYPE_SHIFT));
     expected = OS_ERR_INCORRECT_OBJ_STATE;

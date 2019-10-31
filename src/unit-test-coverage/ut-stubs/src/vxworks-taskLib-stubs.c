@@ -123,6 +123,7 @@ OCS_STATUS OCS_taskActivate(OCS_TASK_ID tid)
 OCS_WIND_TCB *OCS_taskTcb(OCS_TASK_ID tid)
 {
     int32 Status;
+    OCS_WIND_TCB *LocalTcb;
 
     Status = UT_DEFAULT_IMPL(OCS_taskTcb);
     if (Status != 0)
@@ -130,12 +131,17 @@ OCS_WIND_TCB *OCS_taskTcb(OCS_TASK_ID tid)
         return (NULL);
     }
 
-    /*
-     * On VxWorks the TASK_ID is defined as a direct type cast
-     * of the TCB address.  This is actually documented
-     * in the API and application code that works with TCBs
-     * certainly will depend on this being the case.
-     */
-    return ((OCS_WIND_TCB *)tid);
+    if (UT_Stub_CopyToLocal(UT_KEY(OCS_taskTcb), &LocalTcb, sizeof(LocalTcb)) < sizeof(LocalTcb))
+    {
+        /*
+         * On VxWorks the TASK_ID is defined as a direct type cast
+         * of the TCB address.  This is actually documented
+         * in the API and application code that works with TCBs
+         * certainly will depend on this being the case.
+         */
+        LocalTcb = (OCS_WIND_TCB *)tid;
+    }
+
+    return LocalTcb;
 }
 

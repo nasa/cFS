@@ -59,6 +59,8 @@ void Test_OS_DirectoryOpen(void)
 
     UtAssert_True(actual == expected, "OS_DirectoryOpen() (%ld) == OS_SUCCESS", (long)actual);
     UtAssert_True(objid != 0, "objid (%lu) != 0", (unsigned long)objid);
+
+    OSAPI_TEST_FUNCTION_RC(OS_DirectoryOpen(NULL, NULL), OS_INVALID_POINTER);
 }
 
 
@@ -87,6 +89,8 @@ void Test_OS_DirectoryRead(void)
     int32 actual = OS_DirectoryRead(1, &dirent);
 
     UtAssert_True(actual == expected, "OS_DirectoryRead() (%ld) == OS_SUCCESS", (long)actual);
+
+    OSAPI_TEST_FUNCTION_RC(OS_DirectoryRead(1, NULL), OS_INVALID_POINTER);
 }
 
 

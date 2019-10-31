@@ -35,6 +35,31 @@ void Test_OS_FileSysAPI_Init(void)
     UtAssert_True(actual == expected, "OS_FileSysAPI_Init() (%ld) == OS_SUCCESS", (long)actual);
 }
 
+void Test_OS_FileSysAddFixedMap(void)
+{
+    /*
+     * Test Case For:
+     * int32 OS_FileSysAddFixedMap(uint32 *filesys_id, const char *phys_path, const char *virt_path)
+     */
+    uint32 id;
+
+    OSAPI_TEST_FUNCTION_RC(OS_FileSysAddFixedMap(&id, "/phys", "/virt"), OS_SUCCESS);
+    OSAPI_TEST_FUNCTION_RC(OS_FileSysAddFixedMap(&id, NULL, NULL), OS_INVALID_POINTER);
+
+    UT_SetForceFail(UT_KEY(OCS_strlen), 2 + OS_MAX_PATH_LEN);
+    OSAPI_TEST_FUNCTION_RC(OS_FileSysAddFixedMap(&id, "/phys", "/virt"), OS_ERR_NAME_TOO_LONG);
+    UT_ClearForceFail(UT_KEY(OCS_strlen));
+
+    UT_SetForceFail(UT_KEY(OCS_strrchr), -1);
+    UT_SetDeferredRetcode(UT_KEY(OCS_strlen), 3, 2 + OS_MAX_API_NAME);
+    OSAPI_TEST_FUNCTION_RC(OS_FileSysAddFixedMap(&id, "/phys", "/virt"), OS_ERR_NAME_TOO_LONG);
+    UT_ResetState(UT_KEY(OCS_strlen));
+    UT_ResetState(UT_KEY(OCS_strrchr));
+
+    OSAPI_TEST_FUNCTION_RC(OS_FileSysAddFixedMap(&id, "/phys", "/virt"), OS_SUCCESS);
+    OSAPI_TEST_FUNCTION_RC(OS_FileSysAddFixedMap(&id, "/phys", "/virt"), OS_SUCCESS);
+}
+
 void Test_OS_mkfs(void)
 {
     /*
@@ -48,6 +73,13 @@ void Test_OS_mkfs(void)
     actual = OS_mkfs("adr","/ramdev0","vol",0,0);
     UtAssert_True(actual == expected, "OS_mkfs() (%ld) == OS_SUCCESS", (long)actual);
 
+    /*
+     * Test an entry NOT found in the OS_VolumeTable
+     */
+    actual = OS_mkfs("adr","/rd1","vol1",0,0);
+    UtAssert_True(actual == expected, "OS_mkfs() (%ld) == OS_SUCCESS", (long)actual);
+
+
     expected = OS_FS_ERR_INVALID_POINTER;
     actual = OS_mkfs(NULL,NULL,NULL,0,0);
     UtAssert_True(actual == expected, "OS_mkfs() (%ld) == OS_FS_ERR_INVALID_POINTER", (long)actual);
@@ -57,6 +89,11 @@ void Test_OS_mkfs(void)
     actual = OS_mkfs("adr","/ramdev0","vol",0,0);
     UtAssert_True(actual == expected, "OS_mkfs() (%ld) == OS_FS_ERR_PATH_TOO_LONG", (long)actual);
     UT_ClearForceFail(UT_KEY(OCS_strlen));
+
+    /* set up for failure due to empty strings */
+    expected = OS_FS_ERR_PATH_INVALID;
+    actual = OS_mkfs("adr","","",0,0);
+    UtAssert_True(actual == expected, "OS_mkfs() (%ld) == OS_FS_ERR_PATH_INVALID", (long)actual);
 
     /* set up for failure due to formatting */
     UT_SetForceFail(UT_KEY(OS_FileSysFormatVolume_Impl), OS_FS_ERR_DRIVE_NOT_CREATED);
@@ -112,6 +149,9 @@ void Test_OS_initfs(void)
     int32 actual = ~OS_SUCCESS;
 
     actual = OS_initfs("adr","/ramdev0","vol",0,0);
+    UtAssert_True(actual == expected, "OS_initfs() (%ld) == OS_SUCCESS", (long)actual);
+
+    actual = OS_initfs(NULL,"/hda2","vol2",0,0);
     UtAssert_True(actual == expected, "OS_initfs() (%ld) == OS_SUCCESS", (long)actual);
 
     expected = OS_FS_ERR_INVALID_POINTER;
@@ -501,7 +541,8 @@ void Test_OS_FileSys_FindVirtMountPoint(void)
 static const OS_VolumeInfo_t UT_VOLTAB_TESTCASES[] =
 {
         { .DeviceName = "/UT1", .VolumeType = ATA_DISK, .FreeFlag = false, .IsMounted = true },
-        { .DeviceName = "/UT2", .VolumeType = EEPROM_DISK, .FreeFlag = true, .IsMounted = false }
+        { .DeviceName = "/UT2", .VolumeType = EEPROM_DISK, .FreeFlag = true, .IsMounted = false },
+        { .DeviceName = "/UT3", .VolumeType = RAM_DISK, .FreeFlag = true, .IsMounted = false }
 };
 
 void Test_OS_FileSys_InitLocalFromVolTable(void)
@@ -529,6 +570,13 @@ void Test_OS_FileSys_InitLocalFromVolTable(void)
     actual = Osapi_Internal_FileSys_InitLocalFromVolTable(&temprec, &UT_VOLTAB_TESTCASES[1]);
     UtAssert_True(actual == expected, "OS_FileSys_InitLocalFromVolTable(1) (%ld) == OS_SUCCESS", (long)actual);
     UtAssert_True(temprec.fstype == OS_FILESYS_TYPE_MTD, "OS_FileSys_InitLocalFromVolTable(1) fstype(%u) == OS_FILESYS_TYPE_MTD",
+            (unsigned int)temprec.fstype);
+
+    memset(&temprec,0,sizeof(temprec));
+    expected = OS_SUCCESS;
+    actual = Osapi_Internal_FileSys_InitLocalFromVolTable(&temprec, &UT_VOLTAB_TESTCASES[2]);
+    UtAssert_True(actual == expected, "OS_FileSys_InitLocalFromVolTable(1) (%ld) == OS_SUCCESS", (long)actual);
+    UtAssert_True(temprec.fstype == OS_FILESYS_TYPE_VOLATILE_DISK, "OS_FileSys_InitLocalFromVolTable(2) fstype(%u) == OS_FILESYS_TYPE_MTD",
             (unsigned int)temprec.fstype);
 }
 
@@ -560,6 +608,7 @@ void Osapi_TearDown(void)
 void OS_Application_Startup(void)
 {
     ADD_TEST(OS_FileSysAPI_Init);
+    ADD_TEST(OS_FileSysAddFixedMap);
     ADD_TEST(OS_mkfs);
     ADD_TEST(OS_rmfs);
     ADD_TEST(OS_initfs);

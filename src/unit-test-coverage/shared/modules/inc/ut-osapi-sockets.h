@@ -4,6 +4,7 @@
 #define _OSAL_UT_OSAPI_SOCKETS_H_
 
 #include <common_types.h>
+#include <os-impl.h>
 
 /*****************************************************
  *
@@ -20,6 +21,11 @@
  */
 void Osapi_Internal_ResetState(void);
 
+/**
+ * Invoke the OS_CreateSocketName() static helper function
+ */
+void Osapi_Call_CreateSocketName_Static(OS_stream_internal_record_t *sock,
+        const OS_SockAddr_t *Addr, const char *parent_name);
 
 #endif /* _OSAL_UT_OSAPI_SOCKETS_H_ */
 

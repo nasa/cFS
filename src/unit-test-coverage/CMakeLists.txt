@@ -43,7 +43,7 @@ set(OSALCOVERAGE_USER_C_FLAGS "$ENV{OSALCOVERAGE_USER_C_FLAGS}" CACHE STRING "Us
 # The currently supported setup is to use the "pc-linux" BSP to execute the "vxworks6" 
 # code coverage analysis.  Because the actual underlying OS calls are stubbed out, there
 # is no dependency on the actual underlying OS.
-set(OSALCOVERAGE_TARGET_OSTYPE "vxworks6" CACHE STRING "OSAL target(s) to build coverage tests for")
+set(OSALCOVERAGE_TARGET_OSTYPE "vxworks;shared" CACHE STRING "OSAL target(s) to build coverage tests for")
 set(OSALCOVERAGE_HOST_BSPTYPE "pc-linux" CACHE STRING "OSAL unit test BSP to execute coverage tests")
 
 # OSALCOVERAGE_SYSTEM_OSTYPE indicates which of the BSP packages to include
@@ -135,9 +135,19 @@ list(APPEND OSALCOVERAGE_STUB_LIB_LIST ut_osapi_stubs)
 #  - Links to the stub libraries of everything else, plus UT assert
 function (add_coverage_tests SETNAME)
   foreach(MODNAME ${ARGN})
-    if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/src/coveragetest-${MODNAME}.c)
+    set (TESTCASE_SRCFILE)
+    foreach (SRCFILE 
+        "${PROJECT_SOURCE_DIR}/portable/coveragetest-${MODNAME}.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/coveragetest-${MODNAME}.c"
+    )
+        if (EXISTS "${SRCFILE}")
+            set (TESTCASE_SRCFILE "${SRCFILE}")
+        endif (EXISTS "${SRCFILE}")
+    endforeach()
+    
+    if (TESTCASE_SRCFILE)
       set(TESTNAME "${SETNAME}-${MODNAME}")
-      message (STATUS "Found test case for ${TESTNAME}")
+      message (STATUS "Found test case for ${TESTNAME} in ${TESTCASE_SRCFILE}")
       
       if (DEFINED MODULE_LINK_MAP_${MODNAME})
         set(LINKMOD ${MODULE_LINK_MAP_${MODNAME}})
@@ -146,7 +156,7 @@ function (add_coverage_tests SETNAME)
       endif()
           
       add_executable(${TESTNAME}-testrunner 
-        src/coveragetest-${MODNAME}.c
+        ${TESTCASE_SRCFILE}
         $<TARGET_OBJECTS:ut_${SETNAME}_${LINKMOD}>)
         
       set_target_properties(${TESTNAME}-testrunner PROPERTIES LINK_FLAGS "${UT_C_FLAGS}")

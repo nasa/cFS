@@ -98,6 +98,15 @@ int OCS_sigwait (const OCS_sigset_t * set, int * sig)
 
     Status = UT_DEFAULT_IMPL(OCS_sigwait);
 
+    /*
+     * The "sig" value is an output, which the UT test
+     * case may need to control.
+     */
+    if (UT_Stub_CopyToLocal(UT_KEY(OCS_sigwait),sig,sizeof(*sig)) < sizeof(*sig))
+    {
+        *sig = 1;
+    }
+
     return Status;
 }
 

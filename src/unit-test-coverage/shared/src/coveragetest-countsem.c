@@ -15,6 +15,8 @@
 #include "os-shared-coveragetest.h"
 #include "ut-osapi-countsem.h"
 
+#include <overrides/string.h>
+
 /*
 **********************************************************************************
 **          PUBLIC API FUNCTIONS
@@ -47,6 +49,10 @@ void Test_OS_CountSemCreate(void)
 
     UtAssert_True(actual == expected, "OS_CountSemCreate() (%ld) == OS_SUCCESS", (long)actual);
     UtAssert_True(objid != 0, "objid (%lu) != 0", (unsigned long)objid);
+
+    OSAPI_TEST_FUNCTION_RC(OS_CountSemCreate(NULL, NULL, 0, 0), OS_INVALID_POINTER);
+    UT_SetForceFail(UT_KEY(OCS_strlen), 10 + OS_MAX_API_NAME);
+    OSAPI_TEST_FUNCTION_RC(OS_CountSemCreate(&objid, "UT", 0, 0), OS_ERR_NAME_TOO_LONG);
 }
 
 void Test_OS_CountSemDelete(void)
@@ -128,6 +134,9 @@ void Test_OS_CountSemGetIdByName(void)
     actual = OS_CountSemGetIdByName(&objid, "NF");
     UtAssert_True(actual == expected, "OS_CountSemGetIdByName() (%ld) == %ld",
             (long)actual, (long)expected);
+
+    OSAPI_TEST_FUNCTION_RC(OS_CountSemGetIdByName(NULL, NULL), OS_INVALID_POINTER);
+
 }
 
 void Test_OS_CountSemGetInfo(void)
@@ -155,6 +164,8 @@ void Test_OS_CountSemGetInfo(void)
             (unsigned long)prop.creator);
     UtAssert_True(strcmp(prop.name, "ABC") == 0, "prop.name (%s) == ABC",
             prop.name);
+
+    OSAPI_TEST_FUNCTION_RC(OS_CountSemGetInfo(0, NULL), OS_INVALID_POINTER);
 }
 
 

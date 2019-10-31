@@ -1759,7 +1759,7 @@ int32 OS_ConsoleCreate_Impl(uint32 local_id)
                     (FUNCPTR)OS_ConsoleTask_Entry,
                     local_id,0,0,0,0,0,0,0,0,0);
 
-            if (local->taskid == (TASK_ID)0)
+            if (local->taskid == (TASK_ID)ERROR)
             {
                 OS_DEBUG("taskSpawn() - vxWorks errno %d\n",errno);
                 return_code = OS_ERROR;

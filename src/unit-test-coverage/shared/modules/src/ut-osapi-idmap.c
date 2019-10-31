@@ -18,3 +18,8 @@ int32 Osapi_Call_ObjectIdFindNext(uint32 idtype, uint32 *array_index, OS_common_
 {
     return OS_ObjectIdFindNext(idtype, array_index, record);
 }
+
+int32 Osapi_Call_ObjectIdConvertLock(OS_lock_mode_t lock_mode, uint32 idtype, uint32 reference_id, OS_common_record_t *obj)
+{
+    return OS_ObjectIdConvertLock(lock_mode, idtype, reference_id, obj);
+}

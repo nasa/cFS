@@ -25,6 +25,8 @@
 extern void OS_CleanUpObject(uint32 object_id, void *arg);
 
 
+int32 Test_MicroSecPerTick = 0;
+int32 Test_TicksPerSecond = 0;
 
 /*
 **********************************************************************************
@@ -35,8 +37,8 @@ extern void OS_CleanUpObject(uint32 object_id, void *arg);
 /* as a side effect, the OS_TimeBaseAPI_Init must initialize the globals */
 static int32 TimeBaseInitGlobal(void *UserObj, int32 StubRetcode, uint32 CallCount, const UT_StubContext_t *Context)
 {
-    OS_SharedGlobalVars.MicroSecPerTick = 1000;
-    OS_SharedGlobalVars.TicksPerSecond = 1000;
+    OS_SharedGlobalVars.MicroSecPerTick = Test_MicroSecPerTick;
+    OS_SharedGlobalVars.TicksPerSecond = Test_TicksPerSecond;
     return StubRetcode;
 }
 
@@ -71,25 +73,39 @@ static int32 SetShutdownFlagHook(void *UserObj, int32 StubRetcode, uint32 CallCo
 */
 void Test_OS_API_Init(void)
 {
-    int32 expected = OS_SUCCESS;
-    int32 actual   = ~OS_SUCCESS;
-
     /* Setup Inputs */
-
     UT_SetHookFunction(UT_KEY(OS_TimeBaseAPI_Init), TimeBaseInitGlobal, NULL);
 
     /* Execute Test */
-    actual = OS_API_Init();
+    Test_MicroSecPerTick = 0;
+    Test_TicksPerSecond = 0;
+    OS_SharedGlobalVars.Initialized = false;
+    OSAPI_TEST_FUNCTION_RC(OS_API_Init(), OS_ERROR);
 
-    /* Verify Outputs */
-    UtAssert_True(actual == expected, "OS_API_Init() (%ld) != OS_SUCCESS", (long)actual);
+    Test_MicroSecPerTick = 1000;
+    Test_TicksPerSecond = 1000;
+    OS_SharedGlobalVars.Initialized = false;
+    OSAPI_TEST_FUNCTION_RC(OS_API_Init(), OS_SUCCESS);
 
     /* Second call should return ERROR */
-    expected = OS_ERROR;
-    actual = OS_API_Init();
+    OSAPI_TEST_FUNCTION_RC(OS_API_Init(), OS_ERROR);
 
-    /* Verify Outputs */
-    UtAssert_True(actual == expected, "OS_API_Init() (%ld) != OS_ERROR", (long)actual);
+    /* other error paths */
+    OS_SharedGlobalVars.Initialized = false;
+    UT_SetForceFail(UT_KEY(OS_ObjectIdInit), -222);
+    OSAPI_TEST_FUNCTION_RC(OS_API_Init(), -222);
+    UT_ResetState(UT_KEY(OS_ObjectIdInit));
+
+    OS_SharedGlobalVars.Initialized = false;
+    UT_SetForceFail(UT_KEY(OS_API_Impl_Init), -333);
+    OSAPI_TEST_FUNCTION_RC(OS_API_Init(), -333);
+    UT_ResetState(UT_KEY(OS_API_Impl_Init));
+
+    OS_SharedGlobalVars.Initialized = false;
+    UT_SetForceFail(UT_KEY(OS_TaskAPI_Init), -444);
+    OSAPI_TEST_FUNCTION_RC(OS_API_Init(), -444);
+    UT_ResetState(UT_KEY(OS_TaskAPI_Init));
+
 }
 
 void Test_OS_ApplicationExit(void)
@@ -119,6 +135,9 @@ void Test_OS_CleanUpObject(void)
     objtype = OS_OBJECT_TYPE_UNDEFINED;
     while (objtype < OS_OBJECT_TYPE_USER)
     {
+        UT_ResetState(0);
+        UT_SetForceFail(UT_KEY(OS_IdentifyObject), objtype);
+
         switch(objtype)
         {
         case OS_OBJECT_TYPE_OS_TASK:
@@ -158,21 +177,22 @@ void Test_OS_CleanUpObject(void)
 
         if (delhandler != 0)
         {
-            UT_ResetState(0);
             /* note the return code here is ignored -
              * the goal is simply to defeat the default
              * check that the objid was valid (it isn't) */
             UT_SetForceFail(delhandler, OS_ERROR);
-            UT_SetForceFail(UT_KEY(OS_IdentifyObject), objtype);
             OS_CleanUpObject(0, &ActualObjs);
 
             CallCount = UT_GetStubCount(delhandler);
             UtAssert_True(CallCount == 1, "Objtype %lu call count (%lu) == 1",
                     (unsigned long)objtype, (unsigned long)CallCount);
-            ++ExpObjs;
         }
-
+        else
+        {
+            OS_CleanUpObject(0, &ActualObjs);
+        }
         ++objtype;
+        ++ExpObjs;
     }
 
 
