@@ -226,7 +226,9 @@ uint32 OS_IdentifyObject       (uint32 object_id);
  * @note This does NOT verify the validity of the ID, that is left to the caller.
  * This is only the conversion logic.
  *
- * @param[in] object_id The object ID to operate on
+ * @param[in]  object_id    The object ID to operate on
+ *
+ * @param[out] *ArrayIndex  The Index to return 
  *
  * @returns OS_SUCCESS on success, or appropriate error code
  */
@@ -310,7 +312,7 @@ int32 OS_TaskInstallDeleteHandler(osal_task_entry function_pointer);
 /**
  * @brief Delay a task for specified amount of milliseconds
  *
- * @param[in]   milliseconds    Amount of time to delay
+ * @param[in]   millisecond    Amount of time to delay
  *
  * @returns OS_SUCCESS on success, or appropriate error code
  * OS_ERROR if sleep fails or millisecond = 0
@@ -322,7 +324,9 @@ int32 OS_TaskDelay             (uint32 millisecond);
 /**
  * @brief Sets the given task to a new priority
  *
- * @param[in] task_id The object ID to operate on
+ * @param[in] task_id        The object ID to operate on
+ *
+ * @param[in] new_priority   Set the new priority
  *
  * @returns OS_SUCCESS on success, or appropriate error code
  * OS_ERR_INVALID_ID if the ID passed to it is invalid

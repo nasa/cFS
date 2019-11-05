@@ -230,8 +230,12 @@ int32           OS_creat  (const char *path, int32  access);
  * Opens a file. access parameters are OS_READ_ONLY, OS_WRITE_ONLY, or
  * OS_READ_WRITE
  *
- * @param[in] path File name to create
+ * @param[in] path   File name to create
  * @param[in] access Intended access mode - OS_READ_ONLY, OS_WRITE_ONLY or OS_READ_WRITE
+ * @param[in] mode   The file permissions. This parameter is passed through to the 
+ *		     native open call, but will be ignored. The file mode (or permissions)
+ *                   are ignored by the POSIX open call when the O_CREAT access flag is not passed in. 
+ *
  *
  * @note Valid handle IDs are never negative.  Failure of this
  * call can be checked by testing if the result is less than 0.
