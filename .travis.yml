@@ -21,7 +21,7 @@ script:
   - cp cfe/cmake/Makefile.sample Makefile
   - cp -r cfe/cmake/sample_defs sample_defs
   # Static code analysis
-  - cppcheck --force .
+  - cppcheck --force --inline-suppr .
   # Prep and build
   - make prep
   - make
