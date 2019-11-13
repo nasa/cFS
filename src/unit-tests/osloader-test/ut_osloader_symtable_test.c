@@ -155,6 +155,7 @@ void UT_os_symbol_lookup_test()
 
     res = OS_SymbolLookup(0, "main");
     if ( res == OS_INVALID_POINTER )
+        /* cppcheck-suppress syntaxError */
         UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
     else
         UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)

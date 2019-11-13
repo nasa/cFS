@@ -170,6 +170,7 @@ void UT_os_fpuexc_setmask_test()
     {
     	res = OS_FPUExcGetMask(&curMask);
     	if ((res == OS_SUCCESS) && (curMask == newMask))
+            /* cppcheck-suppress syntaxError */
     		UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
     	else
     	    UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)

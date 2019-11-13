@@ -301,6 +301,7 @@ void UT_os_createfile_test()
     testDesc = "#1 Null-pointer-arg";
 
     if (OS_creat(NULL, OS_READ_WRITE) == OS_FS_ERR_INVALID_POINTER)
+        /* cppcheck-suppress syntaxError */
         UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
     else
         UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)

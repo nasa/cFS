@@ -190,6 +190,7 @@ void UT_os_int_attachhandler_test()
 
     res = OS_IntAttachHandler(1, NULL, 0);
     if (res == OS_INVALID_POINTER)
+        /* cppcheck-suppress syntaxError */
         UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
     else
         UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)

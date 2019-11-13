@@ -178,6 +178,7 @@ void UT_os_networkgetid_test()
     res = OS_NetworkGetID();
 #endif
     if (res != OS_ERROR)
+        /* cppcheck-suppress syntaxError */
         UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
     else
         UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)

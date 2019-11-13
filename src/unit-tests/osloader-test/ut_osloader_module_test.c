@@ -164,6 +164,7 @@ void UT_os_module_load_test()
 
     res = OS_ModuleLoad(0, "TestModule", UT_OS_GENERIC_MODULE_NAME1);
     if (res == OS_INVALID_POINTER)
+        /* cppcheck-suppress syntaxError */
         UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
     else
         UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)

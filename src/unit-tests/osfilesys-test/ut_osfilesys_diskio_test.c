@@ -217,6 +217,7 @@ void UT_os_initfs_test()
          OS_FS_ERR_INVALID_POINTER) &&
         (OS_initfs(g_fsAddrPtr, g_devNames[1], NULL, 0, 0) ==
          OS_FS_ERR_INVALID_POINTER))
+        /* cppcheck-suppress syntaxError */
         UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
     else
         UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)

@@ -162,6 +162,7 @@ void UT_os_bin_sem_create_test()
 
     res = OS_BinSemCreate(NULL, "BinSem1", 1, 0);
     if (res == OS_INVALID_POINTER)
+        /* cppcheck-suppress syntaxError */
         UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
     else
         UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
