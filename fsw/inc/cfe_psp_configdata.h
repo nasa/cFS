@@ -19,7 +19,7 @@
 */
 
 /**
- * \file cfe_psp_config.h
+ * \file cfe_psp_configdata.h
  *
  *  Created on: Dec 31, 2014
  *      Author: joseph.p.hickey@nasa.gov
