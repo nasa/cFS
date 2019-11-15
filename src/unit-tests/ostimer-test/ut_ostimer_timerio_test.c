@@ -203,6 +203,7 @@ void UT_os_timerinit_test()
     {
         res = OS_TimerCreate(&g_timerIds[0], "Timer #0", &g_clkAccuracy, &UT_os_timercallback);
         if (res == OS_SUCCESS)
+            /* cppcheck-suppress syntaxError */
             UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
         else
             UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)

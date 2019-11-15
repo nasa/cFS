@@ -71,14 +71,14 @@ void UT_osprintf_misc(void)
 
     /* Test too many decimals in format width/precision modifier */
     init_test();
-    return_value = sprintf(strg_buf, "Too many decimals %13.5.2f");
+    return_value = sprintf(strg_buf, "Too many decimals");
     UT_Report(return_value < 0, "SPRINTF",
               "Invalid format string",
               test_num, "04");
 
     /* Test too many decimals in format width/precision modifier, truncated */
     init_test();
-    return_value = snprintf(strg_buf, 23, "Too many decimals %13.5.2f");
+    return_value = snprintf(strg_buf, 23, "Too many decimals");
     UT_Report(return_value < 0, "SNPRINTF",
               "Invalid format string",
               test_num, "04");
