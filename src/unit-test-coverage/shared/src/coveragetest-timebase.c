@@ -108,7 +108,7 @@ void Test_OS_TimeBaseSet(void)
 
     /* test error paths: overflow on input */
     expected = OS_TIMER_ERR_INVALID_ARGS;
-    actual = OS_TimeBaseSet(1, 1 << 31, 1 << 31);
+    actual = OS_TimeBaseSet(1, UINT32_MAX, UINT32_MAX);
     UtAssert_True(actual == expected, "OS_TimeBaseSet() (%ld) == OS_TIMER_ERR_INVALID_ARGS", (long)actual);
 
     /* test error paths */
