@@ -21,7 +21,17 @@ script:
   - cp cfe/cmake/Makefile.sample Makefile
   - cp -r cfe/cmake/sample_defs sample_defs
   # Static code analysis
-  - cppcheck --force --inline-suppr --quiet .
+  #   Below is intent but fails - exit code bug in cppcheck 1.82
+  #   - cppcheck --force --inline-suppr --quiet --error-exitcode=1 .
+  #   Work around script:
+  - cppcheck --force --inline-suppr --quiet . 2> cppcheck_err.txt
+  - |
+    if [[ -s cppcheck_err.txt ]]; then
+      echo "You must fix cppcheck errors before submitting a pull request"
+      echo ""
+      cat cppcheck_err.txt
+      exit -1
+    fi
   # Prep and build
   - make prep
   - make
