@@ -313,7 +313,7 @@ int32 OS_TimerSet(uint32 timer_id, uint32 start_time, uint32 interval_time)
 
    dedicated_timebase_id = 0;
 
-   if (start_time >= INT_MAX || interval_time >= INT_MAX)
+   if (start_time >= (UINT32_MAX/2) || interval_time >= (UINT32_MAX/2))
    {
        return OS_TIMER_ERR_INVALID_ARGS;
    }

@@ -124,7 +124,7 @@ int OCS_rename (const char * old, const char * nw)
 int OCS_snprintf (char * s, size_t maxlen, const char * format, ...)
 {
     int32 Status;
-    int actual;
+    int actual = 0;
     va_list ap;
 
     Status = UT_DEFAULT_IMPL(OCS_snprintf);
@@ -148,7 +148,7 @@ int OCS_snprintf (char * s, size_t maxlen, const char * format, ...)
 int OCS_vsnprintf (char * s, size_t maxlen, const char * format, OCS_va_list arg)
 {
     int32 Status;
-    int actual;
+    int actual = 0;
 
     Status = UT_DEFAULT_IMPL(OCS_vsnprintf);
 

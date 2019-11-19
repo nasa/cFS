@@ -172,7 +172,7 @@ void Test_OS_TimerSet(void)
     memset(OS_timecb_table, 0, sizeof(OS_timecb_table));
 
     expected = OS_TIMER_ERR_INVALID_ARGS;
-    actual = OS_TimerSet(2, 1 << 31, 1 << 31);
+    actual = OS_TimerSet(2, UINT32_MAX, UINT32_MAX);
     UtAssert_True(actual == expected, "OS_TimerSet() (%ld) == OS_TIMER_ERR_INVALID_ARGS", (long)actual);
 
     UT_SetForceFail(UT_KEY(OS_TaskGetId_Impl), 1 | (OS_OBJECT_TYPE_OS_TIMEBASE << OS_OBJECT_TYPE_SHIFT));

@@ -38,7 +38,7 @@
  * Added SEM_VALUE_MAX Define
  */
 #ifndef SEM_VALUE_MAX
-#define SEM_VALUE_MAX       (1 << 31)
+#define SEM_VALUE_MAX       (UINT32_MAX/2)
 #endif
 
 /*
