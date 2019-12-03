@@ -197,7 +197,7 @@ int32 OS_SocketBind_Impl(uint32 sock_id, const OS_SockAddr_t *Addr)
    socklen_t addrlen;
    const struct sockaddr *sa;
 
-   sa = (const struct sockaddr *)Addr->AddrData;
+   sa = (const struct sockaddr *)&Addr->AddrData;
 
    switch(sa->sa_family)
    {
@@ -257,7 +257,7 @@ int32 OS_SocketConnect_Impl(uint32 sock_id, const OS_SockAddr_t *Addr, int32 tim
    uint32 operation;
    const struct sockaddr *sa;
 
-   sa = (const struct sockaddr *)Addr->AddrData;
+   sa = (const struct sockaddr *)&Addr->AddrData;
    switch(sa->sa_family)
    {
    case AF_INET:
@@ -352,7 +352,7 @@ int32 OS_SocketAccept_Impl(uint32 sock_id, uint32 connsock_id, OS_SockAddr_t *Ad
       else
       {
          addrlen = Addr->ActualLength;
-         OS_impl_filehandle_table[connsock_id].fd = accept(OS_impl_filehandle_table[sock_id].fd, (struct sockaddr *)Addr->AddrData, &addrlen);
+         OS_impl_filehandle_table[connsock_id].fd = accept(OS_impl_filehandle_table[sock_id].fd, (struct sockaddr *)&Addr->AddrData, &addrlen);
          if (OS_impl_filehandle_table[connsock_id].fd < 0)
          {
             return_code = OS_ERROR;
@@ -405,7 +405,7 @@ int32 OS_SocketRecvFrom_Impl(uint32 sock_id, void *buffer, uint32 buflen, OS_Soc
    else
    {
       addrlen = OS_SOCKADDR_MAX_LEN;
-      sa = (struct sockaddr *)RemoteAddr->AddrData;
+      sa = (struct sockaddr *)&RemoteAddr->AddrData;
    }
 
    operation = OS_STREAM_STATE_READABLE;
@@ -484,7 +484,7 @@ int32 OS_SocketSendTo_Impl(uint32 sock_id, const void *buffer, uint32 buflen, co
    socklen_t addrlen;
    const struct sockaddr *sa;
 
-   sa = (const struct sockaddr *)RemoteAddr->AddrData;
+   sa = (const struct sockaddr *)&RemoteAddr->AddrData;
    switch(sa->sa_family)
    {
    case AF_INET:
@@ -546,7 +546,7 @@ int32 OS_SocketAddrInit_Impl(OS_SockAddr_t *Addr, OS_SocketDomain_t Domain)
    OS_SockAddr_Accessor_t *Accessor;
 
    memset(Addr, 0, sizeof(OS_SockAddr_t));
-   Accessor = (OS_SockAddr_Accessor_t *)Addr->AddrData;
+   Accessor = (OS_SockAddr_Accessor_t *)&Addr->AddrData;
 
    switch(Domain)
    {
@@ -590,7 +590,7 @@ int32 OS_SocketAddrToString_Impl(char *buffer, uint32 buflen, const OS_SockAddr_
    const void *addrbuffer;
    const OS_SockAddr_Accessor_t *Accessor;
 
-   Accessor = (const OS_SockAddr_Accessor_t *)Addr->AddrData;
+   Accessor = (const OS_SockAddr_Accessor_t *)&Addr->AddrData;
 
    switch(Accessor->sockaddr.sa_family)
    {
@@ -629,7 +629,7 @@ int32 OS_SocketAddrFromString_Impl(OS_SockAddr_t *Addr, const char *string)
    void *addrbuffer;
    OS_SockAddr_Accessor_t *Accessor;
 
-   Accessor = (OS_SockAddr_Accessor_t *)Addr->AddrData;
+   Accessor = (OS_SockAddr_Accessor_t *)&Addr->AddrData;
 
    switch(Accessor->sockaddr.sa_family)
    {
@@ -668,7 +668,7 @@ int32 OS_SocketAddrGetPort_Impl(uint16 *PortNum, const OS_SockAddr_t *Addr)
    in_port_t sa_port;
    const OS_SockAddr_Accessor_t *Accessor;
 
-   Accessor = (const OS_SockAddr_Accessor_t *)Addr->AddrData;
+   Accessor = (const OS_SockAddr_Accessor_t *)&Addr->AddrData;
 
    switch(Accessor->sockaddr.sa_family)
    {
@@ -705,7 +705,7 @@ int32 OS_SocketAddrSetPort_Impl(OS_SockAddr_t *Addr, uint16 PortNum)
    OS_SockAddr_Accessor_t *Accessor;
 
    sa_port = htons(PortNum);
-   Accessor = (OS_SockAddr_Accessor_t *)Addr->AddrData;
+   Accessor = (OS_SockAddr_Accessor_t *)&Addr->AddrData;
 
    switch(Accessor->sockaddr.sa_family)
    {
