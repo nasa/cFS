@@ -972,7 +972,7 @@ int32 OS_ExcDisable            (int32 ExceptionNumber);
  * @returns OS_SUCCESS on success, or appropriate error code
  * OS_ERR_NOT_IMPLEMENTED on platforms that do not support this function
  */
-int32 OS_FPUExcAttachHandler   (uint32 ExceptionNumber, void * ExceptionHandler ,
+int32 OS_FPUExcAttachHandler   (uint32 ExceptionNumber, osal_task_entry ExceptionHandler,
                                  int32 parameter);
 
 /*-------------------------------------------------------------------------------------*/

@@ -150,7 +150,7 @@ int32 OS_SymbolLookup_Impl( cpuaddr *SymbolAddress, const char *SymbolName )
  *           See description in os-impl.h for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 OS_ModuleLoad_Impl ( uint32 module_id, char *translated_path )
+int32 OS_ModuleLoad_Impl ( uint32 module_id, const char *translated_path )
 {
     int32 status = OS_ERROR;
 

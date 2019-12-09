@@ -163,7 +163,7 @@ UT_DEFAULT_STUB(OS_HeapGetInfo_Impl,(OS_heap_prop_t *heap_prop))
 /*
  * FPU API low-level handlers
  */
-UT_DEFAULT_STUB(OS_FPUExcAttachHandler_Impl,(uint32 ExceptionNumber, void * ExceptionHandler,int32 parameter))
+UT_DEFAULT_STUB(OS_FPUExcAttachHandler_Impl,(uint32 ExceptionNumber, osal_task_entry ExceptionHandler,int32 parameter))
 UT_DEFAULT_STUB(OS_FPUExcEnable_Impl,(int32 ExceptionNumber))
 UT_DEFAULT_STUB(OS_FPUExcDisable_Impl,(int32 ExceptionNumber))
 UT_DEFAULT_STUB(OS_FPUExcSetMask_Impl,(uint32 mask))

@@ -1227,7 +1227,7 @@ int32 OS_SetLocalTime_Impl(const OS_time_t *time_struct);
   
     Returns: OS_SUCCESS on success, or relevant error code
  ------------------------------------------------------------------*/
-int32 OS_ModuleLoad_Impl ( uint32 module_id, char *translated_path );
+int32 OS_ModuleLoad_Impl ( uint32 module_id, const char *translated_path );
 
 /*----------------------------------------------------------------
   
@@ -1874,7 +1874,7 @@ int32 OS_IntGetMask_Impl ( uint32 * MaskSettingPtr );
  * FPU API low-level handlers
  * These may also not be implementable on some platforms
  */
-int32 OS_FPUExcAttachHandler_Impl(uint32 ExceptionNumber, void * ExceptionHandler,
+int32 OS_FPUExcAttachHandler_Impl(uint32 ExceptionNumber, osal_task_entry ExceptionHandler,
                                  int32 parameter);
 int32 OS_FPUExcEnable_Impl(int32 ExceptionNumber);
 int32 OS_FPUExcDisable_Impl(int32 ExceptionNumber);

@@ -40,7 +40,7 @@
  *           See description in API and header file for detail
  *
  *-----------------------------------------------------------------*/
-int32 OS_FPUExcAttachHandler   (uint32 ExceptionNumber, void * ExceptionHandler ,
+int32 OS_FPUExcAttachHandler   (uint32 ExceptionNumber, osal_task_entry ExceptionHandler ,
                                  int32 parameter)
 {
     if (ExceptionHandler == NULL)
