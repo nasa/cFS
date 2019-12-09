@@ -161,7 +161,7 @@ void Test_OS_readdir(void)
     os_dirp_t dirp = OS_opendir("Dir");
     os_dirent_t *dirent = OS_readdir(dirp);
 
-    UtAssert_True(dirent != NULL, "OS_readdir() (%p) != NULL", dirent);
+    UtAssert_True(dirent != NULL, "OS_readdir() (%p) != NULL", (void*)dirent);
 }
 
 

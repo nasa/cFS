@@ -280,8 +280,9 @@ void Test_OS_TaskInstallDeleteHandler(void)
     UT_SetForceFail(UT_KEY(OS_TaskGetId_Impl), 1);
     actual = OS_TaskInstallDeleteHandler(UT_TestHook);
     UtAssert_True(actual == expected, "OS_TaskInstallDeleteHandler() (%ld) == OS_SUCCESS", (long)actual);
-    UtAssert_True(OS_task_table[1].delete_hook_pointer == UT_TestHook, "OS_task_table[1].delete_hook_pointer (%p) == %p",
-            OS_task_table[1].delete_hook_pointer, UT_TestHook);
+    UtAssert_True(OS_task_table[1].delete_hook_pointer == UT_TestHook, "OS_task_table[1].delete_hook_pointer (%lx) == %lx",
+            (unsigned long)OS_task_table[1].delete_hook_pointer,
+            (unsigned long)UT_TestHook);
 
     OS_task_table[1].delete_hook_pointer = NULL;
 }

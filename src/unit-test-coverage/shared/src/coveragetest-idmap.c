@@ -368,7 +368,7 @@ void Test_OS_ObjectIdGetById(void)
     /* Verify Outputs */
     UtAssert_True(actual == expected, "OS_ObjectIdGetById() (%ld) == OS_SUCCESS", (long)actual);
     UtAssert_True(local_idx == 1, "local_idx (%lu) == 1", (unsigned long)local_idx);
-    UtAssert_True(rptr != NULL, "rptr (%p) != NULL", rptr);
+    UtAssert_True(rptr != NULL, "rptr (%p) != NULL", (void*)rptr);
     UtAssert_True(rptr->refcount == 1, "refcount (%u) == 1",
             (unsigned int)rptr->refcount);
 
@@ -517,7 +517,7 @@ void Test_OS_ObjectIdFindNext(void)
         }
         if (rec1 == rec2)
         {
-            UtAssert_Failed("OS_ObjectIdFindNext() duplicate slot (%p)", rec1);
+            UtAssert_Failed("OS_ObjectIdFindNext() duplicate slot (%p)", (void*)rec1);
             break;
         }
 
@@ -556,7 +556,7 @@ void Test_OS_ObjectIdAllocateNew(void)
 
     /* Verify Outputs */
     UtAssert_True(actual == expected, "OS_ObjectIdAllocate() (%ld) == OS_SUCCESS", (long)actual);
-    UtAssert_True(rptr != NULL, "rptr (%p) != NULL", rptr);
+    UtAssert_True(rptr != NULL, "rptr (%p) != NULL", (void*)rptr);
 
     /* Passing a NULL name also should work here (used for internal objects) */
     actual = OS_ObjectIdAllocateNew(OS_OBJECT_TYPE_OS_TASK, NULL, &objid, &rptr);

@@ -113,9 +113,9 @@ void Test_OS_TimerCreate(void)
     OS_ObjectIdToArrayIndex(OS_OBJECT_TYPE_OS_TIMECB, objid, &local_id);
 
     UtAssert_True(OS_timecb_table[local_id].callback_ptr != NULL,
-            "OS_timecb_table[%lu].callback_ptr (%p) != NULL",
+            "OS_timecb_table[%lu].callback_ptr (%lx) != NULL",
             (unsigned long)local_id,
-            OS_timecb_table[local_id].callback_ptr);
+            (unsigned long)OS_timecb_table[local_id].callback_ptr);
 
     UT_TimerCount = 0;
     OS_timecb_table[local_id].callback_ptr(objid, OS_timecb_table[local_id].callback_arg);

@@ -62,8 +62,6 @@ void Test_OS_FileSysStartVolume_Impl(void)
     OSAPI_TEST_FUNCTION_RC(OS_FileSysStartVolume_Impl(1), OS_FS_ERR_DRIVE_NOT_CREATED);
 }
 
-
-;
 void Test_OS_FileSysStopVolume_Impl(void)
 {
     /* Test Case For:
