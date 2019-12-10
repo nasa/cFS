@@ -4,7 +4,7 @@
 #define _OSAL_UT_OSLOADER_H_
 
 #include <common_types.h>
-#include <overrides/symLib.h>
+#include <OCS_symLib.h>
 
 /*****************************************************
  *

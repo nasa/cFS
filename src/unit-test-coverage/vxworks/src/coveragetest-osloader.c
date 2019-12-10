@@ -15,13 +15,13 @@
 #include "os-vxworks-coveragetest.h"
 #include "ut-osloader.h"
 
-#include <overrides/string.h>
-#include <overrides/fcntl.h>
-#include <overrides/unistd.h>
-#include <overrides/errnoLib.h>
-#include <overrides/moduleLib.h>
-#include <overrides/loadLib.h>
-#include <overrides/unldLib.h>
+#include <OCS_string.h>
+#include <OCS_fcntl.h>
+#include <OCS_unistd.h>
+#include <OCS_errnoLib.h>
+#include <OCS_moduleLib.h>
+#include <OCS_loadLib.h>
+#include <OCS_unldLib.h>
 
 void Test_OS_VxWorks_ModuleAPI_Impl_Init(void)
 {

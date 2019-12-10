@@ -1,5 +1,4 @@
 /* pull in the OSAL configuration */
-#include "stub-map-to-real.h"
 #include "osconfig.h"
 #include "ut-osapi-countsem.h"
 

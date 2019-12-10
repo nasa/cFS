@@ -4,8 +4,8 @@
 #define _OSAL_UT_OSTIMER_H_
 
 #include <common_types.h>
-#include <overrides/symLib.h>
-#include <overrides/time.h>
+#include <OCS_symLib.h>
+#include <OCS_time.h>
 
 /*****************************************************
  *

@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include "utstubs.h"
 
-#include <overrides/mqueue.h>
+#include <OCS_mqueue.h>
 
 int OCS_mq_close (OCS_mqd_t mqdes)
 {

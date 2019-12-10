@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include "utstubs.h"
 
-#include <overrides/intLib.h>
+#include <OCS_intLib.h>
 
 
 OCS_STATUS OCS_intConnect(OCS_VOIDFUNCPTR *vector, OCS_VOIDFUNCPTR routine, int parameter)

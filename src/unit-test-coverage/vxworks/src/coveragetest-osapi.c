@@ -15,15 +15,15 @@
 #include "os-vxworks-coveragetest.h"
 #include "ut-osapi.h"
 
-#include <overrides/stdio.h>
-#include <overrides/stdlib.h>
-#include <overrides/errno.h>
-#include <overrides/intLib.h>
-#include <overrides/taskLib.h>
-#include <overrides/errnoLib.h>
-#include <overrides/semLib.h>
-#include <overrides/msgQLib.h>
-#include <overrides/memPartLib.h>
+#include <OCS_stdio.h>
+#include <OCS_stdlib.h>
+#include <OCS_errno.h>
+#include <OCS_intLib.h>
+#include <OCS_taskLib.h>
+#include <OCS_errnoLib.h>
+#include <OCS_semLib.h>
+#include <OCS_msgQLib.h>
+#include <OCS_memPartLib.h>
 
 /*
  * A chunk of memory usable as a heap for malloc() emulation

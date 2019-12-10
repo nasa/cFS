@@ -16,7 +16,7 @@
 
 #include "ut-osapi-timebase.h"
 
-#include <overrides/string.h>
+#include <OCS_string.h>
 
 static uint32 TimerSyncCount = 0;
 static uint32 TimerSyncRetVal = 0;

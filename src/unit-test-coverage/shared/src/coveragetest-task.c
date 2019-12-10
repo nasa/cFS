@@ -15,7 +15,7 @@
 #include "os-shared-coveragetest.h"
 #include "ut-osapi-task.h"
 
-#include <overrides/string.h>
+#include <OCS_string.h>
 
 static uint32 UT_TestHook_Count = 0;
 

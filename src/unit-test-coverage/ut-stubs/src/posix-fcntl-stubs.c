@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include "utstubs.h"
 
-#include <overrides/fcntl.h>
+#include <OCS_fcntl.h>
 
 int OCS_fcntl (int fd, int cmd, ...)
 {

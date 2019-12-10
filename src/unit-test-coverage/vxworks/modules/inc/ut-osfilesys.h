@@ -4,7 +4,7 @@
 #define _OSAL_UT_OSFILESYS_H_
 
 #include <common_types.h>
-#include <overrides/xbdBlkDev.h>
+#include <OCS_xbdBlkDev.h>
 
 /*****************************************************
  *

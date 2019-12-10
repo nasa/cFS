@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include "utstubs.h"
 
-#include <overrides/dosFsLib.h>
+#include <OCS_dosFsLib.h>
 
 
 /* ----------------------------------------- */

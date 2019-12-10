@@ -19,7 +19,7 @@
 #include <osapi.h>
 #include <os-impl.h>
 
-#include <overrides/stdlib.h>
+#include <OCS_stdlib.h>
 
 
 void Test_OS_Lock_Global_Impl(void)

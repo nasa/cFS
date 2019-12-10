@@ -15,7 +15,7 @@
 #include "os-shared-coveragetest.h"
 #include "ut-osapi-module.h"
 
-#include <overrides/string.h>
+#include <OCS_string.h>
 
 /* A dummy function for the static symbol lookup test.  Not called */
 void Test_DummyFunc(void)

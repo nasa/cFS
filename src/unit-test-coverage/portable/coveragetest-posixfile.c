@@ -21,11 +21,11 @@
 
 #include "ut-osfileapi.h"
 
-#include <overrides/stdio.h>
-#include <overrides/stdlib.h>
-#include <overrides/unistd.h>
-#include <overrides/fcntl.h>
-#include <overrides/sys/stat.h>
+#include <OCS_stdio.h>
+#include <OCS_stdlib.h>
+#include <OCS_unistd.h>
+#include <OCS_fcntl.h>
+#include <OCS_stat.h>
 
 #define OSAPI_TEST_FUNCTION_RC(func,exp)   \
 {                                               \

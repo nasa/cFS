@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include "utstubs.h"
 
-#include <overrides/errno.h>
+#include <OCS_errno.h>
 
 int OCS_errno = 0;
 

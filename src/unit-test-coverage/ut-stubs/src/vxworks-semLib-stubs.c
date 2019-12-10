@@ -3,11 +3,11 @@
 #include <stdlib.h>
 #include "utstubs.h"
 
-#include <overrides/semLib.h>
+#include <OCS_semLib.h>
 
-static int LOCAL_UT_SEM;
+static OCS_SEM LOCAL_UT_SEM = { 0 };
 
-OCS_SEM_ID OCS_semBInitialize(char *pSemMem, int options, OCS_SEM_B_STATE initialState)
+OCS_SEM_ID OCS_semBInitialize(OCS_SEM *pSemMem, int options, OCS_SEM_B_STATE initialState)
 {
     OCS_SEM_ID retval = NULL;
     int32 Status;
@@ -15,7 +15,7 @@ OCS_SEM_ID OCS_semBInitialize(char *pSemMem, int options, OCS_SEM_B_STATE initia
     Status = UT_DEFAULT_IMPL(OCS_semBInitialize);
     if (Status == 0)
     {
-        retval = (OCS_SEM_ID)pSemMem;
+        retval = pSemMem;
     }
 
     return retval;
@@ -33,7 +33,7 @@ OCS_SEM_ID OCS_semBCreate(int options, OCS_SEM_B_STATE initialState)
 
     return retval;
 }
-OCS_SEM_ID OCS_semMInitialize(char *pSemMem, int options)
+OCS_SEM_ID OCS_semMInitialize(OCS_SEM *pSemMem, int options)
 {
     OCS_SEM_ID retval = NULL;
     int32 Status;
@@ -41,7 +41,7 @@ OCS_SEM_ID OCS_semMInitialize(char *pSemMem, int options)
     Status = UT_DEFAULT_IMPL(OCS_semMInitialize);
     if (Status == 0)
     {
-        retval = (OCS_SEM_ID)pSemMem;
+        retval = pSemMem;
     }
 
     return retval;
@@ -59,7 +59,7 @@ OCS_SEM_ID OCS_semMCreate(int options)
 
     return retval;
 }
-OCS_SEM_ID OCS_semCInitialize(char *pSemMem, int options, int initialCount)
+OCS_SEM_ID OCS_semCInitialize(OCS_SEM *pSemMem, int options, int initialCount)
 {
     OCS_SEM_ID retval = NULL;
     int32 Status;
@@ -67,7 +67,7 @@ OCS_SEM_ID OCS_semCInitialize(char *pSemMem, int options, int initialCount)
     Status = UT_DEFAULT_IMPL(OCS_semCInitialize);
     if (Status == 0)
     {
-        retval = (OCS_SEM_ID)pSemMem;
+        retval = pSemMem;
     }
 
     return retval;

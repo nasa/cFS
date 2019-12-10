@@ -19,10 +19,10 @@
 #include <osapi.h>
 #include <os-impl.h>
 
-#include <overrides/stdlib.h>
-#include <overrides/unistd.h>
-#include <overrides/fcntl.h>
-#include <overrides/errno.h>
+#include <OCS_stdlib.h>
+#include <OCS_unistd.h>
+#include <OCS_fcntl.h>
+#include <OCS_errno.h>
 
 #include "ut-osfileapi.h"
 

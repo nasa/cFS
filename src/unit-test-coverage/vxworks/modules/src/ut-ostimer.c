@@ -1,5 +1,4 @@
 /* pull in the OSAL configuration */
-#include "stub-map-to-real.h"
 #include "osconfig.h"
 
 /*
@@ -88,8 +87,8 @@ void Osapi_Internal_ResetState(void)
 
 void Osapi_Internal_Setup(uint32 local_id, int signo, bool reset_flag)
 {
-    static int FAKE_TASK;
-    static int FAKE_SEM;
+    static OCS_WIND_TCB FAKE_TASK;
+    static OCS_SEM FAKE_SEM;
 
     OS_impl_timebase_table[local_id].assigned_signal = signo;
     OS_impl_timebase_table[local_id].handler_task = &FAKE_TASK;

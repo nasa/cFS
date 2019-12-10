@@ -3,9 +3,14 @@
 #include <stdlib.h>
 #include "utstubs.h"
 
-#include <overrides/dirent.h>
+#include <OCS_dirent.h>
 
-static int OCS_LOCAL_DIR;
+struct OCS_DIR
+{
+    int d;
+};
+
+static struct OCS_DIR OCS_LOCAL_DIR;
 struct OCS_dirent OCS_LOCAL_DIRENT;
 
 int OCS_closedir (OCS_DIR * dirp)

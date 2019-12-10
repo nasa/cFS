@@ -3,8 +3,8 @@
 #include <stdlib.h>
 #include "utstubs.h"
 
-#include <overrides/taskLib.h>
-#include <overrides/errnoLib.h>
+#include <OCS_taskLib.h>
+#include <OCS_errnoLib.h>
 
 static OCS_WIND_TCB OCS_LOCAL_TASK = { 0 };
 

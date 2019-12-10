@@ -15,7 +15,7 @@
 #include "os-shared-coveragetest.h"
 #include "ut-osapi-idmap.h"
 
-#include <overrides/string.h>
+#include <OCS_string.h>
 
 
 typedef struct

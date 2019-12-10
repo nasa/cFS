@@ -15,11 +15,11 @@
 #include "os-vxworks-coveragetest.h"
 #include "ut-ostimer.h"
 
-#include <overrides/taskLib.h>
-#include <overrides/signal.h>
-#include <overrides/time.h>
-#include <overrides/sysLib.h>
-#include <overrides/semLib.h>
+#include <OCS_taskLib.h>
+#include <OCS_signal.h>
+#include <OCS_time.h>
+#include <OCS_sysLib.h>
+#include <OCS_semLib.h>
 
 
 void Test_OS_VxWorks_TimeBaseAPI_Impl_Init(void)

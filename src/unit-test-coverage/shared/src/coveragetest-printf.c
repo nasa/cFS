@@ -15,7 +15,7 @@
 #include "os-shared-coveragetest.h"
 #include "ut-osapi-printf.h"
 
-#include <overrides/stdio.h>
+#include <OCS_stdio.h>
 
 char TestConsoleBuffer[16];
 

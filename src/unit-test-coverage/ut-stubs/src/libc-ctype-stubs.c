@@ -2,7 +2,7 @@
 #include <ctype.h>
 #include "utstubs.h"
 
-#include <overrides/ctype.h>
+#include <OCS_ctype.h>
 
 int OCS_isgraph(int c)
 {

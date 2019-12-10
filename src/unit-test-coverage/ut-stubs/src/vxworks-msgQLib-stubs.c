@@ -3,9 +3,9 @@
 #include <stdlib.h>
 #include "utstubs.h"
 
-#include <overrides/msgQLib.h>
+#include <OCS_msgQLib.h>
 
-static int LOCAL_UT_MSGQ;
+static OCS_MSG_Q LOCAL_UT_MSGQ = { 0 };
 
 OCS_MSG_Q_ID OCS_msgQCreate(int maxMsgs, int maxMsgLength, int options)
 {

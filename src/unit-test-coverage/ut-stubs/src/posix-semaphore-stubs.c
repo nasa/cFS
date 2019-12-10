@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include "utstubs.h"
 
-#include <overrides/semaphore.h>
+#include <OCS_semaphore.h>
 
 int OCS_sem_destroy (OCS_sem_t * sem)
 {

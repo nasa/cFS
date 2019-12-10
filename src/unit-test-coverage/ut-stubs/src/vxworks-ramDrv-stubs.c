@@ -3,9 +3,9 @@
 #include <stdlib.h>
 #include "utstubs.h"
 
-#include <overrides/ramDrv.h>
+#include <OCS_ramDrv.h>
 
-static int LOCAL_RAMDEV;
+static OCS_BLK_DEV LOCAL_RAMDEV = { 0 };
 
 OCS_BLK_DEV *OCS_ramDevCreate (char *ramAddr, int bytesPerSec, int secPerTrack,
                        int nSectors, int secOffset)

@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include "utstubs.h"
 
-#include <overrides/shellLib.h>
+#include <OCS_shellLib.h>
 
 OCS_STATUS OCS_shellGenericInit(
         const char * config,

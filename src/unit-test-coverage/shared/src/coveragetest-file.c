@@ -15,7 +15,7 @@
 #include "os-shared-coveragetest.h"
 #include "ut-osapi-file.h"
 
-#include <overrides/string.h>
+#include <OCS_string.h>
 
 /*
 **********************************************************************************

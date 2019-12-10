@@ -3,10 +3,20 @@
 #include <stdlib.h>
 #include "utstubs.h"
 
-#include <overrides/symLib.h>
+#include <OCS_symLib.h>
 
-static int LOCAL_SYMBOL;
-static int LOCAL_SYMTAB;
+struct OCS_SYMBOL
+{
+    int sym;
+};
+
+struct OCS_SYMTAB
+{
+    int symtab;
+};
+
+static OCS_SYMBOL LOCAL_SYMBOL = { 1 };
+static OCS_SYMTAB LOCAL_SYMTAB = { 2 };
 
 OCS_SYMTAB_ID OCS_sysSymTbl = &LOCAL_SYMTAB;
 

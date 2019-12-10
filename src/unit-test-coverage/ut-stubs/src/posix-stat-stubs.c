@@ -3,8 +3,7 @@
 #include <stdlib.h>
 #include "utstubs.h"
 
-#include <overrides/sys/stat.h>
-#include <overrides/sys/statvfs.h>
+#include <OCS_stat.h>
 
 
 int OCS_fchmod (int fd, OCS_mode_t mode)
@@ -25,7 +24,7 @@ int OCS_chmod (const char *path, OCS_mode_t mode)
     return Status;
 }
 
-int OCS_mkdir (const char * path, OCS_mode_t mode)
+int OCS_mkdir (const char * path, ...)
 {
     int32 Status;
 

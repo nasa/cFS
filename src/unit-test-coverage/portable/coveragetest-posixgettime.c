@@ -19,7 +19,7 @@
 #include <osapi.h>
 #include <os-impl.h>
 
-#include <overrides/time.h>
+#include <OCS_time.h>
 
 #define OSAPI_TEST_FUNCTION_RC(func,exp)   \
 {                                               \

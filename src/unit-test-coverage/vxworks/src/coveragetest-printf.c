@@ -15,11 +15,11 @@
 #include "os-vxworks-coveragetest.h"
 #include "ut-osapi.h"
 
-#include <overrides/unistd.h>
-#include <overrides/semLib.h>
-#include <overrides/taskLib.h>
-#include <overrides/errnoLib.h>
-#include <overrides/stdio.h>
+#include <OCS_unistd.h>
+#include <OCS_semLib.h>
+#include <OCS_taskLib.h>
+#include <OCS_errnoLib.h>
+#include <OCS_stdio.h>
 
 char TestConsoleBuffer[16];
 

@@ -15,7 +15,7 @@
 #include "os-shared-coveragetest.h"
 #include "ut-osapi-common.h"
 
-#include <overrides/stdlib.h>
+#include <OCS_stdlib.h>
 
 /*
 ** OS_CleanUpObject() is an internal helper function.

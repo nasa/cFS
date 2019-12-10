@@ -15,7 +15,7 @@
 #include "os-shared-coveragetest.h"
 #include "ut-osapi-sockets.h"
 
-#include <overrides/stdio.h>
+#include <OCS_stdio.h>
 
 void Test_OS_SocketAPI_Init(void)
 {

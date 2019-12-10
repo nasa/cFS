@@ -14,12 +14,12 @@
 
 #include "os-vxworks-coveragetest.h"
 
-#include <overrides/stdlib.h>
-#include <overrides/taskLib.h>
-#include <overrides/shellLib.h>
-#include <overrides/dirent.h>
-#include <overrides/unistd.h>
-#include <overrides/sys/stat.h>
+#include <OCS_stdlib.h>
+#include <OCS_taskLib.h>
+#include <OCS_shellLib.h>
+#include <OCS_dirent.h>
+#include <OCS_unistd.h>
+#include <OCS_stat.h>
 
 #include "ut-osfileapi.h"
 

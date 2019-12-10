@@ -4,8 +4,8 @@
 #define _OSAL_UT_OSAPI_H_
 
 #include <common_types.h>
-#include <overrides/taskLib.h>
-#include <overrides/semLib.h>
+#include <OCS_taskLib.h>
+#include <OCS_semLib.h>
 
 /*****************************************************
  *

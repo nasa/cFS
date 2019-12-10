@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include "utstubs.h"
 
-#include <overrides/sysLib.h>
+#include <OCS_sysLib.h>
 
 int OCS_sysClkRateGet(void)
 {

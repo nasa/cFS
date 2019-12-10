@@ -15,14 +15,14 @@
 #include "os-vxworks-coveragetest.h"
 #include "ut-osfilesys.h"
 
-#include <overrides/stdlib.h>
-#include <overrides/sys/ioctl.h>
-#include <overrides/sys/statvfs.h>
-#include <overrides/fcntl.h>
-#include <overrides/unistd.h>
-#include <overrides/ramDrv.h>
-#include <overrides/dosFsLib.h>
-#include <overrides/xbdBlkDev.h>
+#include <OCS_stdlib.h>
+#include <OCS_sys_ioctl.h>
+#include <OCS_stat.h>
+#include <OCS_fcntl.h>
+#include <OCS_unistd.h>
+#include <OCS_ramDrv.h>
+#include <OCS_dosFsLib.h>
+#include <OCS_xbdBlkDev.h>
 
 
 

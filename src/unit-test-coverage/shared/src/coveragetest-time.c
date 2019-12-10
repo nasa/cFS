@@ -15,7 +15,7 @@
 #include "os-shared-coveragetest.h"
 #include "ut-osapi-time.h"
 
-#include <overrides/string.h>
+#include <OCS_string.h>
 
 static uint32 UT_TimerCount = 0;
 static uint32 UT_TimerArgCount = 0;

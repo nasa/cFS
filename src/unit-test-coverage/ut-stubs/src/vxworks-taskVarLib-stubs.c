@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include "utstubs.h"
 
-#include <overrides/taskVarLib.h>
+#include <OCS_taskVarLib.h>
 
 
 OCS_STATUS OCS_taskVarAdd(int tid, int *pVar)
