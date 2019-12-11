@@ -105,7 +105,7 @@ static int32 UT_GenericWriteStub(const char *fname, UT_EntryKey_t fkey, const vo
  *****************************************************************************/
 int32 OS_creat(const char *path, int32 access)
 {
-    int32 status = OS_SUCCESS;
+    int32 status;
 
     status = UT_DEFAULT_IMPL(OS_creat);
 
@@ -144,7 +144,7 @@ int32 OS_open(const char *path, int32 access, uint32 mode)
  *****************************************************************************/
 int32 OS_close(uint32 filedes)
 {
-    int32 status = OS_FS_SUCCESS;
+    int32 status;
 
     status = UT_DEFAULT_IMPL(OS_close);
 
