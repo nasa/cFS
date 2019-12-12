@@ -22,20 +22,15 @@
 ** External global variables
 **--------------------------------------------------------------------------------*/
 
-extern UT_OsLogInfo_t  g_logInfo;
-
 /*--------------------------------------------------------------------------------*
 ** Global variables
 **--------------------------------------------------------------------------------*/
 
 char* g_fsAddrPtr = NULL;
 
-int32  g_skipTestCase = -1;
-const char*  g_skipTestCaseResult = " ";
-
-char  g_longPathName[OS_MAX_PATH_LEN+5];
-char  g_longFileName[OS_MAX_PATH_LEN];
-char  g_invalidPath[OS_MAX_PATH_LEN];
+char  g_longPathName[UT_OS_PATH_BUFF_SIZE];
+char  g_longFileName[UT_OS_PATH_BUFF_SIZE];
+char  g_invalidPath[UT_OS_PATH_BUFF_SIZE];
 
 const char* g_devName = "/ramdev3";
 const char* g_mntName = "/drive3";
@@ -49,7 +44,7 @@ const char* g_mntName = "/drive3";
 **--------------------------------------------------------------------------------*/
 
 int32 UT_os_setup_fs(void);
-int32 UT_os_teardown_fs(void);
+void UT_os_teardown_fs(void);
 
 void UT_os_init_file_misc(void);
 
@@ -59,33 +54,33 @@ void UT_os_init_file_misc(void);
 
 int32 UT_os_setup_fs()
 {
-    int32 res=OS_FS_SUCCESS;
+    int32 res;
 
     res = OS_mkfs(g_fsAddrPtr, g_devName, " ", 512, 20);
     if (res != OS_FS_SUCCESS)
+    {
+        UT_OS_LOG("OS_mkfs() returns %d\n", (int)res);;
         goto UT_os_setup_fs_exit_tag;
+    }
 
     res = OS_mount(g_devName, g_mntName);
     if (res != OS_FS_SUCCESS)
     {
+        UT_OS_LOG("OS_mount() returns %d\n", (int)res);;
         OS_rmfs(g_devName);
         goto UT_os_setup_fs_exit_tag;
     }
 
 UT_os_setup_fs_exit_tag:
-    UT_OS_LOG_MACRO("\nUT_os_setup_fs() returns %d\n", (int)res);
-
     return (res);
 }
 
 /*--------------------------------------------------------------------------------*/
 
-int32 UT_os_teardown_fs()
+void UT_os_teardown_fs()
 {
     OS_unmount(g_mntName);
     OS_rmfs(g_devName);
-
-    return (OS_FS_SUCCESS);
 }
 
 /*--------------------------------------------------------------------------------*/
@@ -96,10 +91,14 @@ void UT_os_init_file_misc()
     g_longPathName[0]  = '/';
     g_longPathName[sizeof(g_longPathName)-1] = '\0';
 
+    /*
+     * The "g_longFileName" should be within the OS_MAX_PATH_LEN limit,
+     * but the filename portion of it exceeds the OS_MAX_FILE_NAME limit.
+     */
     memset(g_longFileName, 'Z', sizeof(g_longFileName));
     g_longFileName[0] = '/';
     g_longFileName[4] = '/';
-    g_longFileName[sizeof(g_longFileName)-1] = '\0';
+    g_longFileName[OS_MAX_FILE_NAME+9] = '\0';
 
     memset(g_invalidPath, '\0', sizeof(g_invalidPath));
     strcpy(g_invalidPath, "/InvalidMnt/log1.txt");
@@ -111,13 +110,6 @@ void UT_os_init_file_misc()
 
 void OS_Application_Startup(void)
 {
-    UT_os_setup(UT_OS_LOG_FILENAME);
-
-    /* UT_OS_LOG_OFF, UT_OS_LOG_MINIMAL, UT_OS_LOG_MODERATE, UT_OS_LOG_EVERYTHING */
-    UT_os_set_log_verbose(UT_OS_LOG_EVERYTHING);
-
-    UT_OS_LOG_MACRO("OSAL Unit Test Output File for osfile APIs\n");
-
     UT_os_initfs_test();
 
     if (UT_os_setup_fs() == OS_FS_SUCCESS)
@@ -125,45 +117,41 @@ void OS_Application_Startup(void)
         UT_os_init_file_misc();
 
         /* Directory I/O APIs */
-        UT_os_makedir_test();
-        UT_os_opendir_test();
-        UT_os_closedir_test();
+        UtTest_Add(UT_os_makedir_test, NULL, NULL, "OS_mkdir");
+        UtTest_Add(UT_os_opendir_test, NULL, NULL, "OS_opendir");
+        UtTest_Add(UT_os_closedir_test, NULL, NULL, "OS_closedir");
 
-        UT_os_readdir_test();
-        UT_os_rewinddir_test();
-        UT_os_removedir_test();
+        UtTest_Add(UT_os_readdir_test, NULL, NULL, "OS_readdir");
+        UtTest_Add(UT_os_rewinddir_test, NULL, NULL, "OS_rewinddir");
+        UtTest_Add(UT_os_removedir_test, NULL, NULL, "OS_rmdir");
 
         /* File I/O APIs */
-        UT_os_createfile_test();
-        UT_os_openfile_test();
-        UT_os_closefile_test();
+        UtTest_Add(UT_os_createfile_test, NULL, NULL, "OS_creat");
+        UtTest_Add(UT_os_openfile_test, NULL, NULL, "OS_open");
+        UtTest_Add(UT_os_closefile_test, NULL, NULL, "OS_close");
 
-        UT_os_readfile_test();
-        UT_os_writefile_test();
-        UT_os_lseekfile_test();
+        UtTest_Add(UT_os_readfile_test, NULL, NULL, "OS_read");
+        UtTest_Add(UT_os_writefile_test, NULL, NULL, "OS_write");
+        UtTest_Add(UT_os_lseekfile_test, NULL, NULL, "OS_lseek");
 
-        UT_os_chmodfile_test();
-        UT_os_statfile_test();
+        UtTest_Add(UT_os_chmodfile_test, NULL, NULL, "OS_chmod");
+        UtTest_Add(UT_os_statfile_test, NULL, NULL, "OS_stat");
 
-        UT_os_removefile_test();
-        UT_os_renamefile_test();
-        UT_os_copyfile_test();
-        UT_os_movefile_test();
+        UtTest_Add(UT_os_removefile_test, NULL, NULL, "OS_remove");
+        UtTest_Add(UT_os_renamefile_test, NULL, NULL, "OS_rename");
+        UtTest_Add(UT_os_copyfile_test, NULL, NULL, "OS_cp");
+        UtTest_Add(UT_os_movefile_test, NULL, NULL, "OS_mv");
 
-        UT_os_outputtofile_test();
+        UtTest_Add(UT_os_outputtofile_test, NULL, NULL, "OS_ShellOutputToFile");
 
-        UT_os_getfdinfo_test();
-        UT_os_checkfileopen_test();
+        UtTest_Add(UT_os_getfdinfo_test, NULL, NULL, "OS_FDGetInfo");
+        UtTest_Add(UT_os_checkfileopen_test, NULL, NULL, "OS_FileOpenCheck");
 
-        UT_os_closeallfiles_test();
-        UT_os_closefilebyname_test();
+        UtTest_Add(UT_os_closeallfiles_test, NULL, NULL, "OS_CloseAllFiles");
+        UtTest_Add(UT_os_closefilebyname_test, NULL, NULL, "OS_CloseFileByName");
 
-        UT_os_teardown_fs();
+        UtTest_Add(NULL, NULL, UT_os_teardown_fs, "TEARDOWN");
     }
-
-    UT_os_teardown("ut_osfile");
-
-    OS_ApplicationExit(g_logInfo.nFailed > 0);
 }
 
 /*================================================================================*

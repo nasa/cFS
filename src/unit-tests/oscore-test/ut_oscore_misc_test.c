@@ -9,7 +9,6 @@
 **--------------------------------------------------------------------------------*/
 
 #include "ut_oscore_misc_test.h"
-#include "ut_oscore_test_platforms.h"
 
 /*--------------------------------------------------------------------------------*
 ** Macros
@@ -22,8 +21,6 @@
 /*--------------------------------------------------------------------------------*
 ** External global variables
 **--------------------------------------------------------------------------------*/
-
-extern UT_OsLogInfo_t g_logInfo;
 
 /*--------------------------------------------------------------------------------*
 ** Global variables
@@ -49,11 +46,7 @@ void UT_os_sample_test()
     /* Must declare these variables for each function. They can be renamed.
      * They're referenced in the macros used to track test cases and their results. */
     int32 idx = 0;
-    UT_OsApiInfo_t apiInfo;
-    const char* testDesc = NULL;
-
-    /* Call this once at the beginning of the function to initialize the test variables. */
-    UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
+    const char* testDesc;
 
     /*-----------------------------------------------------*
      * For each test case,
@@ -75,7 +68,7 @@ void UT_os_sample_test()
 
     if (OS_xxx() == OS_ERR_NOT_IMPLEMENTED)
     {
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_NA);
         goto UT_os_sample_test_exit_tag;
     }
 
@@ -87,9 +80,9 @@ void UT_os_sample_test()
     /* TODO: Setup the test environment here, if necessary */
 
     if (OS_xxx(NULL,...) == OS_INVALID_POINTER)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /* TODO: Reset the test environment here, if necessary */
 
@@ -99,9 +92,9 @@ void UT_os_sample_test()
     /* TODO: Setup the test environment here, if necessary */
 
     if (OS_xxx(aVeryLoooooongName) == OS_ERR_NAME_TOO_LONG)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /* TODO: Reset the test environment here, if necessary */
 
@@ -111,17 +104,15 @@ void UT_os_sample_test()
     /* TODO: Setup the test environment here, if necessary */
 
     if (OS_xxx(...) != OS_SUCCESS)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
 
     /* TODO: Reset the test environment here, if necessary */
 
 UT_os_sample_test_exit_tag:
-    /* Call these macros at the very end of the function to close out the test variables
-     * and get it added to the global list being tracked. */
-    UT_OS_SET_API_NAME_AND_TEST_COUNT_MACRO(apiInfo, "OS_xxx", idx)
-    UT_OS_LOG_API_MACRO(apiInfo)
+    return;
+    
 }
 #endif
 
@@ -155,13 +146,10 @@ UT_os_sample_test_exit_tag:
 *--------------------------------------------------------------------------------*/
 void UT_os_apiinit_test()
 {
-    UT_OsApiInfo_t apiInfo;
-    int32 res = 0, idx = 0;
-    const char* testDesc = NULL;
+    int32 res = 0;
+    const char* testDesc;
     uint32 qId = 0, qDepth = 10, qSize = 4, qFlags = 0;
     uint32 semIds[3], semInitValue = 1, semOptions = 0;
-
-    UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
 
     /*-----------------------------------------------------*/
     testDesc = "#1 Init-not-call-first";
@@ -170,10 +158,9 @@ void UT_os_apiinit_test()
         (OS_BinSemCreate(&semIds[0], "BinSem 1", semInitValue, semOptions) != OS_SUCCESS) &&
         (OS_CountSemCreate(&semIds[1], "CountSem 1", semInitValue, semOptions) != OS_SUCCESS) &&
         (OS_MutSemCreate(&semIds[2], "MutexSem 1", semOptions) != OS_SUCCESS))
-        /* cppcheck-suppress syntaxError */
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /* Reset test environment */
     OS_QueueDelete(qId);
@@ -188,7 +175,7 @@ void UT_os_apiinit_test()
     if (res == OS_ERR_NOT_IMPLEMENTED)
     {
         testDesc = "API not implemented";
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_NA);
         goto UT_os_apiinit_test_exit_tag;
     }
     else if ((res == OS_SUCCESS) &&
@@ -197,11 +184,11 @@ void UT_os_apiinit_test()
              (OS_CountSemCreate(&semIds[1], "CountSem 1", semInitValue, semOptions) == OS_SUCCESS) &&
              (OS_MutSemCreate(&semIds[2], "MutexSem 1", semOptions) == OS_SUCCESS))
     {
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     }
     else
     {
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
     }
 
     /* Reset test environment */
@@ -211,8 +198,8 @@ void UT_os_apiinit_test()
     OS_MutSemDelete(semIds[2]);
 
 UT_os_apiinit_test_exit_tag:
-    UT_OS_SET_API_NAME_AND_TEST_COUNT_MACRO(apiInfo, "OS_API_Init", idx)
-    UT_OS_LOG_API_MACRO(apiInfo)
+    return;
+    
 }
 
 /*--------------------------------------------------------------------------------*
@@ -229,19 +216,12 @@ UT_os_apiinit_test_exit_tag:
 **--------------------------------------------------------------------------------*/
 void UT_os_printf_test()
 {
-    int32 idx = 0;
-    UT_OsApiInfo_t apiInfo;
-
-    UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
-
     OS_printf_enable();
-    UT_OS_LOG_MACRO("OS_printf() - #1 Nominal [This is the expected stdout output after API call]\n")
+    UT_OS_LOG("OS_printf() - #1 Nominal [This is the expected stdout output after API call]\n");
     OS_printf("OS_printf() - #1 Nominal [ This is the expected stdout output after API call]\n");
 
-    UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, "#1 Nominal - Manual inspection required", UT_OS_MIR)
+    UT_OS_TEST_RESULT( "#1 Nominal - Manual inspection required", UTASSERT_CASETYPE_MIR);
 
-    UT_OS_SET_API_NAME_AND_TEST_COUNT_MACRO(apiInfo, "OS_printf", idx)
-    UT_OS_LOG_API_MACRO(apiInfo)
 }
 
 /*--------------------------------------------------------------------------------*
@@ -258,21 +238,14 @@ void UT_os_printf_test()
 **--------------------------------------------------------------------------------*/
 void UT_os_printfenable_test()
 {
-    int32 idx = 0;
-    UT_OsApiInfo_t apiInfo;
-
-    UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
-
     OS_printf_disable();
 
     OS_printf_enable();
-    UT_OS_LOG_MACRO("OS_printf_enable() - #1 Nominal [This is the expected stdout output after API call]\n")
+    UT_OS_LOG("OS_printf_enable() - #1 Nominal [This is the expected stdout output after API call]\n");
     OS_printf("OS_printf_enable() - #1 Nominal [This is the expected stdout output after API call]\n");
 
-    UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, "#1 Nominal - Manual inspection required", UT_OS_MIR)
+    UT_OS_TEST_RESULT( "#1 Nominal - Manual inspection required", UTASSERT_CASETYPE_MIR);
 
-    UT_OS_SET_API_NAME_AND_TEST_COUNT_MACRO(apiInfo, "OS_printf_enable", idx)
-    UT_OS_LOG_API_MACRO(apiInfo)
 }
 
 /*--------------------------------------------------------------------------------*
@@ -289,28 +262,21 @@ void UT_os_printfenable_test()
 **--------------------------------------------------------------------------------*/
 void UT_os_printfdisable_test()
 {
-    int32 idx = 0;
-    UT_OsApiInfo_t apiInfo;
-
-    UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
-
     OS_printf_enable();
-    UT_OS_LOG_MACRO("OS_printf_disable() - #1 Nominal [This is the expected stdout output before API call]\n")
+    UT_OS_LOG("OS_printf_disable() - #1 Nominal [This is the expected stdout output before API call]\n");
     OS_printf("OS_printf_disable() - #1 Nominal [This is the expected stdout output before API call]\n");
 
     OS_printf_disable();
-    UT_OS_LOG_MACRO("OS_printf_disable() - #1 Nominal [This is NOT the expected stdout output after API call]\n")
+    UT_OS_LOG("OS_printf_disable() - #1 Nominal [This is NOT the expected stdout output after API call]\n");
     OS_printf("OS_printf_disable() - #1 Nominal [This is NOT the expected stdout output after API call]\n");
 
-    UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, "#1 Nominal - Manual inspection required", UT_OS_MIR)
+    UT_OS_TEST_RESULT( "#1 Nominal - Manual inspection required", UTASSERT_CASETYPE_MIR);
 
     /* Reset test environment */
     OS_printf_enable();
-    UT_OS_LOG_MACRO("OS_printf_disable() - #1 Nominal [This is the expected stdout output after test reset]\n")
+    UT_OS_LOG("OS_printf_disable() - #1 Nominal [This is the expected stdout output after test reset]\n");
     OS_printf("OS_printf_disable() - #1 Nominal [This is the expected stdout output after test reset]\n");
 
-    UT_OS_SET_API_NAME_AND_TEST_COUNT_MACRO(apiInfo, "OS_printf_disable", idx)
-    UT_OS_LOG_API_MACRO(apiInfo)
 }
 
 /*--------------------------------------------------------------------------------*
@@ -332,11 +298,8 @@ void UT_os_printfdisable_test()
 **--------------------------------------------------------------------------------*/
 void UT_os_tick2micros_test()
 {
-    UT_OsApiInfo_t apiInfo;
-    int32 res = 0, idx = 0;
-    const char* testDesc = NULL;
-
-    UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
+    int32 res = 0;
+    const char* testDesc;
 
     /*-----------------------------------------------------*/
     testDesc = "API not implemented";
@@ -344,7 +307,7 @@ void UT_os_tick2micros_test()
     res = OS_Tick2Micros();
     if (res == OS_ERR_NOT_IMPLEMENTED)
     {
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_NA);
         goto UT_os_tick2micros_test_exit_tag;
     }
 
@@ -353,13 +316,13 @@ void UT_os_tick2micros_test()
 
     res = OS_Tick2Micros();
     if (res >= 0)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
 UT_os_tick2micros_test_exit_tag:
-    UT_OS_SET_API_NAME_AND_TEST_COUNT_MACRO(apiInfo, "OS_Tick2Micros", idx)
-    UT_OS_LOG_API_MACRO(apiInfo)
+    return;
+    
 }
 
 /*--------------------------------------------------------------------------------*
@@ -387,12 +350,9 @@ UT_os_tick2micros_test_exit_tag:
 **--------------------------------------------------------------------------------*/
 void UT_os_milli2ticks_test()
 {
-    UT_OsApiInfo_t apiInfo;
-    int32 res = 0, idx = 0;
+    int32 res = 0;
     uint32 timeInMillisecs = 0;
-    const char* testDesc = NULL;
-
-    UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
+    const char* testDesc;
 
     /*-----------------------------------------------------*/
     testDesc = "API not implemented";
@@ -400,7 +360,7 @@ void UT_os_milli2ticks_test()
     res = OS_Milli2Ticks(timeInMillisecs);
     if (res == OS_ERR_NOT_IMPLEMENTED)
     {
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_NA);
         goto UT_os_milli2ticks_test_exit_tag;
     }
 
@@ -410,9 +370,9 @@ void UT_os_milli2ticks_test()
     timeInMillisecs = 0;
     res = OS_Milli2Ticks(timeInMillisecs);
     if (res == 0)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /*-----------------------------------------------------*/
     testDesc = "#2 Nominal";
@@ -420,13 +380,13 @@ void UT_os_milli2ticks_test()
     timeInMillisecs = 100;
     res = OS_Milli2Ticks(timeInMillisecs);
     if (res >= 0)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
 UT_os_milli2ticks_test_exit_tag:
-    UT_OS_SET_API_NAME_AND_TEST_COUNT_MACRO(apiInfo, "OS_Milli2Ticks", idx)
-    UT_OS_LOG_API_MACRO(apiInfo)
+    return;
+    
 }
 
 /*--------------------------------------------------------------------------------*
@@ -463,11 +423,8 @@ UT_os_milli2ticks_test_exit_tag:
 void UT_os_getlocaltime_test()
 {
     OS_time_t time_struct;
-    UT_OsApiInfo_t apiInfo;
-    const char* testDesc = NULL;
-    int32 res = 0, idx = 0, i = 0;
-
-    UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
+    const char* testDesc;
+    int32 res = 0, i = 0;
 
     /*-----------------------------------------------------*/
     testDesc = "API not implemented";
@@ -475,7 +432,7 @@ void UT_os_getlocaltime_test()
     res = OS_GetLocalTime(NULL);
     if (res == OS_ERR_NOT_IMPLEMENTED)
     {
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_NA);
         goto UT_os_getlocaltime_test_exit_tag;
     }
 
@@ -483,14 +440,14 @@ void UT_os_getlocaltime_test()
     testDesc = "#1 Null-pointer-arg";
     res = OS_GetLocalTime(NULL);
     if (res == OS_INVALID_POINTER)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /*-----------------------------------------------------*/
     testDesc = "#2 OS-call-failure";
 
-    UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_UOF)
+    UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_INFO);
 
     /*-----------------------------------------------------*/
     testDesc = "#3 Nominal";
@@ -498,28 +455,28 @@ void UT_os_getlocaltime_test()
     res = OS_GetLocalTime(&time_struct);
     if (res == OS_SUCCESS)
     {
-    	UT_OS_LOG_MACRO("\n")
+    	UT_OS_LOG("\n");
         for (i=0; i < 5; i++)
         {
-            UT_OS_LOG_MACRO("OS_GetLocalTime() - #3 Nominal ")
-            UT_OS_LOG_MACRO("[Expecting output after API call to increase over time: %ld.%ld]\n",
+            UT_OS_LOG("OS_GetLocalTime() - #3 Nominal ");
+            UT_OS_LOG("[Expecting output after API call to increase over time: %ld.%ld]\n",
                                 (long)time_struct.seconds, (long)time_struct.microsecs);
 
-            UT_OS_WAIT_MACRO
+            OS_TaskDelay(20);
             OS_GetLocalTime(&time_struct);
         }
 
         testDesc = "#3 Nominal - Manual inspection required";
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_MIR)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_MIR);
     }
     else
     {
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
     }
 
 UT_os_getlocaltime_test_exit_tag:
-    UT_OS_SET_API_NAME_AND_TEST_COUNT_MACRO(apiInfo, "OS_GetLocalTime", idx)
-    UT_OS_LOG_API_MACRO(apiInfo)
+    return;
+    
 }
 
 /*--------------------------------------------------------------------------------*
@@ -556,11 +513,8 @@ UT_os_getlocaltime_test_exit_tag:
 void UT_os_setlocaltime_test()
 {
     OS_time_t time_struct;
-    UT_OsApiInfo_t apiInfo;
-    const char* testDesc = NULL;
-    int32 res = 0, idx = 0, i = 0;
-
-    UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
+    const char* testDesc;
+    int32 res = 0, i = 0;
 
     /*-----------------------------------------------------*/
     testDesc = "API not implemented";
@@ -568,7 +522,7 @@ void UT_os_setlocaltime_test()
     res = OS_SetLocalTime(NULL);
     if (res == OS_ERR_NOT_IMPLEMENTED)
     {
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_NA);
         goto UT_os_setlocaltime_test_exit_tag;
     }
 
@@ -577,14 +531,14 @@ void UT_os_setlocaltime_test()
 
     res = OS_GetLocalTime(NULL);
     if (res == OS_INVALID_POINTER)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /*-----------------------------------------------------*/
     testDesc = "#2 OS-call-failure";
 
-    UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_UOF)
+    UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_INFO);
 
     /*-----------------------------------------------------*/
     testDesc = "#3 Nominal";
@@ -592,14 +546,13 @@ void UT_os_setlocaltime_test()
     res = OS_GetLocalTime(&time_struct);
     if (res == OS_SUCCESS)
     {
-        UT_os_printf("\n");
         for (i=0; i < 5; i++)
         {
-            UT_OS_LOG_MACRO("OS_SetLocalTime() - #3 Nominal ")
-			UT_OS_LOG_MACRO("[Expecting output before API call to increase over time: %ld.%ld]\n",
+            UT_OS_LOG("OS_SetLocalTime() - #3 Nominal ");
+			UT_OS_LOG("[Expecting output before API call to increase over time: %ld.%ld]\n",
 						        (long)time_struct.seconds, (long)time_struct.microsecs);
 
-            UT_OS_WAIT_MACRO
+            OS_TaskDelay(20);
             OS_GetLocalTime(&time_struct);
         }
     }
@@ -611,36 +564,35 @@ void UT_os_setlocaltime_test()
     res = OS_SetLocalTime(&time_struct);
     if (res == OS_SUCCESS)
     {
-    	UT_OS_LOG_MACRO("OS_SetLocalTime() - #3 Nominal [New time set at %ld.%ld]\n",
+    	UT_OS_LOG("OS_SetLocalTime() - #3 Nominal [New time set at %ld.%ld]\n",
                             (long)time_struct.seconds, (long)time_struct.microsecs);
 
         res = OS_GetLocalTime(&time_struct);
         if (res == OS_SUCCESS)
         {
-            UT_os_printf("\n");
             for (i=0; i < 5; i++)
             {
-                UT_OS_LOG_MACRO("OS_SetLocalTime() - #3 Nominal ")
-				UT_OS_LOG_MACRO("[Expecting output after API call to increase over time: %ld.%ld]\n",
+                UT_OS_LOG("OS_SetLocalTime() - #3 Nominal ");
+				UT_OS_LOG("[Expecting output after API call to increase over time: %ld.%ld]\n",
 							        (long)time_struct.seconds, (long)time_struct.microsecs);
 
-                UT_OS_WAIT_MACRO
+                OS_TaskDelay(20);
                 OS_GetLocalTime(&time_struct);
             }
         }
 
         testDesc = "#3 Nominal - Manual inspection required";
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_MIR)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_MIR);
     }
     else
     {
         /* Most likely it is a permission issue - no way to fix - but OK to ignore this failure */
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_NA);
     }
 
 UT_os_setlocaltime_test_exit_tag:
-    UT_OS_SET_API_NAME_AND_TEST_COUNT_MACRO(apiInfo, "OS_SetLocalTime", idx)
-    UT_OS_LOG_API_MACRO(apiInfo)
+    return;
+    
 }
 
 /*--------------------------------------------------------------------------------*
@@ -669,12 +621,9 @@ UT_os_setlocaltime_test_exit_tag:
 **--------------------------------------------------------------------------------*/
 void UT_os_geterrorname_test(void)
 {
-    UT_OsApiInfo_t apiInfo;
-    int32 res = 0, idx = 0;
+    int32 res = 0;
     os_err_name_t errNames[4];
-    const char* testDesc = NULL;
-
-    UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
+    const char* testDesc;
 
     /*-----------------------------------------------------*/
     testDesc = "API not implemented";
@@ -682,7 +631,7 @@ void UT_os_geterrorname_test(void)
     res = OS_GetErrorName(OS_SUCCESS, &errNames[0]);
     if (res == OS_ERR_NOT_IMPLEMENTED)
     {
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_NA);
         goto UT_os_geterrorname_test_exit_tag;
     }
 
@@ -691,17 +640,17 @@ void UT_os_geterrorname_test(void)
 
     res = OS_GetErrorName(OS_ERROR, NULL);
     if (res == OS_INVALID_POINTER)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /*-----------------------------------------------------*/
     testDesc = "#2 Undefined Error";
 
     if (OS_GetErrorName(12345, &errNames[0]) == OS_ERROR)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /*-----------------------------------------------------*/
     testDesc = "#3 Nominal";
@@ -712,13 +661,13 @@ void UT_os_geterrorname_test(void)
         (strcmp(errNames[1], "OS_ERR_NAME_TAKEN") == 0) &&
         (OS_GetErrorName(OS_ERR_NO_FREE_IDS, &errNames[2]) == OS_SUCCESS) &&
         (strcmp(errNames[2], "OS_ERR_NO_FREE_IDS") == 0))
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
 UT_os_geterrorname_test_exit_tag:
-    UT_OS_SET_API_NAME_AND_TEST_COUNT_MACRO(apiInfo, "OS_GetErrorName", idx)
-    UT_OS_LOG_API_MACRO(apiInfo)
+    return;
+    
 }
 
 /*--------------------------------------------------------------------------------*
@@ -753,12 +702,9 @@ UT_os_geterrorname_test_exit_tag:
 **--------------------------------------------------------------------------------*/
 void UT_os_heapgetinfo_test(void)
 {
-    UT_OsApiInfo_t apiInfo;
-    int32 res = 0, idx = 0;
+    int32 res = 0;
     OS_heap_prop_t heapProp;
-    const char* testDesc = NULL;
-
-    UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
+    const char* testDesc;
 
     /*-----------------------------------------------------*/
     testDesc = "API not implemented";
@@ -766,7 +712,7 @@ void UT_os_heapgetinfo_test(void)
     res = OS_HeapGetInfo(&heapProp);
     if (res == OS_ERR_NOT_IMPLEMENTED)
     {
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_NA);
         goto UT_os_heapgetinfo_test_exit_tag;
     }
 
@@ -775,27 +721,27 @@ void UT_os_heapgetinfo_test(void)
 
     res = OS_HeapGetInfo(NULL);
     if (res == OS_INVALID_POINTER)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /*-----------------------------------------------------*/
     testDesc = "#2 OS-call-failure";
 
-    UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_UOF)
+    UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_INFO);
 
     /*-----------------------------------------------------*/
     testDesc = "#3 Nominal";
 
     res = OS_HeapGetInfo(&heapProp);
     if (res == OS_SUCCESS)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
 UT_os_heapgetinfo_test_exit_tag:
-    UT_OS_SET_API_NAME_AND_TEST_COUNT_MACRO(apiInfo, "OS_HeapGetInfo", idx)
-    UT_OS_LOG_API_MACRO(apiInfo)
+    return;
+    
 }
 
 /*================================================================================*

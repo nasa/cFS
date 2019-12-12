@@ -22,22 +22,17 @@
 ** External global variables
 **--------------------------------------------------------------------------------*/
 
-extern UT_OsLogInfo_t g_logInfo;
-
 extern char* g_fsAddrPtr;
 
 extern int32 g_blkSize;
 extern int32 g_blkCnt;
 
-extern int32  g_skipTestCase;
-extern char*  g_skipTestCaseResult;
+extern char  g_fsLongName[UT_OS_PATH_BUFF_SIZE];
+extern char  g_physDriveName[UT_OS_PHYS_NAME_BUFF_SIZE];
 
-extern char  g_fsLongName[OS_MAX_PATH_LEN+5];
-extern char  g_physDriveName[OS_MAX_PATH_LEN];
-
-extern char  g_volNames[UT_OS_FILESYS_LIST_LEN][UT_OS_XS_TEXT_LEN];
-extern char  g_devNames[UT_OS_FILESYS_LIST_LEN][UT_OS_XS_TEXT_LEN];
-extern char  g_mntNames[UT_OS_FILESYS_LIST_LEN][UT_OS_XS_TEXT_LEN];
+extern char  g_volNames[UT_OS_FILESYS_LIST_LEN][UT_OS_NAME_BUFF_SIZE];
+extern char  g_devNames[UT_OS_FILESYS_LIST_LEN][UT_OS_FILE_BUFF_SIZE];
+extern char  g_mntNames[UT_OS_FILESYS_LIST_LEN][UT_OS_FILE_BUFF_SIZE];
 
 /*--------------------------------------------------------------------------------*
 ** Global variables
@@ -63,11 +58,7 @@ void UT_os_sample_test()
     /* Must declare these variables for each function. They can be renamed.
      * They're referenced in the macros used to track test cases and their results. */
     int32 idx = 0;
-    UT_OsApiInfo_t apiInfo;
-    const char* testDesc = NULL;
-
-    /* Call this once at the beginning of the function to initialize the test variables. */
-    UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
+    const char* testDesc;
 
     /*-----------------------------------------------------*
      * For each test case,
@@ -89,7 +80,7 @@ void UT_os_sample_test()
 
     if (OS_xxx() == OS_ERR_NOT_IMPLEMENTED)
     {
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_NA);
         goto UT_os_sample_test_exit_tag;
     }
 
@@ -101,9 +92,9 @@ void UT_os_sample_test()
     /* TODO: Setup the test environment here, if necessary */
 
     if (OS_xxx(NULL,...) == OS_INVALID_POINTER)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /* TODO: Reset the test environment here, if necessary */
 
@@ -113,9 +104,9 @@ void UT_os_sample_test()
     /* TODO: Setup the test environment here, if necessary */
 
     if (OS_xxx(aVeryLoooooongName) == OS_ERR_NAME_TOO_LONG)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /* TODO: Reset the test environment here, if necessary */
 
@@ -125,17 +116,15 @@ void UT_os_sample_test()
     /* TODO: Setup the test environment here, if necessary */
 
     if (OS_xxx(...) != OS_SUCCESS)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
 
     /* TODO: Reset the test environment here, if necessary */
 
 UT_os_sample_test_exit_tag:
-    /* Call these macros at the very end of the function to close out the test variables
-     * and get it added to the global list being tracked. */
-    UT_OS_SET_API_NAME_AND_TEST_COUNT_MACRO(apiInfo, "OS_xxx", idx)
-    UT_OS_LOG_API_MACRO(apiInfo)
+    return;
+    
 }
 #endif
 
@@ -194,11 +183,8 @@ UT_os_sample_test_exit_tag:
 **--------------------------------------------------------------------------------*/
 void UT_os_initfs_test()
 {
-    UT_OsApiInfo_t apiInfo;
-    const char* testDesc=NULL;
-    int32 res=0, idx=0, i=0, j=0;
-
-    UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
+    const char* testDesc;
+    int32 res=0, i=0, j=0;
 
     /*-----------------------------------------------------*/
     testDesc = "API not implemented";
@@ -206,7 +192,7 @@ void UT_os_initfs_test()
     res = OS_initfs(NULL, NULL, NULL, g_blkSize, g_blkCnt);
     if (res == OS_ERR_NOT_IMPLEMENTED)
     {
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_NA);
         goto UT_os_initfs_test_exit_tag;
     }
 
@@ -217,10 +203,9 @@ void UT_os_initfs_test()
          OS_FS_ERR_INVALID_POINTER) &&
         (OS_initfs(g_fsAddrPtr, g_devNames[1], NULL, 0, 0) ==
          OS_FS_ERR_INVALID_POINTER))
-        /* cppcheck-suppress syntaxError */
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /*-----------------------------------------------------*/
     testDesc = "#2 Path-too-long-arg";
@@ -229,19 +214,17 @@ void UT_os_initfs_test()
          OS_FS_ERR_PATH_TOO_LONG) &&
         (OS_initfs(g_fsAddrPtr, g_devNames[2], g_fsLongName, g_blkSize, g_blkCnt) ==
          OS_FS_ERR_PATH_TOO_LONG))
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /*-----------------------------------------------------*/
     testDesc = "#3 OS-call-failure";
 
-    UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_UOF)
+    UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_INFO);
 
     /*-----------------------------------------------------*/
     testDesc = "#4 Disk-full";
-
-    UT_os_print_volumetable("VOLUME TABLE _BEFORE_ DISK-FULL TEST SETUP FOR OS_initfs()");
 
     for (i=0; i <= NUM_TABLE_ENTRIES; i++)
     {
@@ -254,41 +237,33 @@ void UT_os_initfs_test()
             break;
     }
 
-    UT_os_print_volumetable("VOLUME TABLE _AFTER_ DISK-FULL TEST SETUP FOR OS_initfs()");
-
     /* Only need to check the last call to OS_initfs() */
     if (res == OS_FS_ERR_DEVICE_NOT_FREE)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /* Reset test environment */
     for (j=0; j < i; j++)
         OS_rmfs(g_devNames[j]);
 
-    UT_os_print_volumetable("VOLUME TABLE _AFTER_ DISK-FULL TEST TEARDOWN FOR OS_initfs()");
-
     /*-----------------------------------------------------*/
     testDesc = "#5 Nominal";
 
-    UT_os_print_volumetable("VOLUME TABLE _BEFORE_ NOMINAL TEST SETUP FOR OS_initfs()");
-
     if (OS_initfs(g_fsAddrPtr, g_devNames[5], g_volNames[5], g_blkSize, g_blkCnt) != OS_FS_SUCCESS)
     {
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
         goto UT_os_initfs_test_exit_tag;
     }
 
     if (OS_rmfs(g_devNames[5]) == OS_FS_SUCCESS)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
-
-    UT_os_print_volumetable("VOLUME TABLE _AFTER_ NOMINAL TEST FOR OS_initfs()");
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
 UT_os_initfs_test_exit_tag:
-    UT_OS_SET_API_NAME_AND_TEST_COUNT_MACRO(apiInfo, "OS_initfs", idx)
-    UT_OS_LOG_API_MACRO(apiInfo)
+    return;
+    
 }
 
 /*--------------------------------------------------------------------------------*
@@ -346,11 +321,8 @@ UT_os_initfs_test_exit_tag:
 **--------------------------------------------------------------------------------*/
 void UT_os_makefs_test()
 {
-    UT_OsApiInfo_t apiInfo;
-    const char* testDesc=NULL;
-    int32 res=0, idx=0, i=0, j=0;
-
-    UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
+    const char* testDesc;
+    int32 res=0, i=0, j=0;
 
     /*-----------------------------------------------------*/
     testDesc = "API not implemented";
@@ -358,7 +330,7 @@ void UT_os_makefs_test()
     res = OS_mkfs(g_fsAddrPtr, NULL, NULL, g_blkSize, g_blkCnt);
     if (res == OS_ERR_NOT_IMPLEMENTED)
     {
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_NA);
         goto UT_os_makefs_test_exit_tag;
     }
 
@@ -367,9 +339,9 @@ void UT_os_makefs_test()
 
     if ((OS_mkfs(g_fsAddrPtr, NULL, g_volNames[1], 0, 0) == OS_FS_ERR_INVALID_POINTER) &&
         (OS_mkfs(g_fsAddrPtr, g_devNames[1], NULL, 0, 0) == OS_FS_ERR_INVALID_POINTER))
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /*-----------------------------------------------------*/
     testDesc = "#2 Path-too-long-arg";
@@ -378,18 +350,17 @@ void UT_os_makefs_test()
          OS_FS_ERR_PATH_TOO_LONG) &&
         (OS_mkfs(g_fsAddrPtr, g_devNames[2], g_fsLongName, g_blkSize, g_blkCnt) ==
          OS_FS_ERR_PATH_TOO_LONG))
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /*-----------------------------------------------------*/
     testDesc = "#3 OS-call-failure";
 
-    UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_UOF)
+    UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_INFO);
 
     /*-----------------------------------------------------*/
     testDesc = "#4 Disk-full";
-    UT_os_print_volumetable("VOLUME TABLE _BEFORE_ DISK-FULL TEST SETUP FOR OS_mkfs()");
 
     for (i=0; i <= NUM_TABLE_ENTRIES; i++)
     {
@@ -402,41 +373,33 @@ void UT_os_makefs_test()
             break;
     }
 
-    UT_os_print_volumetable("VOLUME TABLE _AFTER_ DISK-FULL TEST SETUP FOR OS_mkfs()");
-
     /* Only need to check the last call to OS_mkfs() */
     if (res == OS_FS_ERR_DEVICE_NOT_FREE)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /* Reset test environment */
     for (j=0; j < i; j++)
         OS_rmfs(g_devNames[j]);
 
-    UT_os_print_volumetable("VOLUME TABLE _AFTER_ DISK-FULL TEST TEARDOWN FOR OS_mkfs()");
-
     /*-----------------------------------------------------*/
     testDesc = "#5 Nominal";
 
-    UT_os_print_volumetable("VOLUME TABLE _BEFORE_ NOMINAL TEST SETUP FOR OS_mkfs()");
-
     if (OS_mkfs(g_fsAddrPtr, g_devNames[5], g_volNames[5], g_blkSize, g_blkCnt) != OS_FS_SUCCESS)
     {
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
         goto UT_os_makefs_test_exit_tag;
     }
 
     if (OS_rmfs(g_devNames[5]) == OS_FS_SUCCESS)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
-
-    UT_os_print_volumetable("VOLUME TABLE _AFTER_ NOMINAL TEST FOR OS_mkfs()");
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
 UT_os_makefs_test_exit_tag:
-    UT_OS_SET_API_NAME_AND_TEST_COUNT_MACRO(apiInfo, "OS_mkfs", idx)
-    UT_OS_LOG_API_MACRO(apiInfo)
+    return;
+    
 }
 
 /*--------------------------------------------------------------------------------*
@@ -478,11 +441,8 @@ UT_os_makefs_test_exit_tag:
 **--------------------------------------------------------------------------------*/
 void UT_os_removefs_test()
 {
-    int32 res=0, idx=0;
-    UT_OsApiInfo_t apiInfo;
-    const char* testDesc=NULL;
-
-    UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
+    int32 res=0;
+    const char* testDesc;
 
     /*-----------------------------------------------------*/
     testDesc = "API not implemented";
@@ -490,7 +450,7 @@ void UT_os_removefs_test()
     res = OS_rmfs(NULL);
     if (res == OS_ERR_NOT_IMPLEMENTED)
     {
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_NA);
         goto UT_os_removefs_test_exit_tag;
     }
 
@@ -498,17 +458,17 @@ void UT_os_removefs_test()
     testDesc = "#1 Null-pointer-arg";
 
     if (OS_rmfs(NULL) == OS_FS_ERR_INVALID_POINTER)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /*-----------------------------------------------------*/
     testDesc = "#2 Invalid-device-arg";
 
     if (OS_rmfs(g_devNames[2]) == OS_FS_ERROR)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /*-----------------------------------------------------*/
     testDesc = "#3 Nominal";
@@ -516,22 +476,22 @@ void UT_os_removefs_test()
     if (OS_mkfs(g_fsAddrPtr, g_devNames[3], g_volNames[3], g_blkSize, g_blkCnt) != OS_FS_SUCCESS)
     {
         testDesc = "#3 Nominal - File-system-create failed";
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_TSF)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_TSF);
         goto UT_os_removefs_test_exit_tag;
     }
 
     if ((OS_rmfs(g_devNames[3]) == OS_FS_SUCCESS) &&
         (OS_mkfs(g_fsAddrPtr, g_devNames[3], g_volNames[3], g_blkSize, g_blkCnt) == OS_FS_SUCCESS))
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /* Reset test environment */
     OS_rmfs(g_devNames[3]);
 
 UT_os_removefs_test_exit_tag:
-    UT_OS_SET_API_NAME_AND_TEST_COUNT_MACRO(apiInfo, "OS_rmfs", idx)
-    UT_OS_LOG_API_MACRO(apiInfo)
+    return;
+    
 }
 
 /*--------------------------------------------------------------------------------*
@@ -578,11 +538,8 @@ UT_os_removefs_test_exit_tag:
 **--------------------------------------------------------------------------------*/
 void UT_os_mount_test()
 {
-    int32 res=0, idx=0;
-    UT_OsApiInfo_t apiInfo;
-    const char* testDesc=NULL;
-
-    UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
+    int32 res=0;
+    const char* testDesc;
 
     /*-----------------------------------------------------*/
     testDesc = "API not implemented";
@@ -590,7 +547,7 @@ void UT_os_mount_test()
     res = OS_mount(NULL, NULL);
     if (res == OS_ERR_NOT_IMPLEMENTED)
     {
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_NA);
         goto UT_os_mount_test_exit_tag;
     }
 
@@ -599,47 +556,41 @@ void UT_os_mount_test()
 
     if ((OS_mount(NULL, g_mntNames[1]) == OS_FS_ERR_INVALID_POINTER) &&
         (OS_mount(g_devNames[1], NULL) == OS_FS_ERR_INVALID_POINTER))
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /*-----------------------------------------------------*/
     testDesc = "#2 Invalid-device-arg";
 
     if (OS_mount("ramdev0", g_mntNames[2]) == OS_FS_ERROR)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /*-----------------------------------------------------*/
     testDesc = "#3 Nominal";
 
-    UT_os_print_volumetable("VOLUME TABLE _BEFORE_ NOMINAL TEST SETUP FOR OS_mount()");
-
     if (OS_mkfs(g_fsAddrPtr, g_devNames[3], g_volNames[3], g_blkSize, g_blkCnt) != OS_FS_SUCCESS)
     {
         testDesc = "#3 Nominal - File-system-create failed";
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_TSF)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_TSF);
         goto UT_os_mount_test_exit_tag;
     }
 
     if ((OS_mount(g_devNames[3], g_mntNames[3]) == OS_FS_SUCCESS) &&
         (OS_mount(g_devNames[3], g_mntNames[3]) == OS_FS_ERROR))
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
-
-    UT_os_print_volumetable("VOLUME TABLE _AFTER_ NOMINAL TEST FOR OS_mount()");
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /* Reset test environment */
     OS_unmount(g_mntNames[3]);
     OS_rmfs(g_devNames[3]);
 
-    UT_os_print_volumetable("VOLUME TABLE _AFTER_ NOMINAL TEST TEARDOWN FOR OS_mount()");
-
 UT_os_mount_test_exit_tag:
-    UT_OS_SET_API_NAME_AND_TEST_COUNT_MACRO(apiInfo, "OS_mount", idx)
-    UT_OS_LOG_API_MACRO(apiInfo)}
+    return;
+}
 
 /*--------------------------------------------------------------------------------*
 ** Syntax: int32 OS_unmount(const char *mountpoint)
@@ -692,11 +643,8 @@ UT_os_mount_test_exit_tag:
 **--------------------------------------------------------------------------------*/
 void UT_os_unmount_test()
 {
-    int32 res=0, idx=0;
-    UT_OsApiInfo_t apiInfo;
-    const char* testDesc=NULL;
-
-    UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
+    int32 res=0;
+    const char* testDesc;
 
     /*-----------------------------------------------------*/
     testDesc = "API not implemented";
@@ -704,7 +652,7 @@ void UT_os_unmount_test()
     res = OS_unmount(NULL);
     if (res == OS_ERR_NOT_IMPLEMENTED)
     {
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_NA);
         goto UT_os_unmount_test_exit_tag;
     }
 
@@ -712,25 +660,25 @@ void UT_os_unmount_test()
     testDesc = "#1 Null-pointer-arg";
 
     if (OS_unmount(NULL) == OS_FS_ERR_INVALID_POINTER)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /*-----------------------------------------------------*/
     testDesc = "#2 Path-too-long-arg";
 
     if (OS_unmount(g_fsLongName) == OS_FS_ERR_PATH_TOO_LONG)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /*-----------------------------------------------------*/
     testDesc = "#3 Invalid-mount-point-arg";
 
     if (OS_unmount(g_mntNames[3]) == OS_FS_ERROR)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /*-----------------------------------------------------*/
     testDesc = "#4 Nominal";
@@ -738,23 +686,23 @@ void UT_os_unmount_test()
     if (OS_mkfs(g_fsAddrPtr, g_devNames[4], g_volNames[4], g_blkSize, g_blkCnt) != OS_FS_SUCCESS)
     {
         testDesc = "#3 Nominal - File-system-create failed";
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_TSF)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_TSF);
         goto UT_os_unmount_test_exit_tag;
     }
 
     if ((OS_mount(g_devNames[4], g_mntNames[4]) == OS_FS_SUCCESS) &&
         (OS_unmount(g_mntNames[4]) == OS_FS_SUCCESS) &&
         (OS_unmount(g_mntNames[4]) == OS_FS_ERROR))
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /* Reset test environment */
     OS_rmfs(g_devNames[4]);
 
 UT_os_unmount_test_exit_tag:
-    UT_OS_SET_API_NAME_AND_TEST_COUNT_MACRO(apiInfo, "OS_unmount", idx)
-    UT_OS_LOG_API_MACRO(apiInfo)
+    return;
+    
 }
 
 /*--------------------------------------------------------------------------------*
@@ -807,12 +755,9 @@ UT_os_unmount_test_exit_tag:
 ** --------------------------------------------------------------------------------*/
 void UT_os_getphysdrivename_test()
 {
-    int32 res=0, idx=0;
-    UT_OsApiInfo_t apiInfo;
-    const char* testDesc=NULL;
-    char physDevName[UT_OS_LG_TEXT_LEN];
-
-    UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
+    int32 res=0;
+    const char* testDesc;
+    char physDevName[UT_OS_PHYS_NAME_BUFF_SIZE];
 
     /*-----------------------------------------------------*/
     testDesc = "API not implemented";
@@ -820,7 +765,7 @@ void UT_os_getphysdrivename_test()
     res = OS_FS_GetPhysDriveName(NULL, NULL);
     if (res == OS_ERR_NOT_IMPLEMENTED)
     {
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_NA);
         goto UT_os_getphysicaldrivename_test_exit_tag;
     }
 
@@ -829,25 +774,25 @@ void UT_os_getphysdrivename_test()
 
     if ((OS_FS_GetPhysDriveName(NULL, g_mntNames[1]) == OS_FS_ERR_INVALID_POINTER) &&
         (OS_FS_GetPhysDriveName(physDevName, NULL) == OS_FS_ERR_INVALID_POINTER))
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /*-----------------------------------------------------*/
     testDesc = "#2 Path-too-long-arg";
 
     if (OS_FS_GetPhysDriveName(physDevName, g_fsLongName) == OS_FS_ERR_PATH_TOO_LONG)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /*-----------------------------------------------------*/
     testDesc = "#3 Invalid-mount-point-arg";
 
     if (OS_FS_GetPhysDriveName(physDevName, g_mntNames[3]) == OS_FS_ERROR)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /*-----------------------------------------------------*/
     testDesc = "#4 Nominal";
@@ -855,33 +800,31 @@ void UT_os_getphysdrivename_test()
     if (OS_mkfs(g_fsAddrPtr, g_devNames[4], g_volNames[4], g_blkSize, g_blkCnt) != OS_FS_SUCCESS)
     {
         testDesc = "#4 Nominal - File-system-create failed";
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_TSF)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_TSF);
         goto UT_os_getphysicaldrivename_test_exit_tag;
     }
 
     if (OS_mount(g_devNames[4], g_mntNames[4]) != OS_FS_SUCCESS)
     {
         testDesc = "#4 Nominal - File-system-mount failed";
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_TSF)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_TSF);
         goto UT_os_getphysicaldrivename_test_exit_tag;
     }
-
-    UT_os_print_volumetable("VOLUME TABLE _AFTER_ NOMINAL TEST SETUP for OS_FS_GetPhysDriveName()");
 
     memset(physDevName, '\0', sizeof(physDevName));
     if ((OS_FS_GetPhysDriveName(physDevName, g_mntNames[4]) == OS_FS_SUCCESS) &&
         (strncmp(physDevName, g_physDriveName, strlen(g_physDriveName)) == 0))
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /* Reset test environment */
     OS_unmount(g_mntNames[4]);
     OS_rmfs(g_devNames[4]);
 
 UT_os_getphysicaldrivename_test_exit_tag:
-    UT_OS_SET_API_NAME_AND_TEST_COUNT_MACRO(apiInfo, "OS_FS_GetPhysDriveName", idx)
-    UT_OS_LOG_API_MACRO(apiInfo)
+    return;
+    
 }
 
 /*--------------------------------------------------------------------------------*
@@ -909,11 +852,8 @@ UT_os_getphysicaldrivename_test_exit_tag:
 void UT_os_getfsinfo_test(void)
 {
     os_fsinfo_t fsInfo;
-    int32 res=0, idx=0;
-    UT_OsApiInfo_t apiInfo;
-    const char* testDesc=NULL;
-
-    UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
+    int32 res=0;
+    const char* testDesc;
 
     /*-----------------------------------------------------*/
     testDesc = "API not implemented";
@@ -921,7 +861,7 @@ void UT_os_getfsinfo_test(void)
     res = OS_GetFsInfo(&fsInfo);
     if (res == OS_ERR_NOT_IMPLEMENTED)
     {
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_NA);
         goto UT_os_getfsinfo_test_exit_tag;
     }
 
@@ -929,21 +869,21 @@ void UT_os_getfsinfo_test(void)
     testDesc = "#1 Null-pointer-arg";
 
     if (OS_GetFsInfo(NULL) == OS_FS_ERR_INVALID_POINTER)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /*-----------------------------------------------------*/
     testDesc = "#2 Nominal";
 
     if (OS_GetFsInfo(&fsInfo) == OS_FS_SUCCESS)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
 UT_os_getfsinfo_test_exit_tag:
-    UT_OS_SET_API_NAME_AND_TEST_COUNT_MACRO(apiInfo, "OS_GetFsInfo", idx)
-    UT_OS_LOG_API_MACRO(apiInfo)
+    return;
+    
 }
 
 /*--------------------------------------------------------------------------------*
@@ -995,12 +935,9 @@ UT_os_getfsinfo_test_exit_tag:
 ** --------------------------------------------------------------------------------*/
 void UT_os_translatepath_test()
 {
-    int32 res=0, idx=0;
-    UT_OsApiInfo_t apiInfo;
-    const char* testDesc=NULL;
-    char localPath[UT_OS_LG_TEXT_LEN];
-
-    UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
+    int32 res=0;
+    const char* testDesc;
+    char localPath[UT_OS_LOCAL_PATH_BUFF_SIZE];
 
     /*-----------------------------------------------------*/
     testDesc = "API not implemented";
@@ -1008,7 +945,7 @@ void UT_os_translatepath_test()
     res = OS_TranslatePath(NULL, NULL);
     if (res == OS_ERR_NOT_IMPLEMENTED)
     {
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_NA);
         goto UT_os_translatepath_test_exit_tag;
     }
 
@@ -1017,26 +954,26 @@ void UT_os_translatepath_test()
 
     if ((OS_TranslatePath(NULL, localPath) == OS_FS_ERR_INVALID_POINTER) &&
         (OS_TranslatePath(g_mntNames[1], NULL) == OS_FS_ERR_INVALID_POINTER))
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /*-----------------------------------------------------*/
     testDesc = "#2 Path-too-long-arg";
 
     if (OS_TranslatePath(g_fsLongName, localPath) == OS_FS_ERR_PATH_TOO_LONG)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /*-----------------------------------------------------*/
     testDesc = "#3 Invalid-virtual-path-arg";
 
     if ((OS_TranslatePath("cf", localPath) == OS_FS_ERR_PATH_INVALID) &&
         (OS_TranslatePath("/foobar", localPath) == OS_FS_ERR_PATH_INVALID))
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /*-----------------------------------------------------*/
     testDesc = "#4 Nominal";
@@ -1045,14 +982,14 @@ void UT_os_translatepath_test()
         OS_FS_SUCCESS)
     {
         testDesc = "#4 Nominal - File-system-create failed";
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_TSF)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_TSF);
         goto UT_os_translatepath_test_exit_tag;
     }
 
     if (OS_mount(g_devNames[4], g_mntNames[4]) != OS_FS_SUCCESS)
     {
         testDesc = "#4 Nominal - File-system-mount failed";
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_TSF)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_TSF);
 
         /* Reset test environment */
         OS_rmfs(g_devNames[4]);
@@ -1062,17 +999,17 @@ void UT_os_translatepath_test()
 
     if ((OS_TranslatePath(g_mntNames[4], localPath) == OS_FS_SUCCESS) &&
         (strncmp(localPath, g_physDriveName, strlen(g_physDriveName)) == 0))
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /* Reset test environment */
     OS_unmount(g_mntNames[4]);
     OS_rmfs(g_devNames[4]);
 
 UT_os_translatepath_test_exit_tag:
-    UT_OS_SET_API_NAME_AND_TEST_COUNT_MACRO(apiInfo, "OS_TranslatePath (internal)", idx)
-    UT_OS_LOG_API_MACRO(apiInfo)
+    return;
+    
 }
 
 /*--------------------------------------------------------------------------------*
@@ -1113,29 +1050,26 @@ UT_os_translatepath_test_exit_tag:
 ** --------------------------------------------------------------------------------*/
 void UT_os_checkfs_test()
 {
-    int32 idx=0;
-    UT_OsApiInfo_t apiInfo;
-    const char* testDesc=NULL;
-    char driveName[OS_MAX_PATH_LEN + 5];
-
-    UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
+    const char* testDesc;
+    int res;
+    char driveName[UT_OS_PATH_BUFF_SIZE];
 
     /*-----------------------------------------------------*/
     testDesc = "API not implemented";
 
-    if ((int)OS_chkfs(NULL, 0) == OS_FS_UNIMPLEMENTED)
+    if (OS_chkfs(NULL, 0) == OS_FS_UNIMPLEMENTED)
     {
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_NA);
         goto UT_os_checkfs_test_exit_tag;
     }
 
     /*-----------------------------------------------------*/
     testDesc = "#1 Null-pointer-arg";
 
-    if ((int)OS_chkfs(NULL, 0) == OS_FS_ERR_INVALID_POINTER)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+    if (OS_chkfs(NULL, 0) == OS_FS_ERR_INVALID_POINTER)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /*-----------------------------------------------------*/
     testDesc = "#2 Path-too-long-arg";
@@ -1143,53 +1077,55 @@ void UT_os_checkfs_test()
     memset(driveName, 'A', sizeof(driveName));
     driveName[sizeof(driveName)-1] = '\0';
 
-    if ((int)OS_chkfs(driveName, 0) == OS_FS_ERR_PATH_TOO_LONG)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+    if (OS_chkfs(driveName, 0) == OS_FS_ERR_PATH_TOO_LONG)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /*-----------------------------------------------------*/
     testDesc = "#3 OS-call-failure";
 
-    UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_UOF)
+    UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_INFO);
 
     /*-----------------------------------------------------*/
     testDesc = "#4 Nominal";
 
-    if (g_skipTestCase == 4)
+    if (OS_mkfs(g_fsAddrPtr, g_devNames[5], g_volNames[5], g_blkSize, g_blkCnt) != OS_FS_SUCCESS)
+    {
+        testDesc = "#4 Nominal - File-system-create failed";
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_TSF);
+        goto UT_os_checkfs_test_exit_tag;
+    }
+
+    if (OS_mount(g_devNames[5], g_mntNames[5]) != OS_FS_SUCCESS)
+    {
+        testDesc = "#4 Nominal - File-system-mount failed";
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_TSF);
+        goto UT_os_checkfs_test_exit_tag;
+    }
+
+    res = OS_chkfs(g_mntNames[5], 0);
+    if (res == OS_ERR_NOT_IMPLEMENTED)
     {
         testDesc = "#4 Nominal - Not implemented in API";
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, g_skipTestCaseResult)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_NA);
+    }
+    else if (res == OS_FS_SUCCESS)
+    {
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     }
     else
     {
-    	if (OS_mkfs(g_fsAddrPtr, g_devNames[5], g_volNames[5], g_blkSize, g_blkCnt) != OS_FS_SUCCESS)
-    	{
-            testDesc = "#4 Nominal - File-system-create failed";
-            UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_TSF)
-            goto UT_os_checkfs_test_exit_tag;
-    	}
-
-        if (OS_mount(g_devNames[5], g_mntNames[5]) != OS_FS_SUCCESS)
-        {
-            testDesc = "#4 Nominal - File-system-mount failed";
-            UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_TSF)
-            goto UT_os_checkfs_test_exit_tag;
-        }
-
-        if ((int)OS_chkfs(g_mntNames[5], 0) == OS_FS_SUCCESS)
-            UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
-        else
-            UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
-
-        /* Reset test environment */
-        OS_unmount(g_mntNames[5]);
-        OS_rmfs(g_devNames[5]);
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
     }
 
+    /* Reset test environment */
+    OS_unmount(g_mntNames[5]);
+    OS_rmfs(g_devNames[5]);
+
 UT_os_checkfs_test_exit_tag:
-    UT_OS_SET_API_NAME_AND_TEST_COUNT_MACRO(apiInfo, "OS_chkfs", idx)
-    UT_OS_LOG_API_MACRO(apiInfo)
+    return;
+    
 }
 
 /*--------------------------------------------------------------------------------*
@@ -1238,18 +1174,14 @@ UT_os_checkfs_test_exit_tag:
 ** --------------------------------------------------------------------------------*/
 void UT_os_fsblocksfree_test()
 {
-    int32 idx=0;
-    UT_OsApiInfo_t apiInfo;
-    const char* testDesc=NULL;
-
-    UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
+    const char* testDesc;
 
     /*-----------------------------------------------------*/
     testDesc = "API not implemented";
 
     if (OS_fsBlocksFree(NULL) == OS_ERR_NOT_IMPLEMENTED)
     {
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_NA);
         goto UT_os_fsblocksfree_test_exit_tag;
     }
 
@@ -1257,22 +1189,22 @@ void UT_os_fsblocksfree_test()
     testDesc = "#1 Null-pointer-arg";
 
     if (OS_fsBlocksFree(NULL) == OS_FS_ERR_INVALID_POINTER)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
         /*-----------------------------------------------------*/
     testDesc = "#2 Path-too-long-arg";
 
     if (OS_fsBlocksFree(g_fsLongName) == OS_FS_ERR_PATH_TOO_LONG)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /*-----------------------------------------------------*/
     testDesc = "#3 OS-call-failure";
 
-    UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_UOF)
+    UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_INFO);
 
     /*-----------------------------------------------------*/
     testDesc = "#4 Nominal";
@@ -1280,29 +1212,29 @@ void UT_os_fsblocksfree_test()
     if (OS_mkfs(g_fsAddrPtr, g_devNames[4], g_volNames[4], g_blkSize, g_blkCnt) != OS_FS_SUCCESS)
     {
         testDesc = "#4 Nominal - File-system-create failed";
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_TSF)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_TSF);
         goto UT_os_fsblocksfree_test_exit_tag;
     }
 
     if (OS_mount(g_devNames[4], g_mntNames[4]) != OS_FS_SUCCESS)
     {
         testDesc = "#4 Nominal - File-system-mount failed";
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_TSF)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_TSF);
         goto UT_os_fsblocksfree_test_exit_tag;
     }
 
     if (OS_fsBlocksFree(g_mntNames[4]) >= 0)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /* Reset test environment */
     OS_unmount(g_mntNames[4]);
     OS_rmfs(g_devNames[4]);
 
 UT_os_fsblocksfree_test_exit_tag:
-    UT_OS_SET_API_NAME_AND_TEST_COUNT_MACRO(apiInfo, "OS_fsBlocksFree", idx)
-    UT_OS_LOG_API_MACRO(apiInfo)
+    return;
+    
 }
 
 /*--------------------------------------------------------------------------------*
@@ -1351,19 +1283,15 @@ UT_os_fsblocksfree_test_exit_tag:
 ** --------------------------------------------------------------------------------*/
 void UT_os_fsbytesfree_test()
 {
-    int32 idx=0;
     uint64 retBytes=0;
-    UT_OsApiInfo_t apiInfo;
-    const char* testDesc=NULL;
-
-    UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
+    const char* testDesc;
 
     /*-----------------------------------------------------*/
     testDesc = "API not implemented";
 
     if (OS_fsBytesFree(NULL, NULL) == OS_ERR_NOT_IMPLEMENTED)
     {
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_NA);
         goto UT_os_fsbytesfree_test_exit_tag;
     }
 
@@ -1372,22 +1300,22 @@ void UT_os_fsbytesfree_test()
 
     if ((OS_fsBytesFree(NULL, &retBytes) == OS_FS_ERR_INVALID_POINTER) &&
         (OS_fsBytesFree(g_mntNames[1], NULL) == OS_FS_ERR_INVALID_POINTER))
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /*-----------------------------------------------------*/
     testDesc = "#2 Path-too-long-arg";
 
     if (OS_fsBytesFree(g_fsLongName, &retBytes) == OS_FS_ERR_PATH_TOO_LONG)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /*-----------------------------------------------------*/
     testDesc = "#3 OS-call-failure";
 
-    UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_UOF)
+    UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_INFO);
 
     /*-----------------------------------------------------*/
     testDesc = "#4 Nominal";
@@ -1395,29 +1323,29 @@ void UT_os_fsbytesfree_test()
     if (OS_mkfs(g_fsAddrPtr, g_devNames[4], g_volNames[4], g_blkSize, g_blkCnt) != OS_FS_SUCCESS)
     {
         testDesc = "#4 Nominal - File-system-create failed";
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_TSF)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_TSF);
         goto UT_os_fsbytesfree_test_exit_tag;
     }
 
     if (OS_mount(g_devNames[4], g_mntNames[4]) != OS_FS_SUCCESS)
     {
         testDesc = "#4 Nominal - File-system-mount failed";
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_TSF)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_TSF);
         goto UT_os_fsbytesfree_test_exit_tag;
     }
 
     if (OS_fsBytesFree(g_mntNames[4], &retBytes) == OS_FS_SUCCESS)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /* Reset test environment */
     OS_unmount(g_mntNames[4]);
     OS_rmfs(g_devNames[4]);
 
 UT_os_fsbytesfree_test_exit_tag:
-    UT_OS_SET_API_NAME_AND_TEST_COUNT_MACRO(apiInfo, "OS_fsBytesFree", idx)
-    UT_OS_LOG_API_MACRO(apiInfo)
+    return;
+    
 }
 
 /*================================================================================*

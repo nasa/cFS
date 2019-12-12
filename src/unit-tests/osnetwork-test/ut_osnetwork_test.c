@@ -22,8 +22,6 @@
 ** External global variables
 **--------------------------------------------------------------------------------*/
 
-extern UT_OsLogInfo_t  g_logInfo;
-
 /*--------------------------------------------------------------------------------*
 ** Global variables
 **--------------------------------------------------------------------------------*/
@@ -42,21 +40,13 @@ extern UT_OsLogInfo_t  g_logInfo;
 
 void OS_Application_Startup(void)
 {
-    UT_os_setup(UT_OS_LOG_FILENAME);
+    if (OS_API_Init() != OS_SUCCESS)
+    {
+        UtAssert_Abort("OS_API_Init() failed");
+    }
 
-    /* UT_OS_LOG_OFF, UT_OS_LOG_MINIMAL, UT_OS_LOG_MODERATE, UT_OS_LOG_EVERYTHING */
-    UT_os_set_log_verbose(UT_OS_LOG_EVERYTHING);
-
-    UT_OS_LOG_MACRO("OSAL Unit Test Output File for osnetwork APIs\n");
-
-    OS_API_Init();
-
-    UT_os_networkgetid_test();
-    UT_os_networkgethostname_test();
-
-    UT_os_teardown("ut_osnetwork");
-
-    OS_ApplicationExit(g_logInfo.nFailed > 0);
+    UtTest_Add(UT_os_networkgetid_test, NULL, NULL, "OS_NetworkGetID");
+    UtTest_Add(UT_os_networkgethostname_test, NULL, NULL, "OS_NetworkGetHostName");
 }
 
 /*================================================================================*

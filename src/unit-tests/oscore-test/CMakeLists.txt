@@ -7,8 +7,10 @@ set(TEST_MODULE_FILES
   ut_oscore_countsem_test.c  
   ut_oscore_mutex_test.c  
   ut_oscore_task_test.c   
-  ut_oscore_test.c)
+  ut_oscore_interrupt_test.c   
+  ut_oscore_exception_test.c   
+  ut_oscore_test.c
+)
   
-add_stubs(TEST_STUBS os)
-add_osal_ut_exe(osal_core_UT ${TEST_MODULE_FILES} ${TEST_STUBS})
+add_osal_ut_exe(osal_core_UT ${TEST_MODULE_FILES})
 

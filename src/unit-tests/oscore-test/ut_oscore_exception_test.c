@@ -9,7 +9,6 @@
 **--------------------------------------------------------------------------------*/
 
 #include "ut_oscore_exception_test.h"
-#include "ut_oscore_test_platforms.h"
 
 /*--------------------------------------------------------------------------------*
 ** Macros
@@ -22,8 +21,6 @@
 /*--------------------------------------------------------------------------------*
 ** External global variables
 **--------------------------------------------------------------------------------*/
-
-extern UT_OsLogInfo_t g_logInfo;
 
 /*--------------------------------------------------------------------------------*
 ** Global variables
@@ -45,11 +42,7 @@ void UT_os_sample_test()
     /* Must declare these variables for each function. They can be renamed.
      * They're referenced in the macros used to track test cases and their results. */
     int32 idx = 0;
-    UT_OsApiInfo_t apiInfo;
-    const char* testDesc = NULL;
-
-    /* Call this once at the beginning of the function to initialize the test variables. */
-    UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
+    const char* testDesc;
 
     /*-----------------------------------------------------*
      * For each test case,
@@ -71,7 +64,7 @@ void UT_os_sample_test()
 
     if (OS_xxx() == OS_ERR_NOT_IMPLEMENTED)
     {
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_NA);
         goto UT_os_sample_test_exit_tag;
     }
 
@@ -83,9 +76,9 @@ void UT_os_sample_test()
     /* TODO: Setup the test environment here, if necessary */
 
     if (OS_xxx(NULL,...) == OS_INVALID_POINTER)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /* TODO: Reset the test environment here, if necessary */
 
@@ -95,9 +88,9 @@ void UT_os_sample_test()
     /* TODO: Setup the test environment here, if necessary */
 
     if (OS_xxx(aVeryLoooooongName) == OS_ERR_NAME_TOO_LONG)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /* TODO: Reset the test environment here, if necessary */
 
@@ -107,17 +100,15 @@ void UT_os_sample_test()
     /* TODO: Setup the test environment here, if necessary */
 
     if (OS_xxx(...) != OS_SUCCESS)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
 
     /* TODO: Reset the test environment here, if necessary */
 
 UT_os_sample_test_exit_tag:
-    /* Call these macros at the very end of the function to close out the test variables
-     * and get it added to the global list being tracked. */
-    UT_OS_SET_API_NAME_AND_TEST_COUNT_MACRO(apiInfo, "OS_xxx", idx)
-    UT_OS_LOG_API_MACRO(apiInfo)
+    return;
+    
 }
 #endif
 
@@ -140,12 +131,9 @@ UT_os_sample_test_exit_tag:
 **--------------------------------------------------------------------------------*/
 void UT_os_fpuexc_setmask_test()
 {
-    UT_OsApiInfo_t apiInfo;
     uint32         oldMask=0x00, newMask=0x01, curMask=0x00;
-    int32          res = 0, idx = 0;
-    const char*    testDesc = NULL;
-
-    UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
+    int32          res = 0;
+    const char*    testDesc;
 
     /*-----------------------------------------------------*/
     testDesc = "API not implemented";
@@ -154,7 +142,7 @@ void UT_os_fpuexc_setmask_test()
     res = OS_FPUExcSetMask(newMask);
     if (res == OS_ERR_NOT_IMPLEMENTED)
     {
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_NA);
         goto UT_os_fpuexc_setmask_exit_tag;
     }
 
@@ -170,22 +158,21 @@ void UT_os_fpuexc_setmask_test()
     {
     	res = OS_FPUExcGetMask(&curMask);
     	if ((res == OS_SUCCESS) && (curMask == newMask))
-            /* cppcheck-suppress syntaxError */
-    		UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+    		UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     	else
-    	    UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+    	    UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
     }
     else
     {
-    	UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+    	UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
     }
 
     /* Reset test environment */
     OS_FPUExcSetMask(oldMask);
 
 UT_os_fpuexc_setmask_exit_tag:
-    UT_OS_SET_API_NAME_AND_TEST_COUNT_MACRO(apiInfo, "OS_FPUExcSetMask", idx)
-    UT_OS_LOG_API_MACRO(apiInfo)
+    return;
+    
 }
 
 /*--------------------------------------------------------------------------------*
@@ -213,12 +200,9 @@ UT_os_fpuexc_setmask_exit_tag:
 **--------------------------------------------------------------------------------*/
 void UT_os_fpuexc_getmask_test()
 {
-    UT_OsApiInfo_t apiInfo;
-    uint32         oldMask=0x00, newMask=0x01, curMask=0x00;
-    int32          res = 0, idx = 0;
-    const char*    testDesc = NULL;
-
-    UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
+    uint32         curMask=0x00;
+    int32          res = 0;
+    const char*    testDesc;
 
     /*-----------------------------------------------------*/
     testDesc = "API not implemented";
@@ -226,7 +210,7 @@ void UT_os_fpuexc_getmask_test()
     res = OS_FPUExcGetMask(&curMask);
     if (res == OS_ERR_NOT_IMPLEMENTED)
     {
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_NA);
         goto UT_os_fpuexc_getmask_exit_tag;
     }
 
@@ -235,22 +219,22 @@ void UT_os_fpuexc_getmask_test()
 
     res = OS_FPUExcGetMask(NULL);
     if (res == OS_INVALID_POINTER)
-    	UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+    	UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-    	UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+    	UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /*-----------------------------------------------------*/
     testDesc = "#2 Nominal";
 
     res = OS_FPUExcGetMask(&curMask);
     if (res == OS_SUCCESS)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-	UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+	UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
 UT_os_fpuexc_getmask_exit_tag:
-    UT_OS_SET_API_NAME_AND_TEST_COUNT_MACRO(apiInfo, "OS_FPUExcGetMask", idx)
-    UT_OS_LOG_API_MACRO(apiInfo)
+    return;
+    
 }
 
 /*================================================================================*

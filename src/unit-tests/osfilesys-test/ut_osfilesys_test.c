@@ -25,8 +25,6 @@
 ** External global variables
 **--------------------------------------------------------------------------------*/
 
-extern UT_OsLogInfo_t  g_logInfo;
-
 /*--------------------------------------------------------------------------------*
 ** Global variables
 **--------------------------------------------------------------------------------*/
@@ -36,22 +34,18 @@ char* g_fsAddrPtr = NULL;
 int32 g_blkSize = UT_OS_FS_BLOCK_SIZE;
 int32 g_blkCnt  = UT_OS_FS_MAX_BLOCKS;
 
-int32  g_skipTestCase = -1;
-const char*  g_skipTestCaseResult = " ";
+char  g_fsLongName[UT_OS_PATH_BUFF_SIZE];
+char  g_physDriveName[UT_OS_PHYS_NAME_BUFF_SIZE];
 
-char  g_fsLongName[OS_MAX_PATH_LEN+5];
-char  g_physDriveName[OS_MAX_PATH_LEN];
-
-char  g_volNames[UT_OS_FILESYS_LIST_LEN][UT_OS_XS_TEXT_LEN];
-char  g_devNames[UT_OS_FILESYS_LIST_LEN][UT_OS_XS_TEXT_LEN];
-char  g_mntNames[UT_OS_FILESYS_LIST_LEN][UT_OS_XS_TEXT_LEN];
+char  g_volNames[UT_OS_FILESYS_LIST_LEN][UT_OS_NAME_BUFF_SIZE];
+char  g_devNames[UT_OS_FILESYS_LIST_LEN][UT_OS_FILE_BUFF_SIZE];
+char  g_mntNames[UT_OS_FILESYS_LIST_LEN][UT_OS_FILE_BUFF_SIZE];
 
 /*--------------------------------------------------------------------------------*
 ** Local function prototypes
 **--------------------------------------------------------------------------------*/
 
 void UT_os_init_fs_misc(void);
-void UT_os_init_checkfs_test(void);
 
 /*--------------------------------------------------------------------------------*
 ** Local function definitions
@@ -96,53 +90,33 @@ void UT_os_init_fs_misc()
     strcpy(g_mntNames[7], "/drive7");
 }
 
-/*--------------------------------------------------------------------------------*/
-
-void UT_os_init_checkfs_test()
-{
-	g_skipTestCase = 4;
-	g_skipTestCaseResult = UT_OS_NA;
-}
-
 /*--------------------------------------------------------------------------------*
 ** Main
 **--------------------------------------------------------------------------------*/
 
 void OS_Application_Startup(void)
 {
-    UT_os_setup(UT_OS_LOG_FILENAME);
-
-    /* UT_OS_LOG_OFF, UT_OS_LOG_MINIMAL, UT_OS_LOG_MODERATE, UT_OS_LOG_EVERYTHING */
-    UT_os_set_log_verbose(UT_OS_LOG_EVERYTHING);
-
-    UT_OS_LOG_MACRO("OSAL Unit Test Output File for osfilesys APIs\n")
-
-    OS_API_Init();
-
-    UT_os_print_volumetable("VOLUME TABLE _AFTER_ OS_API_Init() call");
+    if (OS_API_Init() != OS_SUCCESS)
+    {
+        UtAssert_Abort("OS_API_Init() failed");
+    }
 
     UT_os_init_fs_misc();
 
-    UT_os_makefs_test();
-    UT_os_initfs_test();
-    UT_os_removefs_test();
+    UtTest_Add(UT_os_makefs_test, NULL, NULL, "OS_mkfs");
+    UtTest_Add(UT_os_initfs_test, NULL, NULL, "OS_initfs");
+    UtTest_Add(UT_os_removefs_test, NULL, NULL, "OS_rmfs");
 
-    UT_os_mount_test();
-    UT_os_unmount_test();
+    UtTest_Add(UT_os_mount_test, NULL, NULL, "OS_mount");
+    UtTest_Add(UT_os_unmount_test, NULL, NULL, "OS_unmount");
 
-    UT_os_getphysdrivename_test();
-    UT_os_getfsinfo_test();
-    UT_os_translatepath_test();
+    UtTest_Add(UT_os_getphysdrivename_test, NULL, NULL, "OS_FS_GetPhysDriveName");
+    UtTest_Add(UT_os_getfsinfo_test, NULL, NULL, "OS_GetFsInfo");
+    UtTest_Add(UT_os_translatepath_test, NULL, NULL, "OS_TranslatePath (internal)");
 
-    UT_os_init_checkfs_test();
-    UT_os_checkfs_test();
-
-    UT_os_fsblocksfree_test();
-    UT_os_fsbytesfree_test();
-
-    UT_os_teardown("ut_osfilesys");
-
-    OS_ApplicationExit(g_logInfo.nFailed > 0);
+    UtTest_Add(UT_os_checkfs_test, NULL, NULL, "OS_chkfs");
+    UtTest_Add(UT_os_fsblocksfree_test, NULL, NULL, "OS_fsBlocksFree");
+    UtTest_Add(UT_os_fsbytesfree_test, NULL, NULL, "OS_fsBytesFree");
 }
 
 /*================================================================================*

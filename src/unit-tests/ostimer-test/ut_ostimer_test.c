@@ -22,17 +22,12 @@
 ** External global variables
 **--------------------------------------------------------------------------------*/
 
-extern UT_OsLogInfo_t  g_logInfo;
-
 /*--------------------------------------------------------------------------------*
 ** Global variables
 **--------------------------------------------------------------------------------*/
 
-int32  g_skipTestCase = -1;
-const char*  g_skipTestCaseResult = " ";
-
 const char*  g_timerNames[UT_OS_TIMER_LIST_LEN];
-char   g_longTimerName[OS_MAX_API_NAME+5];
+char   g_longTimerName[UT_OS_NAME_BUFF_SIZE];
 
 uint32  g_cbLoopCntMax = 5;
 uint32  g_toleranceVal = 0;
@@ -88,15 +83,6 @@ void UT_os_timercallback(uint32 timerId)
             deltaTime = currIntervalTime - prevIntervalTime;
         else
             deltaTime = prevIntervalTime - currIntervalTime;
-
-        if (g_logInfo.verboseLevel == UT_OS_LOG_EVERYTHING)
-        {
-        	UT_OS_LOG_MACRO("\n");
-            UT_OS_LOG_MACRO("OS_TimerSet() - #4 Nominal [Output from timer callback func: ")
-            UT_OS_LOG_MACRO("current_time=%d.%d, delta_time=%d, tolVal=%d, loopCnt=%d]\n",
-                          (int)currTime.seconds, (int)currTime.microsecs,
-                          (int)deltaTime, (int)g_toleranceVal, (int)loopCnt);
-        }
 
         if ((deltaTime > g_toleranceVal) && (loopCnt > 1))
             res = -1;
@@ -185,36 +171,6 @@ void UT_os_setup_timerset_test()
     g_timerNames[4] = "Set_Nominal";
 }
 
-/*--------------------------------------------------------------------------------*/
-/* The test logic must execute in a task for the timers to work properly. */ 
-void UT_timertest_task(void)
-{
-   OS_TaskRegister();
-
-   UT_os_init_timer_misc();
-
-   UT_os_setup_timercreate_test();
-   UT_os_timercreate_test();
-
-   UT_os_setup_timerdelete_test();
-   UT_os_timerdelete_test();
-
-   UT_os_setup_timergetidbyname_test();
-   UT_os_timergetidbyname_test();
-
-   UT_os_setup_timergetinfo_test();
-   UT_os_timergetinfo_test();
-
-   UT_os_setup_timerset_test();
-   UT_OS_LOG_MACRO("\n============================================\n")
-   UT_os_timerset_test();
-   UT_OS_LOG_MACRO("============================================\n")
-
-   UT_os_teardown("ut_ostimer");
-
-   OS_ApplicationShutdown(true);
-   OS_ApplicationExit(g_logInfo.nFailed > 0);
-}
 
 /*--------------------------------------------------------------------------------*
 ** Main
@@ -222,35 +178,39 @@ void UT_timertest_task(void)
 
 void OS_Application_Startup(void)
 {
-    UT_os_setup(UT_OS_LOG_FILENAME);
-
-    /* UT_OS_LOG_OFF, UT_OS_LOG_MINIMAL, UT_OS_LOG_MODERATE, UT_OS_LOG_EVERYTHING */
-    UT_os_set_log_verbose(UT_OS_LOG_EVERYTHING);
-
-    UT_OS_LOG_MACRO("OSAL Unit Test Output File for ostimer APIs\n");
-
-    UT_os_timerinit_test();
-
-    OS_API_Init();
-
-    /*
-    ** Create the test task.
-    */
+    if (OS_API_Init() != OS_SUCCESS)
     {
-       uint32 task_id;
-       int32 status;
-
-       /*
-       ** Warning: Running test with a stack size less than 20K may result in issues/test failure
-       */
-       status = OS_TaskCreate( &task_id, "TimerTest", UT_timertest_task, NULL, 32*1024, 100, 0);
-       if ( status != OS_SUCCESS )
-       {
-          UT_OS_LOG_MACRO("Error creating Timer Test Task 2\n");
-          OS_ApplicationExit(status);
-       }
-       OS_IdleLoop();
+        UtAssert_Abort("OS_API_Init() failed");
     }
+
+    UT_os_init_timer_misc();
+
+    UtTest_Add(
+            UT_os_timercreate_test,
+            UT_os_setup_timercreate_test,
+            NULL,
+            "OS_TimerCreate");
+    UtTest_Add(
+            UT_os_timerdelete_test,
+            UT_os_setup_timerdelete_test,
+            NULL,
+            "OS_TimerDelete");
+    UtTest_Add(
+            UT_os_timergetidbyname_test,
+            UT_os_setup_timergetidbyname_test,
+            NULL,
+            "OS_TimerGetIdByName");
+    UtTest_Add(
+            UT_os_timergetinfo_test,
+            UT_os_setup_timergetinfo_test,
+            NULL,
+            "OS_TimerGetInfo");
+    UtTest_Add(
+            UT_os_timerset_test,
+            UT_os_setup_timerset_test,
+            NULL,
+            "OS_TimerSet");
+
 }
 
 /*================================================================================*
