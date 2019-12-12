@@ -160,7 +160,7 @@ const OS_ErrorTable_Entry_t OS_IMPL_ERROR_NAME_TABLE[] = { { 0, NULL } };
 /*
  * Local Function Prototypes
  */
-static void  OS_CompAbsDelayTime( uint32 milli_second , struct timespec * tm);
+static void  OS_CompAbsDelayTime( uint32 msecs , struct timespec * tm);
 static int   OS_PriorityRemap(uint32 InputPri);
 
 

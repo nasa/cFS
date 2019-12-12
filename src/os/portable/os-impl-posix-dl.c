@@ -51,6 +51,7 @@
  */
 typedef struct
 {
+    /* cppcheck-suppress unusedStructMember */
     void *dl_handle;
 } OS_impl_module_internal_record_t;
 
