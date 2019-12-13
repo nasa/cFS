@@ -2382,7 +2382,7 @@ int32 OS_FPUExcSetMask_Impl(uint32 mask)
     /*
     ** Not implemented in linux.
     */
-    return(OS_SUCCESS);
+    return(OS_ERR_NOT_IMPLEMENTED);
 } /* end OS_FPUExcSetMask_Impl */
 
                         
@@ -2400,7 +2400,7 @@ int32 OS_FPUExcGetMask_Impl(uint32 *mask)
     ** Not implemented in linux.
     */
     *mask = 0;
-    return(OS_SUCCESS);
+    return(OS_ERR_NOT_IMPLEMENTED);
 } /* end OS_FPUExcGetMask_Impl */
 
 /********************************************************************/

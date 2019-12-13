@@ -76,6 +76,11 @@ int32 OS_FPUExcSetMask(uint32 mask)
  *-----------------------------------------------------------------*/
 int32 OS_FPUExcGetMask(uint32 *mask)
 {
+    if (mask == NULL)
+    {
+        return OS_INVALID_POINTER;
+    }
+
     return OS_FPUExcGetMask_Impl(mask);
 } /* end OS_FPUExcGetMask */
                         
