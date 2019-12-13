@@ -1,0 +1,30 @@
+dist: bionic
+sudo: required
+language:
+  - c
+compiler:
+  - gcc
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - cmake
+
+before_install:
+  - sudo apt-get install cppcheck
+
+script:
+  # Check versions
+  - cppcheck --version
+
+  #cppcheck flight software osal/src/bsp, osal/src/os
+  - cppcheck --force --inline-suppr --std=c99 --language=c --error-exitcode=1 --enable=warning,performance,portability,style --suppress=variableScope --inconclusive src/bsp src/os 2>cppcheck_flight_osal.txt
+  - |
+    if [[ -s cppcheck_flight_osal.txt ]]; then
+      echo "You must fix cppcheck errors before submitting a pull request"
+      echo ""
+      cat cppcheck_flight_osal.txt
+      exit -1
+    fi
+ 
