@@ -162,9 +162,9 @@ void UT_BSP_DoTestSegmentReport(const char *SegmentName, const UtAssert_TestCoun
     UT_BSP_DoText(UTASSERT_CASETYPE_END, ReportBuffer);
 }
 
-void UT_BSP_Setup(const char *Name)
+void UT_BSP_Setup(void)
 {
-    UT_BSP_DoText(UTASSERT_CASETYPE_BEGIN, Name);
+    UT_BSP_DoText(UTASSERT_CASETYPE_BEGIN, "VxWorks UNIT TEST");
 }
 
 
@@ -203,20 +203,15 @@ int RunTest(void)
 
     if (RetVal == 0)
     {
-        UT_BSP_Setup("VxWorks UNIT TEST");
-
         /*
         ** Call application specific entry point.
         */
         OS_Application_Startup();
 
         /*
-        ** In unit test mode, call the UtTest_Run function (part of UT Assert library)
+        ** The OS_Application_Run function is part of UT Assert library
         */
-        UtTest_Run();
-
-        UT_BSP_EndTest(UtAssert_GetCounters());
-
+        OS_Application_Run();
 
         RetVal = (UtAssert_GetCounters()->CaseCount[UTASSERT_CASETYPE_FAILURE] +
            UtAssert_GetCounters()->CaseCount[UTASSERT_CASETYPE_TSF]);

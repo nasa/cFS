@@ -40,7 +40,7 @@ extern UT_OsLogInfo_t  g_logInfo;
 ** Main
 **--------------------------------------------------------------------------------*/
 
-void OS_Application_Startup(void)
+void UtTest_Setup(void)
 {
     UT_os_setup(UT_OS_LOG_FILENAME);
 

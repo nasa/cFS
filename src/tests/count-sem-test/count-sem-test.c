@@ -129,7 +129,7 @@ void task_3(void)
     }
 }
 
-void OS_Application_Startup(void)
+void UtTest_Setup(void)
 {
     if (OS_API_Init() != OS_SUCCESS)
     {

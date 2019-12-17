@@ -133,7 +133,7 @@ void Osapi_TearDown(void)
 /*
  * Register the test cases to execute with the unit test tool
  */
-void OS_Application_Startup(void)
+void UtTest_Setup(void)
 {
     ADD_TEST(OS_SelectFdAddClearOps);
     ADD_TEST(OS_SelectSingle);

@@ -109,12 +109,12 @@ void Osapi_TearDown(void)
 
 #define ADD_TEST(test) UtTest_Add((Test_ ## test), Osapi_Task_Setup, Osapi_TearDown, #test)
 
-/* Osapi_AddTestCase_Tasks
+/* UtTest_Setup
  *
  * Purpose:
  *   Registers the test cases to execute with the unit test tool
  */
-void OS_Application_Startup(void)
+void UtTest_Setup(void)
 {
     ADD_TEST(OS_ConsoleCreate_Impl);
     ADD_TEST(OS_ConsoleOutput_Impl);

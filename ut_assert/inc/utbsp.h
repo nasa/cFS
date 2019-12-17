@@ -67,10 +67,8 @@ const char * UT_BSP_GetOptionString(int32 OptionNum);
  * Initialize the BSP for unit test.
  *
  * This is just a hook for the BSP to be informed of the start-of-test event and may be a no-op.
- *
- * \param Name Name of application under test
  */
-void UT_BSP_Setup(const char *Name);
+void UT_BSP_Setup(void);
 
 /**
  * Initialize the unit test at the BSP layer.

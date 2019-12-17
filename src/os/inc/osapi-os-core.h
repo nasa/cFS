@@ -142,10 +142,15 @@ typedef void (*OS_ArgCallback_t)(uint32 object_id, void *arg);
 
 /*
 ** Prototype for application startup function.
-** This is implemented by the user application
+** This is implemented by the BSP or user application
 */
 void OS_Application_Startup(void);
 
+/*
+** Prototype for application run function.
+** This is implemented by the BSP or user application
+*/
+void OS_Application_Run(void);
 
 /*
 ** Exported Functions
