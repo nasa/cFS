@@ -36,6 +36,25 @@
 #include "uttest.h"
 #include "utbsp.h"
 
+/*
+ * Note the worker priority must be lower than that of
+ * the executive (init) task.  Otherwise, the SemRun()
+ * function may may never get CPU time to stop the test.
+ */
+#define SEMTEST_TASK_PRIORITY   150
+
+/*
+ * A limit for the maximum amount
+ * of iterations that this test will
+ * perform.  This prevents the test
+ * from running infinitely in case the
+ * time-based stop routine does not
+ * work correctly.  See note above
+ * about priority requirements.
+ */
+#define SEMTEST_WORK_LIMIT      10000000
+
+
 /* Define setup and test functions for UT assert */
 void SemSetup(void);
 void SemRun(void);
@@ -54,8 +73,6 @@ void SemRun(void);
  */
 #define SEMOP(op)           SEMCALL(Count,op)
 
-#define TASK_PRIORITY  50
-
 uint32 task_1_id; 
 uint32 task_1_work;
 
@@ -72,7 +89,7 @@ void task_1(void)
     OS_printf("Starting task 1\n");
     OS_TaskRegister();
 
-    while(1)
+    while(task_1_work < SEMTEST_WORK_LIMIT)
     {
        status = SEMOP(Take)(sem_id_1);
        if ( status != OS_SUCCESS )
@@ -99,7 +116,7 @@ void task_2(void)
     OS_printf("Starting task 2\n");
     OS_TaskRegister();
 
-    while(1)
+    while(task_2_work < SEMTEST_WORK_LIMIT)
     {
        status = SEMOP(Take)(sem_id_2);
        if ( status != OS_SUCCESS )
@@ -150,10 +167,10 @@ void SemSetup(void)
    /*
    ** Create the tasks
    */
-   status = OS_TaskCreate( &task_1_id, "Task 1", task_1, NULL, 4096, TASK_PRIORITY, 0);
+   status = OS_TaskCreate( &task_1_id, "Task 1", task_1, NULL, 4096, SEMTEST_TASK_PRIORITY, 0);
    UtAssert_True(status == OS_SUCCESS, "Task 1 create Id=%u Rc=%d", (unsigned int)task_1_id, (int)status);
 
-   status = OS_TaskCreate( &task_2_id, "Task 2", task_2, NULL, 4096, TASK_PRIORITY, 0);
+   status = OS_TaskCreate( &task_2_id, "Task 2", task_2, NULL, 4096, SEMTEST_TASK_PRIORITY, 0);
    UtAssert_True(status == OS_SUCCESS, "Task 2 create Id=%u Rc=%d", (unsigned int)task_2_id, (int)status);
 
    /* A small delay just to allow the tasks
@@ -173,6 +190,9 @@ void SemRun(void)
 
     /*
     ** Delete resources
+    **
+    ** NOTE: if the work limit was reached, the
+    ** OS_TaskDelete calls may return non-success.
     */
     status = OS_TaskDelete( task_1_id );
     UtAssert_True(status == OS_SUCCESS, "Task 1 delete Rc=%d", (int)status);
