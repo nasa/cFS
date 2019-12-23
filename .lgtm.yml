@@ -1,0 +1,19 @@
+path_classifiers:
+
+queries:
+  - include: "*"
+  - exclude: cpp/class-many-fields
+  - exclude: cpp/long-switch
+  - exclude: cpp/trivial-switch
+        
+extraction:
+  cpp:
+     index:
+        build_command:
+        - cp cfe/cmake/Makefile.sample Makefile
+        - cp -r cfe/cmake/sample_defs sample_defs
+        - make prep
+        - make
+
+
+
