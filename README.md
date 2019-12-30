@@ -1,4 +1,7 @@
-Travis-CI: [![Build Status](https://travis-ci.com/nasa/cFS.svg)](https://travis-ci.com/nasa/cFS)
+[![Build Status](https://travis-ci.com/nasa/cFS.svg)](https://travis-ci.com/nasa/cFS)
+[![LGTM Alerts](https://img.shields.io/lgtm/alerts/github/nasa/cfs)](https://lgtm.com/projects/g/nasa/cfs/alerts/?mode=list)
+[![LGTM Grade](https://img.shields.io/lgtm/grade/python/github/nasa/cfs)](https://lgtm.com/projects/g/nasa/cfs/alerts/?mode=list)
+[![LGTM Grade](https://img.shields.io/lgtm/grade/cpp/github/nasa/cfs)](https://lgtm.com/projects/g/nasa/cfs/alerts/?mode=list)
 
 # Core Flight System - BUNDLE
 
@@ -90,7 +93,7 @@ The cFS-GroundSystem tool can be used to send commands and receive telemetry (se
        make
        cd ../..
        python GroundSystem.py
-    
+
 3. Select "Start Command System"
 4. Select "Enable Tlm"
 5. Enter IP address of system executing cFS, 127.0.0.1 if running locally
@@ -125,7 +128,7 @@ The following list is user submitted, and not CCB controlled.  They are released
     - SC: Stored Commands application at https://github.com/nasa/SC
     - SCA: Stored Command Absolute application at https://github.com/nasa/SCA
     - SCH: Scheduler application at https://github.com/nasa/SCH
-    - TO: Telemetry Output application at https://github.com/nasa/CFS_TO 
+    - TO: Telemetry Output application at https://github.com/nasa/CFS_TO
   - Other Interfaces
     - SIL: Simulink Interface Layer at https://github.com/nasa/SIL
     - ECI: External Code Interface at https://github.com/nasa/ECI
@@ -140,4 +143,3 @@ The following list is user submitted, and not CCB controlled.  They are released
     - TBD
   - Other PSPs
     - TBD
-
