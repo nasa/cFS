@@ -17,7 +17,7 @@
 /*
  * Module Loader API
  */
-UT_DEFAULT_STUB(OS_ModuleLoad_Impl,( uint32 module_id, char *translated_path ))
+UT_DEFAULT_STUB(OS_ModuleLoad_Impl,( uint32 module_id, const char *translated_path ))
 UT_DEFAULT_STUB(OS_ModuleUnload_Impl,( uint32 module_id ))
 UT_DEFAULT_STUB(OS_ModuleGetInfo_Impl,( uint32 module_id, OS_module_prop_t *module_prop ))
 UT_DEFAULT_STUB(OS_SymbolLookup_Impl,( cpuaddr *SymbolAddress, const char *SymbolName ))

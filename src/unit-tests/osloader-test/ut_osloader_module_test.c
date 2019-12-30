@@ -15,10 +15,6 @@
 ** Macros
 **--------------------------------------------------------------------------------*/
 
-#ifndef OS_INCLUDE_MODULE_LOADER
-#define OS_MAX_MODULES  10
-#endif  /* !OS_INCLUDE_MODULE_LOADER */
-
 /*--------------------------------------------------------------------------------*
 ** Data types
 **--------------------------------------------------------------------------------*/
@@ -26,8 +22,6 @@
 /*--------------------------------------------------------------------------------*
 ** External global variables
 **--------------------------------------------------------------------------------*/
-
-extern UT_OsLogInfo_t g_logInfo;
 
 /*--------------------------------------------------------------------------------*
 ** Global variables
@@ -49,11 +43,7 @@ void UT_os_sample_test()
     /* Must declare these variables for each function. They can be renamed.
      * They're referenced in the macros used to track test cases and their results. */
     int32 idx = 0;
-    UT_OsApiInfo_t apiInfo;
-    const char* testDesc = NULL;
-
-    /* Call this once at the beginning of the function to initialize the test variables. */
-    UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
+    const char* testDesc;
 
     /*-----------------------------------------------------*
      * For each test case,
@@ -75,7 +65,7 @@ void UT_os_sample_test()
 
     if (OS_xxx() == OS_ERR_NOT_IMPLEMENTED)
     {
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_NA);
         goto UT_os_sample_test_exit_tag;
     }
 
@@ -87,9 +77,9 @@ void UT_os_sample_test()
     /* TODO: Setup the test environment here, if necessary */
 
     if (OS_xxx(NULL,...) == OS_INVALID_POINTER)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /* TODO: Reset the test environment here, if necessary */
 
@@ -99,9 +89,9 @@ void UT_os_sample_test()
     /* TODO: Setup the test environment here, if necessary */
 
     if (OS_xxx(aVeryLoooooongName) == OS_ERR_NAME_TOO_LONG)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /* TODO: Reset the test environment here, if necessary */
 
@@ -111,17 +101,17 @@ void UT_os_sample_test()
     /* TODO: Setup the test environment here, if necessary */
 
     if (OS_xxx(...) != OS_SUCCESS)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
 
     /* TODO: Reset the test environment here, if necessary */
 
 UT_os_sample_test_exit_tag:
     /* Call these macros at the very end of the function to close out the test variables
      * and get it added to the global list being tracked. */
-    UT_OS_SET_API_NAME_AND_TEST_COUNT_MACRO(apiInfo, "OS_xxx", idx)
-    UT_OS_LOG_API_MACRO(apiInfo)
+    return;
+    
 }
 #endif
 
@@ -138,16 +128,13 @@ UT_os_sample_test_exit_tag:
 void UT_os_module_load_test()
 {
     int i;
-    UT_OsApiInfo_t apiInfo;
-    int32 res = 0, idx = 0;
-    const char* testDesc = NULL;
+    int32 res = 0;
+    const char* testDesc;
     uint32  test_setup_invalid = 0;
     uint32  module_id;
     uint32  module_id2;
-    char    module_name[OS_MAX_API_NAME];
-    char    module_file_name[OS_MAX_API_NAME];
-
-    UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
+    char    module_name[UT_OS_NAME_BUFF_SIZE];
+    char    module_file_name[UT_OS_PATH_BUFF_SIZE];
 
     /*-----------------------------------------------------*/
     testDesc = "API Not implemented";
@@ -155,7 +142,7 @@ void UT_os_module_load_test()
     res = OS_ModuleLoad(0, "TestModule", UT_OS_GENERIC_MODULE_NAME1);
     if (res == OS_ERR_NOT_IMPLEMENTED)
     {
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_NA);
         goto UT_os_module_load_test_exit_tag;
     }
 
@@ -164,28 +151,27 @@ void UT_os_module_load_test()
 
     res = OS_ModuleLoad(0, "TestModule", UT_OS_GENERIC_MODULE_NAME1);
     if (res == OS_INVALID_POINTER)
-        /* cppcheck-suppress syntaxError */
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /*-----------------------------------------------------*/
     testDesc = "#2 Null-pointer-arg-2";
 
     res = OS_ModuleLoad(&module_id, 0, UT_OS_GENERIC_MODULE_NAME1);
     if (res == OS_INVALID_POINTER)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /*-----------------------------------------------------*/
     testDesc = "#3 Null-pointer-arg-3";
 
     res = OS_ModuleLoad(&module_id, "TestModule", 0);
     if (res == OS_INVALID_POINTER)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /*-----------------------------------------------------*/
     testDesc = "#4 No-free-IDs";
@@ -201,7 +187,7 @@ void UT_os_module_load_test()
         if ( res != OS_SUCCESS )
         {
             testDesc = "#4 No-free-IDs - Module Load failed";
-            UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_TSF)
+            UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_TSF);
             test_setup_invalid = 1;
             break;
         }
@@ -211,9 +197,9 @@ void UT_os_module_load_test()
     {
         res = OS_ModuleLoad(&module_id, "OneTooMany", UT_OS_GENERIC_MODULE_NAME2);
         if (res == OS_ERR_NO_FREE_IDS)
-            UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+            UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
         else
-            UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+            UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     }
     /* Reset test environment */
@@ -227,15 +213,15 @@ void UT_os_module_load_test()
     if ( res != OS_SUCCESS )
     {
         testDesc = "#5 Duplicate-name - Module Load failed";
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_TSF)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_TSF);
     }
     else
     {
         res = OS_ModuleLoad(&module_id, "DUPLICATE", UT_OS_GENERIC_MODULE_NAME2);
         if (res == OS_ERR_NAME_TAKEN)
-            UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+            UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
         else
-            UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+            UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
         /* Reset test environment */
         res = OS_ModuleUnload(module_id2);
@@ -244,23 +230,23 @@ void UT_os_module_load_test()
     /*-----------------------------------------------------*/
     testDesc = "#6 OS-call-failure";
 
-    UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_UOF)
+    UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_INFO);
 
     /*-----------------------------------------------------*/
     testDesc = "#7 Nominal";
 
     res = OS_ModuleLoad(&module_id, "Good", UT_OS_GENERIC_MODULE_NAME2);
     if ( res == OS_SUCCESS )
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /* Reset test environment */
     res = OS_ModuleUnload(module_id);
 
 UT_os_module_load_test_exit_tag:
-    UT_OS_SET_API_NAME_AND_TEST_COUNT_MACRO(apiInfo, "OS_ModuleLoad", idx)
-    UT_OS_LOG_API_MACRO(apiInfo)
+    return;
+    
 }
 
 /*--------------------------------------------------------------------------------*
@@ -273,12 +259,9 @@ UT_os_module_load_test_exit_tag:
 **--------------------------------------------------------------------------------*/
 void UT_os_module_unload_test()
 {
-    UT_OsApiInfo_t apiInfo;
-    int32 res = 0, idx = 0;
-    const char* testDesc = NULL;
+    int32 res = 0;
+    const char* testDesc;
     uint32  module_id = 0;
-
-    UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
 
     /*-----------------------------------------------------*/
     testDesc = "API Not implemented";
@@ -286,7 +269,7 @@ void UT_os_module_unload_test()
     res = OS_ModuleUnload(0);
     if (res == OS_ERR_NOT_IMPLEMENTED)
     {
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_NA);
         goto UT_os_module_unload_test_exit_tag;
     }
 
@@ -295,14 +278,14 @@ void UT_os_module_unload_test()
 
     res = OS_ModuleUnload(99999);
     if ( res == OS_ERR_INVALID_ID )
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /*-----------------------------------------------------*/
     testDesc = "#2 OS-call-failure";
 
-    UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_UOF)
+    UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_INFO);
 
     /*-----------------------------------------------------*/
     testDesc = "#3 Nominal";
@@ -312,20 +295,20 @@ void UT_os_module_unload_test()
     if ( res != OS_SUCCESS )
     {
         testDesc = "#3 Nominal - Module Load failed";
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_TSF)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_TSF);
     }
     else
     {
         res = OS_ModuleUnload(module_id);
         if ( res == OS_SUCCESS )
-            UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+            UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
         else
-            UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+            UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
     }
 
 UT_os_module_unload_test_exit_tag:
-    UT_OS_SET_API_NAME_AND_TEST_COUNT_MACRO(apiInfo, "OS_ModuleUnload", idx)
-    UT_OS_LOG_API_MACRO(apiInfo)
+    return;
+    
 }
 
 /*--------------------------------------------------------------------------------*
@@ -338,13 +321,10 @@ UT_os_module_unload_test_exit_tag:
 **--------------------------------------------------------------------------------*/
 void UT_os_module_info_test()
 {
-    UT_OsApiInfo_t     apiInfo;
-    int32              res = 0, idx = 0;
-    const char*        testDesc = NULL;
+    int32              res = 0;
+    const char*        testDesc;
     uint32             module_id;
     OS_module_prop_t   module_info;
-
-    UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
 
     /*-----------------------------------------------------*/
     testDesc = "API Not implemented";
@@ -352,7 +332,7 @@ void UT_os_module_info_test()
     res = OS_ModuleInfo(0, &module_info);
     if (res == OS_ERR_NOT_IMPLEMENTED)
     {
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_NA);
         goto UT_os_module_info_test_exit_tag;
     }
 
@@ -361,18 +341,18 @@ void UT_os_module_info_test()
 
     res = OS_ModuleInfo(0, NULL);
     if ( res == OS_INVALID_POINTER )
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /*-----------------------------------------------------*/
     testDesc = "#2 Invalid-ID-arg";
 
     res = OS_ModuleInfo(99999, &module_info);
     if ( res == OS_ERR_INVALID_ID )
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /*-----------------------------------------------------*/
     testDesc = "#3 Nominal";
@@ -382,22 +362,22 @@ void UT_os_module_info_test()
     if ( res != OS_SUCCESS )
     {
         testDesc = "#3 Nominal - Module Load failed";
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_TSF)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_TSF);
     }
     else
     {
         res = OS_ModuleInfo(module_id, &module_info);
         if ( res == OS_SUCCESS )
-            UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+            UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
         else
-            UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+            UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
         res = OS_ModuleUnload(module_id);
     }
 
 UT_os_module_info_test_exit_tag:
-    UT_OS_SET_API_NAME_AND_TEST_COUNT_MACRO(apiInfo, "OS_ModuleInfo", idx)
-    UT_OS_LOG_API_MACRO(apiInfo)
+    return;
+    
 }
 
 /*================================================================================*

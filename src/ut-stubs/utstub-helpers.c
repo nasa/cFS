@@ -182,7 +182,6 @@ void UT_CheckForOpenSockets(void)
     UT_ObjTypeState_t *StatePtr;
     uint32 i;
     uint32 id;
-    uint32 InUse = 0;
 
     StatePtr = &UT_ObjState[UT_OBJTYPE_QUEUE];
     for (i=0; i <= StatePtr->LastIssueNumber; ++i)
@@ -191,10 +190,11 @@ void UT_CheckForOpenSockets(void)
         {
             id = i;
             UT_FIXUP_ID(id, UT_OBJTYPE_QUEUE);
+
             UtAssert_Failed("UT_Queue %d left open. ID=%x\n", (int)i, (unsigned int)id);
-            ++InUse;
         }
     }
+
 }
 
 

@@ -124,7 +124,7 @@ int32 OS_MutSemDelete(uint32 sem_id)
 ******************************************************************************/
 int32 OS_MutSemGive(uint32 sem_id)
 {
-    int32 status = OS_SUCCESS;
+    int32 status;
 
     status = UT_DEFAULT_IMPL(OS_MutSemGive);
 
@@ -153,7 +153,7 @@ int32 OS_MutSemGive(uint32 sem_id)
 ******************************************************************************/
 int32 OS_MutSemTake(uint32 sem_id)
 {
-    int32 status = OS_SUCCESS;
+    int32 status;
 
     status = UT_DEFAULT_IMPL(OS_MutSemTake);
 

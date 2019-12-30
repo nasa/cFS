@@ -160,7 +160,7 @@ const OS_ErrorTable_Entry_t OS_IMPL_ERROR_NAME_TABLE[] = { { 0, NULL } };
 /*
  * Local Function Prototypes
  */
-static void  OS_CompAbsDelayTime( uint32 milli_second , struct timespec * tm);
+static void  OS_CompAbsDelayTime( uint32 msecs , struct timespec * tm);
 static int   OS_PriorityRemap(uint32 InputPri);
 
 
@@ -2327,7 +2327,7 @@ static int OS_PriorityRemap(uint32 InputPri)
  *           See prototype in os-impl.h for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 OS_FPUExcAttachHandler_Impl(uint32 ExceptionNumber, void * ExceptionHandler,
+int32 OS_FPUExcAttachHandler_Impl(uint32 ExceptionNumber, osal_task_entry ExceptionHandler,
                                  int32 parameter)
 {
     /*
@@ -2382,7 +2382,7 @@ int32 OS_FPUExcSetMask_Impl(uint32 mask)
     /*
     ** Not implemented in linux.
     */
-    return(OS_SUCCESS);
+    return(OS_ERR_NOT_IMPLEMENTED);
 } /* end OS_FPUExcSetMask_Impl */
 
                         
@@ -2400,7 +2400,7 @@ int32 OS_FPUExcGetMask_Impl(uint32 *mask)
     ** Not implemented in linux.
     */
     *mask = 0;
-    return(OS_SUCCESS);
+    return(OS_ERR_NOT_IMPLEMENTED);
 } /* end OS_FPUExcGetMask_Impl */
 
 /********************************************************************/

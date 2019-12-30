@@ -30,14 +30,12 @@
  * Stub function for OS_FPUExcAttachHandler()
  *
  *****************************************************************************/
-int32 OS_FPUExcAttachHandler   (uint32 ExceptionNumber, void * ExceptionHandler ,
+int32 OS_FPUExcAttachHandler   (uint32 ExceptionNumber, osal_task_entry ExceptionHandler ,
                                  int32 parameter)
 {
     int32 status;
 
-    UT_Stub_RegisterContext(UT_KEY(OS_FPUExcAttachHandler), ExceptionHandler);
-
-    status = UT_DEFAULT_IMPL(OS_FPUExcAttachHandler);
+    status = UT_DEFAULT_IMPL_ARGS(OS_FPUExcAttachHandler, ExceptionNumber, ExceptionHandler, parameter);
 
     return status;
 }

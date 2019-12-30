@@ -107,7 +107,7 @@ int32 OS_Posix_StreamAPI_Impl_Init(void);
 int32 OS_Posix_DirAPI_Impl_Init(void);
 int32 OS_Posix_FileSysAPI_Impl_Init(void);
 
-int32 OS_Posix_InternalTaskCreate_Impl (pthread_t *thr, uint32 priority, size_t stacksz, PthreadFuncPtr_t Entry, void *entry_arg);
+int32 OS_Posix_InternalTaskCreate_Impl (pthread_t *pthr, uint32 priority, size_t stacksz, PthreadFuncPtr_t entry, void *entry_arg);
 
 
 

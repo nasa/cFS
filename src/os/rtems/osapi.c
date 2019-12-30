@@ -1469,7 +1469,8 @@ int32 OS_IntAttachHandler_Impl  (uint32 InterruptNumber, osal_task_entry Interru
  *-----------------------------------------------------------------*/
 int32 OS_IntUnlock_Impl (int32 IntLevel)
 {
-    rtems_interrupt_enable ( (rtems_interrupt_level) IntLevel);
+    rtems_interrupt_level rtems_int_level = IntLevel;
+    rtems_interrupt_local_enable ( rtems_int_level );
     return (OS_SUCCESS);
 
 } /* end OS_IntUnlock_Impl */
@@ -1487,7 +1488,21 @@ int32 OS_IntLock_Impl (void)
 {
    rtems_interrupt_level rtems_int_level;
 
-   rtems_interrupt_disable(rtems_int_level) ;
+   /*
+    * NOTE: rtems_interrupt_local_disable() is a macro
+    * that sets the rtems_int_level value.
+    *
+    * This code assumes that the value is also storable
+    * in an int32.
+    *
+    * This uses the "local" version which operates on
+    * the current CPU in case of a multi-processor environment.
+    *
+    * This should be identical to rtems_interrupt_disable in
+    * a single-processor config, but that call is not
+    * implemented in multi-processor configs.
+    */
+   rtems_interrupt_local_disable(rtems_int_level) ;
    return ( (int32) rtems_int_level) ;
 
 } /* end OS_IntLock_Impl */
@@ -1504,8 +1519,7 @@ int32 OS_IntLock_Impl (void)
  *-----------------------------------------------------------------*/
 int32 OS_IntEnable_Impl (int32 Level)
 {
-    rtems_interrupt_enable ( (rtems_interrupt_level) Level);
-    return(OS_SUCCESS);
+    return(OS_ERR_NOT_IMPLEMENTED);
 } /* end OS_IntEnable_Impl */
 
                         
@@ -1519,10 +1533,7 @@ int32 OS_IntEnable_Impl (int32 Level)
  *-----------------------------------------------------------------*/
 int32 OS_IntDisable_Impl (int32 Level)
 {
-   rtems_interrupt_level rtems_int_level;
-
-   rtems_interrupt_disable(rtems_int_level) ;
-   return ( (int32) rtems_int_level) ;
+    return(OS_ERR_NOT_IMPLEMENTED);
 } /* end OS_IntDisable_Impl */
 
                         
@@ -1590,7 +1601,7 @@ int32 OS_IntGetMask_Impl ( uint32 * MaskSettingPtr )
  *           See prototype in os-impl.h for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 OS_FPUExcAttachHandler_Impl(uint32 ExceptionNumber, void * ExceptionHandler,
+int32 OS_FPUExcAttachHandler_Impl(uint32 ExceptionNumber, osal_task_entry ExceptionHandler,
                                  int32 parameter)
 {
     /*
@@ -1612,7 +1623,7 @@ int32 OS_FPUExcEnable_Impl(int32 ExceptionNumber)
     /*
     ** Not implemented in RTEMS.
     */
-    return(OS_SUCCESS);
+    return(OS_ERR_NOT_IMPLEMENTED);
 } /* end OS_FPUExcEnable_Impl */
                         
 /*----------------------------------------------------------------
@@ -1628,7 +1639,7 @@ int32 OS_FPUExcDisable_Impl(int32 ExceptionNumber)
     /*
     ** Not implemented in RTEMS.
     */
-    return(OS_SUCCESS);
+    return(OS_ERR_NOT_IMPLEMENTED);
 } /* end OS_FPUExcDisable_Impl */
 
                         
@@ -1645,7 +1656,7 @@ int32 OS_FPUExcSetMask_Impl(uint32 mask)
     /*
     ** Not implemented in RTEMS.
     */
-    return(OS_SUCCESS);
+    return(OS_ERR_NOT_IMPLEMENTED);
 } /* end OS_FPUExcSetMask_Impl */
 
                         
@@ -1662,7 +1673,7 @@ int32 OS_FPUExcGetMask_Impl(uint32 *mask)
     /*
     ** Not implemented in RTEMS.
     */
-    return(OS_SUCCESS);
+    return(OS_ERR_NOT_IMPLEMENTED);
 } /* end OS_FPUExcGetMask_Impl */
 
 /********************************************************************/

@@ -24,7 +24,7 @@ int32 OS_VxWorks_ModuleAPI_Impl_Init(void);
  * Invokes OS_SymTableIterator_Impl() with the given arguments.
  * This is normally a static function but exposed via a non-static wrapper for UT purposes.
  */
-int32 Osapi_Internal_CallIteratorFunc(char *name, void* val, uint32 TestSize, uint32 SizeLimit);
+int32 Osapi_Internal_CallIteratorFunc(const char *name, void* val, uint32 TestSize, uint32 SizeLimit);
 
 #endif /* _OSAL_UT_OSLOADER_H_ */
 

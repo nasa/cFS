@@ -49,7 +49,7 @@ int32 OS_TaskCreate(uint32 *task_id, const char *task_name,
                     uint32 stack_size, uint32 priority,
                     uint32 flags)
 {
-    int32 status = OS_SUCCESS;
+    int32 status;
 
     UT_Stub_RegisterContext(UT_KEY(OS_TaskCreate), &function_pointer);
     UT_Stub_RegisterContext(UT_KEY(OS_TaskCreate), stack_pointer);
@@ -154,7 +154,7 @@ int32 OS_TaskDelay(uint32 millisecond)
  *****************************************************************************/
 int32 OS_TaskSetPriority (uint32 task_id, uint32 new_priority)
 {
-    int32 status = OS_SUCCESS;
+    int32 status;
 
     status = UT_DEFAULT_IMPL(OS_TaskSetPriority);
 
@@ -179,7 +179,7 @@ int32 OS_TaskSetPriority (uint32 task_id, uint32 new_priority)
 ******************************************************************************/
 int32 OS_TaskRegister(void)
 {
-    int32 status = OS_SUCCESS;
+    int32 status;
 
     status = UT_DEFAULT_IMPL(OS_TaskRegister);
 

@@ -469,7 +469,7 @@ int32 OS_TimeBaseCreate_Impl(uint32 timer_id)
                 OSAL_TIMEBASE_TASK_PRIORITY,    /* priority */
                 OSAL_TIMEBASE_TASK_OPTION_WORD, /* task option word */
                 OSAL_TIMEBASE_TASK_STACK_SIZE,  /* size (bytes) of stack needed */
-                OS_VxWorks_TimeBaseTask,
+                (FUNCPTR)OS_VxWorks_TimeBaseTask,
                 global->active_id, /* 1st arg is ID */
                 0,0,0,0,0,0,0,0,0);
 

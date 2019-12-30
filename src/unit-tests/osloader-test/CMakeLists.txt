@@ -18,6 +18,5 @@ while(MOD GREATER 0)
     LIBRARY_OUTPUT_DIRECTORY eeprom1)
 endwhile(MOD GREATER 0)
   
-add_stubs(TEST_STUBS os)
-add_osal_ut_exe(osal_loader_UT ${TEST_MODULE_FILES} ${TEST_STUBS})
+add_osal_ut_exe(osal_loader_UT ${TEST_MODULE_FILES})
 

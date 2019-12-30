@@ -22,17 +22,12 @@
 ** External global variables
 **--------------------------------------------------------------------------------*/
 
-extern UT_OsLogInfo_t  g_logInfo;
-
 /*--------------------------------------------------------------------------------*
 ** Global variables
 **--------------------------------------------------------------------------------*/
 
-int32  g_skipTestCase = -1;
-const char*  g_skipTestCaseResult = " ";
-
 const char* g_task_names[UT_OS_TASK_LIST_LEN];
-char  g_long_task_name[OS_MAX_API_NAME+5];
+char  g_long_task_name[UT_OS_NAME_BUFF_SIZE];
 
 /*--------------------------------------------------------------------------------*
 ** External function prototypes
@@ -173,99 +168,119 @@ void UT_os_init_task_get_info_test()
 
 void OS_Application_Startup(void)
 {
-    UT_os_setup(UT_OS_LOG_FILENAME);
+    UtTest_Add(UT_os_apiinit_test, NULL, NULL, "OS_API_Init");
 
-    /* UT_OS_LOG_OFF, UT_OS_LOG_MINIMAL, UT_OS_LOG_MODERATE, UT_OS_LOG_EVERYTHING */
-    UT_os_set_log_verbose(UT_OS_LOG_EVERYTHING);
+    UtTest_Add(UT_os_printf_test, NULL, NULL, "OS_printf");
+    UtTest_Add(UT_os_printfenable_test, NULL, NULL, "OS_printf_enable");
+    UtTest_Add(UT_os_printfdisable_test, NULL, NULL, "OS_printf_disable");
 
-    UT_OS_LOG_MACRO("OSAL Unit Test Output File for oscore APIs\n")
+    UtTest_Add(UT_os_bin_sem_create_test, NULL, NULL, "OS_BinSemCreate");
+    UtTest_Add(UT_os_bin_sem_delete_test, NULL, NULL, "OS_BinSemDelete");
+    UtTest_Add(UT_os_bin_sem_flush_test, NULL, NULL, "OS_BinSemFlush");
+    UtTest_Add(UT_os_bin_sem_give_test, NULL, NULL, "OS_BinSemGive");
+    UtTest_Add(UT_os_bin_sem_take_test, NULL, NULL, "OS_BinSemTake");
+    UtTest_Add(UT_os_bin_sem_timed_wait_test, NULL, NULL, "OS_BinSemTimedWait");
+    UtTest_Add(UT_os_bin_sem_get_id_by_name_test, NULL, NULL, "OS_BinSemGetIdByName");
+    UtTest_Add(UT_os_bin_sem_get_info_test, NULL, NULL, "OS_BinSemGetInfo");
 
-    UT_os_apiinit_test();
+    UtTest_Add(UT_os_count_sem_create_test, NULL, NULL, "OS_CountSemCreate");
+    UtTest_Add(UT_os_count_sem_delete_test, NULL, NULL, "OS_CountSemDelete");
+    UtTest_Add(UT_os_count_sem_give_test, NULL, NULL, "OS_CountSemGive");
+    UtTest_Add(UT_os_count_sem_take_test, NULL, NULL, "OS_CountSemTake");
+    UtTest_Add(UT_os_count_sem_timed_wait_test, NULL, NULL, "OS_CountSemTimedWait");
+    UtTest_Add(UT_os_count_sem_get_id_by_name_test, NULL, NULL, "OS_CountSemGetIdByName");
+    UtTest_Add(UT_os_count_sem_get_info_test, NULL, NULL, "OS_CountSemGetInfo");
 
-    UT_OS_LOG_MACRO("\n============================================\n")
-    UT_os_printf_test();
-    UT_os_printfenable_test();
-    UT_os_printfdisable_test();
-    UT_OS_LOG_MACRO("============================================\n")
+    UtTest_Add(UT_os_mut_sem_create_test, NULL, NULL, "OS_MutSemCreate");
+    UtTest_Add(UT_os_mut_sem_delete_test, NULL, NULL, "OS_MutSemDelete");
+    UtTest_Add(UT_os_mut_sem_give_test, NULL, NULL, "OS_MutSemGive");
+    UtTest_Add(UT_os_mut_sem_take_test, NULL, NULL, "OS_MutSemTake");
+    UtTest_Add(UT_os_mut_sem_get_id_by_name_test, NULL, NULL, "OS_MutSemGetIdByName");
+    UtTest_Add(UT_os_mut_sem_get_info_test, NULL, NULL, "OS_MutSemGetInfo");
 
-    UT_os_bin_sem_create_test();
-    UT_os_bin_sem_delete_test();
-    UT_os_bin_sem_flush_test();
-    UT_os_bin_sem_give_test();
-    UT_os_bin_sem_take_test();
-    UT_os_bin_sem_timed_wait_test();
-    UT_os_bin_sem_get_id_by_name_test();
-    UT_os_bin_sem_get_info_test();
+    UtTest_Add(UT_os_queue_create_test, NULL, NULL, "OS_QueueCreate");
+    UtTest_Add(UT_os_queue_delete_test, NULL, NULL, "OS_QueueDelete");
+    UtTest_Add(UT_os_queue_put_test, NULL, NULL, "OS_QueuePut");
+    UtTest_Add(UT_os_queue_get_test, NULL, NULL, "OS_QueueGet");
+    UtTest_Add(UT_os_queue_get_id_by_name_test, NULL, NULL, "OS_QueueGetIdByName");
+    UtTest_Add(UT_os_queue_get_info_test, NULL, NULL, "OS_QueueGetInfo");
 
-    UT_os_count_sem_create_test();
-    UT_os_count_sem_delete_test();
-    UT_os_count_sem_give_test();
-    UT_os_count_sem_take_test();
-    UT_os_count_sem_timed_wait_test();
-    UT_os_count_sem_get_id_by_name_test();
-    UT_os_count_sem_get_info_test();
+    UtTest_Add(
+            NULL,
+            UT_os_init_task_misc,
+            NULL,
+            "UT_os_init_task_misc");
+    UtTest_Add(
+            UT_os_task_create_test,
+            UT_os_init_task_create_test,
+            NULL,
+            "OS_TaskCreate");
+    UtTest_Add(
+            UT_os_task_delete_test,
+            UT_os_init_task_delete_test,
+            NULL,
+            "OS_TaskDelete");
+    UtTest_Add(
+            UT_os_task_install_delete_handler_test,
+            UT_os_setup_install_delete_handler_test,
+            NULL,
+            "OS_TaskInstallDeleteHandler");
+    UtTest_Add(
+            UT_os_task_exit_test,
+            UT_os_init_task_exit_test,
+            NULL,
+            "OS_TaskExit");
+    UtTest_Add(
+            UT_os_task_delay_test,
+            UT_os_init_task_delay_test,
+            NULL,
+            "OS_TaskDelay");
+    UtTest_Add(
+            UT_os_task_set_priority_test,
+            UT_os_init_task_set_priority_test,
+            NULL,
+            "OS_TaskSetPriority");
+    UtTest_Add(
+            UT_os_task_register_test,
+            UT_os_init_task_register_test,
+            NULL,
+            "OS_TaskRegister");
+    UtTest_Add(
+            UT_os_task_get_id_test,
+            UT_os_init_task_get_id_test,
+            NULL,
+            "OS_TaskGetId");
+    UtTest_Add(
+            UT_os_task_get_id_by_name_test,
+            UT_os_init_task_get_id_by_name_test,
+            NULL,
+            "OS_TaskGetIdByName");
+    UtTest_Add(
+            UT_os_task_get_info_test,
+            UT_os_init_task_get_info_test,
+            NULL,
+            "OS_TaskGetInfo");
 
-    UT_os_mut_sem_create_test();
-    UT_os_mut_sem_delete_test();
-    UT_os_mut_sem_give_test();
-    UT_os_mut_sem_take_test();
-    UT_os_mut_sem_get_id_by_name_test();
-    UT_os_mut_sem_get_info_test();
+    UtTest_Add(UT_os_geterrorname_test, NULL, NULL, "OS_GetErrorName");
 
-    UT_os_queue_create_test();
-    UT_os_queue_delete_test();
-    UT_os_queue_put_test();
-    UT_os_queue_get_test();
-    UT_os_queue_get_id_by_name_test();
-    UT_os_queue_get_info_test();
+    UtTest_Add(UT_os_tick2micros_test, NULL, NULL, "OS_Tick2Micros");
+    UtTest_Add(UT_os_milli2ticks_test, NULL, NULL, "OS_Milli2Ticks");
 
-    UT_os_init_task_misc();
+    UtTest_Add(UT_os_getlocaltime_test, NULL, NULL, "OS_GetLocalTime");
+    UtTest_Add(UT_os_setlocaltime_test, NULL, NULL, "OS_SetLocalTime");
 
-    UT_os_init_task_create_test();
-    UT_os_task_create_test();
+    UtTest_Add(UT_os_heapgetinfo_test, NULL, NULL, "OS_HeapGetInfo");
 
-    UT_os_init_task_delete_test();
-    UT_os_task_delete_test();
+    UtTest_Add(UT_os_int_attachhandler_test, NULL, NULL, "OS_IntAttachHandler");
+    UtTest_Add(UT_os_int_enable_test, NULL, NULL, "OS_IntEnable");
+    UtTest_Add(UT_os_int_disable_test, NULL, NULL, "OS_IntDisable");
+    UtTest_Add(UT_os_int_lock_test, NULL, NULL, "OS_IntLock");
+    UtTest_Add(UT_os_int_unlock_test, NULL, NULL, "OS_IntUnlock");
 
-    UT_os_setup_install_delete_handler_test();
-    UT_os_task_install_delete_handler_test();
+    UtTest_Add(UT_os_fpuexc_setmask_test, NULL, NULL, "OS_FPUExcSetMask");
+    UtTest_Add(UT_os_fpuexc_getmask_test, NULL, NULL, "OS_FPUExcGetMask");
 
-    UT_os_init_task_exit_test();
-    UT_os_task_exit_test();
 
-    UT_os_init_task_delay_test();
-    UT_os_task_delay_test();
-
-    UT_os_init_task_set_priority_test();
-    UT_os_task_set_priority_test();
-
-    UT_os_init_task_register_test();
-    UT_os_task_register_test();
-
-    UT_os_init_task_get_id_test();
-    UT_OS_LOG_MACRO("\n============================================\n")
-    UT_os_task_get_id_test();
-    UT_OS_LOG_MACRO("============================================\n")
-
-    UT_os_init_task_get_id_by_name_test();
-    UT_os_task_get_id_by_name_test();
-
-    UT_os_init_task_get_info_test();
-    UT_os_task_get_info_test();
-
-    UT_os_geterrorname_test();
-
-    UT_os_tick2micros_test();
-    UT_os_milli2ticks_test();
-
-    UT_OS_LOG_MACRO("\n============================================")
-    UT_os_getlocaltime_test();
-    UT_OS_LOG_MACRO("============================================\n")
-    UT_os_setlocaltime_test();
-
-    UT_os_teardown("ut_oscore");
-
-    OS_ApplicationExit(g_logInfo.nFailed > 0);
 }
 
 /*================================================================================*

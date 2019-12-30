@@ -155,7 +155,7 @@ VX_MUTEX_SEMAPHORE(OS_console_mut_mem);
 
 typedef struct
 {
-    char * const mem;
+    void * const mem;
     SEM_ID vxid;
 } VxWorks_GlobalMutex_t;
 
@@ -1538,7 +1538,7 @@ int32 OS_IntGetMask_Impl ( uint32 * MaskSettingPtr )
  *           See prototype in os-impl.h for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 OS_FPUExcAttachHandler_Impl(uint32 ExceptionNumber, void * ExceptionHandler,
+int32 OS_FPUExcAttachHandler_Impl(uint32 ExceptionNumber, osal_task_entry ExceptionHandler,
                                  int32 parameter)
 {
     /*

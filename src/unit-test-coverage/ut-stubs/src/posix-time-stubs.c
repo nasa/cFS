@@ -71,6 +71,10 @@ int OCS_timer_settime (OCS_timer_t timerid, int flags, const struct OCS_itimersp
     int32 Status;
 
     Status = UT_DEFAULT_IMPL(OCS_timer_settime);
+    if (Status == 0)
+    {
+        UT_Stub_CopyFromLocal(UT_KEY(OCS_timer_settime), value, sizeof(*value));
+    }
 
     return Status;
 }

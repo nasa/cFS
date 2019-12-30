@@ -297,7 +297,7 @@ int32 OS_SymbolTableDump_Impl ( const char *local_filename, uint32 SizeLimit )
  *           See prototype in os-impl.h for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 OS_ModuleLoad_Impl ( uint32 local_id, char *translated_path )
+int32 OS_ModuleLoad_Impl ( uint32 local_id, const char *translated_path )
 {
    int32       return_code;
    int         fd;

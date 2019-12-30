@@ -22,8 +22,6 @@
 ** External global variables
 **--------------------------------------------------------------------------------*/
 
-extern UT_OsLogInfo_t  g_logInfo;
-
 /*--------------------------------------------------------------------------------*
 ** Global variables
 **--------------------------------------------------------------------------------*/
@@ -44,11 +42,7 @@ void UT_os_sample_test()
     /* Must declare these variables for each function. They can be renamed.
      * They're referenced in the macros used to track test cases and their results. */
     int32 idx = 0;
-    UT_OsApiInfo_t apiInfo;
-    const char* testDesc = NULL;
-
-    /* Call this once at the beginning of the function to initialize the test variables. */
-    UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
+    const char* testDesc;
 
     /*-----------------------------------------------------*
      * For each test case,
@@ -70,7 +64,7 @@ void UT_os_sample_test()
 
     if (OS_xxx() == OS_ERR_NOT_IMPLEMENTED)
     {
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_NA);
         goto UT_os_sample_test_exit_tag;
     }
 
@@ -82,9 +76,9 @@ void UT_os_sample_test()
     /* TODO: Setup the test environment here, if necessary */
 
     if (OS_xxx(NULL,...) == OS_INVALID_POINTER)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /* TODO: Reset the test environment here, if necessary */
 
@@ -94,9 +88,9 @@ void UT_os_sample_test()
     /* TODO: Setup the test environment here, if necessary */
 
     if (OS_xxx(aVeryLoooooongName) == OS_ERR_NAME_TOO_LONG)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /* TODO: Reset the test environment here, if necessary */
 
@@ -106,17 +100,17 @@ void UT_os_sample_test()
     /* TODO: Setup the test environment here, if necessary */
 
     if (OS_xxx(...) != OS_SUCCESS)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
 
     /* TODO: Reset the test environment here, if necessary */
 
 UT_os_sample_test_exit_tag:
     /* Call these macros at the very end of the function to close out the test variables
      * and get it added to the global list being tracked. */
-    UT_OS_SET_API_NAME_AND_TEST_COUNT_MACRO(apiInfo, "OS_xxx", idx)
-    UT_OS_LOG_API_MACRO(apiInfo)
+    return;
+    
 }
 #endif
 
@@ -146,46 +140,37 @@ UT_os_sample_test_exit_tag:
 **--------------------------------------------------------------------------------*/
 void UT_os_networkgetid_test()
 {
-    UT_OsApiInfo_t apiInfo;
-    int32 res = 0, idx = 0;
-    const char* testDesc = NULL;
-
-    UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
+    int32 res = 0;
+    const char* testDesc;
 
     /*-----------------------------------------------------*/
     testDesc = "API Not implemented";
 
-#ifdef OS_INCLUDE_NETWORK
     res = OS_NetworkGetID();
-#else
-    res = OS_ERR_NOT_IMPLEMENTED;
-#endif
     if (res == OS_ERR_NOT_IMPLEMENTED)
     {
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_NA);
         goto UT_os_networkgetid_test_exit_tag;
     }
 
     /*-----------------------------------------------------*/
     testDesc = "#1 OS-call-failure";
 
-    UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_UOF)
+    UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_INFO);
 
     /*-----------------------------------------------------*/
     testDesc = "#2 Nominal";
 
-#ifdef OS_INCLUDE_NETWORK
     res = OS_NetworkGetID();
-#endif
-    if (res != OS_ERROR)
-        /* cppcheck-suppress syntaxError */
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
-    else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+
+    /* NOTE: This API does not return error codes.
+     * Any return value could be valid */
+    UT_OS_LOG("OS_NetworkGetID() return value=%ld", (long)res);
+    UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_MIR);
 
 UT_os_networkgetid_test_exit_tag:
-    UT_OS_SET_API_NAME_AND_TEST_COUNT_MACRO(apiInfo, "OS_NetworkGetID", idx)
-    UT_OS_LOG_API_MACRO(apiInfo)
+    return;
+    
 }
 
 /*--------------------------------------------------------------------------------*
@@ -226,26 +211,17 @@ UT_os_networkgetid_test_exit_tag:
 **--------------------------------------------------------------------------------*/
 void UT_os_networkgethostname_test()
 {
-    UT_OsApiInfo_t apiInfo;
-    int32 res = 0, idx = 0;
-    const char* testDesc = NULL;
-#ifdef OS_INCLUDE_NETWORK
-    char buffer[UT_OS_MD_TEXT_LEN];
-#endif
-
-    UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
+    int32 res = 0;
+    const char* testDesc;
+    char buffer[UT_OS_IO_BUFF_SIZE];
 
     /*-----------------------------------------------------*/
     testDesc = "API Not implemented";
 
-#ifdef OS_INCLUDE_NETWORK
     res = OS_NetworkGetHostName(buffer, sizeof(buffer));
-#else
-    res = OS_ERR_NOT_IMPLEMENTED;
-#endif
     if (res == OS_ERR_NOT_IMPLEMENTED)
     {
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_NA);
         goto UT_os_networkgethostname_test_exit_tag;
     }
 
@@ -253,40 +229,38 @@ void UT_os_networkgethostname_test()
     /*-----------------------------------------------------*/
     testDesc = "#1 Null-pointer-arg";
 
-#ifdef OS_INCLUDE_NETWORK
     res = OS_NetworkGetHostName(NULL, 0);
     if (res == OS_INVALID_POINTER)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /*-----------------------------------------------------*/
     testDesc = "#2 Zero-name-length-arg";
 
     res = OS_NetworkGetHostName(buffer, 0);
     if (res == OS_ERROR)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /*-----------------------------------------------------*/
     testDesc = "#3 OS-call-failure";
 
-    UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_UOF)
+    UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_INFO);
 
     /*-----------------------------------------------------*/
     testDesc = "#4 Nominal";
 
     res = OS_NetworkGetHostName(buffer, sizeof(buffer));
     if (res == OS_SUCCESS)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
-#endif
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
 UT_os_networkgethostname_test_exit_tag:
-    UT_OS_SET_API_NAME_AND_TEST_COUNT_MACRO(apiInfo, "OS_NetworkGetHostName", idx)
-    UT_OS_LOG_API_MACRO(apiInfo)
+    return;
+    
 }
 
 /*================================================================================*

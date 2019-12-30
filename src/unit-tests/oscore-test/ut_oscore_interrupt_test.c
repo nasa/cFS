@@ -9,7 +9,6 @@
 **--------------------------------------------------------------------------------*/
 
 #include "ut_oscore_interrupt_test.h"
-#include "ut_oscore_test_platforms.h"
 
 /*--------------------------------------------------------------------------------*
 ** Macros
@@ -22,8 +21,6 @@
 /*--------------------------------------------------------------------------------*
 ** External global variables
 **--------------------------------------------------------------------------------*/
-
-extern UT_OsLogInfo_t g_logInfo;
 
 /*--------------------------------------------------------------------------------*
 ** Global variables
@@ -47,11 +44,7 @@ void UT_os_sample_test()
     /* Must declare these variables for each function. They can be renamed.
      * They're referenced in the macros used to track test cases and their results. */
     int32 idx = 0;
-    UT_OsApiInfo_t apiInfo;
-    const char* testDesc = NULL;
-
-    /* Call this once at the beginning of the function to initialize the test variables. */
-    UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
+    const char* testDesc;
 
     /*-----------------------------------------------------*
      * For each test case,
@@ -73,7 +66,7 @@ void UT_os_sample_test()
 
     if (OS_xxx() == OS_ERR_NOT_IMPLEMENTED)
     {
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_NA);
         goto UT_os_sample_test_exit_tag;
     }
 
@@ -85,9 +78,9 @@ void UT_os_sample_test()
     /* TODO: Setup the test environment here, if necessary */
 
     if (OS_xxx(NULL,...) == OS_INVALID_POINTER)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /* TODO: Reset the test environment here, if necessary */
 
@@ -97,9 +90,9 @@ void UT_os_sample_test()
     /* TODO: Setup the test environment here, if necessary */
 
     if (OS_xxx(aVeryLoooooongName) == OS_ERR_NAME_TOO_LONG)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /* TODO: Reset the test environment here, if necessary */
 
@@ -109,17 +102,17 @@ void UT_os_sample_test()
     /* TODO: Setup the test environment here, if necessary */
 
     if (OS_xxx(...) != OS_SUCCESS)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
 
     /* TODO: Reset the test environment here, if necessary */
 
 UT_os_sample_test_exit_tag:
     /* Call these macros at the very end of the function to close out the test variables
      * and get it added to the global list being tracked. */
-    UT_OS_SET_API_NAME_AND_TEST_COUNT_MACRO(apiInfo, "OS_xxx", idx)
-    UT_OS_LOG_API_MACRO(apiInfo)
+    return;
+    
 }
 #endif
 
@@ -130,7 +123,6 @@ void UT_myInterruptFunc(void)
     static int32 iCounter=0;
 
     iCounter++;
-    OS_printf("\nUT_myInterruptFunc() - count=%d\n", iCounter);
 }
 
 /*--------------------------------------------------------------------------------*
@@ -145,7 +137,7 @@ void UT_myInterruptFunc(void)
 ** Returns: OS_INVALID_POINTER if passing in null pointer
 **          OS_ERROR if OS call failed
 **          OS_SUCCESS if succeeded
-/*--------------------------------------------------------------------------------*
+**--------------------------------------------------------------------------------
 ** Test #0: Not-implemented condition
 **   1) Call this routine
 **   2) If the returned value is OS_ERR_NOT_IMPLEMENTED, then exit test
@@ -169,11 +161,8 @@ void UT_myInterruptFunc(void)
 **--------------------------------------------------------------------------------*/
 void UT_os_int_attachhandler_test()
 {
-    UT_OsApiInfo_t apiInfo;
-    int32          res = 0, idx = 0;
-    const char*    testDesc = NULL;
-
-    UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
+    int32          res = 0;
+    const char*    testDesc;
 
     /*-----------------------------------------------------*/
     testDesc = "API not implemented";
@@ -181,7 +170,7 @@ void UT_os_int_attachhandler_test()
     res = OS_IntAttachHandler(1, UT_myInterruptFunc, 100);
     if (res == OS_ERR_NOT_IMPLEMENTED)
     {
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_NA);
         goto UT_os_int_attachhandler_exit_tag;
     }
 
@@ -190,33 +179,32 @@ void UT_os_int_attachhandler_test()
 
     res = OS_IntAttachHandler(1, NULL, 0);
     if (res == OS_INVALID_POINTER)
-        /* cppcheck-suppress syntaxError */
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /*-----------------------------------------------------*/
     testDesc = "#2 OS-call-failure";
 
     res = OS_IntAttachHandler(100, UT_myInterruptFunc, 0);
     if (res == OS_ERROR)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /*-----------------------------------------------------*/
     testDesc = "#3 Nominal";
 
     res = OS_IntAttachHandler(1, UT_myInterruptFunc, 0);
     if (res == OS_SUCCESS)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
 
 UT_os_int_attachhandler_exit_tag:
-    UT_OS_SET_API_NAME_AND_TEST_COUNT_MACRO(apiInfo, "OS_IntAttachHandler", idx)
-    UT_OS_LOG_API_MACRO(apiInfo)
+    return;
+    
 }
 
 /*--------------------------------------------------------------------------------*
@@ -244,11 +232,8 @@ UT_os_int_attachhandler_exit_tag:
 **--------------------------------------------------------------------------------*/
 void UT_os_int_enable_test()
 {
-    UT_OsApiInfo_t apiInfo;
-    int32          res = 0, idx = 0;
-    const char*    testDesc = NULL;
-
-    UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
+    int32          res = 0;
+    const char*    testDesc;
 
     /*-----------------------------------------------------*/
     testDesc = "API not implemented";
@@ -256,7 +241,7 @@ void UT_os_int_enable_test()
     res = OS_IntEnable(1);
     if (res == OS_ERR_NOT_IMPLEMENTED)
     {
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_NA);
         goto UT_os_int_enable_exit_tag;
     }
 
@@ -266,23 +251,23 @@ void UT_os_int_enable_test()
     /*-----------------------------------------------------*/
     testDesc = "#1 OS-call-failure";
 
-    UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_UOF)
+    UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_INFO);
 
     /*-----------------------------------------------------*/
     testDesc = "#2 Nominal";
 
     res = OS_IntEnable(1);
     if (res == OS_SUCCESS)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /* Reset test environment */
     OS_IntDisable(1);
 
 UT_os_int_enable_exit_tag:
-    UT_OS_SET_API_NAME_AND_TEST_COUNT_MACRO(apiInfo, "OS_IntEnable", idx)
-    UT_OS_LOG_API_MACRO(apiInfo)
+    return;
+    
 }
 
 /*--------------------------------------------------------------------------------*
@@ -310,11 +295,8 @@ UT_os_int_enable_exit_tag:
 **--------------------------------------------------------------------------------*/
 void UT_os_int_disable_test()
 {
-    UT_OsApiInfo_t apiInfo;
-    int32          res = 0, idx = 0;
-    const char*    testDesc = NULL;
-
-    UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
+    int32          res = 0;
+    const char*    testDesc;
 
     /*-----------------------------------------------------*/
     testDesc = "API not implemented";
@@ -322,14 +304,14 @@ void UT_os_int_disable_test()
     res = OS_IntDisable(1);
     if (res == OS_ERR_NOT_IMPLEMENTED)
     {
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_NA);
         goto UT_os_int_disable_exit_tag;
     }
 
     /*-----------------------------------------------------*/
     testDesc = "#1 OS-call-failure";
 
-    UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_UOF)
+    UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_INFO);
 
     /*-----------------------------------------------------*/
     testDesc = "#2 Nominal";
@@ -338,19 +320,19 @@ void UT_os_int_disable_test()
     {
         res = OS_IntDisable(1);
         if (res == OS_SUCCESS)
-            UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+            UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
         else
-            UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+            UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
     }
     else
     {
         testDesc = "#2 Nominal - Interrupt-Enable failed";
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_TSF)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_TSF);
     }
 
 UT_os_int_disable_exit_tag:
-    UT_OS_SET_API_NAME_AND_TEST_COUNT_MACRO(apiInfo, "OS_IntDisable", idx)
-    UT_OS_LOG_API_MACRO(apiInfo)
+    return;
+    
 }
 
 /*--------------------------------------------------------------------------------*
@@ -377,25 +359,22 @@ UT_os_int_disable_exit_tag:
 **--------------------------------------------------------------------------------*/
 void UT_os_int_lock_test()
 {
-    UT_OsApiInfo_t apiInfo;
-    int32          res = 0, idx = 0;
-    const char*    testDesc = NULL;
-
-    UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
+    int32          res = 0;
+    const char*    testDesc;
 
     /*-----------------------------------------------------*/
     testDesc = "API not implemented";
 
     if (OS_IntLock() == OS_ERR_NOT_IMPLEMENTED)
     {
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_NA);
         goto UT_os_int_lock_exit_tag;
     }
 
     /*-----------------------------------------------------*/
     testDesc = "#1 OS-call-failure";
 
-    UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_UOF)
+    UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_INFO);
 
     /*-----------------------------------------------------*/
     testDesc = "#2 Nominal";
@@ -403,13 +382,13 @@ void UT_os_int_lock_test()
     res = OS_IntLock();
     /* Note: Could check for more evidence here; only checking API for now. */
     if (OS_IntUnlock(res) == OS_SUCCESS)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
 UT_os_int_lock_exit_tag:
-    UT_OS_SET_API_NAME_AND_TEST_COUNT_MACRO(apiInfo, "OS_IntLock", idx)
-    UT_OS_LOG_API_MACRO(apiInfo)
+    return;
+    
 }
 
 /*--------------------------------------------------------------------------------*
@@ -437,38 +416,35 @@ UT_os_int_lock_exit_tag:
 **--------------------------------------------------------------------------------*/
 void UT_os_int_unlock_test()
 {
-    UT_OsApiInfo_t apiInfo;
-    int32          res = 0, idx = 0;
-    const char*    testDesc = NULL;
-
-    UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
+    int32          res = 0;
+    const char*    testDesc;
 
     /*-----------------------------------------------------*/
     testDesc = "API not implemented";
 
     if (OS_IntUnlock(0) == OS_ERR_NOT_IMPLEMENTED)
     {
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_NA);
         goto UT_os_int_unlock_exit_tag;
     }
 
     /*-----------------------------------------------------*/
     testDesc = "#1 OS-call-failure";
 
-    UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_UOF)
+    UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_INFO);
 
     /*-----------------------------------------------------*/
     testDesc = "#2 Nominal";
 
     res = OS_IntLock();
     if (OS_IntUnlock(res) == OS_SUCCESS)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
 UT_os_int_unlock_exit_tag:
-    UT_OS_SET_API_NAME_AND_TEST_COUNT_MACRO(apiInfo, "OS_IntUnlock", idx)
-    UT_OS_LOG_API_MACRO(apiInfo)
+    return;
+    
 }
 
 /*================================================================================*

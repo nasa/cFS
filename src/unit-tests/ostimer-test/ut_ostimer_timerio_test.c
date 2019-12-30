@@ -9,7 +9,6 @@
 **--------------------------------------------------------------------------------*/
 
 #include "ut_ostimer_timerio_test.h"
-#include "ut_ostimer_test_platforms.h"
 
 /*--------------------------------------------------------------------------------*
 ** Macros
@@ -23,15 +22,14 @@
 ** External global variables
 **--------------------------------------------------------------------------------*/
 
-extern UT_OsLogInfo_t  g_logInfo;
-
 extern char*  g_timerNames[UT_OS_TIMER_LIST_LEN];
-extern char   g_longTimerName[OS_MAX_API_NAME+5];
+extern char   g_longTimerName[UT_OS_NAME_BUFF_SIZE];
 
-extern int32  g_skipTestCase;
-extern char*  g_skipTestCaseResult;
-
-UT_OS_TIMER_DECLARE_EXTRA_VARIABLES_MACRO
+extern uint32  g_cbLoopCntMax;
+extern uint32  g_toleranceVal;
+extern uint32  g_timerFirst;
+extern int32   g_status;
+extern uint32  g_timerId;
 
 /*--------------------------------------------------------------------------------*
 ** External function prototypes
@@ -62,11 +60,7 @@ void UT_os_sample_test()
     /* Must declare these variables for each function. They can be renamed.
      * They're referenced in the macros used to track test cases and their results. */
     int32 idx = 0;
-    UT_OsApiInfo_t apiInfo;
-    const char* testDesc = NULL;
-
-    /* Call this once at the beginning of the function to initialize the test variables. */
-    UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
+    const char* testDesc;
 
     /*-----------------------------------------------------*
      * For each test case,
@@ -88,7 +82,7 @@ void UT_os_sample_test()
 
     if (OS_xxx() == OS_ERR_NOT_IMPLEMENTED)
     {
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_NA);
         goto UT_os_sample_test_exit_tag;
     }
 
@@ -100,9 +94,9 @@ void UT_os_sample_test()
     /* TODO: Setup the test environment here, if necessary */
 
     if (OS_xxx(NULL,...) == OS_INVALID_POINTER)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /* TODO: Reset the test environment here, if necessary */
 
@@ -112,9 +106,9 @@ void UT_os_sample_test()
     /* TODO: Setup the test environment here, if necessary */
 
     if (OS_xxx(aVeryLoooooongName) == OS_ERR_NAME_TOO_LONG)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /* TODO: Reset the test environment here, if necessary */
 
@@ -124,17 +118,15 @@ void UT_os_sample_test()
     /* TODO: Setup the test environment here, if necessary */
 
     if (OS_xxx(...) != OS_SUCCESS)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
 
     /* TODO: Reset the test environment here, if necessary */
 
 UT_os_sample_test_exit_tag:
-    /* Call these macros at the very end of the function to close out the test variables
-     * and get it added to the global list being tracked. */
-    UT_OS_SET_API_NAME_AND_TEST_COUNT_MACRO(apiInfo, "OS_xxx", idx)
-    UT_OS_LOG_API_MACRO(apiInfo)
+    return;
+    
 }
 #endif
 
@@ -168,11 +160,8 @@ UT_os_sample_test_exit_tag:
 *--------------------------------------------------------------------------------*/
 void UT_os_timerinit_test()
 {
-    int32 res=0, idx=0;
-    UT_OsApiInfo_t apiInfo;
-    const char* testDesc=NULL;
-
-    UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
+    int32 res=0;
+    const char* testDesc;
 
     /*-----------------------------------------------------*/
     testDesc = "#1 Init-not-call-first";
@@ -180,14 +169,14 @@ void UT_os_timerinit_test()
     res = OS_TimerCreate(&g_timerIds[0], "Timer #0", &g_clkAccuracy, &UT_os_timercallback);
     if (res != OS_SUCCESS)
     {
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     }
     else
     {
         /* Reset test environment */
         OS_TimerDelete(g_timerIds[0]);
 
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
     }
 
     /*-----------------------------------------------------*/
@@ -197,27 +186,26 @@ void UT_os_timerinit_test()
     if (res == OS_ERR_NOT_IMPLEMENTED)
     {
         testDesc = "API not implemented";
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_NA);
     }
     else if (res == OS_SUCCESS)
     {
         res = OS_TimerCreate(&g_timerIds[0], "Timer #0", &g_clkAccuracy, &UT_os_timercallback);
         if (res == OS_SUCCESS)
-            /* cppcheck-suppress syntaxError */
-            UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+            UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
         else
-            UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+            UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
         /* Reset test environment */
         OS_TimerDelete(g_timerIds[0]);
     }
     else
     {
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
     }
 
-    UT_OS_SET_API_NAME_AND_TEST_COUNT_MACRO(apiInfo, "OS_TimerAPIInit", idx)
-    UT_OS_LOG_API_MACRO(apiInfo)
+    return;
+    
 }
 
 /*--------------------------------------------------------------------------------*
@@ -291,12 +279,9 @@ void UT_os_timerinit_test()
 **--------------------------------------------------------------------------------*/
 void UT_os_timercreate_test()
 {
-    UT_OsApiInfo_t apiInfo;
-    const char* testDesc=NULL;
-    int32 res=0, idx=0, i=0, j=0;
-    char tmpStr[UT_OS_XS_TEXT_LEN];
-
-    UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
+    const char* testDesc;
+    int32 res=0, i=0, j=0;
+    char tmpStr[UT_OS_NAME_BUFF_SIZE];
 
     /*-----------------------------------------------------*/
     testDesc = "API not implemented";
@@ -304,7 +289,7 @@ void UT_os_timercreate_test()
     res = OS_TimerCreate(&g_timerIds[0], g_timerNames[0], &g_clkAccuracy, &UT_os_timercallback);
     if (res == OS_ERR_NOT_IMPLEMENTED)
     {
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_NA);
         goto UT_os_timercreate_test_exit_tag;
     }
 
@@ -320,18 +305,18 @@ void UT_os_timercreate_test()
          OS_INVALID_POINTER) &&
         (OS_TimerCreate(&g_timerIds[1], g_timerNames[1], NULL, &UT_os_timercallback) ==
          OS_INVALID_POINTER))
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /*-----------------------------------------------------*/
     testDesc = "#2 Name-too-long";
 
     if (OS_TimerCreate(&g_timerIds[2], g_longTimerName, &g_clkAccuracy, &UT_os_timercallback) ==
         OS_ERR_NAME_TOO_LONG)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /*-----------------------------------------------------*/
     testDesc = "#3 Name-taken";
@@ -340,9 +325,9 @@ void UT_os_timercreate_test()
          OS_SUCCESS) &&
         (OS_TimerCreate(&g_timerIds[4], g_timerNames[3], &g_clkAccuracy, &UT_os_timercallback) ==
          OS_ERR_NAME_TAKEN))
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /* Reset test environment */
     OS_TimerDelete(g_timerIds[3]);
@@ -350,53 +335,46 @@ void UT_os_timercreate_test()
     /*-----------------------------------------------------*/
     testDesc = "#4 No-free-IDs";
 
-    if (g_skipTestCase == 4)
+    for (i=0; i <= OS_MAX_TIMERS; i++)
     {
-        testDesc = "#4 No-free-IDs - Test case not applicable on platform";
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, g_skipTestCaseResult)
+        memset(tmpStr, '\0', sizeof(tmpStr));
+        UT_os_sprintf(tmpStr, "Timer #%d", (int)i);
+        res = OS_TimerCreate(&g_timerIds[i], tmpStr, &g_clkAccuracy, &UT_os_timercallback);
+        if (res != OS_SUCCESS)
+            break;
+    }
+
+    if (i < OS_MAX_TIMERS)
+    {
+        testDesc = "#4 No-free-IDs - Timer-created failed";
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_TSF);
+    }
+    else if (res == OS_ERR_NO_FREE_IDS)
+    {
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     }
     else
     {
-        for (i=0; i <= OS_MAX_TIMERS; i++)
-        {
-            memset(tmpStr, '\0', sizeof(tmpStr));
-            UT_os_sprintf(tmpStr, "Timer #%d", (int)i);
-            res = OS_TimerCreate(&g_timerIds[i], tmpStr, &g_clkAccuracy, &UT_os_timercallback);
-            if (res != OS_SUCCESS)
-                break;
-        }
-
-        if (i < OS_MAX_TIMERS)
-        {
-            testDesc = "#4 No-free-IDs - Timer-created failed";
-            UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_TSF)
-        }
-        else if (i == OS_MAX_TIMERS)
-        {
-            if (res == OS_ERR_NO_FREE_IDS)
-                UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
-            else
-                UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
-        }
-
-        /* Reset test environment */
-        for (j=0; j < i; j++)
-            OS_TimerDelete(g_timerIds[j]);
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
     }
+
+    /* Reset test environment */
+    for (j=0; j < i; j++)
+        OS_TimerDelete(g_timerIds[j]);
 
     /*-----------------------------------------------------*/
     testDesc = "#5 Invalid-arg";
 
     if (OS_TimerCreate(&g_timerIds[5], g_timerNames[5], &g_clkAccuracy, NULL) ==
         OS_TIMER_ERR_INVALID_ARGS)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /*-----------------------------------------------------*/
     testDesc = "#6 Timer-unavailable";
 
-    UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_UOF)
+    UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_INFO);
 
     /*-----------------------------------------------------*/
     testDesc = "#7 Nominal";
@@ -407,18 +385,18 @@ void UT_os_timercreate_test()
         if ((OS_TimerGetIdByName(&g_timerIds[8], g_timerNames[7]) == OS_SUCCESS) &&
             (g_timerIds[7] == g_timerIds[8]) &&
             (OS_TimerDelete(g_timerIds[7]) == OS_SUCCESS))
-            UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+            UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
         else
-            UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+            UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
     }
     else
     {
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
     }
 
 UT_os_timercreate_test_exit_tag:
-    UT_OS_SET_API_NAME_AND_TEST_COUNT_MACRO(apiInfo, "OS_TimerCreate", idx)
-    UT_OS_LOG_API_MACRO(apiInfo)
+    return;
+    
 }
 
 /*--------------------------------------------------------------------------------*
@@ -465,11 +443,8 @@ UT_os_timercreate_test_exit_tag:
 **--------------------------------------------------------------------------------*/
 void UT_os_timerdelete_test()
 {
-    int32 res=0, idx=0;
-    UT_OsApiInfo_t apiInfo;
-    const char* testDesc=NULL;
-
-    UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
+    int32 res=0;
+    const char* testDesc;
 
     /*-----------------------------------------------------*/
     testDesc = "API not implemented";
@@ -477,7 +452,7 @@ void UT_os_timerdelete_test()
     res = OS_TimerDelete(99999);
     if (res == OS_ERR_NOT_IMPLEMENTED)
     {
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_NA);
         goto UT_os_timerdelete_test_exit_tag;
     }
 
@@ -485,14 +460,14 @@ void UT_os_timerdelete_test()
     testDesc = "#1 Invalid-id-arg";
 
     if (OS_TimerDelete(99999) == OS_ERR_INVALID_ID)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /*-----------------------------------------------------*/
     testDesc = "#2 Internal-error";
 
-    UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_UOF)
+    UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_INFO);
 
     /*-----------------------------------------------------*/
     testDesc = "#3 Nominal";
@@ -501,7 +476,7 @@ void UT_os_timerdelete_test()
     if (res != OS_SUCCESS)
     {
         testDesc = "#3 Nominal - Timer-create failed";
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_TSF)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_TSF);
         goto UT_os_timerdelete_test_exit_tag;
     }
 
@@ -510,21 +485,21 @@ void UT_os_timerdelete_test()
         if ((OS_TimerGetIdByName(&g_timerIds[4], g_timerNames[3]) == OS_ERR_NAME_NOT_FOUND) &&
             (OS_TimerCreate(&g_timerIds[3], g_timerNames[3], &g_clkAccuracy, &UT_os_timercallback) ==
              OS_SUCCESS))
-            UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+            UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
         else
-            UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+            UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
     }
     else
     {
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
     }
 
     /* Reset test environment */
     OS_TimerDelete(g_timerIds[3]);
 
 UT_os_timerdelete_test_exit_tag:
-    UT_OS_SET_API_NAME_AND_TEST_COUNT_MACRO(apiInfo, "OS_TimerDelete", idx)
-    UT_OS_LOG_API_MACRO(apiInfo)
+    return;
+    
 }
 
 /*--------------------------------------------------------------------------------*
@@ -580,13 +555,9 @@ UT_os_timerdelete_test_exit_tag:
 **--------------------------------------------------------------------------------*/
 void UT_os_timerset_test()
 {
-    int32 res=0, idx=0;
-    UT_OsApiInfo_t apiInfo;
-    const char* testDesc=NULL;
-    char text[UT_OS_LG_TEXT_LEN];
+    int32 res=0;
+    const char* testDesc;
     uint32 startTime=0, intervalTime=0;
-
-    UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
 
     /*-----------------------------------------------------*/
     testDesc = "API not implemented";
@@ -594,44 +565,61 @@ void UT_os_timerset_test()
     res = OS_TimerSet(99999, startTime, intervalTime);
     if (res == OS_ERR_NOT_IMPLEMENTED)
     {
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_NA);
         goto UT_os_timerset_test_exit_tag;
     }
 
     /*-----------------------------------------------------*/
     testDesc = "#1 Invalid-id-arg";
 
-    res = OS_TimerSet(99999, startTime, intervalTime);
+    res = OS_TimerSet(99999, 10000, 10000);
     if (res == OS_ERR_INVALID_ID)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /*-----------------------------------------------------*/
     testDesc = "#2 Internal-error";
 
-    UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_UOF)
+    UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_INFO);
 
     /*-----------------------------------------------------*/
     testDesc = "#3 Interval-too-short";
 
-    if (g_skipTestCase == 3)
+    res = OS_TimerCreate(&g_timerIds[3], g_timerNames[3], &g_clkAccuracy, &UT_os_timercallback);
+    if (res != OS_SUCCESS)
     {
-        testDesc = "#3 Interval-too-short - Test case not applicable on platform";
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, g_skipTestCaseResult)
+        testDesc = "#3 Interval-too-short - Timer-create failed";
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_TSF);
     }
     else
     {
-        res = OS_TimerCreate(&g_timerIds[3], g_timerNames[3], &g_clkAccuracy, &UT_os_timercallback);
-        if (res != OS_SUCCESS)
+        g_status  = 0;
+        g_timerId = g_timerIds[3];
+        g_timerFirst   = 1;
+        g_cbLoopCntMax = 10;
+        startTime      = 1000;
+        intervalTime   = 5;
+        g_toleranceVal = 0;
+
+        UT_OS_LOG("\nOS_TimerSet() - #3 Interval-too-short (clk_accuracy=%d)\n",
+                            (int)g_clkAccuracy);
+        res = OS_TimerSet(g_timerIds[3], startTime, intervalTime);
+        if (res == OS_SUCCESS)
         {
-            testDesc = "#3 Interval-too-short - Timer-create failed";
-            UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_TSF)
+            while (!g_status)
+                OS_TaskDelay(1);
+            if (g_status < 0)
+                UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
+            else
+                UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
         }
         else
         {
-            UT_OS_TIMER_SET_SHORT_INTERVAL_ELSE_MACRO
+            UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
         }
+        /* Reset test environment */
+        OS_TimerDelete(g_timerIds[3]);
     }
 
     /*-----------------------------------------------------*/
@@ -641,17 +629,41 @@ void UT_os_timerset_test()
     if (res != OS_SUCCESS)
     {
         testDesc = "#4 Nominal - Timer-create failed";
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_TSF)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_TSF);
         goto UT_os_timerset_test_exit_tag;
     }
     else
     {
-        UT_OS_TIMER_SET_NOMINAL_ELSE_MACRO
+        g_status  = 0;
+        g_timerId = g_timerIds[4];
+        g_timerFirst   = 1;
+        g_cbLoopCntMax = 10;
+        startTime      = 1000;
+        intervalTime   = 500000;
+        g_toleranceVal = intervalTime / 20;  /* 5% */
+        UT_OS_LOG("\nOS_TimerSet() - #1 Nominal condition (clk_accuracy=%d)\n",
+                            (int)g_clkAccuracy);
+        res = OS_TimerSet(g_timerIds[4], startTime, intervalTime);
+        if (res == OS_SUCCESS)
+        {
+            while (!g_status)
+                OS_TaskDelay(1);
+            if (g_status > 0)
+                UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
+             else
+                UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
+        }
+        else
+        {
+            UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
+        }
+        /* Reset test environment */
+         OS_TimerDelete(g_timerIds[4]);
     }
 
 UT_os_timerset_test_exit_tag:
-    UT_OS_SET_API_NAME_AND_TEST_COUNT_MACRO(apiInfo, "OS_TimerSet", idx)
-    UT_OS_LOG_API_MACRO(apiInfo)
+    return;
+    
 }
 
 /*--------------------------------------------------------------------------------*
@@ -698,11 +710,8 @@ UT_os_timerset_test_exit_tag:
 **--------------------------------------------------------------------------------*/
 void UT_os_timergetidbyname_test()
 {
-    int32 res=0, idx=0;
-    UT_OsApiInfo_t apiInfo;
-    const char* testDesc=NULL;
-
-    UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
+    int32 res=0;
+    const char* testDesc;
 
     /*-----------------------------------------------------*/
     testDesc = "API not implemented";
@@ -710,7 +719,7 @@ void UT_os_timergetidbyname_test()
     res = OS_TimerGetIdByName(&g_timerIds[0], g_timerNames[0]);
     if (res == OS_ERR_NOT_IMPLEMENTED)
     {
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_NA);
         goto UT_os_timergetidbyname_test_exit_tag;
     }
 
@@ -719,25 +728,25 @@ void UT_os_timergetidbyname_test()
 
     if ((OS_TimerGetIdByName(NULL, g_timerNames[1]) == OS_INVALID_POINTER) &&
         (OS_TimerGetIdByName(&g_timerIds[1], NULL) == OS_INVALID_POINTER))
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /*-----------------------------------------------------*/
     testDesc = "#2 Name-too-long";
 
     if (OS_TimerGetIdByName(&g_timerIds[2], g_longTimerName) == OS_ERR_NAME_TOO_LONG)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /*-----------------------------------------------------*/
     testDesc = "#3 Name-not-found";
 
     if (OS_TimerGetIdByName(&g_timerIds[3], g_timerNames[3]) == OS_ERR_NAME_NOT_FOUND)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /*-----------------------------------------------------*/
     testDesc = "#4 Nominal";
@@ -746,22 +755,22 @@ void UT_os_timergetidbyname_test()
     if (res != OS_SUCCESS)
     {
         testDesc = "#4 Nominal - Timer-create failed";
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_TSF)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_TSF);
         goto UT_os_timergetidbyname_test_exit_tag;
     }
 
     res = OS_TimerGetIdByName(&g_timerIds[5], g_timerNames[4]);
     if ((res == OS_SUCCESS) && (g_timerIds[4] == g_timerIds[5]))
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /* Reset test environment */
     OS_TimerDelete(g_timerIds[4]);
 
 UT_os_timergetidbyname_test_exit_tag:
-    UT_OS_SET_API_NAME_AND_TEST_COUNT_MACRO(apiInfo, "OS_TimerGetIdByName", idx)
-    UT_OS_LOG_API_MACRO(apiInfo)
+    return;
+    
 }
 
 /*--------------------------------------------------------------------------------*
@@ -803,12 +812,9 @@ UT_os_timergetidbyname_test_exit_tag:
 **--------------------------------------------------------------------------------*/
 void UT_os_timergetinfo_test()
 {
-    int32 res=0, idx=0;
-    UT_OsApiInfo_t apiInfo;
-    const char* testDesc=NULL;
+    int32 res=0;
+    const char* testDesc;
     OS_timer_prop_t timerProps;
-
-    UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
 
     /*-----------------------------------------------------*/
     testDesc = "API not implemented";
@@ -816,7 +822,7 @@ void UT_os_timergetinfo_test()
     res = OS_TimerGetInfo(99999, &timerProps);
     if (res == OS_ERR_NOT_IMPLEMENTED)
     {
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_NA);
         goto UT_os_timergetinfo_test_exit_tag;
     }
 
@@ -827,14 +833,14 @@ void UT_os_timergetinfo_test()
     if (res != OS_SUCCESS)
     {
         testDesc = "#1 Null-pointer-arg - Timer-create failed";
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_TSF)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_TSF);
     }
     else
     {
         if (OS_TimerGetInfo(g_timerIds[1], NULL) == OS_INVALID_POINTER)
-            UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+            UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
         else
-            UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+            UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
         /* Reset test environment */
         OS_TimerDelete(g_timerIds[1]);
@@ -844,9 +850,9 @@ void UT_os_timergetinfo_test()
     testDesc = "#2 Invalid-id-arg";
 
     if (OS_TimerGetInfo(99999, &timerProps) == OS_ERR_INVALID_ID)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
 
     /*-----------------------------------------------------*/
@@ -856,7 +862,7 @@ void UT_os_timergetinfo_test()
     if (res != OS_SUCCESS)
     {
         testDesc = "#3 Nominal - Timer-create failed";
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_TSF)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_TSF);
     }
     else
     {
@@ -865,13 +871,13 @@ void UT_os_timergetinfo_test()
         if (res == OS_SUCCESS)
         {
             if (strcmp(timerProps.name, g_timerNames[3]) == 0)
-                UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+                UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
             else
-                UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+                UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
         }
         else
         {
-            UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+            UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
         }
 
         /* Reset test environment */
@@ -879,8 +885,8 @@ void UT_os_timergetinfo_test()
     }
 
 UT_os_timergetinfo_test_exit_tag:
-    UT_OS_SET_API_NAME_AND_TEST_COUNT_MACRO(apiInfo, "OS_TimerGetInfo", idx)
-    UT_OS_LOG_API_MACRO(apiInfo)
+    return;
+    
 }
 
 /*================================================================================*

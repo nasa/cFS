@@ -65,6 +65,20 @@ typedef enum
    OS_SocketType_MAX
 } OS_SocketType_t;
 
+/**
+ * Storage buffer for generic network address
+ *
+ * This is a union type that helps to ensure a minimum
+ * alignment value for the data storage, such that it can
+ * be cast to the system-specific type without
+ * increasing alignment requirements.
+ */
+typedef union
+{
+    uint8  Buffer[OS_SOCKADDR_MAX_LEN]; /**< Ensures length of at least OS_SOCKADDR_MAX_LEN */
+    uint32 AlignU32;                    /**< Ensures uint32 alignment */
+    void*  AlignPtr;                    /**< Ensures pointer alignment */
+} OS_SockAddrData_t;
 
 /**
  * Encapsulates a generic network address
@@ -76,7 +90,7 @@ typedef enum
 typedef struct
 {
    uint32 ActualLength;                 /**< Length of the actual address data */
-   char AddrData[OS_SOCKADDR_MAX_LEN];  /**< Abstract Address data */
+   OS_SockAddrData_t AddrData;          /**< Abstract Address data */
 } OS_SockAddr_t;
 
 /**

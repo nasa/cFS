@@ -70,13 +70,15 @@ void Test_OS_mkfs(void)
     int32 expected = OS_SUCCESS;
     int32 actual = ~OS_SUCCESS;
 
-    actual = OS_mkfs("adr","/ramdev0","vol",0,0);
+    char TestBuffer[128];
+
+    actual = OS_mkfs(TestBuffer,"/ramdev0","vol",0,0);
     UtAssert_True(actual == expected, "OS_mkfs() (%ld) == OS_SUCCESS", (long)actual);
 
     /*
      * Test an entry NOT found in the OS_VolumeTable
      */
-    actual = OS_mkfs("adr","/rd1","vol1",0,0);
+    actual = OS_mkfs(TestBuffer,"/rd1","vol1",0,0);
     UtAssert_True(actual == expected, "OS_mkfs() (%ld) == OS_SUCCESS", (long)actual);
 
 
@@ -86,25 +88,25 @@ void Test_OS_mkfs(void)
 
     UT_SetForceFail(UT_KEY(OCS_strlen), 2 + OS_FS_DEV_NAME_LEN);
     expected = OS_FS_ERR_PATH_TOO_LONG;
-    actual = OS_mkfs("adr","/ramdev0","vol",0,0);
+    actual = OS_mkfs(TestBuffer,"/ramdev0","vol",0,0);
     UtAssert_True(actual == expected, "OS_mkfs() (%ld) == OS_FS_ERR_PATH_TOO_LONG", (long)actual);
     UT_ClearForceFail(UT_KEY(OCS_strlen));
 
     /* set up for failure due to empty strings */
     expected = OS_FS_ERR_PATH_INVALID;
-    actual = OS_mkfs("adr","","",0,0);
+    actual = OS_mkfs(TestBuffer,"","",0,0);
     UtAssert_True(actual == expected, "OS_mkfs() (%ld) == OS_FS_ERR_PATH_INVALID", (long)actual);
 
     /* set up for failure due to formatting */
     UT_SetForceFail(UT_KEY(OS_FileSysFormatVolume_Impl), OS_FS_ERR_DRIVE_NOT_CREATED);
     expected = OS_FS_ERR_DRIVE_NOT_CREATED;
-    actual = OS_mkfs("adr","/ramdev0","vol",0,0);
+    actual = OS_mkfs(TestBuffer,"/ramdev0","vol",0,0);
     UtAssert_True(actual == expected, "OS_mkfs() (%ld) == OS_FS_ERR_DRIVE_NOT_CREATED (format failure)", (long)actual);
 
     /* set up for failure due to no free slots */
     UT_SetForceFail(UT_KEY(OS_ObjectIdAllocateNew), OS_ERR_NO_FREE_IDS);
     expected = OS_FS_ERR_DEVICE_NOT_FREE;
-    actual = OS_mkfs("adr","/ramdev0","vol",0,0);
+    actual = OS_mkfs(TestBuffer,"/ramdev0","vol",0,0);
     UtAssert_True(actual == expected, "OS_mkfs() (%ld) == OS_FS_ERR_DEVICE_NOT_FREE", (long)actual);
 }
 
@@ -148,7 +150,9 @@ void Test_OS_initfs(void)
     int32 expected = OS_SUCCESS;
     int32 actual = ~OS_SUCCESS;
 
-    actual = OS_initfs("adr","/ramdev0","vol",0,0);
+    char TestBuffer[128];
+
+    actual = OS_initfs(TestBuffer,"/ramdev0","vol",0,0);
     UtAssert_True(actual == expected, "OS_initfs() (%ld) == OS_SUCCESS", (long)actual);
 
     actual = OS_initfs(NULL,"/hda2","vol2",0,0);
@@ -160,14 +164,14 @@ void Test_OS_initfs(void)
 
     UT_SetForceFail(UT_KEY(OCS_strlen), 2 + OS_FS_DEV_NAME_LEN);
     expected = OS_FS_ERR_PATH_TOO_LONG;
-    actual = OS_initfs("adr","/ramdev0","vol",0,0);
+    actual = OS_initfs(TestBuffer,"/ramdev0","vol",0,0);
     UtAssert_True(actual == expected, "OS_initfs() (%ld) == OS_FS_ERR_PATH_TOO_LONG", (long)actual);
     UT_ClearForceFail(UT_KEY(OCS_strlen));
 
     /* set up for failure */
     UT_SetForceFail(UT_KEY(OS_ObjectIdAllocateNew), OS_ERR_NO_FREE_IDS);
     expected = OS_FS_ERR_DEVICE_NOT_FREE;
-    actual = OS_initfs("adr","/ramdev0","vol",0,0);
+    actual = OS_initfs(TestBuffer,"/ramdev0","vol",0,0);
     UtAssert_True(actual == expected, "OS_initfs() (%ld) == OS_FS_ERR_DEVICE_NOT_FREE", (long)actual);
 }
 

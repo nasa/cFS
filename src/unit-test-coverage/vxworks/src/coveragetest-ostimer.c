@@ -150,18 +150,24 @@ void Test_OS_VxWorks_SigWait(void)
      * (invocation of static function through a wrapper)
      */
     int signo = OCS_SIGRTMIN;
+    struct OCS_itimerspec config_value;
 
     OS_global_timebase_table[0].active_id = 0x12345;
     OS_timebase_table[0].nominal_start_time = 8888;
     OS_timebase_table[0].nominal_interval_time = 5555;
 
+    memset(&config_value, 0, sizeof(config_value));
+    UT_SetDataBuffer(UT_KEY(OCS_timer_settime),&config_value,sizeof(config_value),false);
+    UT_SetDataBuffer(UT_KEY(OCS_timer_gettime),&config_value,sizeof(config_value),false);
     Osapi_Internal_Setup(0, signo, true);
+    OS_TimeBaseSet_Impl(0, 1111111, 2222222);
+
     UT_SetDataBuffer(UT_KEY(OCS_sigwait),&signo,sizeof(signo),false);
-    OSAPI_TEST_FUNCTION_RC(Osapi_Internal_CallSigWaitFunc(0), 8888);
+    OSAPI_TEST_FUNCTION_RC(Osapi_Internal_CallSigWaitFunc(0), 1111111);
     UT_SetDataBuffer(UT_KEY(OCS_sigwait),&signo,sizeof(signo),false);
-    OSAPI_TEST_FUNCTION_RC(Osapi_Internal_CallSigWaitFunc(0), 5555);
+    OSAPI_TEST_FUNCTION_RC(Osapi_Internal_CallSigWaitFunc(0), 2222222);
     UT_SetDataBuffer(UT_KEY(OCS_sigwait),&signo,sizeof(signo),false);
-    OSAPI_TEST_FUNCTION_RC(Osapi_Internal_CallSigWaitFunc(0), 5555);
+    OSAPI_TEST_FUNCTION_RC(Osapi_Internal_CallSigWaitFunc(0), 2222222);
 
     Osapi_Internal_Setup(0, 0, false);
     OS_global_timebase_table[0].active_id = 0;

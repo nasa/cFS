@@ -58,7 +58,7 @@ int32 OS_QueueCreate(uint32 *queue_id,
                      uint32 data_size,
                      uint32 flags)
 {
-    int32   status = OS_SUCCESS;
+    int32   status;
 
     status = UT_DEFAULT_IMPL(OS_QueueCreate);
 
@@ -99,7 +99,7 @@ int32 OS_QueueCreate(uint32 *queue_id,
 ******************************************************************************/
 int32 OS_QueueDelete(uint32 queue_id)
 {
-    int32   status = OS_SUCCESS;
+    int32   status;
 
     status = UT_DEFAULT_IMPL(OS_QueueDelete);
 
@@ -142,7 +142,7 @@ int32 OS_QueueGet(uint32 queue_id,
                   uint32 *size_copied,
                   int32 timeout)
 {
-    int32   status = OS_SUCCESS;
+    int32   status;
 
     status = UT_DEFAULT_IMPL(OS_QueueGet);
 
@@ -183,7 +183,7 @@ int32 OS_QueueGet(uint32 queue_id,
 ******************************************************************************/
 int32 OS_QueuePut(uint32 queue_id, const void *data, uint32 size, uint32 flags)
 {
-    int32   status = OS_SUCCESS;
+    int32   status;
 
     status = UT_DEFAULT_IMPL(OS_QueuePut);
 

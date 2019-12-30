@@ -40,6 +40,7 @@
  */
 typedef struct
 {
+    /* cppcheck-suppress unusedStructMember */
     void *dl_handle;
 } OS_impl_module_internal_record_t;
 
@@ -205,7 +206,7 @@ static bool OS_rtems_rtl_check_unresolved (rtems_rtl_unresolv_rec_t* rec,
  *           See prototype in os-impl.h for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 OS_ModuleLoad_Impl ( uint32 module_id, char *translated_path )
+int32 OS_ModuleLoad_Impl ( uint32 module_id, const char *translated_path )
 {
     int32 status = OS_ERROR;
     int unresolved;

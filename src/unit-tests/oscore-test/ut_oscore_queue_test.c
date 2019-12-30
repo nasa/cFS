@@ -22,8 +22,6 @@
 ** External global variables
 **--------------------------------------------------------------------------------*/
 
-extern UT_OsLogInfo_t g_logInfo;
-
 /*--------------------------------------------------------------------------------*
 ** Global variables
 **--------------------------------------------------------------------------------*/
@@ -48,11 +46,7 @@ void UT_os_sample_test()
     /* Must declare these variables for each function. They can be renamed.
      * They're referenced in the macros used to track test cases and their results. */
     int32 idx = 0;
-    UT_OsApiInfo_t apiInfo;
-    const char* testDesc = NULL;
-
-    /* Call this once at the beginning of the function to initialize the test variables. */
-    UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
+    const char* testDesc;
 
     /*-----------------------------------------------------*
      * For each test case,
@@ -74,7 +68,7 @@ void UT_os_sample_test()
 
     if (OS_xxx() == OS_ERR_NOT_IMPLEMENTED)
     {
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_NA);
         goto UT_os_sample_test_exit_tag;
     }
 
@@ -86,9 +80,9 @@ void UT_os_sample_test()
     /* TODO: Setup the test environment here, if necessary */
 
     if (OS_xxx(NULL,...) == OS_INVALID_POINTER)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /* TODO: Reset the test environment here, if necessary */
 
@@ -98,9 +92,9 @@ void UT_os_sample_test()
     /* TODO: Setup the test environment here, if necessary */
 
     if (OS_xxx(aVeryLoooooongName) == OS_ERR_NAME_TOO_LONG)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /* TODO: Reset the test environment here, if necessary */
 
@@ -110,17 +104,15 @@ void UT_os_sample_test()
     /* TODO: Setup the test environment here, if necessary */
 
     if (OS_xxx(...) != OS_SUCCESS)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
 
     /* TODO: Reset the test environment here, if necessary */
 
 UT_os_sample_test_exit_tag:
-    /* Call these macros at the very end of the function to close out the test variables
-     * and get it added to the global list being tracked. */
-    UT_OS_SET_API_NAME_AND_TEST_COUNT_MACRO(apiInfo, "OS_xxx", idx)
-    UT_OS_LOG_API_MACRO(apiInfo)
+    return;
+    
 }
 #endif
 
@@ -138,16 +130,13 @@ UT_os_sample_test_exit_tag:
 void UT_os_queue_create_test()
 {
     int i = 0;
-    UT_OsApiInfo_t apiInfo;
-    int32 res = 0, idx = 0;
-    const char* testDesc = NULL;
+    int32 res = 0;
+    const char* testDesc;
     uint32  queue_id = 0;
     uint32  queue_id2 = 0;
-    char    queue_name[OS_MAX_API_NAME];
-    char    long_queue_name[OS_MAX_API_NAME+5];
+    char    queue_name[UT_OS_NAME_BUFF_SIZE];
+    char    long_queue_name[UT_OS_NAME_BUFF_SIZE];
     uint32  test_setup_invalid = 0;
-
-    UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
 
     /*-----------------------------------------------------*/
     testDesc = "API not implemented";
@@ -155,30 +144,29 @@ void UT_os_queue_create_test()
     res = OS_QueueCreate(&queue_id, "Good", 10, 4, 0);
     if (res == OS_ERR_NOT_IMPLEMENTED)
     {
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_NA);
         goto UT_os_queue_create_test_exit_tag;
     }
     /* Clean up */
-    res = OS_QueueDelete(queue_id);
+    OS_QueueDelete(queue_id);
 
     /*-----------------------------------------------------*/
     testDesc = "#1 Null-pointer-arg-1";
 
     res = OS_QueueCreate(NULL, "Queue1", 10, 4, 0);
     if (res == OS_INVALID_POINTER)
-        /* cppcheck-suppress syntaxError */
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /*-----------------------------------------------------*/
     testDesc = "#2 Null-pointer-arg-2";
 
     res = OS_QueueCreate(&queue_id, NULL, 10, 4, 0);
     if (res == OS_INVALID_POINTER)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /*-----------------------------------------------------*/
     testDesc = "#3 Name-too-long";
@@ -187,9 +175,9 @@ void UT_os_queue_create_test()
     long_queue_name[sizeof(long_queue_name)-1] = '\0';
     res = OS_QueueCreate(&queue_id, long_queue_name, 10, 4, 0);
     if (res == OS_ERR_NAME_TOO_LONG)
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /*-----------------------------------------------------*/
     testDesc = "#4 No-free-IDs";
@@ -203,7 +191,7 @@ void UT_os_queue_create_test()
         if ( res != OS_SUCCESS )
         {
             testDesc = "#4 No-free-IDs - Queue Create failed";
-            UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_TSF)
+            UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_TSF);
             test_setup_invalid = 1;
             break;
         }
@@ -213,9 +201,9 @@ void UT_os_queue_create_test()
     {
         res = OS_QueueCreate(&queue_id, "OneTooMany", 10, 4, 0);
         if (res == OS_ERR_NO_FREE_IDS)
-            UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+            UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
         else
-            UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+            UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
     }
 
     /* Reset test environment */
@@ -228,15 +216,15 @@ void UT_os_queue_create_test()
     res = OS_QueueCreate(&queue_id2, "DUPLICATE", 10, 4, 0);
     if ( res != OS_SUCCESS )
     {
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, "Queue Create failed", UT_OS_TSF)
+        UT_OS_TEST_RESULT( "Queue Create failed", UTASSERT_CASETYPE_TSF);
     }
     else
     {
         res = OS_QueueCreate(&queue_id, "DUPLICATE", 10, 4, 0);
         if (res == OS_ERR_NAME_TAKEN)
-            UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+            UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
         else
-            UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+            UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
         /* Reset test environment */
         res = OS_QueueDelete(queue_id2);
@@ -245,23 +233,23 @@ void UT_os_queue_create_test()
     /*-----------------------------------------------------*/
     testDesc = "#6 OS-call-failure";
 
-    UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_UOF)
+    UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_INFO);
 
     /*-----------------------------------------------------*/
     testDesc = "#7 Nominal";
 
     res = OS_QueueCreate(&queue_id, "Good", 10, 4, 0);
     if ( res == OS_SUCCESS )
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /* Reset test environment */
     res = OS_QueueDelete(queue_id);
 
 UT_os_queue_create_test_exit_tag:
-    UT_OS_SET_API_NAME_AND_TEST_COUNT_MACRO(apiInfo, "OS_QueueCreate", idx)
-    UT_OS_LOG_API_MACRO(apiInfo)
+    return;
+    
 }
 
 /*--------------------------------------------------------------------------------*
@@ -274,12 +262,9 @@ UT_os_queue_create_test_exit_tag:
 **--------------------------------------------------------------------------------*/
 void UT_os_queue_delete_test()
 {
-    UT_OsApiInfo_t apiInfo;
-    int32 res = 0, idx = 0;
-    const char* testDesc = NULL;
+    int32 res = 0;
+    const char* testDesc;
     uint32  queue_id;
-
-    UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
 
     /*-----------------------------------------------------*/
     testDesc = "API not implemented";
@@ -287,7 +272,7 @@ void UT_os_queue_delete_test()
     res = OS_QueueDelete(0);
     if (res == OS_ERR_NOT_IMPLEMENTED)
     {
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_NA);
         goto UT_os_queue_delete_test_exit_tag;
     }
 
@@ -296,14 +281,14 @@ void UT_os_queue_delete_test()
 
     res = OS_QueueDelete(99999);
     if ( res == OS_ERR_INVALID_ID )
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /*-----------------------------------------------------*/
     testDesc = "#2 OS-call-failure";
 
-    UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_UOF)
+    UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_INFO);
 
     /*-----------------------------------------------------*/
     testDesc = "#3 Nominal";
@@ -313,20 +298,20 @@ void UT_os_queue_delete_test()
     if ( res != OS_SUCCESS )
     {
         testDesc = "#3 Nominal - Queue Create failed";
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_TSF)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_TSF);
     }
     else
     {
         res = OS_QueueDelete(queue_id);
         if ( res == OS_SUCCESS )
-            UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+            UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
         else
-            UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+            UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
     }
 
 UT_os_queue_delete_test_exit_tag:
-    UT_OS_SET_API_NAME_AND_TEST_COUNT_MACRO(apiInfo, "OS_QueueDelete", idx)
-    UT_OS_LOG_API_MACRO(apiInfo)
+    return;
+    
 }
 
 /*--------------------------------------------------------------------------------*
@@ -342,16 +327,13 @@ UT_os_queue_delete_test_exit_tag:
 **--------------------------------------------------------------------------------*/
 void UT_os_queue_get_test()
 {
-    UT_OsApiInfo_t     apiInfo;
-    int32              res = 0, idx = 0;
-    const char*        testDesc = NULL;
+    int32              res = 0;
+    const char*        testDesc;
     uint32             queue_id;
     uint32             queue_data_out;
     uint32             queue_data_in;
     uint32             size_copied;
     uint32             data_size;
-
-    UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
 
     /*-----------------------------------------------------*/
     testDesc = "API not implemented";
@@ -359,7 +341,7 @@ void UT_os_queue_get_test()
     res = OS_QueueGet(0, (void *)&queue_data_in, 4, &size_copied, OS_CHECK);
     if (res == OS_ERR_NOT_IMPLEMENTED)
     {
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_NA);
         goto UT_os_queue_get_test_exit_tag;
     }
 
@@ -368,9 +350,9 @@ void UT_os_queue_get_test()
 
     res = OS_QueueGet(99999, (void *)&queue_data_in, 4, &size_copied, OS_CHECK);
     if ( res == OS_ERR_INVALID_ID )
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /*-----------------------------------------------------*/
     testDesc = "#2 Invalid-pointer-arg-1";
@@ -380,15 +362,15 @@ void UT_os_queue_get_test()
     if ( res != OS_SUCCESS )
     {
         testDesc = "#2 Invalid-pointer-arg-1 - Queue Create failed";
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_TSF)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_TSF);
     }
     else
     {
         res = OS_QueueGet(queue_id, NULL, 4, &size_copied, OS_CHECK);
         if ( res == OS_INVALID_POINTER )
-            UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+            UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
         else
-            UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+            UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
         res = OS_QueueDelete(queue_id);
     }
@@ -401,15 +383,15 @@ void UT_os_queue_get_test()
     if ( res != OS_SUCCESS )
     {
         testDesc = "#3 Invalid-pointer-arg-2 - Queue Create failed";
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_TSF)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_TSF);
     }
     else
     {
         res = OS_QueueGet(queue_id, (void *)&queue_data_in, 4, NULL, OS_CHECK);
         if ( res == OS_INVALID_POINTER )
-            UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+            UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
         else
-            UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+            UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
        res = OS_QueueDelete(queue_id);
     }
@@ -422,15 +404,15 @@ void UT_os_queue_get_test()
     if ( res != OS_SUCCESS )
     {
         testDesc = "#4 Queue-empty - Queue Create failed";
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_TSF)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_TSF);
     }
     else
     {
         res = OS_QueueGet(queue_id, (void *)&queue_data_in, 4, &data_size, OS_CHECK);
         if ( res == OS_QUEUE_EMPTY )
-            UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+            UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
         else
-            UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+            UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
         res = OS_QueueDelete(queue_id);
     }
@@ -443,15 +425,15 @@ void UT_os_queue_get_test()
     if ( res != OS_SUCCESS )
     {
         testDesc = "#5 Queue-timed-out - Queue Create failed";
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_TSF)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_TSF);
     }
     else
     {
         res = OS_QueueGet(queue_id, (void *)&queue_data_in, 4, &data_size, 2);
         if ( res == OS_QUEUE_TIMEOUT )
-            UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+            UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
         else
-            UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+            UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
         res = OS_QueueDelete(queue_id);
     }
@@ -464,7 +446,7 @@ void UT_os_queue_get_test()
     if ( res != OS_SUCCESS )
     {
         testDesc = "#6 Invalid-queue-size - Queue Create failed";
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_TSF)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_TSF);
     }
     else
     {
@@ -473,15 +455,15 @@ void UT_os_queue_get_test()
         if ( res != OS_SUCCESS )
         {
             testDesc = "#6 Invalid-queue-size - Queue Put failed";
-            UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_TSF)
+            UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_TSF);
         }
         else
         {
             res = OS_QueueGet(queue_id, (void *)&queue_data_in, 3, &data_size, OS_CHECK);
             if ( res == OS_QUEUE_INVALID_SIZE )
-                UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+                UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
             else
-                UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+                UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
         }
         res = OS_QueueDelete(queue_id);
     }
@@ -489,7 +471,7 @@ void UT_os_queue_get_test()
     /*-----------------------------------------------------*/
     testDesc = "#7 OS-call-failure";
 
-    UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_UOF)
+    UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_INFO);
 
     /*-----------------------------------------------------*/
     testDesc = "#8 Nominal Pend";
@@ -499,7 +481,7 @@ void UT_os_queue_get_test()
     if ( res != OS_SUCCESS )
     {
         testDesc = "#8 Nominal Pend - Queue Create failed";
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_TSF)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_TSF);
     }
     else
     {
@@ -508,15 +490,15 @@ void UT_os_queue_get_test()
         if ( res != OS_SUCCESS )
         {
             testDesc = "#8 Nominal Pend - Queue Put failed";
-            UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_TSF)
+            UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_TSF);
         }
         else
         {
             res = OS_QueueGet(queue_id, (void *)&queue_data_in, 4, &data_size, OS_PEND);
             if ( res == OS_SUCCESS )
-                UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+                UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
             else
-                UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+                UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
         }
         res = OS_QueueDelete(queue_id);
     }
@@ -529,7 +511,7 @@ void UT_os_queue_get_test()
     if ( res != OS_SUCCESS )
     {
         testDesc = "#9 Nominal timeout - Queue Create failed";
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_TSF)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_TSF);
     }
     else
     {
@@ -538,15 +520,15 @@ void UT_os_queue_get_test()
         if ( res != OS_SUCCESS )
         {
             testDesc = "#9 Nominal timeout - Queue Put failed";
-            UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_TSF)
+            UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_TSF);
         }
         else
         {
             res = OS_QueueGet(queue_id, (void *)&queue_data_in, 4, &data_size, 20);
             if ( res == OS_SUCCESS )
-                UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+                UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
             else
-                UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+                UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
         }
         res = OS_QueueDelete(queue_id);
     }
@@ -559,7 +541,7 @@ void UT_os_queue_get_test()
     if ( res != OS_SUCCESS )
     {
         testDesc = "#10 Nominal check - Queue Create failed";
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_TSF)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_TSF);
     }
     else
     {
@@ -568,22 +550,22 @@ void UT_os_queue_get_test()
         if ( res != OS_SUCCESS )
         {
             testDesc = "#10 Nominal check - Queue Put failed";
-            UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_TSF)
+            UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_TSF);
         }
         else
         {
             res = OS_QueueGet(queue_id, (void *)&queue_data_in, 4, &data_size, OS_CHECK);
             if ( res == OS_SUCCESS )
-                UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+                UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
             else
-                UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+                UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
         }
         res = OS_QueueDelete(queue_id);
     }
 
 UT_os_queue_get_test_exit_tag:
-    UT_OS_SET_API_NAME_AND_TEST_COUNT_MACRO(apiInfo, "OS_QueueGet", idx)
-    UT_OS_LOG_API_MACRO(apiInfo)
+    return;
+    
 }
 
 /*--------------------------------------------------------------------------------*
@@ -598,14 +580,11 @@ UT_os_queue_get_test_exit_tag:
 **--------------------------------------------------------------------------------*/
 void UT_os_queue_put_test()
 {
-    UT_OsApiInfo_t     apiInfo;
-    int32              res = 0, idx = 0;
-    const char*        testDesc = NULL;
+    int32              res = 0;
+    const char*        testDesc;
     uint32             queue_id;
     uint32             queue_data_out = 0;
     int                i;
-
-    UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
 
     /*-----------------------------------------------------*/
     testDesc = "API not implemented";
@@ -613,7 +592,7 @@ void UT_os_queue_put_test()
     res = OS_QueuePut(0, (void *)&queue_data_out, 4, 0);
     if (res == OS_ERR_NOT_IMPLEMENTED)
     {
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_NA);
         goto UT_os_queue_put_test_exit_tag;
     }
 
@@ -622,9 +601,9 @@ void UT_os_queue_put_test()
 
     res = OS_QueuePut(99999, (void *)&queue_data_out, 4, 0);
     if ( res == OS_ERR_INVALID_ID )
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /*-----------------------------------------------------*/
     testDesc = "#2 Invalid-pointer-arg";
@@ -634,22 +613,22 @@ void UT_os_queue_put_test()
     if ( res != OS_SUCCESS )
     {
         testDesc = "#2 Invalid-pointer-arg - Queue Create failed";
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_TSF)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_TSF);
     }
     else
     {
         res = OS_QueuePut(queue_id, NULL, 4, 0);
         if ( res == OS_INVALID_POINTER )
-            UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+            UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
         else
-            UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+            UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
         res = OS_QueueDelete(queue_id);
     }
 
     /*-----------------------------------------------------*/
     testDesc = "#3 OS-call-failure";
 
-    UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_UOF)
+    UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_INFO);
 
     /*-----------------------------------------------------*/
     testDesc = "#4 Queue-full";
@@ -659,7 +638,7 @@ void UT_os_queue_put_test()
     if ( res != OS_SUCCESS )
     {
         testDesc = "#4 Queue-full - Queue Create failed";
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_TSF)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_TSF);
     }
     else
     {
@@ -672,9 +651,9 @@ void UT_os_queue_put_test()
         }
 
         if ( res == OS_QUEUE_FULL )
-            UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+            UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
         else
-            UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+            UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
         res = OS_QueueDelete(queue_id);
     }
@@ -687,22 +666,22 @@ void UT_os_queue_put_test()
     if ( res != OS_SUCCESS )
     {
         testDesc = "#5 Nominal - Queue Create failed";
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_TSF)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_TSF);
     }
     else
     {
         queue_data_out = 0x11223344;
         res = OS_QueuePut(queue_id, (void *)&queue_data_out, 4, 0);
         if ( res == OS_SUCCESS )
-            UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+            UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
         else
-            UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+            UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
         res = OS_QueueDelete(queue_id);
     }
 
 UT_os_queue_put_test_exit_tag:
-    UT_OS_SET_API_NAME_AND_TEST_COUNT_MACRO(apiInfo, "OS_QueuePut", idx)
-    UT_OS_LOG_API_MACRO(apiInfo)
+    return;
+    
 }
 
 /*--------------------------------------------------------------------------------*
@@ -716,13 +695,10 @@ UT_os_queue_put_test_exit_tag:
 **--------------------------------------------------------------------------------*/
 void UT_os_queue_get_id_by_name_test()
 {
-    UT_OsApiInfo_t apiInfo;
-    int32 res = 0, idx = 0;
-    const char* testDesc = NULL;
+    int32 res = 0;
+    const char* testDesc;
     uint32  queue_id;
-    char  long_queue_name[OS_MAX_API_NAME+5];
-
-    UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
+    char  long_queue_name[UT_OS_NAME_BUFF_SIZE];
 
     /*-----------------------------------------------------*/
     testDesc = "API not implemented";
@@ -730,7 +706,7 @@ void UT_os_queue_get_id_by_name_test()
     res = OS_QueueGetIdByName(0, "InvalidName");
     if (res == OS_ERR_NOT_IMPLEMENTED)
     {
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_NA);
         goto UT_os_queue_get_id_by_name_test_exit_tag;
     }
 
@@ -739,18 +715,18 @@ void UT_os_queue_get_id_by_name_test()
 
     res = OS_QueueGetIdByName(NULL, "InvalidName");
     if ( res == OS_INVALID_POINTER )
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /*-----------------------------------------------------*/
     testDesc = "#2 Invalid-pointer-arg-2";
 
     res = OS_QueueGetIdByName(&queue_id, NULL);
     if ( res == OS_INVALID_POINTER )
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /*-----------------------------------------------------*/
     testDesc = "#3 Name-too-long";
@@ -759,18 +735,18 @@ void UT_os_queue_get_id_by_name_test()
     long_queue_name[sizeof(long_queue_name)-1] = '\0';
     res = OS_QueueGetIdByName(&queue_id, long_queue_name);
     if ( res == OS_ERR_NAME_TOO_LONG )
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /*-----------------------------------------------------*/
     testDesc = "#4 Name-not-found";
 
     res = OS_QueueGetIdByName(&queue_id, "NameNotFound");
     if ( res == OS_ERR_NAME_NOT_FOUND )
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /*-----------------------------------------------------*/
     testDesc = "#5 Nominal";
@@ -780,22 +756,22 @@ void UT_os_queue_get_id_by_name_test()
     if ( res != OS_SUCCESS )
     {
         testDesc = "#5 Nominal - Queue Create failed";
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_TSF)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_TSF);
     }
     else
     {
         res = OS_QueueGetIdByName(&queue_id, "GetIDByName");
         if ( res == OS_SUCCESS )
-            UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+            UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
         else
-            UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+            UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
         res = OS_QueueDelete(queue_id);
     }
 
 UT_os_queue_get_id_by_name_test_exit_tag:
-    UT_OS_SET_API_NAME_AND_TEST_COUNT_MACRO(apiInfo, "OS_QueueGetIdByName", idx)
-    UT_OS_LOG_API_MACRO(apiInfo)
+    return;
+    
 }
 
 /*--------------------------------------------------------------------------------*
@@ -808,13 +784,10 @@ UT_os_queue_get_id_by_name_test_exit_tag:
 **--------------------------------------------------------------------------------*/
 void UT_os_queue_get_info_test()
 {
-    UT_OsApiInfo_t     apiInfo;
-    int32              res = 0, idx = 0;
-    const char*        testDesc = NULL;
+    int32              res = 0;
+    const char*        testDesc;
     uint32             queue_id;
     OS_queue_prop_t    queue_prop;
-
-    UT_OS_CLEAR_API_INFO_MACRO(apiInfo, idx)
 
     /*-----------------------------------------------------*/
     testDesc = "API not implemented";
@@ -822,7 +795,7 @@ void UT_os_queue_get_info_test()
     res = OS_QueueGetInfo(0,&queue_prop);
     if (res == OS_ERR_NOT_IMPLEMENTED)
     {
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_NA)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_NA);
         goto UT_os_queue_get_info_test_exit_tag;
     }
 
@@ -831,9 +804,9 @@ void UT_os_queue_get_info_test()
 
     res = OS_QueueGetInfo(99999, &queue_prop);
     if ( res == OS_ERR_INVALID_ID )
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /*-----------------------------------------------------*/
     testDesc = "#2 Invalid-pointer-arg";
@@ -843,15 +816,15 @@ void UT_os_queue_get_info_test()
     if ( res != OS_SUCCESS )
     {
         testDesc = "#2 Invalid-pointer-arg - Queue Create failed";
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_TSF)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_TSF);
     }
     else
     {
         res = OS_QueueGetInfo(queue_id, NULL);
         if ( res == OS_INVALID_POINTER )
-            UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+            UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
         else
-            UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+            UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
         res = OS_QueueDelete(queue_id);
     }
@@ -864,22 +837,22 @@ void UT_os_queue_get_info_test()
     if ( res != OS_SUCCESS )
     {
         testDesc = "#3 Nominal - Queue Create failed";
-        UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_TSF)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_TSF);
     }
     else
     {
         res = OS_QueueGetInfo(queue_id, &queue_prop);
         if ( res == OS_SUCCESS )
-            UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_PASSED)
+            UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
         else
-            UT_OS_SET_TEST_RESULT_MACRO(apiInfo, idx, testDesc, UT_OS_FAILED)
+            UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
         res = OS_QueueDelete(queue_id);
     }
 
 UT_os_queue_get_info_test_exit_tag:
-    UT_OS_SET_API_NAME_AND_TEST_COUNT_MACRO(apiInfo, "OS_QueueGetInfo", idx)
-    UT_OS_LOG_API_MACRO(apiInfo)
+    return;
+    
 }
 
 /*================================================================================*
