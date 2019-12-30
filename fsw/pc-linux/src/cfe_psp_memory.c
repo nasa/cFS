@@ -674,19 +674,37 @@ int32 CFE_PSP_InitProcessorReservedMemory( uint32 RestartType )
    tempFd = open(CFE_PSP_RESERVED_KEY_FILE, O_RDONLY | O_CREAT, S_IRWXU );
    close(tempFd);
       
-   if ( RestartType == CFE_PSP_RST_TYPE_PROCESSOR )
+
+   return_code = CFE_PSP_InitCDS( RestartType );
+   if (return_code != CFE_PSP_SUCCESS)
    {
-      return_code = CFE_PSP_InitCDS( CFE_PSP_RST_TYPE_PROCESSOR );
-      return_code = CFE_PSP_InitResetArea( CFE_PSP_RST_TYPE_PROCESSOR );
-      return_code = CFE_PSP_InitVolatileDiskMem( CFE_PSP_RST_TYPE_PROCESSOR );
-      return_code = CFE_PSP_InitUserReservedArea( CFE_PSP_RST_TYPE_PROCESSOR );
+        OS_printf("CFE_PSP_InitCDS didn't return success (%d)\n", return_code);
+
+        return(return_code);
    }
-   else 
+
+   return_code = CFE_PSP_InitResetArea( RestartType );
+   if (return_code != CFE_PSP_SUCCESS)
    {
-      return_code = CFE_PSP_InitCDS( CFE_PSP_RST_TYPE_POWERON );
-      return_code = CFE_PSP_InitResetArea( CFE_PSP_RST_TYPE_POWERON );
-      return_code = CFE_PSP_InitVolatileDiskMem( CFE_PSP_RST_TYPE_POWERON );
-      return_code = CFE_PSP_InitUserReservedArea( CFE_PSP_RST_TYPE_POWERON );
+        OS_printf("CFE_PSP_InitResetArea didn't return success (%d)\n", return_code);
+
+        return(return_code);
+   }
+
+   return_code = CFE_PSP_InitVolatileDiskMem( RestartType );
+   if (return_code != CFE_PSP_SUCCESS)
+   {
+        OS_printf("CFE_PSP_InitVolatileDiskMem didn't return success (%d)\n", return_code);
+
+        return(return_code);
+   }
+
+   return_code = CFE_PSP_InitUserReservedArea( RestartType );
+   if (return_code != CFE_PSP_SUCCESS)
+   {
+        OS_printf("CFE_PSP_InitVolatileDiskMem didn't return success (%d)\n", return_code);
+
+        return(return_code);
    }
 
    return(return_code);

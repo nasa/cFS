@@ -335,8 +335,12 @@ int main(int argc, char *argv[])
    /*
    ** Initialize the reserved memory 
    */
-   CFE_PSP_InitProcessorReservedMemory(reset_type);
-
+   Status = CFE_PSP_InitProcessorReservedMemory(reset_type);
+   if (Status != CFE_PSP_SUCCESS)
+   {
+       OS_printf("CFE_PSP: CFE_PSP_InitProcessorReservedMemory() Failure");
+       CFE_PSP_Panic(Status);
+   }
 
    /*
    ** Call cFE entry point.

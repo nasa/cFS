@@ -108,7 +108,7 @@ int32 CFE_PSP_Module_GetAPIEntry(uint32 PspModuleId, CFE_PSP_ModuleApi_t **API)
  *
  * See prototype for full description
  */
-int32 CFE_PSP_Module_FindByName(const char *DriverName, uint32 *PspModuleId)
+int32 CFE_PSP_Module_FindByName(const char *ModuleName, uint32 *PspModuleId)
 {
     uint32 i;
     int32 Result;
@@ -119,7 +119,7 @@ int32 CFE_PSP_Module_FindByName(const char *DriverName, uint32 *PspModuleId)
     i = 0;
     while (i < CFE_PSP_ModuleCount)
     {
-        if (strcmp(Entry->Name, DriverName) == 0)
+        if (strcmp(Entry->Name, ModuleName) == 0)
         {
             *PspModuleId = CFE_PSP_MODULE_BASE | (i & CFE_PSP_MODULE_INDEX_MASK);
             Result = CFE_PSP_SUCCESS;
