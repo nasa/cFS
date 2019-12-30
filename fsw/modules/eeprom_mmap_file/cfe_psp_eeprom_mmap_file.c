@@ -190,7 +190,7 @@ void eeprom_mmap_file_Init(uint32 PspModuleId)
        */
        Status = CFE_PSP_MemRangeSet (1, CFE_PSP_MEM_EEPROM, eeprom_address,
                                      eeprom_size, CFE_PSP_MEM_SIZE_DWORD, 0 );
-       OS_printf("CFE_PSP: EEPROM Range (2) created: Start Address = %08lX, Size = %08X\n", (unsigned long)eeprom_address, (unsigned int)eeprom_size);
+       OS_printf("CFE_PSP: EEPROM Range (2) created: Start Address = %08lX, Size = %08X Status = %d\n", (unsigned long)eeprom_address, (unsigned int)eeprom_size, Status);
 
     }
     else

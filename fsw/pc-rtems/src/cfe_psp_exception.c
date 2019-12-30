@@ -130,23 +130,7 @@ void CFE_PSP_AttachExceptions(void)
 void CFE_PSP_ExceptionHook (int task_id, int vector, int32 *pEsf )
 {
 
-    char TaskName[16];
-    
-    /*
-    ** Get the task name
-    */
-    strncpy(TaskName, "TBD", 16);
-    
-    if ( TaskName == NULL )
-    {
-       sprintf(CFE_PSP_ExceptionReasonString, "Exception: Vector=0x%06X, vxWorks Task Name=NULL, Task ID=0x%08X", 
-               vector,task_id);
-    }
-    else
-    {
-       sprintf(CFE_PSP_ExceptionReasonString, "Exception: Vector=0x%06X, vxWorks Task Name=%s, Task ID=0x%08X", 
-                vector, TaskName, task_id);
-    }
+    sprintf(CFE_PSP_ExceptionReasonString, "Not Implemented");
     
     /* 
     ** Save Exception Stack frame 
