@@ -79,10 +79,8 @@ void UT_os_timercallback(uint32 timerId)
 
         OS_GetLocalTime(&endTime);
 
-        if (endTime.seconds == currTime.seconds)
-            currIntervalTime = endTime.microsecs - currTime.microsecs;
-        else
-            currIntervalTime = endTime.microsecs + (1000000 - currTime.microsecs);
+        currIntervalTime = 1000000 * (endTime.seconds - currTime.seconds) +
+            endTime.microsecs - currTime.microsecs;
 
         if (currIntervalTime >= prevIntervalTime)
             deltaTime = currIntervalTime - prevIntervalTime;
@@ -102,18 +100,12 @@ void UT_os_timercallback(uint32 timerId)
             res = -1;
 
         loopCnt++;
+        currTime = endTime;
+        prevIntervalTime = currIntervalTime;
 
-        if (loopCnt < g_cbLoopCntMax)
-        {
-            currTime = endTime;
-            prevIntervalTime = currIntervalTime;
-        }
-        else
+        if (loopCnt == g_cbLoopCntMax)
         {
             g_status = (res == 0) ? 1 : -1;
-
-            /* slow the timer down so the main test thread can continue */
-            res = OS_TimerSet(g_timerId, 1000, 500000);
         }
     }
 }
