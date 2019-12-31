@@ -1,12 +1,22 @@
+/*
+ *      Copyright (c) 2019, United States government as represented by the
+ *      administrator of the National Aeronautics Space Administration.
+ *      All rights reserved. This software was created at NASA Goddard
+ *      Space Flight Center pursuant to government contracts.
+ *
+ *      This is governed by the NASA Open Source Agreement and may be used,
+ *      distributed and modified only according to the terms of that agreement.
+ */
+
 /* OSAL coverage stub replacement for string.h */
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include "utstubs.h"
 
-#include <overrides/string.h>
+#include <OCS_string.h>
 
-void* OCS_memset(void * s, int c, OCS_size_t n)
+void* OCS_memset(void * s, int c, size_t n)
 {
     int32 Status;
     void *Result;
@@ -25,7 +35,7 @@ void* OCS_memset(void * s, int c, OCS_size_t n)
     return Result;
 }
 
-void *OCS_memcpy (void * dest, const void * src, OCS_size_t n)
+void *OCS_memcpy (void * dest, const void * src, size_t n)
 {
     int32 Status;
     void *Result;
@@ -106,7 +116,7 @@ char *OCS_strcat(char *dest, const char *src)
     return (char*)0;
 }
 
-char *OCS_strncat(char *dest, const char *src, OCS_size_t size)
+char *OCS_strncat(char *dest, const char *src, size_t size)
 {
     int32 Status;
 
@@ -121,7 +131,7 @@ char *OCS_strncat(char *dest, const char *src, OCS_size_t size)
     return (char*)0;
 }
 
-int OCS_strncmp(const char *s1, const char *s2, OCS_size_t size)
+int OCS_strncmp(const char *s1, const char *s2, size_t size)
 {
     int32 Status;
 
@@ -154,7 +164,7 @@ char *OCS_strcpy(char *dst, const char *src)
     return (char*)0;
 }
 
-char *OCS_strncpy(char *dst, const char *src, OCS_size_t size)
+char *OCS_strncpy(char *dst, const char *src, size_t size)
 {
     int32 Status;
 

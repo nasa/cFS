@@ -1,4 +1,14 @@
 /*
+ *      Copyright (c) 2019, United States government as represented by the
+ *      administrator of the National Aeronautics Space Administration.
+ *      All rights reserved. This software was created at NASA Goddard
+ *      Space Flight Center pursuant to government contracts.
+ *
+ *      This is governed by the NASA Open Source Agreement and may be used,
+ *      distributed and modified only according to the terms of that agreement.
+ */
+
+/*
  * Filename: osapi_testcase_common.c
  *
  * Purpose: This file contains unit test cases for items in the "osapi-common" file
@@ -15,15 +25,15 @@
 #include "os-vxworks-coveragetest.h"
 #include "ut-osapi.h"
 
-#include <overrides/stdio.h>
-#include <overrides/stdlib.h>
-#include <overrides/errno.h>
-#include <overrides/intLib.h>
-#include <overrides/taskLib.h>
-#include <overrides/errnoLib.h>
-#include <overrides/semLib.h>
-#include <overrides/msgQLib.h>
-#include <overrides/memPartLib.h>
+#include <OCS_stdio.h>
+#include <OCS_stdlib.h>
+#include <OCS_errno.h>
+#include <OCS_intLib.h>
+#include <OCS_taskLib.h>
+#include <OCS_errnoLib.h>
+#include <OCS_semLib.h>
+#include <OCS_msgQLib.h>
+#include <OCS_memPartLib.h>
 
 /*
  * A chunk of memory usable as a heap for malloc() emulation

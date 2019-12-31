@@ -1,4 +1,14 @@
 /*
+ *      Copyright (c) 2019, United States government as represented by the
+ *      administrator of the National Aeronautics Space Administration.
+ *      All rights reserved. This software was created at NASA Goddard
+ *      Space Flight Center pursuant to government contracts.
+ *
+ *      This is governed by the NASA Open Source Agreement and may be used,
+ *      distributed and modified only according to the terms of that agreement.
+ */
+
+/*
  * Filename: osapi_testcase_common.c
  *
  * Purpose: This file contains unit test cases for items in the "osfilesys-common" file
@@ -15,14 +25,14 @@
 #include "os-vxworks-coveragetest.h"
 #include "ut-osfilesys.h"
 
-#include <overrides/stdlib.h>
-#include <overrides/sys/ioctl.h>
-#include <overrides/sys/statvfs.h>
-#include <overrides/fcntl.h>
-#include <overrides/unistd.h>
-#include <overrides/ramDrv.h>
-#include <overrides/dosFsLib.h>
-#include <overrides/xbdBlkDev.h>
+#include <OCS_stdlib.h>
+#include <OCS_sys_ioctl.h>
+#include <OCS_stat.h>
+#include <OCS_fcntl.h>
+#include <OCS_unistd.h>
+#include <OCS_ramDrv.h>
+#include <OCS_dosFsLib.h>
+#include <OCS_xbdBlkDev.h>
 
 
 

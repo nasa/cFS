@@ -1,4 +1,14 @@
 /*
+ *      Copyright (c) 2019, United States government as represented by the
+ *      administrator of the National Aeronautics Space Administration.
+ *      All rights reserved. This software was created at NASA Goddard
+ *      Space Flight Center pursuant to government contracts.
+ *
+ *      This is governed by the NASA Open Source Agreement and may be used,
+ *      distributed and modified only according to the terms of that agreement.
+ */
+
+/*
  * Filename: osapi_testcase_common.c
  *
  * Purpose: This file contains unit test cases for items in the "osloader-common" file
@@ -15,13 +25,13 @@
 #include "os-vxworks-coveragetest.h"
 #include "ut-osloader.h"
 
-#include <overrides/string.h>
-#include <overrides/fcntl.h>
-#include <overrides/unistd.h>
-#include <overrides/errnoLib.h>
-#include <overrides/moduleLib.h>
-#include <overrides/loadLib.h>
-#include <overrides/unldLib.h>
+#include <OCS_string.h>
+#include <OCS_fcntl.h>
+#include <OCS_unistd.h>
+#include <OCS_errnoLib.h>
+#include <OCS_moduleLib.h>
+#include <OCS_loadLib.h>
+#include <OCS_unldLib.h>
 
 void Test_OS_VxWorks_ModuleAPI_Impl_Init(void)
 {

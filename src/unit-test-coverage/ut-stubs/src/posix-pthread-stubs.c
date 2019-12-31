@@ -1,9 +1,19 @@
+/*
+ *      Copyright (c) 2019, United States government as represented by the
+ *      administrator of the National Aeronautics Space Administration.
+ *      All rights reserved. This software was created at NASA Goddard
+ *      Space Flight Center pursuant to government contracts.
+ *
+ *      This is governed by the NASA Open Source Agreement and may be used,
+ *      distributed and modified only according to the terms of that agreement.
+ */
+
 /* OSAL coverage stub replacement for pthread.h */
 #include <string.h>
 #include <stdlib.h>
 #include "utstubs.h"
 
-#include <overrides/pthread.h>
+#include <OCS_pthread.h>
 
 int OCS_pthread_attr_destroy (OCS_pthread_attr_t * attr)
 {
@@ -156,7 +166,7 @@ int OCS_pthread_equal (OCS_pthread_t thread1, OCS_pthread_t thread2)
 
     if (Status == 2)
     {
-        Status = (thread1 == thread2);
+        Status = (thread1.pthr == thread2.pthr);
     }
 
     return Status;
@@ -276,11 +286,11 @@ int OCS_pthread_mutex_unlock (OCS_pthread_mutex_t * mutex)
 
 OCS_pthread_t OCS_pthread_self (void)
 {
-    int32 Status;
+    OCS_pthread_t result;
 
-    Status = UT_DEFAULT_IMPL(OCS_pthread_self);
+    result.pthr = UT_DEFAULT_IMPL(OCS_pthread_self);
 
-    return Status;
+    return result;
 }
 
 int OCS_pthread_setschedparam (OCS_pthread_t target_thread, int policy, const struct OCS_sched_param * param)

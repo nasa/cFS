@@ -1,4 +1,14 @@
 /*
+ *      Copyright (c) 2019, United States government as represented by the
+ *      administrator of the National Aeronautics Space Administration.
+ *      All rights reserved. This software was created at NASA Goddard
+ *      Space Flight Center pursuant to government contracts.
+ *
+ *      This is governed by the NASA Open Source Agreement and may be used,
+ *      distributed and modified only according to the terms of that agreement.
+ */
+
+/*
  * Filename: osapi_testcase_filesys.c
  *
  * Purpose: This file contains unit test cases for items in the "osapi-filesys" file
@@ -15,7 +25,7 @@
 #include "os-shared-coveragetest.h"
 #include "ut-osapi-filesys.h"
 
-#include <overrides/string.h>
+#include <OCS_string.h>
 
 /*
 **********************************************************************************

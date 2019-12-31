@@ -1,10 +1,25 @@
+/*
+ *      Copyright (c) 2019, United States government as represented by the
+ *      administrator of the National Aeronautics Space Administration.
+ *      All rights reserved. This software was created at NASA Goddard
+ *      Space Flight Center pursuant to government contracts.
+ *
+ *      This is governed by the NASA Open Source Agreement and may be used,
+ *      distributed and modified only according to the terms of that agreement.
+ */
+
 /* OSAL coverage stub replacement for stdio.h */
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include "utstubs.h"
 
-#include <overrides/stdio.h>
+#include <OCS_stdio.h>
+
+struct OCS_FILE
+{
+    int f;
+};
 
 #define OCS_STDIO_MAX_SIZE      0x01000000
 
@@ -68,7 +83,7 @@ OCS_FILE *OCS_fopen (const char * filename, const char * modes)
 {
     int32 Status;
     OCS_FILE *retval;
-    static int FOPEN_FP;
+    static OCS_FILE FOPEN_FP = { 0 };
 
     Status = UT_DEFAULT_IMPL(OCS_fopen);
 
@@ -173,7 +188,7 @@ int OCS_printf (const char * format, ...)
 }
 
 
-static int LOCAL_FP[3];
+static OCS_FILE LOCAL_FP[3] = { { 10 }, { 11 }, { 12 } };
 
 OCS_FILE*    OCS_stdin = &LOCAL_FP[0];
 OCS_FILE*    OCS_stdout = &LOCAL_FP[1];
