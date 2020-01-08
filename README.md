@@ -1,3 +1,5 @@
+Travis-CI: [![Build Status](https://travis-ci.com/nasa/PSP.svg)](https://travis-ci.com/nasa/PSP)
+
 # Core Flight System : Framework : Platform Support Package
 
 This repository contains NASA's Platform Support Package (PSP), which is a framework component of the Core Flight System.
