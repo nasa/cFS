@@ -1,9 +1,0 @@
-
-ld < osnetwork-test.o
-
-UT_main()
-
-sleep(5)
-
-unld "osnetwork-test.o"
-

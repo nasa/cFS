@@ -1,9 +1,0 @@
-
-ld < osfilesys-test.o
-
-UT_main()
-
-sleep(5)
-
-unld "osfilesys-test.o"
-
