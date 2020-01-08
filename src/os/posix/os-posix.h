@@ -21,6 +21,8 @@
 /****************************************************************************************
                                     COMMON INCLUDE FILES
  ***************************************************************************************/
+#ifndef _os_posix_h_
+#define _os_posix_h_
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -110,4 +112,4 @@ int32 OS_Posix_FileSysAPI_Impl_Init(void);
 int32 OS_Posix_InternalTaskCreate_Impl (pthread_t *thr, uint32 priority, size_t stacksz, PthreadFuncPtr_t Entry, void *entry_arg);
 
 
-
+#endif /* End of os-posix*/

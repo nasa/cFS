@@ -389,7 +389,7 @@ int32 OS_TimerDelete(uint32 timer_id)
 {
     OS_timecb_internal_record_t *local;
     OS_common_record_t *record;
-    OS_common_record_t *timebase;
+    OS_common_record_t *timebase = NULL;
     int32             return_code;
     uint32            local_id;
     uint32            dedicated_timebase_id;
