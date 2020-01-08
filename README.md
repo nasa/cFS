@@ -6,6 +6,8 @@ This is a collection of APIs abstracting platform specific functionality to be l
 
 ## Version Notes
 
+- 1.4.2 DEVELOPMENT
+  - Minor updates (see https://github.com/nasa/PSP/pull/127)
 - 1.4.1 DEVELOPMENT
   - Minor updates (see https://github.com/nasa/PSP/pull/115)
 - **1.4.0 OFFICIAL RELEASE**:
