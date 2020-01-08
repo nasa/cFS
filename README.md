@@ -1,3 +1,5 @@
+Travis-CI: [![Build Status](https://travis-ci.com/nasa/osal.svg)](https://travis-ci.com/nasa/osal)
+
 Operating System Abstraction Layer Project
 ==========================================
 
@@ -18,6 +20,8 @@ This distribution contains:
 Version Notes:
 ==============
 
+- 5.0.3: DEVELOPMENT
+  - Minor updates (see https://github.com/nasa/osal/pull/334)
 - 5.0.3: DEVELOPMENT
   - Minor updates (see https://github.com/nasa/osal/pull/292)
 - 5.0.2: DEVELOPMENT
