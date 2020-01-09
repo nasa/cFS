@@ -1,7 +1,7 @@
 [![Build Status](https://travis-ci.com/nasa/cFS.svg)](https://travis-ci.com/nasa/cFS)
-[![LGTM Alerts](https://img.shields.io/lgtm/alerts/github/nasa/cfs)](https://lgtm.com/projects/g/nasa/cfs/alerts/?mode=list)
-[![LGTM Grade](https://img.shields.io/lgtm/grade/python/github/nasa/cfs)](https://lgtm.com/projects/g/nasa/cfs/alerts/?mode=list)
-[![LGTM Grade](https://img.shields.io/lgtm/grade/cpp/github/nasa/cfs)](https://lgtm.com/projects/g/nasa/cfs/alerts/?mode=list)
+[![LGTM Alerts](https://img.shields.io/lgtm/alerts/github/nasa/cFS)](https://lgtm.com/projects/g/nasa/cFS/alerts/?mode=list)
+[![LGTM Grade](https://img.shields.io/lgtm/grade/python/github/nasa/cFS)](https://lgtm.com/projects/g/nasa/cFS/alerts/?mode=list)
+[![LGTM Grade](https://img.shields.io/lgtm/grade/cpp/github/nasa/cFS)](https://lgtm.com/projects/g/nasa/cFS/alerts/?mode=list)
 
 # Core Flight System - BUNDLE
 
