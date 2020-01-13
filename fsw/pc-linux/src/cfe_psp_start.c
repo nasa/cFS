@@ -109,7 +109,7 @@ typedef struct
 void CFE_PSP_SigintHandler (int signal);
 void CFE_PSP_TimerHandler (int signum);
 void CFE_PSP_DisplayUsage(char *Name );
-void CFE_PSP_ProcessArgumentDefaults(CFE_PSP_CommandData_t *CommandData);
+void CFE_PSP_ProcessArgumentDefaults(CFE_PSP_CommandData_t *CommandDataDefault);
 void CFE_PSP_SetupLocal1Hz(void);
 
 /*
@@ -479,46 +479,46 @@ void CFE_PSP_DisplayUsage(char *Name )
 **    the user entered required parameters 
 **
 **  Arguments:
-**    CFE_PSP_CommandData_t *CommandData -- A pointer to the command parameters.
+**    CFE_PSP_CommandData_t *CommandDataDefault -- A pointer to the command parameters.
 **
 **  Return:
 **    (none)
 */
-void CFE_PSP_ProcessArgumentDefaults(CFE_PSP_CommandData_t *CommandData)
+void CFE_PSP_ProcessArgumentDefaults(CFE_PSP_CommandData_t *CommandDataDefault)
 {
-   if ( CommandData->GotResetType == 0 )
+   if ( CommandDataDefault->GotResetType == 0 )
    {
-      strncpy(CommandData->ResetType, "PO", sizeof(CommandData->ResetType) );
+      strncpy(CommandDataDefault->ResetType, "PO", sizeof(CommandDataDefault->ResetType) );
       printf("CFE_PSP: Default Reset Type = PO\n");
-      CommandData->GotResetType = 1;
+      CommandDataDefault->GotResetType = 1;
    }
    
-   if ( CommandData->GotSubType == 0 )
+   if ( CommandDataDefault->GotSubType == 0 )
    {
-      CommandData->SubType = 1;
+      CommandDataDefault->SubType = 1;
       printf("CFE_PSP: Default Reset SubType = 1\n");
-      CommandData->GotSubType = 1;
+      CommandDataDefault->GotSubType = 1;
    }
    
-   if ( CommandData->GotCpuId == 0 )
+   if ( CommandDataDefault->GotCpuId == 0 )
    {
-      CommandData->CpuId = CFE_PSP_CPU_ID;
+      CommandDataDefault->CpuId = CFE_PSP_CPU_ID;
       printf("CFE_PSP: Default CPU ID = %d\n",CFE_PSP_CPU_ID);
-      CommandData->GotCpuId = 1;
+      CommandDataDefault->GotCpuId = 1;
    }
    
-   if ( CommandData->GotSpacecraftId == 0 )
+   if ( CommandDataDefault->GotSpacecraftId == 0 )
    {
-      CommandData->SpacecraftId = CFE_PSP_SPACECRAFT_ID;
+      CommandDataDefault->SpacecraftId = CFE_PSP_SPACECRAFT_ID;
       printf("CFE_PSP: Default Spacecraft ID = %d\n",CFE_PSP_SPACECRAFT_ID);
-      CommandData->GotSpacecraftId = 1;
+      CommandDataDefault->GotSpacecraftId = 1;
    }
    
-   if ( CommandData->GotCpuName == 0 )
+   if ( CommandDataDefault->GotCpuName == 0 )
    {
-      strncpy(CommandData->CpuName, CFE_PSP_CPU_NAME, CFE_PSP_CPU_NAME_LENGTH );
+      strncpy(CommandDataDefault->CpuName, CFE_PSP_CPU_NAME, CFE_PSP_CPU_NAME_LENGTH );
       printf("CFE_PSP: Default CPU Name: %s\n",CFE_PSP_CPU_NAME);
-      CommandData->GotCpuName = 1;
+      CommandDataDefault->GotCpuName = 1;
    }
 
 }
