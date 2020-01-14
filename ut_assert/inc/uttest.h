@@ -32,11 +32,11 @@
 /* Adds a new unit test to the test database. */
 void    UtTest_Add(void (*Test)(void), void (*Setup)(void), void (*Teardown)(void), const char *TestName);
 
-/* Executes all unit tests contained in the test database.  Once all tests have finished executing 
- * a results summary is printed to the console and the test database is deleted.  This function also 
- * returns a boolean status indicating if any of the tests failed. (true = at least one test failure 
- * has occurred, false = all tests passed) */
-bool     UtTest_Run(void);
+/*
+ * Set up function for UT-Assert based test routines
+ * This should call UtTest_Add() for each test set
+ */
+void    UtTest_Setup(void);
 
 #endif
 

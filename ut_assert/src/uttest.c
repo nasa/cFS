@@ -19,10 +19,12 @@
  * Includes
  */
 
-#include "common_types.h"
+#include "osapi.h"
 #include "utassert.h"
 #include "utlist.h"
 #include "utbsp.h"
+#include "uttest.h"
+#include "utstubs.h"
 
 /*
  * Type Definitions
@@ -57,7 +59,7 @@ void UtTest_Add(void (*Test)(void), void (*Setup)(void), void (*Teardown)(void),
     UtList_Add(&UtTestDataBase, &UtTestDataBaseEntry, sizeof(UtTestDataBaseEntry_t), 0);
 }
 
-bool UtTest_Run(void)
+void OS_Application_Run(void)
 {
     uint32                   i;
     UtListNode_t            *UtListNode;
@@ -87,5 +89,33 @@ bool UtTest_Run(void)
 
     UtList_Reset(&UtTestDataBase);
 
-    return (UtAssert_GetFailCount() > 0);
+    UT_BSP_EndTest(UtAssert_GetCounters());
 }
+
+/*
+ * Entry point from the BSP.
+ * When linking with UT-Assert, the test framework (this library) serves
+ * the role of the "application" being executed.
+ *
+ * There is a separate entry point (UT_Test_Setup) to configure the test cases.
+ */
+void OS_Application_Startup(void)
+{
+    /*
+     * Reset the test global variables, just in case.
+     */
+    memset(&UtTestDataBase, 0, sizeof(UtTestDataBase));
+    UtTestsExecutedCount = 0;
+
+    UT_BSP_Setup();
+
+    /*
+     * Wrap the UtTest_Setup() function in a UT segment called "SETUP"
+     * This allows any assert calls to be used and recorded during setup
+     */
+    UtAssert_BeginTest("SETUP");
+    UtTest_Setup();
+    UtAssert_EndTest();
+}
+
+

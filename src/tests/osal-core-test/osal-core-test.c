@@ -22,7 +22,7 @@ void TestMutexes(void);
 void TestGetInfos(void);
 
 /* *************************************** MAIN ************************************** */
-void OS_Application_Startup(void)
+void UtTest_Setup(void)
 {
     if (OS_API_Init() != OS_SUCCESS)
     {
