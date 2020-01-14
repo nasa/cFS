@@ -325,6 +325,7 @@ int32 OS_TimeBaseCreate_Impl(uint32 timer_id)
     int    status;
     int    i;
     struct sigevent   evp;
+    struct timespec ts;
     OS_impl_timebase_internal_record_t *local;
     OS_common_record_t *global;
     OS_U32ValueWrapper_t arg;
@@ -402,6 +403,34 @@ int32 OS_TimeBaseCreate_Impl(uint32 timer_id)
 
             sigemptyset(&local->sigset);
             sigaddset(&local->sigset, local->assigned_signal);
+
+            /*
+             * Ensure that the chosen signal is NOT already pending.
+             *
+             * Perform a "sigtimedwait" with a zero timeout to poll the
+             * status of the selected signal.  RT signals are also queued,
+             * so this needs to be called in a loop to until sigtimedwait()
+             * returns an error.
+             *
+             * The max number of signals that can be queued is available
+             * via sysconf() as the _SC_SIGQUEUE_MAX value.
+             *
+             * The output is irrelevant here; the objective is to just ensure
+             * that the signal is not already pending.
+             */
+            i = sysconf( _SC_SIGQUEUE_MAX);
+            do
+            {
+                ts.tv_sec = 0;
+                ts.tv_nsec = 0;
+                if (sigtimedwait(&local->sigset, NULL, &ts) < 0)
+                {
+                    /* signal is NOT pending */
+                    break;
+                }
+                --i;
+            }
+            while(i > 0);
 
             /*
             **  Initialize the sigevent structures for the handler.
