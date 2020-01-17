@@ -733,12 +733,12 @@ void Osapi_TearDown(void)
 
 }
 
-/* Osapi_AddTestCase_Tasks
+/* UtTest_Setup
  *
  * Purpose:
  *   Registers the test cases to execute with the unit test tool
  */
-void OS_Application_Startup(void)
+void UtTest_Setup(void)
 {
     ADD_TEST(OS_Lock_Global_Impl);
     ADD_TEST(OS_Unlock_Global_Impl);

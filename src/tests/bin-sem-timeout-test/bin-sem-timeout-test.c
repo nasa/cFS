@@ -153,7 +153,7 @@ void BinSemTimeoutCheck(void)
     UtAssert_True(task_1_timeouts <= limit, "Task 1 timeouts=%u <= %u", (unsigned int)task_1_timeouts, (unsigned int)limit);
 }
 
-void OS_Application_Startup(void)
+void UtTest_Setup(void)
 {
     if (OS_API_Init() != OS_SUCCESS)
     {

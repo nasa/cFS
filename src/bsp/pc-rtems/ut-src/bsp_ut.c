@@ -121,7 +121,7 @@ const char * UT_BSP_GetOptionString(int32 OptionNum)
 }
 
 
-void UT_BSP_Setup(const char *Name)
+void UT_BSP_Setup(void)
 {
     int status;
     int i;
@@ -280,7 +280,7 @@ void UT_BSP_Setup(const char *Name)
        be sent to the console in case of a slow port */
     rtems_task_wake_after(50);
 
-    UT_BSP_DoText(UTASSERT_CASETYPE_BEGIN, Name);
+    UT_BSP_DoText(UTASSERT_CASETYPE_BEGIN, "PC-RTEMS UNIT TEST");
 }
 
 
@@ -465,8 +465,6 @@ rtems_task Init(
   rtems_task_argument ignored
 )
 {
-   UT_BSP_Setup("PC-RTEMS UNIT TEST");
-
    /*
    ** Call application specific entry point.
    ** This is supposed to call OS_API_Init()
@@ -474,10 +472,9 @@ rtems_task Init(
    OS_Application_Startup();
 
    /*
-   ** In unit test mode, call the UtTest_Run function (part of UT Assert library)
+   ** The OS_Application_Run function is part of UT Assert library
    */
-   UtTest_Run();
-   UT_BSP_EndTest(UtAssert_GetCounters());
+   OS_Application_Run();
 
    rtems_shutdown_executive(UtAssert_GetFailCount() != 0);
 }

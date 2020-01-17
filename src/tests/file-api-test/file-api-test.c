@@ -25,7 +25,7 @@ os_fs_err_name_t errname;
 
 /* *************************************** MAIN ************************************** */
 
-void OS_Application_Startup(void)
+void UtTest_Setup(void)
 {
     errname[0] = 0;
 

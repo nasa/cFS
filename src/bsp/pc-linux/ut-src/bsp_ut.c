@@ -111,7 +111,7 @@ void UT_BSP_ParseCommandLine(int argc, char *argv[])
     }
 }
 
-void UT_BSP_Setup(const char *Name)
+void UT_BSP_Setup(void)
 {
     int      mode;
     uint32   i;
@@ -125,7 +125,7 @@ void UT_BSP_Setup(const char *Name)
     EnableTermCodes = isatty(STDOUT_FILENO);
 
 
-    UT_BSP_DoText(UTASSERT_CASETYPE_BEGIN, Name);
+    UT_BSP_DoText(UTASSERT_CASETYPE_BEGIN, "PC-LINUX UNIT TEST");
 
     /*
     ** Create local directories for "disk" mount points
@@ -344,7 +344,6 @@ void UT_BSP_EndTest(const UtAssert_TestCounter_t *TestCounters)
 
 int main(int argc, char *argv[])
 {
-   UT_BSP_Setup("PC-LINUX UNIT TEST");
    UT_BSP_ParseCommandLine(argc, argv);
 
    /*
@@ -353,10 +352,9 @@ int main(int argc, char *argv[])
    OS_Application_Startup();
 
    /*
-   ** In unit test mode, call the UtTest_Run function (part of UT Assert library)
+   ** The OS_Application_Run function is part of UT Assert library
    */
-   UtTest_Run();
-   UT_BSP_EndTest(UtAssert_GetCounters());
+   OS_Application_Run();
 
    /* Should typically never get here */
    return(EXIT_SUCCESS);
