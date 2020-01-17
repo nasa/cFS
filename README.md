@@ -20,6 +20,9 @@ This distribution contains:
 Version Notes:
 ==============
 
+- 5.0.4: DEVELOPMENT
+  - Fixed osal_timer_UT test failure case
+  - Minor updates (see https://github.com/nasa/osal/pull/350)
 - 5.0.3: DEVELOPMENT
   - Minor updates (see https://github.com/nasa/osal/pull/334)
 - 5.0.3: DEVELOPMENT
