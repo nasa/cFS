@@ -13,28 +13,31 @@ The cFS Framework is a core subset of cFS.  There are additional OSALs, PSPs, an
 
 ## Release Notes
 
-cFE 6.6.0a is released under the Apache 2.0 license, see [LICENSE](https://github.com/nasa/cFE/tree/master/LICENSE-18128-Apache-2_0.pdf).
- - The license covers cFE, PSP, framework apps, and framework tools as marked
+cFS 6.7.0 Suite: NOT FULLY RELEASED
+  - cFE 6.7.0 is released under the Apache 2.0 license, see [LICENSE](https://github.com/nasa/cFE/blob/v6.7.0/LICENSE).
+    - The license covers cFE, PSP, framework apps, and framework tools as marked
+  - OSAL 5.0.0 is pending release
+  - Release documentation pending
 
-OSAL 1.4.2a is released under the NOSA license, see [LICENSE](https://github.com/nasa/osal/blob/master/LICENSE)
+**cFS 6.6.0a Suite: OFFICIAL RELEASE**:
+  - cFE 6.6.0a is released under Apache 2.0 license, see [LICENSE](https://github.com/nasa/cFE/blob/v6.6.0a/LICENSE-18128-Apache-2_0.pdf)
+  - OSAL 4.2.1a is released under the NOSA license, see [LICENSE](https://github.com/nasa/osal/blob/osal-4.2.1a/LICENSE)
+  - [Release notes](https://github.com/nasa/cFE/blob/v6.6.0a/docs/cFE_release_notes.md)
+  - [Version description document](https://github.com/nasa/cFE/blob/v6.6.0a/docs/cFE_6_6_0_version_description.md)
+  - [Test results](https://github.com/nasa/cFE/tree/v6.6.0a/test-and-ground/test-review-packages/Results)
 
 Other elements listed below are released under a varitey of licenses as detailed in their respective repositories.
 
-Additional release notes for the cFS Framework are found in [release notes](https://github.com/nasa/cFE/tree/master/docs/cFE_release_notes.md).  See the [version description document](https://github.com/nasa/cFE/tree/master/docs/cFE_6_6_0_version_description.md) for the full version description document.  Test results can be found in [test results](https://github.com/nasa/cFE/tree/master/test-and-ground/test-review-packages/Results).  This is a point release from major development work currently being performed on an internal repository.
-
 ## Known issues
 
-Version description document contains references to internal repositories and sourceforge, which is no longer in use.  Markdown document formats have not been updated for GitHub.
+Historical version description documents contain references to internal repositories and sourceforge, which is no longer in use.  Not all markdown documents have been updated for GitHub.
 
-The version description document details two build warnings in linux that will be resolved in the future.
-
-Major known issues (not noted in version description document):
-Unit test - the nominal os timer test occasionally fails on standard Linux systems (non-RTOS)
+See related repositories for current open issues.
 
 ## Major future work
 
   - Certification framework including PSP and OSAL white box testing
-  - Open source automated build framework
+  - Open source automated build verification framework
   - Unit test modernization/standardization
   - Deployment quality of life improvements (configuration)
   - Documentation (updated tracability, APIs/ICDs, general update)
