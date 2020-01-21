@@ -1,7 +1,0 @@
-
-ld < osprintf-test.o
-
-main()
-
-unld "osprintf-test.o"
-
