@@ -484,11 +484,11 @@ static int32 OS_ObjectIdFindNext(uint32 idtype, uint32 *array_index, OS_common_r
 {
    uint32 max_id;
    uint32 base_id;
-   uint32 local_id;
+   uint32 local_id = 0;
    uint32 idvalue;
    uint32 i;
    int32 return_code;
-   OS_common_record_t *obj;
+   OS_common_record_t *obj = NULL;
 
    base_id = OS_GetBaseForObjectType(idtype);
    max_id = OS_GetMaxForObjectType(idtype);
