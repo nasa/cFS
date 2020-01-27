@@ -211,7 +211,7 @@ int32 OS_SocketAccept(uint32 sock_id, uint32 *connsock_id, OS_SockAddr_t *Addr, 
    OS_common_record_t *record;
    OS_common_record_t *connrecord;
    uint32 local_id;
-   uint32 conn_id;
+   uint32 conn_id = 0;
    int32 return_code;
 
    /* Check Parameters */

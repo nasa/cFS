@@ -1,9 +1,0 @@
-
-ld < osapi-cov_UT.o
-
-main()
-
-sleep(5)
-
-unld "osapi-cov_UT.o"
-

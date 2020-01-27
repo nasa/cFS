@@ -1,9 +1,0 @@
-
-ld < osloader-cov_UT.o
-
-main()
-
-sleep(5)
-
-unld "osloader-cov_UT.o"
-
