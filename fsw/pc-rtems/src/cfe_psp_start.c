@@ -105,13 +105,16 @@ rtems_driver_address_table rtems_ramdisk_io_ops =
 rtems_id          RtemsTimerId;
 
 static unsigned char ethernet_address[6] = {0x00, 0x04, 0x9F, 0x00, 0x27, 0x61 };
+static char net_name_str[] = "fxp1";
+static char ip_addr_str[] = "10.0.2.17";
+static char ip_netmask_str[] = "255.255.255.0";
 
 static struct rtems_bsdnet_ifconfig netdriver_config = {
-        .name = "fxp1" /*RTEMS_BSP_NETWORK_DRIVER_NAME*/,
-        .attach = rtems_fxp_attach /*RTEMS_BSP_NETWORK_DRIVER_ATTACH*/,
+        .name = net_name_str,
+        .attach = rtems_fxp_attach,
         .next = NULL,
-        .ip_address = "10.0.2.17",
-        .ip_netmask = "255.255.255.0",
+        .ip_address = ip_addr_str,
+        .ip_netmask = ip_netmask_str,
         .hardware_address = ethernet_address
         /* more options can follow */
 };
