@@ -29,6 +29,6 @@ Full name and company/organization/center of all contributors ("Personal" if ind
 - If NASA Civil Servant Employee or GSFC Contractor on SES II
   - Address/email/phone and contract/task information (if applicable) must be on file
 - Else if Company
-  - **HAND SIGNED** Company CLA must be on file (once per release): [Company CLA](../docs/GSC_18128_Corp_CLA_form_1219.pdf)
+  - **HAND SIGNED** Company CLA must be on file (once per release): [Company CLA](https://github.com/nasa/cFE/blob/master/docs/GSC_18128_Corp_CLA_form_1219.pdf)
 - Else if Individual
-  - **HAND SIGNED** Individual CLA must be on file (once per release): [Individual CLA](../docs/GSC_18128_Ind_CLA_form_1219.pdf)
+  - **HAND SIGNED** Individual CLA must be on file (once per release): [Individual CLA](https://github.com/nasa/cFE/blob/master/docs/GSC_18128_Ind_CLA_form_1219.pdf)
