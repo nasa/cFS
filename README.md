@@ -95,7 +95,7 @@ The cFS-GroundSystem tool can be used to send commands and receive telemetry (se
        cd tools/cFS-GroundSystem/Subsystems/cmdUtil
        make
        cd ../..
-       python GroundSystem.py
+       python3 GroundSystem.py
 
 3. Select "Start Command System"
 4. Select "Enable Tlm"
