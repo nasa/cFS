@@ -1465,6 +1465,8 @@ int32 OS_BinSemCreate_Impl (uint32 sem_id, uint32 initial_value, uint32 options)
     mutex_created = 0;
     cond_created = 0;
     sem = &OS_impl_bin_sem_table[sem_id];
+    memset(sem, 0, sizeof (*sem));
+
     do
     {
         /*
@@ -1522,7 +1524,6 @@ int32 OS_BinSemCreate_Impl (uint32 sem_id, uint32 initial_value, uint32 options)
          ** fill out the proper OSAL table fields
          */
 
-        memset(sem, 0, sizeof (*sem));
         sem->current_value = initial_value;
 
         return_code = OS_SUCCESS;
