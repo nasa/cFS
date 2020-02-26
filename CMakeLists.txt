@@ -241,6 +241,12 @@ if (ENABLE_UNIT_TESTS)
     # testing other application code built on top of OSAL.
     add_subdirectory(src/ut-stubs ut-stubs)
 
+    # The "unit-test-coverage" is a white-box line coverage test.
+    # It re-compiles each source unit for coverage analysis and links
+    # with stub dependencies and a test sequence designed to execute
+    # every line of source code within OSAL.
+    add_subdirectory(src/unit-test-coverage unit-test-coverage)
+
     # The "tests" and "unit-tests" subdirectories implement examples and verification tests
     # of the OSAL library.  Note that these are both black box tests that link with the full
     # OSAL (not a stub/coverage test).
