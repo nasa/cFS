@@ -1,263 +1,259 @@
-cmake_minimum_required(VERSION 2.6.4)
+######################################################################
+#
+# CMAKE build recipe for Operating System Abstraction Layer (OSAL)
+#
+######################################################################
+#
+# This defines the following static library target(s):
+#
+#         osal   : The main library containing the OSAL binary code
+#                  This is based off the OSAL_SYSTEM_OSTYPE selection
+#
+#     osal_bsp   : The board support library containing the system-
+#                  specific entry point function (e.g. main) and the
+#                  file system volume table for the target board.
+#                  This is based off the OSAL_SYSTEM_BSPTYPE selection
+#
+#    ut_assert   : The unit test support library.  This implements
+#                  an application entry point (OS_Application_Startup)
+#                  that contains a unit test subsystem.  This uses
+#                  the OSAL BSP to provide system-specific entry point.
+#                  Linking with this library also links with osal_bsp,
+#                  but not necessarily the osal library itself.
+#
+# Additionally the following target is defined if ENABLE_UNIT_TESTS
+# is set TRUE:
+#
+# ut_osapi_stubs : Stub library correlating to the OSAL public API
+#                  This is for unit testing OSAL-based applications
+#                  It operates in conjunction with the ut_assert library.
+#
+# This also exports the following variables:
+#
+#   OSAL_BSP_STAGING_INSTALL_DIR : the location of the staging directory
+#				   for the selected OSAL BSP.  This can be used in
+#                  post-build rules or "install()" commands to stage
+#				   binary or data files for execution.
+#
+#  UT_COVERAGE_COMPILE_FLAGS : Compiler flags that must be used to
+#                  instrument code for coverage testing
+#  UT_COVERAGE_LINK_FLAGS : Linker flags that must be used to
+#                  instrument code for coverage testing
+#
+# The ENABLE_UNIT_TESTS option also builds a set of test applications from
+# that demonstrate the usage and validate the runtime behavior of various
+# OSAL resources.
+#
+######################################################################
+cmake_minimum_required(VERSION 2.8.12)
 project(OSAL C)
 
-enable_testing()
-
-# Generic function for consistent definition of a unit testing target
-# This is defined here in the top-level OSAL CMakeLists so it can be used
-# in both the "tests" and "unit-tests" subdirectories.
-# These binaries are linked with the "ut_osal" and "ut_assert" libraries
-function(add_osal_ut_exe TGTNAME)
-
-  add_executable(${TGTNAME} ${ARGN})
-  # Need to force the OS_VolumeTable as undefined to be sure the linker pulls it in
-  # This is workaround specific to UT builds that run the *REAL* OSAL (in other words,
-  # the unit test for OSAL itself).
-  # It is not an issue for UT builds that use OSAL stubs or no OSAL at all.
-  set_target_properties(${TGTNAME} PROPERTIES COMPILE_DEFINITIONS "_UNIT_TEST_")
-  set_target_properties(${TGTNAME} PROPERTIES COMPILE_FLAGS "${UT_C_FLAGS}")  
-  set_target_properties(${TGTNAME} PROPERTIES LINK_FLAGS "${UT_C_FLAGS} -u OS_VolumeTable -u OS_Application_Startup")  
-  target_link_libraries(${TGTNAME} ut_assert osal)
-  add_test(${TGTNAME} ${TGTNAME})
-  foreach(TGT ${INSTALL_TARGET_LIST})
-    install(TARGETS ${TGTNAME} DESTINATION ${TGT}/${UT_INSTALL_SUBDIR})
-  endforeach()
-
-endfunction(add_osal_ut_exe)
-
-#
-# Assembly of the FLAGS used for compiler invocation:
-# 
-# This currently consists of four sets of flags, depending on scope:
-# 
-# OSAL_COMMON_COMPILE_DEFS  ==> Generic Compile Flags, applies to all BSPs, both C and C++
-# OSAL_C_FLAGS              ==> Compile Flags specific to C code
-# OSAL_CXX_FLAGS            ==> Compile Flags specific to C++ code
-# BSP_COMPILE_FLAGS         ==> Flags specific to the BSP in use for both C and C++
-#
-# The osal_assemble_compiler_flags() function will set the relevant variables
-# for the OSAL build based on the selected OSTYPE and BSPTYPE
-#
-function(osal_assemble_compiler_flags OSTYPE BSPTYPE)
-
-    # Reset the local variables to initial state
-    set(OSAL_COMMON_COMPILE_DEFS)
-    set(OSAL_C_FLAGS)
-    set(OSAL_CXX_FLAGS)
-    set(BSP_COMPILE_FLAGS)
-    set(UT_C_FLAGS)
-    set(OSAL_LINK_LIBS)
-    
-    # Include the OS-specific compiler options
-    # NOTE: OSTYPE may be passed as FALSE to skip OS-specific flags
-    if (OSTYPE)
-        include(${OSAL_SOURCE_DIR}/src/os/${OSTYPE}/build_options.cmake OPTIONAL)
-    endif()
-
-    # Include the BSP/PSP-specific compiler options
-    # NOTE: BSPTYPE may be passed as FALSE to skip BSP-specific flags
-    if (BSPTYPE)
-        include(${OSAL_SOURCE_DIR}/src/bsp/${BSPTYPE}/make/build_options.cmake OPTIONAL)
-    endif()
-
-    # Set up the final set of C flags for the build.  This is the sum of what the toolchain needs,
-    # what the BSP/PSP has added and anything else that the user has asked for.
-    set(CMAKE_C_FLAGS 
-        "${CMAKE_C_FLAGS_INIT} ${OSAL_COMMON_COMPILE_DEFS} ${BSP_COMPILE_FLAGS} ${OSAL_USER_C_FLAGS} ${OSAL_C_FLAGS}"
-        PARENT_SCOPE)
-    set(CMAKE_CXX_FLAGS 
-        "${CMAKE_CXX_FLAGS_INIT} ${OSAL_COMMON_COMPILE_DEFS} ${BSP_COMPILE_FLAGS} ${OSAL_USER_CXX_FLAGS} ${OSAL_CXX_FLAGS}"
-        PARENT_SCOPE)
-        
-    # Additionally export other relevant information to the caller
-    set(BSP_UT_C_FLAGS ${UT_C_FLAGS} PARENT_SCOPE)
-    set(OSAL_LINK_LIBS ${OSAL_LINK_LIBS} PARENT_SCOPE)
-    if (INSTALL_SUBDIR)
-        set(INSTALL_SUBDIR ${INSTALL_SUBDIR} PARENT_SCOPE)
-    endif (INSTALL_SUBDIR)
-
-endfunction(osal_assemble_compiler_flags OSTYPE BSPTYPE)
-
-# Cache any user-specified C flags so they will be retained in future builds
-# These can be specified either through cmake command line (e.g. -DUSER_C_FLAGS=-Werror) or
-# through an environment variable (e.g. OSAL_USER_C_FLAGS=-Werror cmake ...)
-set(OSAL_USER_C_FLAGS "$ENV{OSAL_USER_C_FLAGS}" CACHE STRING "User-specified C flags for OSAL build")
-set(OSAL_USER_CXX_FLAGS "$ENV{OSAL_USER_CXX_FLAGS}" CACHE STRING "User-specified C++ flags for OSAL build")
-
-# OSAL_SYSTEM_OSTYPE indicates which of the OS packages to include
-# This is required and must be defined
-if (OSAL_SYSTEM_OSTYPE AND 
-    IS_DIRECTORY "${OSAL_SOURCE_DIR}/src/os/${OSTYPE}")
-  set(OSAL_SELECTED_OSTYPE ${OSAL_SYSTEM_OSTYPE})
-else()
+# OSAL_SYSTEM_OSTYPE and OSAL_SYSTEM_BSPTYPE indicate which of the OS packages
+# to build.  These are required and must be defined. Confirm that this exists
+# and error out now if it does not.
+if (NOT DEFINED OSAL_SYSTEM_OSTYPE OR
+    NOT IS_DIRECTORY "${OSAL_SOURCE_DIR}/src/os/${OSAL_SYSTEM_OSTYPE}")
   # It is an error if the indicated OSTYPE does not correspond to a subdirectory
   # If this is not caught here then a more obfuscated error will occur later.
+  message("Error: \"${OSAL_SYSTEM_OSTYPE}\" is not a valid OS type")
   message(FATAL_ERROR "OSAL_SYSTEM_OSTYPE must be set to the appropriate OS")
 endif ()
+if (NOT DEFINED OSAL_SYSTEM_BSPTYPE OR
+    NOT IS_DIRECTORY "${OSAL_SOURCE_DIR}/src/bsp/${OSAL_SYSTEM_BSPTYPE}")
+  # It is an error if the indicated BSPTYPE does not correspond to a subdirectory
+  # If this is not caught here then a more obfuscated error will occur later.
+  message("Error: \"${OSAL_SYSTEM_BSPTYPE}\" is not a valid BSP type")
+  message(FATAL_ERROR "OSAL_SYSTEM_BSPTYPE must be set to the appropriate BSP")
+endif ()
 
-message(STATUS "OSAL Selection: ${OSAL_SELECTED_OSTYPE}")
+message(STATUS "OSAL Selection: ${OSAL_SYSTEM_OSTYPE}")
+message(STATUS "BSP Selection: ${OSAL_SYSTEM_BSPTYPE}")
 
+# The initial set of directories that define the OSAL API
+# This is used to initialize the interface include directory property of external targets
+set(OSAL_API_INCLUDE_DIRECTORIES
+    "${OSAL_SOURCE_DIR}/src/os/inc"
+    "${CMAKE_BINARY_DIR}/inc"
+    ${OSAL_INCLUDEDIR}
+)
+include_directories(${OSAL_API_INCLUDE_DIRECTORIES})
 
-# OSAL_SYSTEM_BSPTYPE indicates which of the BSP packages to include
-# It is optional to build this library (e.g. cFE includes its own PSP)
-# If used, this should also define the installation location for binaries, 
-# which depends on the bsp volume table
-# This may also set more "-D" options to the compiler command in order to 
-# build code properly for this OS
-# This should not be included if CFE_SYSTEM_PSPNAME is given, since the PSP
-# replaces the OSAL BSP
-set(OSAL_SELECTED_BSPTYPE FALSE)
-if (OSAL_SYSTEM_BSPTYPE AND NOT CFE_SYSTEM_PSPNAME)
-  if (IS_DIRECTORY ${OSAL_SOURCE_DIR}/src/bsp/${OSAL_SYSTEM_BSPTYPE})
-    set(OSAL_SELECTED_BSPTYPE ${OSAL_SYSTEM_BSPTYPE})
-    message(STATUS "OSAL BSP Selection: ${OSAL_SELECTED_BSPTYPE}")
-  else()
-    message(FATAL_ERROR "Error: ${OSAL_SYSTEM_BSPTYPE} is not a valid BSP")
-  endif()
-endif (OSAL_SYSTEM_BSPTYPE AND NOT CFE_SYSTEM_PSPNAME)
-
-# Set up the final set of C flags for the build.  This is the sum of what the toolchain needs,
-# what the BSP/PSP has added and anything else that the user has asked for.
-osal_assemble_compiler_flags(${OSAL_SELECTED_OSTYPE} ${OSAL_SELECTED_BSPTYPE})
-
-# At a mimimum, also compile with -Wall to show extra warnings.  Only do this if nothing
-# added it already (prevents adding this twice in case the User/BSP/PSP already specified it)
-if (NOT CMAKE_C_FLAGS MATCHES "-Wall")
-  set(CMAKE_C_FLAGS "-Wall ${CMAKE_C_FLAGS}")
-endif(NOT CMAKE_C_FLAGS MATCHES "-Wall")
-
-message(STATUS "OSAL Compile Definitions: ${CMAKE_C_FLAGS}") 
-message(STATUS "OSAL Link Libraries: ${OSAL_LINK_LIBS}") 
-
-# Use the OSAL shared include directory
-include_directories(src/os/inc)
-include_directories(src/os/shared)
-
-# Use the UT assert include directory
-# Although this is only used for unit tests, putting this out here
-# rather than in the "if(ENABLE_UNIT_TESTS)" section keeps things consistent
-# between the UT and non-UT builds
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/ut_assert/inc)
-
-# Include any user-specified header file directory
-if (OSAL_INCLUDEDIR)
-  include_directories(${OSAL_INCLUDEDIR})
-endif (OSAL_INCLUDEDIR)
-
-# Use all source files under the specific OS and BSP directories
-# Use the shared code directory if the OS layer requires it
-aux_source_directory(src/os/shared OSALFILES)
-aux_source_directory(src/os/${OSAL_SELECTED_OSTYPE} OSALFILES)
-if (OSAL_SELECTED_BSPTYPE)
-  aux_source_directory(src/bsp/${OSAL_SELECTED_BSPTYPE}/src BSPFILES)
-endif (OSAL_SELECTED_BSPTYPE)
-
-add_library(osal STATIC ${OSALFILES} ${BSPFILES})
-target_link_libraries(osal ${OSAL_LINK_LIBS})
-
-# Determine if this build is standalone or part of a larger build
-# If this is part of a larger build, certain key values will be exported to the parent
-# Do this now, before adding the unit test logic into the mix
-get_directory_property(BUILD_PARENT PARENT_DIRECTORY)
-if (BUILD_PARENT)
-  # Important - all code in the entire build should be built using 
-  # at least the same C_FLAGS as OSAL used, so push this to parent scope
-  set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} PARENT_SCOPE)
-  set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} PARENT_SCOPE)
-  set(INSTALL_SUBDIR ${INSTALL_SUBDIR} PARENT_SCOPE)
-endif (BUILD_PARENT)
+# In case the OSAL_USER_C_FLAGS was specified, use them
+add_definitions(${OSAL_USER_C_FLAGS})
 
 #
-# UNIT TEST SUPPORT LIBRARIES
-# the basic library targets are now always created regardless of "ENABLE_UNIT_TESTS",
-# but flagged using "EXCLUDE_FROM_ALL" so they won't be built unless actually used.
+# Build UT assert -
+# the basic ut_assert library target is always defined regardless of "ENABLE_UNIT_TESTS",
+# but flagged using "EXCLUDE_FROM_ALL" so they won't be built unless actually used.  This
+# is because the library is usable with functional tests, not just unit (coverage) tests.
+# This is done early, so that other targets may reference UT_ASSERT_SOURCE_DIR if needed
+add_subdirectory(ut_assert)
+
+
 #
+# Step 1:
+# Build the BSP layer
+#
+# The BSP library is a separate target from OSAL and can be used
+# independently of the OSAL library and/or in combination with
+# UT assert and the OSAL stub library for unit testing.
+#
+# The Implementation-Specific BSP subdirectory should define
+# an OBJECT target named "osal_${OSAL_SYSTEM_BSPTYPE}_impl"
+add_subdirectory(src/bsp/${OSAL_SYSTEM_BSPTYPE} ${OSAL_SYSTEM_BSPTYPE}_impl)
 
-# NOTE: The "ut_assert" and "ut_bsp" libraries are usable by ANY and ALL subsystem(s) that need 
-# to do unit testing of any kind.  These provide the basic startup procedure, test message output
-# abstractions, and all the "assert" calls to perform unit testing.  They specifically do NOT
-# include any stub functions, as the configuration of stubs vs. real implementations are specific
-# to the unit being tested.
+# Propagate the BSP-specific compile definitions and include directories
+# Apply these to the directory-scope COMPILE_DEFINITIONS  and INCLUDE_DIRECTORIES
+# Note this needs to append to the directory property, not overwrite it.
+get_directory_property(OSAL_BASE_COMPILE_DEFINITIONS COMPILE_DEFINITIONS)
+get_target_property(OSAL_BSP_COMPILE_DEFINITIONS osal_${OSAL_SYSTEM_BSPTYPE}_impl INTERFACE_COMPILE_DEFINITIONS)
+set(OSAL_COMPILE_DEFINITIONS)
+if (OSAL_BASE_COMPILE_DEFINITIONS)
+    list(APPEND OSAL_COMPILE_DEFINITIONS ${OSAL_BASE_COMPILE_DEFINITIONS})
+endif (OSAL_BASE_COMPILE_DEFINITIONS)
+if (OSAL_BSP_COMPILE_DEFINITIONS)
+    list(APPEND OSAL_COMPILE_DEFINITIONS ${OSAL_BSP_COMPILE_DEFINITIONS})
+endif (OSAL_BSP_COMPILE_DEFINITIONS)
+set_directory_properties(PROPERTIES COMPILE_DEFINITIONS "${OSAL_COMPILE_DEFINITIONS}")
+message(STATUS "OSAL Compile Definitions: ${OSAL_COMPILE_DEFINITIONS}")
 
-# The "utassert" library is the core GSFC-provided unit test library
-# It is only the generic framework and does _not_ include any of the specific stub/hook functions  
-# It is built as static library so it may be linked with either a "real" implementation or a stub 
-# library (see next targets) or some combination of those as the test cases dictate.
-aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/ut_assert/src UT_ASSERT_FILES)
-add_library(ut_assert STATIC EXCLUDE_FROM_ALL ${UT_ASSERT_FILES})
-   
-# in order to run the unit test, we need a BSP.
-# The "ut_bsp" library is a simple startup BSP that can be used for unit testing
-# This removes the need to use the "real" CFE PSP and also provides the necessary 
-# UT output functions that UT assert may rely upon to report test messages 
-if (NOT DEFINED UT_OSAL_BSPTYPE)
-    if (DEFINED OSAL_SYSTEM_BSPTYPE)
-      set(UT_OSAL_BSPTYPE ${OSAL_SYSTEM_BSPTYPE})
-    elseif(DEFINED CFE_SYSTEM_PSPNAME)
-      # assume an OSAL bsp with the same name exists
-      set(UT_OSAL_BSPTYPE ${CFE_SYSTEM_PSPNAME})
-    endif (DEFINED OSAL_SYSTEM_BSPTYPE)
-endif (NOT DEFINED UT_OSAL_BSPTYPE)
+# The include directories is simpler, as the include_directories() function
+# appends to the directory property
+get_target_property(OSAL_BSP_INCLUDE_DIRECTORIES osal_${OSAL_SYSTEM_BSPTYPE}_impl INTERFACE_INCLUDE_DIRECTORIES)
+if (OSAL_BSP_INCLUDE_DIRECTORIES)
+    include_directories(${OSAL_BSP_INCLUDE_DIRECTORIES})
+endif (OSAL_BSP_INCLUDE_DIRECTORIES)
 
-# Recompute the compiler flags for UT builds, as this may be using a different BSP
-osal_assemble_compiler_flags(${OSAL_SELECTED_OSTYPE} ${UT_OSAL_BSPTYPE})
 
-if (IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/bsp/${UT_OSAL_BSPTYPE}/ut-src)
-    aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/src/bsp/${UT_OSAL_BSPTYPE}/ut-src UT_BSPFILES)
-    add_library(ut_bsp STATIC EXCLUDE_FROM_ALL ${UT_BSPFILES})    
-    set_target_properties(ut_bsp PROPERTIES COMPILE_DEFINITIONS "_UNIT_TEST_")
-    target_link_libraries(ut_assert ut_bsp)
-endif()
+# Define the external "osal_bsp" static library target
+add_library(osal_bsp STATIC
+    $<TARGET_OBJECTS:osal_${OSAL_SYSTEM_BSPTYPE}_impl>
+)
 
+target_include_directories(osal_bsp INTERFACE
+    ${OSAL_API_INCLUDE_DIRECTORIES}
+)
+
+#
+# Step 2:
+# Build the OSAL layer
+#
+# The implementation-specific OSAL subdirectory should define
+# an OBJECT target named "osal_${OSAL_SYSTEM_OSTYPE}_impl"
+add_subdirectory(src/os/${OSAL_SYSTEM_OSTYPE} ${OSAL_SYSTEM_OSTYPE}_impl)
+
+# The "shared" directory contains internal components which
+# are referenced in implementation OSAL modules, but should _NOT_
+# be referenced outside the OSAL code
+target_include_directories(osal_${OSAL_SYSTEM_OSTYPE}_impl PRIVATE
+    ${OSAL_SOURCE_DIR}/src/os/shared
+)
+
+# Define the external "osal" static library target
+# This is a combination of the generic parts with the low level
+# system-specific parts
+add_library(osal STATIC
+	src/os/shared/osapi-binsem.c
+	src/os/shared/osapi-clock.c
+	src/os/shared/osapi-common.c
+	src/os/shared/osapi-countsem.c
+	src/os/shared/osapi-dir.c
+	src/os/shared/osapi-errors.c
+	src/os/shared/osapi-file.c
+	src/os/shared/osapi-filesys.c
+	src/os/shared/osapi-fpu.c
+	src/os/shared/osapi-heap.c
+	src/os/shared/osapi-idmap.c
+	src/os/shared/osapi-interrupts.c
+	src/os/shared/osapi-module.c
+	src/os/shared/osapi-mutex.c
+	src/os/shared/osapi-network.c
+	src/os/shared/osapi-printf.c
+	src/os/shared/osapi-queue.c
+	src/os/shared/osapi-select.c
+	src/os/shared/osapi-sockets.c
+	src/os/shared/osapi-task.c
+	src/os/shared/osapi-timebase.c
+	src/os/shared/osapi-time.c
+    $<TARGET_OBJECTS:osal_${OSAL_SYSTEM_OSTYPE}_impl>
+)
+
+target_include_directories(osal INTERFACE
+    ${OSAL_API_INCLUDE_DIRECTORIES}
+)
+
+# propagate the BSP-specific compile flags to OSAL external library target, if defined
+if (OSAL_BSP_COMPILE_DEFINITIONS)
+    target_compile_definitions(osal INTERFACE
+        ${OSAL_BSP_COMPILE_DEFINITIONS}
+    )
+endif(OSAL_BSP_COMPILE_DEFINITIONS)
+
+# propagate the BSP-specific include directories OSAL all external library target, if defined
+if (OSAL_BSP_INCLUDE_DIRECTORIES)
+    target_include_directories(osal INTERFACE
+        ${OSAL_BSP_INCLUDE_DIRECTORIES}
+    )
+endif(OSAL_BSP_INCLUDE_DIRECTORIES)
+
+
+
+# The "build_options.cmake" file within each component may
+# fine-tune the library for this particular build.  This is included
+# AFTER The basic targets are defined, so it may set properties
+# on the defined targets and/or use target-specific commands.
+include("${OSAL_SOURCE_DIR}/src/bsp/${OSAL_SYSTEM_BSPTYPE}/build_options.cmake" OPTIONAL)
+include("${OSAL_SOURCE_DIR}/src/os/${OSAL_SYSTEM_OSTYPE}/build_options.cmake" OPTIONAL)
+
+#
+# UNIT TEST SUPPORT
+#
 if (ENABLE_UNIT_TESTS)
 
-  if (NOT TARGET ut_bsp)
-    # This was originally a warning, but it produces some really weird behavior of
-    # subsequent builds if "ENABLE_UNIT_TESTS" is true but the associated OSAL libraries
-    # and targets are not available.  More prudent to make this a fatal error, and the
-    # user can re-run with "ENABLE_UNIT_TESTS" set false if that is what they want.
-    message(FATAL_ERROR "No BSP available for unit tests.  Tests cannot be built.")
-  endif()
-  
-  # The "ut_osapi_stubs" library contains "stub" functions of the OSAL API calls, used for
-  # testing application code built on top of OSAL.
-  set(UT_OSAPI_STUB_SRCFILES 
-    src/ut-stubs/utstub-helpers.c
-    src/ut-stubs/osapi-utstub-binsem.c 
-    src/ut-stubs/osapi-utstub-clock.c 
-    src/ut-stubs/osapi-utstub-common.c 
-    src/ut-stubs/osapi-utstub-countsem.c 
-    src/ut-stubs/osapi-utstub-dir.c 
-    src/ut-stubs/osapi-utstub-errors.c
-    src/ut-stubs/osapi-utstub-file.c 
-    src/ut-stubs/osapi-utstub-filesys.c 
-    src/ut-stubs/osapi-utstub-fpu.c 
-    src/ut-stubs/osapi-utstub-heap.c 
-    src/ut-stubs/osapi-utstub-idmap.c
-    src/ut-stubs/osapi-utstub-interrupts.c 
-    src/ut-stubs/osapi-utstub-module.c 
-    src/ut-stubs/osapi-utstub-mutex.c 
-    src/ut-stubs/osapi-utstub-network.c 
-    src/ut-stubs/osapi-utstub-printf.c 
-    src/ut-stubs/osapi-utstub-queue.c 
-    src/ut-stubs/osapi-utstub-select.c 
-    src/ut-stubs/osapi-utstub-sockets.c 
-    src/ut-stubs/osapi-utstub-task.c 
-    src/ut-stubs/osapi-utstub-time.c
-    src/ut-stubs/osapi-utstub-timebase.c)
-         
-  add_library(ut_osapi_stubs STATIC ${UT_OSAPI_STUB_SRCFILES})
+    enable_testing()
 
-  add_subdirectory(src/tests tests)
-  add_subdirectory(src/unit-tests unit-tests)
+    # Generic function for consistent definition of a unit testing target
+    # This is defined here in the top-level OSAL CMakeLists so it can be used
+    # in both the "tests" and "unit-tests" subdirectories.
+    function(add_osal_ut_exe TGTNAME)
 
-  if (BUILD_PARENT)
-    # Append _UNIT_TEST_ definition to the project-wide unit test CFLAGS
-    # This allows the UT implementations to add extra UT hooks/debug where needed
-    # For compatibility this also needs to expand the include path to include UT assert headers
-    # (this assumes a gcc style compiler)
-    set(UT_C_FLAGS "-D_UNIT_TEST_ -I${CMAKE_CURRENT_SOURCE_DIR}/ut_assert/inc ${BSP_UT_C_FLAGS}" PARENT_SCOPE)
-  endif (BUILD_PARENT)
+      add_executable(${TGTNAME} ${ARGN})
+      target_link_libraries(${TGTNAME} ut_assert ut_bsp osal)
+      add_test(${TGTNAME} ${TGTNAME})
+      foreach(TGT ${INSTALL_TARGET_LIST})
+        install(TARGETS ${TGTNAME} DESTINATION ${TGT}/${UT_INSTALL_SUBDIR})
+      endforeach()
+
+    endfunction(add_osal_ut_exe)
+
+    # The "ut_osapi_stubs" library contains "stub" functions of the OSAL API calls, used for
+    # testing other application code built on top of OSAL.
+    add_subdirectory(src/ut-stubs ut-stubs)
+
+    # The "tests" and "unit-tests" subdirectories implement examples and verification tests
+    # of the OSAL library.  Note that these are both black box tests that link with the full
+    # OSAL (not a stub/coverage test).
+    add_subdirectory(src/tests tests)
+    add_subdirectory(src/unit-tests unit-tests)
 
 endif (ENABLE_UNIT_TESTS)
+
+# If this build is being performed as a subdirectory within a larger project,
+# then export the important data regarding compile flags/dirs to that parent
+# This is conditional to avoid warnings in a standalone build.
+get_directory_property(HAS_PARENT PARENT_DIRECTORY)
+if (HAS_PARENT)
+    # export the "OSAL_BSP_STAGING_INSTALL_DIR" to the parent build, so this can be
+    # used in "install" commands as necessary for the files needed at runtime
+    set(OSAL_BSP_STAGING_INSTALL_DIR "${OSAL_BSP_STAGING_INSTALL_DIR}" PARENT_SCOPE)
+
+    # Export the UT coverage compiler/linker flags to the parent build.
+    # These flags are based on the target system type and should be used
+    # when building code intended for coverage analysis.
+    set(UT_COVERAGE_COMPILE_FLAGS "${UT_COVERAGE_COMPILE_FLAGS}" PARENT_SCOPE)
+    set(UT_COVERAGE_LINK_FLAGS "${UT_COVERAGE_LINK_FLAGS}" PARENT_SCOPE)
+endif(HAS_PARENT)
+
+
+
 
