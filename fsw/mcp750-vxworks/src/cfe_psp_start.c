@@ -98,6 +98,7 @@ void CFE_PSP_Main( void )
    uint32 reset_type;
    uint32 reset_subtype;
    char   reset_register;
+   cpuaddr memaddr;
    int32  Status;
 
 
@@ -128,8 +129,14 @@ void CFE_PSP_Main( void )
    /*
    ** Setup the pointer to the reserved area in vxWorks.
    ** This must be done before any of the reset variables are used.
+   **
+   ** Note: this uses a "cpuaddr" (integer address) as an intermediate
+   ** to avoid a warning about alignment.  The output of sysMemTop()
+   ** should be aligned to hold any data type, being the very start
+   ** of the memory space.
    */
-   CFE_PSP_ReservedMemoryPtr = (CFE_PSP_ReservedMemory_t *)sysMemTop();
+   memaddr = (cpuaddr) sysMemTop();
+   CFE_PSP_ReservedMemoryPtr = (CFE_PSP_ReservedMemory_t *) memaddr;
 
    /*
    ** Determine Reset type by reading the hardware reset register.
