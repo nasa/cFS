@@ -226,7 +226,7 @@ int32 CFE_PSP_GetResetArea (cpuaddr *PtrToResetArea, uint32 *SizeOfResetArea)
    }
    else
    {
-      *PtrToResetArea = (cpuaddr)&(CFE_PSP_ReservedMemoryPtr->ResetMemory[0]);
+      *PtrToResetArea = (cpuaddr)(CFE_PSP_ReservedMemoryPtr->ResetMemory);
       *SizeOfResetArea = CFE_PSP_RESET_AREA_SIZE;
       return_code = CFE_PSP_SUCCESS;
    }
@@ -263,7 +263,7 @@ int32 CFE_PSP_GetUserReservedArea(cpuaddr *PtrToUserArea, uint32 *SizeOfUserArea
    }
    else
    {
-      *PtrToUserArea = (cpuaddr)&(CFE_PSP_ReservedMemoryPtr->UserReservedMemory[0]);
+      *PtrToUserArea = (cpuaddr)(CFE_PSP_ReservedMemoryPtr->UserReservedMemory);
       *SizeOfUserArea = CFE_PSP_USER_RESERVED_SIZE;
       return_code = CFE_PSP_SUCCESS;
    }
@@ -300,7 +300,7 @@ int32 CFE_PSP_GetVolatileDiskMem(cpuaddr *PtrToVolDisk, uint32 *SizeOfVolDisk )
    }
    else
    {
-      *PtrToVolDisk = (cpuaddr)&(CFE_PSP_ReservedMemoryPtr->VolatileDiskMemory[0]);
+      *PtrToVolDisk = (cpuaddr)(CFE_PSP_ReservedMemoryPtr->VolatileDiskMemory);
       *SizeOfVolDisk = CFE_PSP_VOLATILE_DISK_SIZE;
       return_code = CFE_PSP_SUCCESS;
 
