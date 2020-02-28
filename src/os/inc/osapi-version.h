@@ -20,7 +20,7 @@
 
 #define OS_MAJOR_VERSION 5
 #define OS_MINOR_VERSION 0
-#define OS_REVISION      6
+#define OS_REVISION      7
 #define OS_MISSION_REV   0
 
 /**
