@@ -317,7 +317,7 @@ int32 OS_ModuleUnload_Impl ( uint32 module_id )
  *           See prototype in os-impl.h for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 OS_ModuleLoad_Impl ( uint32 module_id, char *translated_path )
+int32 OS_ModuleLoad_Impl ( uint32 module_id, const char *translated_path )
 {
     return OS_SUCCESS;
 } /* end OS_ModuleLoad_Impl */
