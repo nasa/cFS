@@ -28,6 +28,7 @@
 ** Typedefs
 */
 
+/** @brief OSAL module address properties */
 typedef struct
 {
    uint32 valid;
@@ -40,6 +41,7 @@ typedef struct
    cpuaddr bss_size;
 } OS_module_address_t;
 
+/** @brief OSAL module properties */
 typedef struct
 {
    cpuaddr             entry_point;
@@ -50,7 +52,7 @@ typedef struct
 } OS_module_prop_t;
 
 /**
- * Associates a single symbol name with a memory address.
+ * @brief Associates a single symbol name with a memory address.
  *
  * If the OS_STATIC_SYMBOL_TABLE feature is enabled, then
  * an array of these structures should be provided by the
@@ -69,7 +71,7 @@ typedef const struct
    const char *Module;
 } OS_static_symbol_record_t;
 
-
+#ifndef OSAL_OMIT_DEPRECATED
 /*
  * Define the former "OS_module_record_t" type as equivalent
  * to the OS_module_prop_t.  This is what the OS_ModuleInfo()
@@ -81,9 +83,12 @@ typedef const struct
  * Ideally OS_module_record_t type should be removed to avoid confusion,
  * but this would break existing code that calls OS_ModuleInfo().
  */
-#ifndef OSAL_OMIT_DEPRECATED
-typedef OS_module_prop_t OS_module_record_t;
+typedef OS_module_prop_t OS_module_record_t; /**< @deprecated Use OS_module_prop_t */
 #endif
+
+/** @defgroup OSAPILoader OSAL Dynamic Loader and Symbol APIs
+ * @{
+ */
 
 /*-------------------------------------------------------------------------------------*/
 /**
@@ -98,9 +103,10 @@ typedef OS_module_prop_t OS_module_record_t;
  * @param[out] symbol_address Set to the address of the symbol
  * @param[in]  symbol_name    Name of the symbol to look up
  *
- * @returns OS_SUCCESS on success, or appropriate error code
- * OS_ERROR if the symbol could not be found
- * OS_INVALID_POINTER if one of the pointers passed in are NULL
+ * @return Execution status, see @ref OSReturnCodes
+ * @retval #OS_SUCCESS @copybrief OS_SUCCESS
+ * @retval #OS_ERROR if the symbol could not be found
+ * @retval #OS_INVALID_POINTER if one of the pointers passed in are NULL
  */
 int32 OS_SymbolLookup (cpuaddr *symbol_address, const char *symbol_name );
 
@@ -108,13 +114,15 @@ int32 OS_SymbolLookup (cpuaddr *symbol_address, const char *symbol_name );
 /**
  * @brief Dumps the system symbol table to a file
  *
+ * Dumps the system symbol table to the specified filename
+ *
  * @param[in] filename  File to write to
  * @param[in] size_limit Maximum number of bytes to write
  *
- * @returns OS_SUCCESS on success, or appropriate error code
- * OS_ERR_NOT_IMPLEMENTED if the system does not support this function
- * OS_ERROR if the symbol table could not be read or dumped
- * OS_INVALID_FILE  if the file could not be opened or written
+ * @return Execution status, see @ref OSReturnCodes
+ * @retval #OS_SUCCESS             @copybrief OS_SUCCESS
+ * @retval #OS_ERR_NOT_IMPLEMENTED @copybrief OS_ERR_NOT_IMPLEMENTED
+ * @retval #OS_ERROR if the symbol table could not be read or dumped
  */
 int32 OS_SymbolTableDump ( const char *filename, uint32 size_limit );
 
@@ -128,11 +136,12 @@ int32 OS_SymbolTableDump ( const char *filename, uint32 size_limit );
  * @param[in]  module_name  Name of module
  * @param[in]  filename     File containing the object code to load
  *
- * @returns OS_SUCCESS on success, or appropriate error code
- * OS_ERROR if the module cannot be loaded
- * OS_INVALID_POINTER if one of the parameters is NULL
- * OS_ERR_NO_FREE_IDS if the module table is full
- * OS_ERR_NAME_TAKEN if the name is in use
+ * @return Execution status, see @ref OSReturnCodes
+ * @retval #OS_SUCCESS @copybrief OS_SUCCESS
+ * @retval #OS_ERROR if the module cannot be loaded
+ * @retval #OS_INVALID_POINTER if one of the parameters is NULL
+ * @retval #OS_ERR_NO_FREE_IDS if the module table is full
+ * @retval #OS_ERR_NAME_TAKEN if the name is in use
  */
 int32 OS_ModuleLoad ( uint32 *module_id, const char *module_name, const char *filename );
 
@@ -144,8 +153,9 @@ int32 OS_ModuleLoad ( uint32 *module_id, const char *module_name, const char *fi
  *
  * @param[in] module_id    OSAL ID of the previously the loaded module
  *
- * @returns OS_SUCCESS on success, or appropriate error code
- * OS_ERROR if the module is invalid or cannot be unloaded
+ * @return Execution status, see @ref OSReturnCodes
+ * @retval #OS_SUCCESS @copybrief OS_SUCCESS
+ * @retval #OS_ERROR if the module is invalid or cannot be unloaded
  */
 int32 OS_ModuleUnload ( uint32 module_id );
 
@@ -158,11 +168,12 @@ int32 OS_ModuleUnload ( uint32 module_id );
  * @param[in]  module_id    OSAL ID of the previously the loaded module
  * @param[out] module_info  Buffer to store module information
  *
- * @returns OS_SUCCESS on success, or appropriate error code
- * OS_ERR_INVALID_ID if the module id invalid
- * OS_INVALID_POINTER if the pointer to the ModuleInfo structure is invalid
+ * @return Execution status, see @ref OSReturnCodes
+ * @retval #OS_SUCCESS @copybrief OS_SUCCESS
+ * @retval #OS_ERR_INVALID_ID if the module id invalid
+ * @retval #OS_INVALID_POINTER if the pointer to the ModuleInfo structure is invalid
  */
 int32 OS_ModuleInfo ( uint32 module_id, OS_module_prop_t *module_info );
-
+/**@}*/
 
 #endif

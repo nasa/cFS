@@ -49,24 +49,26 @@
  * --------------------------------------------------------------------------------------
  */
 
+/** @brief Socket domain */
 typedef enum
 {
-   OS_SocketDomain_INVALID,
-   OS_SocketDomain_INET,        /**< IPv4 address family, most commonly used) */
-   OS_SocketDomain_INET6,       /**< IPv6 address family, depends on OS/network stack support */
-   OS_SocketDomain_MAX
+   OS_SocketDomain_INVALID,     /**< @brief Invalid */
+   OS_SocketDomain_INET,        /**< @brief IPv4 address family, most commonly used) */
+   OS_SocketDomain_INET6,       /**< @brief IPv6 address family, depends on OS/network stack support */
+   OS_SocketDomain_MAX          /**< @brief Maximum */
 } OS_SocketDomain_t;
 
+/** @brief Socket type */
 typedef enum
 {
-   OS_SocketType_INVALID,
-   OS_SocketType_DATAGRAM,      /**< A connectionless, message-oriented socket */
-   OS_SocketType_STREAM,        /**< A stream-oriented socket with the concept of a connection */
-   OS_SocketType_MAX
+   OS_SocketType_INVALID,       /**< @brief Invalid */
+   OS_SocketType_DATAGRAM,      /**< @brief A connectionless, message-oriented socket */
+   OS_SocketType_STREAM,        /**< @brief A stream-oriented socket with the concept of a connection */
+   OS_SocketType_MAX            /**< @brief Maximum */
 } OS_SocketType_t;
 
 /**
- * Storage buffer for generic network address
+ * @brief Storage buffer for generic network address
  *
  * This is a union type that helps to ensure a minimum
  * alignment value for the data storage, such that it can
@@ -75,13 +77,13 @@ typedef enum
  */
 typedef union
 {
-    uint8  Buffer[OS_SOCKADDR_MAX_LEN]; /**< Ensures length of at least OS_SOCKADDR_MAX_LEN */
-    uint32 AlignU32;                    /**< Ensures uint32 alignment */
-    void*  AlignPtr;                    /**< Ensures pointer alignment */
+    uint8  Buffer[OS_SOCKADDR_MAX_LEN]; /**< @brief Ensures length of at least OS_SOCKADDR_MAX_LEN */
+    uint32 AlignU32;                    /**< @brief Ensures uint32 alignment */
+    void*  AlignPtr;                    /**< @brief Ensures pointer alignment */
 } OS_SockAddrData_t;
 
 /**
- * Encapsulates a generic network address
+ * @brief Encapsulates a generic network address
  *
  * This is just an abstract buffer type that holds a network address.
  * It is allocated for the worst-case size defined by OS_SOCKADDR_MAX_LEN,
@@ -89,12 +91,12 @@ typedef union
  */
 typedef struct
 {
-   uint32 ActualLength;                 /**< Length of the actual address data */
-   OS_SockAddrData_t AddrData;          /**< Abstract Address data */
+   uint32 ActualLength;                 /**< @brief Length of the actual address data */
+   OS_SockAddrData_t AddrData;          /**< @brief Abstract Address data */
 } OS_SockAddr_t;
 
 /**
- * Encapsulates socket properties
+ * @brief Encapsulates socket properties
  *
  * This is for consistency with other OSAL resource types.
  * Currently no extra properties are exposed here but this
@@ -102,23 +104,20 @@ typedef struct
  */
 typedef struct
 {
-    char name [OS_MAX_API_NAME];        /**< Name of the socket */
-    uint32 creator;                     /**< OSAL TaskID which opened the socket */
+    char name [OS_MAX_API_NAME];        /**< @brief Name of the socket */
+    uint32 creator;                     /**< @brief OSAL TaskID which opened the socket */
 } OS_socket_prop_t;
 
-
-
-
-/*
- * --------------------------------------------------------------------------------------
- * Socket Address API Functions
+/**
+ * @defgroup OSAPISocketAddr OSAL Socket Address APIs
  *
  * These functions provide a means to manipulate network addresses in a manner that
  * is (mostly) agnostic to the actual network address type.
  *
  * Every network address should be representable as a string (i.e. dotted decimal IP, etc).
  * This can serve as a the "common denominator" to all address types.
- * --------------------------------------------------------------------------------------
+ *
+ * @{
  */
 
 /*-------------------------------------------------------------------------------------*/
@@ -129,7 +128,8 @@ typedef struct
  *
  * @param[out]  Addr         The address buffer to initialize
  * @param[in]   Domain       The address family
- * @returns OS_SUCCESS if successful
+ *
+ * @return Execution status, see @ref OSReturnCodes
  */
 int32 OS_SocketAddrInit(OS_SockAddr_t *Addr, OS_SocketDomain_t Domain);
 
@@ -148,7 +148,8 @@ int32 OS_SocketAddrInit(OS_SockAddr_t *Addr, OS_SocketDomain_t Domain);
  * @param[out]  buffer       Buffer to hold the output string
  * @param[in]   buflen       Maximum length of the output string
  * @param[in]   Addr         The network address buffer to convert
- * @returns OS_SUCCESS if successful
+ *
+ * @return Execution status, see @ref OSReturnCodes
  */
 int32 OS_SocketAddrToString(char *buffer, uint32 buflen, const OS_SockAddr_t *Addr);
 
@@ -169,7 +170,8 @@ int32 OS_SocketAddrToString(char *buffer, uint32 buflen, const OS_SockAddr_t *Ad
  *
  * @param[out]  Addr         The address buffer to initialize
  * @param[in]   string       The string to initialize the address from.
- * @returns OS_SUCCESS if successful
+ *
+ * @return Execution status, see @ref OSReturnCodes
  */
 int32 OS_SocketAddrFromString(OS_SockAddr_t *Addr, const char *string);
 
@@ -183,7 +185,8 @@ int32 OS_SocketAddrFromString(OS_SockAddr_t *Addr, const char *string);
  *
  * @param[out]  PortNum      Buffer to store the port number
  * @param[in]   Addr         The network address buffer
- * @returns OS_SUCCESS if successful
+ *
+ * @return Execution status, see @ref OSReturnCodes
  */
 int32 OS_SocketAddrGetPort(uint16 *PortNum, const OS_SockAddr_t *Addr);
 
@@ -197,15 +200,15 @@ int32 OS_SocketAddrGetPort(uint16 *PortNum, const OS_SockAddr_t *Addr);
  *
  * @param[in]   PortNum      The port number to set
  * @param[out]  Addr         The network address buffer
- * @returns OS_SUCCESS if successful
+ *
+ * @return Execution status, see @ref OSReturnCodes
  */
 int32 OS_SocketAddrSetPort(OS_SockAddr_t *Addr, uint16 PortNum);
+/**@}*/
 
 
-
-/*
- * --------------------------------------------------------------------------------------
- * Sockets API Functions
+/**
+ * @defgroup OSALAPISocket OSAL Socket Management APIs
  *
  * These functions are loosely related to the BSD Sockets API but made to be
  * more consistent with other OSAL API functions.  That is, they operate on
@@ -215,9 +218,10 @@ int32 OS_SocketAddrSetPort(OS_SockAddr_t *Addr, uint16 PortNum);
  * number space.  Additionally, the file OS_read() / OS_write() / OS_close()
  * calls also work on sockets.
  *
- * Note that all of functions may return OS_ERROR_NOT_IMPLEMENTED if network support
+ * Note that all of functions may return #OS_ERR_NOT_IMPLEMENTED if network support
  * is not configured at compile time.
- * --------------------------------------------------------------------------------------
+ * 
+ * @{
  */
 
 /**
@@ -229,7 +233,7 @@ int32 OS_SocketAddrSetPort(OS_SockAddr_t *Addr, uint16 PortNum);
  * @param[in]   Domain   The domain / address family of the socket (INET or INET6, etc)
  * @param[in]   Type     The type of the socket (STREAM or DATAGRAM)
  *
- * @returns OS_SUCCESS if successful
+ * @return Execution status, see @ref OSReturnCodes
  */
 int32 OS_SocketOpen(uint32 *sock_id, OS_SocketDomain_t Domain, OS_SocketType_t Type);
 
@@ -246,7 +250,8 @@ int32 OS_SocketOpen(uint32 *sock_id, OS_SocketDomain_t Domain, OS_SocketType_t T
  *
  * @param[in]   sock_id  The socket ID
  * @param[in]   Addr     The local address to bind to
- * @returns OS_SUCCESS if successful
+ *
+ * @return Execution status, see @ref OSReturnCodes
  */
 int32 OS_SocketBind(uint32 sock_id, const OS_SockAddr_t *Addr);
 
@@ -261,7 +266,8 @@ int32 OS_SocketBind(uint32 sock_id, const OS_SockAddr_t *Addr);
  * @param[in]   sock_id  The socket ID
  * @param[in]   Addr     The remote address to connect to
  * @param[in]   timeout  The maximum amount of time to wait, or OS_PEND to wait forever
- * @returns OS_SUCCESS if successful
+ *
+ * @return Execution status, see @ref OSReturnCodes
  */
 int32 OS_SocketConnect(uint32 sock_id, const OS_SockAddr_t *Addr, int32 timeout);
 
@@ -282,7 +288,7 @@ int32 OS_SocketConnect(uint32 sock_id, const OS_SockAddr_t *Addr, int32 timeout)
  * @param[in]   Addr         The remote address of the incoming connection
  * @param[in]   timeout      The maximum amount of time to wait, or OS_PEND to wait forever
  *
- * @returns OS_SUCCESS if successful
+ * @return Execution status, see @ref OSReturnCodes
  */
 int32 OS_SocketAccept(uint32 sock_id, uint32 *connsock_id, OS_SockAddr_t *Addr, int32 timeout);
 
@@ -299,7 +305,7 @@ int32 OS_SocketAccept(uint32 sock_id, uint32 *connsock_id, OS_SockAddr_t *Addr, 
  * @param[out]  RemoteAddr   Buffer to store the remote network address (may be NULL)
  * @param[in]   timeout      The maximum amount of time to wait, or OS_PEND to wait forever
  *
- * @returns non-negative count of actual bytes received if successful, or an appropriate error code
+ * @return Count of actual bytes received or error status, see @ref OSReturnCodes
  */
 int32 OS_SocketRecvFrom(uint32 sock_id, void *buffer, uint32 buflen, OS_SockAddr_t *RemoteAddr, int32 timeout);
 
@@ -316,7 +322,7 @@ int32 OS_SocketRecvFrom(uint32 sock_id, void *buffer, uint32 buflen, OS_SockAddr
  * @param[in]   buflen       The length of the message data to send
  * @param[in]   RemoteAddr   Buffer containing the remote network address to send to
  *
- * @returns non-negative count of actual bytes sent if successful, or an appropriate error code
+ * @return Count of actual bytes sent or error status, see @ref OSReturnCodes
  */
 int32 OS_SocketSendTo(uint32 sock_id, const void *buffer, uint32 buflen, const OS_SockAddr_t *RemoteAddr);
 
@@ -331,10 +337,11 @@ int32 OS_SocketSendTo(uint32 sock_id, const void *buffer, uint32 buflen, const O
  * @param[out]  sock_id      Buffer to hold result
  * @param[in]   sock_name    Name of socket to find
  *
- * @returns OS_SUCCESS if successful, or appropriate error code
- * OS_INVALID_POINTER is id or name are NULL pointers
- * OS_ERR_NAME_TOO_LONG if the name given is to long to have been stored
- * OS_ERR_NAME_NOT_FOUND if the name was not found in the table
+ * @return Execution status, see @ref OSReturnCodes
+ * @retval #OS_SUCCESS @copybrief OS_SUCCESS
+ * @retval #OS_INVALID_POINTER is id or name are NULL pointers
+ * @retval #OS_ERR_NAME_TOO_LONG if the name given is to long to have been stored
+ * @retval #OS_ERR_NAME_NOT_FOUND if the name was not found in the table
  */
 int32 OS_SocketGetIdByName (uint32 *sock_id, const char *sock_name);
 
@@ -348,9 +355,10 @@ int32 OS_SocketGetIdByName (uint32 *sock_id, const char *sock_name);
  * @param[in]   sock_id      The socket ID
  * @param[out]  sock_prop    Buffer to hold socket information
  *
- * @returns OS_SUCCESS if successful, or appropriate error code
- * OS_ERR_INVALID_ID if the id passed in is not a valid semaphore
- * OS_INVALID_POINTER if the count_prop pointer is null
+ * @return Execution status, see @ref OSReturnCodes
+ * @retval #OS_SUCCESS @copybrief OS_SUCCESS
+ * @retval #OS_ERR_INVALID_ID if the id passed in is not a valid semaphore
+ * @retval #OS_INVALID_POINTER if the count_prop pointer is null
  */
 int32 OS_SocketGetInfo (uint32 sock_id, OS_socket_prop_t *sock_prop);
 
@@ -362,14 +370,12 @@ int32 OS_SocketGetInfo (uint32 sock_id, OS_socket_prop_t *sock_prop);
  * The ID is an implementation-defined value and may not be consistent
  * in meaning across different platform types.
  *
- * @note this API may be removed in a future version of OSAL due to
- * inconsistencies between platforms.
+ * @note This API may be removed in a future version of OSAL due to
+ *       inconsistencies between platforms.
  *
- * @returns The ID or fixed value of -1 if the host id could not be found
- *
- * Note it is not possible to differentiate between error codes and valid
- * network IDs here. It is assumed, however, that -1 is never a valid ID.
- *
+ * @return The ID or fixed value of -1 if the host id could not be found.
+ *         Note it is not possible to differentiate between error codes and valid
+ *         network IDs here. It is assumed, however, that -1 is never a valid ID.
  */
 int32 OS_NetworkGetID             (void);
 
@@ -384,8 +390,9 @@ int32 OS_NetworkGetID             (void);
  * @param[out]  host_name    Buffer to hold name information
  * @param[in]   name_len     Maximum length of host name buffer
  *
- * @returns OS_SUCCESS if successful
+ * @return Execution status, see @ref OSReturnCodes
  */
 int32 OS_NetworkGetHostName       (char *host_name, uint32 name_len);
+/**@}*/
 
 #endif
