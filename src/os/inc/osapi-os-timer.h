@@ -200,9 +200,9 @@ int32 OS_TimeBaseGetFreeRun     (uint32 timebase_id, uint32 *freerun_val);
  * @note clock_accuracy comes from the underlying OS tick value.  The nearest integer
  *       microsecond value is returned, so may not be exact.
  *
- * @warning Depending on the OS, the timer_callback function may be similar to an
- *          interrupt service routine. System calls the cause the code to block are
- *          generally not supported.
+ * @warning Depending on the OS, the callback_ptr function may be similar to an
+ *          interrupt service routine. Calls that cause the code to block or require
+ *          an application context (like sending events) are generally not supported.
  *
  * @param[out]  timer_id        The resource ID of the timer object
  * @param[in]   timer_name      Name of the timer object
@@ -240,6 +240,10 @@ int32 OS_TimerCreate            (uint32 *timer_id, const char *timer_name, uint3
  * This routine also uses a different callback function prototype from OS_TimerCreate(),
  * allowing a single opaque argument to be passed to the callback routine.
  * The OSAL implementation does not use this parameter, and may be set NULL.
+ *
+ * @warning Depending on the OS, the callback_ptr function may be similar to an
+ *          interrupt service routine. Calls that cause the code to block or require
+ *          an application context (like sending events) are generally not supported.
  *
  * @param[out]  timer_id        The resource ID of the timer object
  * @param[in]   timer_name      Name of the timer object
