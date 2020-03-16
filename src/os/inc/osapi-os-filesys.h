@@ -452,9 +452,10 @@ int32           OS_lseek  (uint32  filedes, int32 offset, uint32 whence);
  *
  * Removes a given filename from the drive
  *
- * @note Some file systems permit removal of open files while others do not.  For
- * portability, it is recommended that applications ensure the file is closed prior
- * to removal.
+ * @note The behvior of this API on an open file is not defined at the OSAL level
+ * due to dependencies on the underlying OS which may or may not allow the related
+ * operation based on a varienty of potential configurations.  For portability,
+ * it is recommended that applications ensure the file is closed prior to removal.
  *
  * @param[in]  path      The file to operate on
  *
@@ -476,9 +477,10 @@ int32           OS_remove (const char *path);
  * Changes the name of a file, where the source and destination
  * reside on the same file system.
  *
- * @note Some file systems permit renaming of open files while others do not.  For
- * portability, it is recommended that applications ensure the file is closed prior
- * to rename.
+ * @note The behvior of this API on an open file is not defined at the OSAL level
+ * due to dependencies on the underlying OS which may or may not allow the related
+ * operation based on a varienty of potential configurations.  For portability,
+ * it is recommended that applications ensure the file is closed prior to removal.
  *
  * @param[in]  old_filename      The original filename
  * @param[in]  new_filename      The desired filename
@@ -497,6 +499,11 @@ int32           OS_rename (const char *old_filename, const char *new_filename);
 /*-------------------------------------------------------------------------------------*/
 /**
  * @brief Copies a single file from src to dest
+ *
+ * @note The behvior of this API on an open file is not defined at the OSAL level
+ * due to dependencies on the underlying OS which may or may not allow the related
+ * operation based on a varienty of potential configurations.  For portability,
+ * it is recommended that applications ensure the file is closed prior to removal.
  *
  * @param[in]  src       The source file to operate on
  * @param[in]  dest      The destination file
@@ -521,6 +528,11 @@ int32 OS_cp (const char *src, const char *dest);
  *
  * If this fails, it falls back to copying the file and removing
  * the original.
+ *
+ * @note The behvior of this API on an open file is not defined at the OSAL level
+ * due to dependencies on the underlying OS which may or may not allow the related
+ * operation based on a varienty of potential configurations.  For portability,
+ * it is recommended that applications ensure the file is closed prior to removal.
  *
  * @param[in]  src       The source file to operate on
  * @param[in]  dest      The destination file
