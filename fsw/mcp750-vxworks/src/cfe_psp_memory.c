@@ -59,7 +59,9 @@
 /*
 ** Define the cFE Core loadable module name
 */
-#define CFE_MODULE_NAME "cfe-core.o"
+#define CFE_MODULE_NAME_DEFAULT "cfe-core.o"
+
+static char CFE_MODULE_NAME[] = CFE_MODULE_NAME_DEFAULT;
 
 
 /*
