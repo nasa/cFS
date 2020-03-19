@@ -237,7 +237,7 @@ int32 OS_SocketAccept(uint32 sock_id, uint32 *connsock_id, OS_SockAddr_t *Addr, 
          /* Socket must be of the STREAM variety */
          return_code = OS_ERR_INCORRECT_OBJ_TYPE;
       }
-      else if (record->refcount != 0 || (OS_stream_table[local_id].stream_state & (OS_STREAM_STATE_BOUND | OS_STREAM_STATE_CONNECTED)) != OS_STREAM_STATE_BOUND)
+      else if ((OS_stream_table[local_id].stream_state & (OS_STREAM_STATE_BOUND | OS_STREAM_STATE_CONNECTED)) != OS_STREAM_STATE_BOUND)
       {
          /* Socket must be bound but not connected */
          return_code = OS_ERR_INCORRECT_OBJ_STATE;
