@@ -19,36 +19,49 @@
 #ifndef _osapi_filesys_
 #define _osapi_filesys_
 
-#define OS_READ_ONLY        0
-#define OS_WRITE_ONLY       1
-#define OS_READ_WRITE       2
+/** @defgroup OSFileAccess OSAL File Access Option Defines
+ * @{
+ */
+#define OS_READ_ONLY        0  /**< Read only file access */
+#define OS_WRITE_ONLY       1  /**< Write only file access */
+#define OS_READ_WRITE       2  /**< Read write file access */
+/**@}*/
 
-#define OS_SEEK_SET         0
-#define OS_SEEK_CUR         1
-#define OS_SEEK_END         2
+/** @defgroup OSFileOffset OSAL Refernce Point For Seek Offset Defines
+ * @{
+ */
+#define OS_SEEK_SET         0  /**< Seek offset set */
+#define OS_SEEK_CUR         1  /**< Seek offset current */
+#define OS_SEEK_END         2  /**< Seek offset end */
+/**@}*/
 
-#define OS_CHK_ONLY         0
-#define OS_REPAIR           1
+#define OS_CHK_ONLY         0  /**< Unused, API takes bool */
+#define OS_REPAIR           1  /**< Unused, API takes bool */
 
-#define FS_BASED            0
-#define RAM_DISK            1
-#define EEPROM_DISK         2
-#define ATA_DISK            3
+/** @defgroup OSVolType OSAL Volume Type Defines
+ * @{
+ */
+#define FS_BASED            0  /**< Volume type FS based */
+#define RAM_DISK            1  /**< Volume type RAM disk */
+#define EEPROM_DISK         2  /**< Volume type EEPROM disk */
+#define ATA_DISK            3  /**< Volume type ATA disk */
+/**@}*/
 
-
-/*
-** Number of entries in the internal volume table
-*/
+/**
+ * @brief Number of entries in the internal volume table
+ */
 #define NUM_TABLE_ENTRIES 14
 
 /*
 ** Length of a Device and Volume name 
 */
-#define OS_FS_DEV_NAME_LEN  32
-#define OS_FS_PHYS_NAME_LEN 64
-#define OS_FS_VOL_NAME_LEN  32
+#define OS_FS_DEV_NAME_LEN  32  /**< Device name length */
+#define OS_FS_PHYS_NAME_LEN 64  /**< Physical drive name length */
+#define OS_FS_VOL_NAME_LEN  32  /**< Volume name length */
 
-
+/** @addtogroup OSReturnCodes
+ * @{
+ */
 /*
 ** Defines for File System Calls
 */
@@ -57,26 +70,27 @@
  * other OSAPI error codes.  They now start at -100
  * to avoid this overlap.
  */
-#define OS_FS_ERR_PATH_TOO_LONG        (-103)
-#define OS_FS_ERR_NAME_TOO_LONG        (-104)
-#define OS_FS_ERR_DRIVE_NOT_CREATED    (-106)
-#define OS_FS_ERR_DEVICE_NOT_FREE      (-107)
-#define OS_FS_ERR_PATH_INVALID         (-108)
+#define OS_FS_ERR_PATH_TOO_LONG        (-103)  /**< @brief FS path too long */
+#define OS_FS_ERR_NAME_TOO_LONG        (-104)  /**< @brief FS name too long */
+#define OS_FS_ERR_DRIVE_NOT_CREATED    (-106)  /**< @brief FS drive not created */
+#define OS_FS_ERR_DEVICE_NOT_FREE      (-107)  /**< @brief FS device not free */
+#define OS_FS_ERR_PATH_INVALID         (-108)  /**< @brief FS path invalid */
 
 
 /* 
  * Map some codes used by the file API back to the generic counterparts 
  * where there is overlap between them.  Do not duplicate error codes.
  */
-#define OS_FS_SUCCESS                  OS_SUCCESS
-#define OS_FS_ERROR                    OS_ERROR
-#define OS_FS_ERR_INVALID_POINTER      OS_INVALID_POINTER
-#define OS_FS_ERR_NO_FREE_FDS          OS_ERR_NO_FREE_IDS
-#define OS_FS_ERR_INVALID_FD           OS_ERR_INVALID_ID
-#define OS_FS_UNIMPLEMENTED            OS_ERR_NOT_IMPLEMENTED
+#define OS_FS_SUCCESS                  OS_SUCCESS               /**< @brief Successful execution */
+#define OS_FS_ERROR                    OS_ERROR                 /**< @brief Failed execution */
+#define OS_FS_ERR_INVALID_POINTER      OS_INVALID_POINTER       /**< @brief Invalid pointer */
+#define OS_FS_ERR_NO_FREE_FDS          OS_ERR_NO_FREE_IDS       /**< @brief No free IDs */
+#define OS_FS_ERR_INVALID_FD           OS_ERR_INVALID_ID        /**< @brief Invalid ID */
+#define OS_FS_UNIMPLEMENTED            OS_ERR_NOT_IMPLEMENTED   /**< @brief Not implemented */
+/**@}*/
 
 
-/* This typedef is for the OS_FS_GetErrorName function, to ensure
+/* This typedef is for OS_FS_GetErrorName(), to ensure
  * everyone is making an array of the same length
  *
  * Implementation note for developers:
@@ -91,10 +105,10 @@
 typedef os_err_name_t os_fs_err_name_t;
 
 
-/*
-** Internal structure of the OS volume table for 
-** mounted file systems and path translation
-*/
+/**
+ * @brief Internal structure of the OS volume table for 
+ * mounted file systems and path translation
+ */
 typedef struct
 {
     char   DeviceName [OS_FS_DEV_NAME_LEN];
@@ -109,15 +123,16 @@ typedef struct
 
 } OS_VolumeInfo_t;
 
+/** @brief OSAL file system info */
 typedef struct
 {
-   uint32   MaxFds;                /* Total number of file descriptors */
-   uint32   FreeFds;               /* Total number that are free */
-   uint32   MaxVolumes;            /* Maximum number of volumes */
-   uint32   FreeVolumes;           /* Total number of volumes free */
+   uint32   MaxFds;                /**< @brief Total number of file descriptors */
+   uint32   FreeFds;               /**< @brief Total number that are free */
+   uint32   MaxVolumes;            /**< @brief Maximum number of volumes */
+   uint32   FreeVolumes;           /**< @brief Total number of volumes free */
 } os_fsinfo_t;
 
-
+/** @brief OSAL file properties */
 typedef struct
 {
     char Path[OS_MAX_PATH_LEN];
@@ -125,14 +140,14 @@ typedef struct
     uint8 IsValid;                /* For backward compatibility -- always true if OS_FDGetInfo returned true */
 }OS_file_prop_t;
 
-
-/*
- * NOTE: This used to be directly typedef'ed to the "struct stat" from the C library
+/**
+ * @brief File system status
  *
- * Some C libraries (glibc in particular) actually #define member names to reference into
+ * @note This used to be directly typedef'ed to the "struct stat" from the C library
+ *
+ * Some C libraries (glibc in particular) actually define member names to reference into
  * sub-structures, so attempting to reuse a name like "st_mtime" might not work.
  */
-
 typedef struct
 {
    uint32   FileModeBits;
@@ -140,7 +155,10 @@ typedef struct
    uint32   FileSize;
 } os_fstat_t;
 
-/* We must also define replacements for the stat structure's mode bits.
+/**
+ * @brief File stat mode bits
+ *
+ * We must also define replacements for the stat structure's mode bits.
  * This is currently just a small subset since the OSAL just presents a very
  * simplified view of the filesystem to the upper layers.  And since not all
  * OS'es are POSIX, the more POSIX-specific bits are not relevant anyway.
@@ -153,50 +171,54 @@ enum
    OS_FILESTAT_MODE_DIR =   0x10000
 };
 
+/** @brief Access file stat mode bits */
 #define OS_FILESTAT_MODE(x)   ((x).FileModeBits)
+/** @brief File stat is directory logical */
 #define OS_FILESTAT_ISDIR(x)  ((x).FileModeBits & OS_FILESTAT_MODE_DIR)
+/** @brief File stat is executable logical */
 #define OS_FILESTAT_EXEC(x)   ((x).FileModeBits & OS_FILESTAT_MODE_EXEC)
+/** @brief File stat is write enabled logical */
 #define OS_FILESTAT_WRITE(x)  ((x).FileModeBits & OS_FILESTAT_MODE_WRITE)
+/** @brief File stat is read enabled logical */
 #define OS_FILESTAT_READ(x)   ((x).FileModeBits & OS_FILESTAT_MODE_READ)
+/** @brief Access file stat size field */
 #define OS_FILESTAT_SIZE(x)   ((x).FileSize)
+/** @brief Access file stat time field */
 #define OS_FILESTAT_TIME(x)   ((x).FileTime)
 
-
+/** @brief Directory entry */
 typedef struct
 {
    char FileName[OS_MAX_PATH_LEN];
 } os_dirent_t;
 
+#ifndef OSAL_OMIT_DEPRECATED
 /*
  * Preserve the old type names for compatibility;
  * but instead of DIR* it is now just a void*
  */
-#ifndef OSAL_OMIT_DEPRECATED
 /* Provide something to implement os_dirp_t */
-typedef void * os_dirp_t;
+typedef void * os_dirp_t; /**< @deprecated */
 #endif
 
-/*
- * Macro to access filename part of the dirent structure
- */
+/** @brief Access filename part of the dirent structure */
 #define OS_DIRENTRY_NAME(x)   ((x).FileName)
 
+#ifndef OSAL_OMIT_DEPRECATED
 /*
  * Several old type names can be aliases for compatibility
  */
-#ifndef OSAL_OMIT_DEPRECATED
-typedef int32              os_fshealth_t;
-typedef OS_file_prop_t     OS_FDTableEntry;
+typedef int32              os_fshealth_t;  /**< @deprecated type no longer used */
+typedef OS_file_prop_t     OS_FDTableEntry; /**< @deprecated Use OS_file_prop_t */
 #endif
 
 /*
  * Exported Functions
 */
 
-
-/******************************************************************************
-** Standard File system API
-******************************************************************************/
+/** @defgroup OSAPIFile OSAL Standard File APIs
+ * @{
+ */
 
 /*-------------------------------------------------------------------------------------*/
 /**
@@ -207,18 +229,18 @@ typedef OS_file_prop_t     OS_FDTableEntry;
  * create call.
  *
  * @param[in] path File name to create
- * @param[in] access Intended access mode - OS_WRITE_ONLY or OS_READ_WRITE
+ * @param[in] access Intended access mode - see @ref OSFileAccess
  *
  * @note Valid handle IDs are never negative.  Failure of this
  * call can be checked by testing if the result is less than 0.
  *
- * @returns A file handle ID on success, or appropriate error code
- * OS_INVALID_POINTER if path is NULL
- * OS_FS_ERR_PATH_TOO_LONG if path exceeds the maximum number of chars
- * OS_FS_ERR_PATH_INVALID if path cannot be parsed
- * OS_FS_ERR_NAME_TOO_LONG if the name of the file is too long
- * OS_ERROR if permissions are unknown or OS call fails
- * OS_ERR_NO_FREE_IDS if there are no free file descriptors left
+ * @return A file handle ID or appropriate error code, see @ref OSReturnCodes
+ * @retval #OS_INVALID_POINTER if path is NULL
+ * @retval #OS_FS_ERR_PATH_TOO_LONG if path exceeds the maximum number of chars
+ * @retval #OS_FS_ERR_PATH_INVALID if path cannot be parsed
+ * @retval #OS_FS_ERR_NAME_TOO_LONG if the name of the file is too long
+ * @retval #OS_ERROR if permissions are unknown or OS call fails
+ * @retval #OS_ERR_NO_FREE_IDS if there are no free file descriptors left
  */
 int32           OS_creat  (const char *path, int32  access);
 
@@ -227,26 +249,24 @@ int32           OS_creat  (const char *path, int32  access);
 /**
  * @brief Opens a file
  *
- * Opens a file. access parameters are OS_READ_ONLY, OS_WRITE_ONLY, or
- * OS_READ_WRITE
+ * Opens a file.
  *
  * @param[in] path   File name to create
- * @param[in] access Intended access mode - OS_READ_ONLY, OS_WRITE_ONLY or OS_READ_WRITE
+ * @param[in] access Intended access mode - see @ref OSFileAccess
  * @param[in] mode   The file permissions. This parameter is passed through to the 
  *		     native open call, but will be ignored. The file mode (or permissions)
  *                   are ignored by the POSIX open call when the O_CREAT access flag is not passed in. 
  *
- *
  * @note Valid handle IDs are never negative.  Failure of this
  * call can be checked by testing if the result is less than 0.
  *
- * @returns A file handle ID on success, or appropriate error code
- * OS_INVALID_POINTER if path is NULL
- * OS_FS_ERR_PATH_TOO_LONG if path exceeds the maximum number of chars
- * OS_FS_ERR_PATH_INVALID if path cannot be parsed
- * OS_FS_ERR_NAME_TOO_LONG if the name of the file is too long
- * OS_ERROR if permissions are unknown or OS call fails
- * OS_ERR_NO_FREE_IDS if there are no free file descriptors left
+ * @return A file handle ID or appropriate error code, see @ref OSReturnCodes
+ * @retval #OS_INVALID_POINTER if path is NULL
+ * @retval #OS_FS_ERR_PATH_TOO_LONG if path exceeds the maximum number of chars
+ * @retval #OS_FS_ERR_PATH_INVALID if path cannot be parsed
+ * @retval #OS_FS_ERR_NAME_TOO_LONG if the name of the file is too long
+ * @retval #OS_ERROR if permissions are unknown or OS call fails
+ * @retval #OS_ERR_NO_FREE_IDS if there are no free file descriptors left
  */
 int32           OS_open   (const char *path,  int32 access,  uint32 mode);
 
@@ -260,9 +280,10 @@ int32           OS_open   (const char *path,  int32 access,  uint32 mode);
  *
  * @param[in] filedes   The handle ID to operate on
  *
- * @returns OS_SUCCESS on success, or appropriate error code
- * OS_ERROR if file descriptor could not be closed
- * OS_ERR_INVALID_ID if the file descriptor passed in is invalid
+ * @return Execution status, see @ref OSReturnCodes
+ * @retval #OS_SUCCESS @copybrief OS_SUCCESS
+ * @retval #OS_ERROR if file descriptor could not be closed
+ * @retval #OS_ERR_INVALID_ID if the file descriptor passed in is invalid
  */
 int32           OS_close  (uint32  filedes);
 
@@ -271,7 +292,7 @@ int32           OS_close  (uint32  filedes);
 /**
  * @brief Read from a file handle
  *
- * reads up to nbytes from a file, and puts them into buffer.
+ * Reads up to nbytes from a file, and puts them into buffer.
  *
  * @param[in]  filedes  The handle ID to operate on
  * @param[out] buffer   Storage location for file data
@@ -280,10 +301,10 @@ int32           OS_close  (uint32  filedes);
  * @note All OSAL error codes are negative int32 values.  Failure of this
  * call can be checked by testing if the result is less than 0.
  *
- * @returns A non-negative byte count on success, or appropriate error code
- * OS_INVALID_POINTER if buffer is a null pointer
- * OS_ERROR if OS call failed
- * OS_ERR_INVALID_ID if the file descriptor passed in is invalid
+ * @return A non-negative byte count or appropriate error code, see @ref OSReturnCodes
+ * @retval #OS_INVALID_POINTER if buffer is a null pointer
+ * @retval #OS_ERROR if OS call failed
+ * @retval #OS_ERR_INVALID_ID if the file descriptor passed in is invalid
  */
 int32           OS_read   (uint32  filedes, void *buffer, uint32 nbytes);
 
@@ -292,7 +313,7 @@ int32           OS_read   (uint32  filedes, void *buffer, uint32 nbytes);
 /**
  * @brief Write to a file handle
  *
- * writes to a file. copies up to a maximum of nbytes of buffer to the file
+ * Writes to a file. copies up to a maximum of nbytes of buffer to the file
  * described in filedes
  *
  * @param[in] filedes   The handle ID to operate on
@@ -302,10 +323,10 @@ int32           OS_read   (uint32  filedes, void *buffer, uint32 nbytes);
  * @note All OSAL error codes are negative int32 values.  Failure of this
  * call can be checked by testing if the result is less than 0.
  *
- * @returns A non-negative byte count on success, or appropriate error code
- * OS_INVALID_POINTER if buffer is NULL
- * OS_ERROR if OS call failed
- * OS_ERR_INVALID_ID if the file descriptor passed in is invalid
+ * @return A non-negative byte count or appropriate error code, see @ref OSReturnCodes
+ * @retval #OS_INVALID_POINTER if buffer is NULL
+ * @retval #OS_ERROR if OS call failed
+ * @retval #OS_ERR_INVALID_ID if the file descriptor passed in is invalid
  */
 int32           OS_write  (uint32  filedes, const void *buffer, uint32 nbytes);
 
@@ -335,8 +356,8 @@ int32           OS_write  (uint32  filedes, const void *buffer, uint32 nbytes);
  * @param[in] nbytes    Maximum number of bytes to read
  * @param[in] timeout   Maximum time to wait, in milliseconds (OS_PEND = forever)
  *
- * @returns A non-negative byte count on success, or appropriate error code
- * Returns zero if the timeout period expired.
+ * @return Byte count on success, zero for timeout, or appropriate error code,
+ *         see @ref OSReturnCodes
  */
 int32           OS_TimedRead(uint32  filedes, void *buffer, uint32 nbytes, int32 timeout);
 
@@ -367,8 +388,8 @@ int32           OS_TimedRead(uint32  filedes, void *buffer, uint32 nbytes, int32
  * @param[in] nbytes    Maximum number of bytes to read
  * @param[in] timeout   Maximum time to wait, in milliseconds (OS_PEND = forever)
  *
- * @returns A non-negative byte count on success, or appropriate error code
- * Returns zero if the timeout period expired.
+ * @return Byte count on success, zero for timeout, or appropriate error code,
+ *         see @ref OSReturnCodes
  */
 int32           OS_TimedWrite(uint32  filedes, const void *buffer, uint32 nbytes, int32 timeout);
 
@@ -378,11 +399,11 @@ int32           OS_TimedWrite(uint32  filedes, const void *buffer, uint32 nbytes
  * @brief Changes the permissions of a file
  *
  * @param[in] path   File to change
- * @param[in] access Desired access mode - OS_READ_ONLY, OS_WRITE_ONLY or OS_READ_WRITE
+ * @param[in] access Desired access mode - see @ref OSFileAccess
  *
  * @note Some file systems do not implement permissions
  *
- * @returns OS_SUCCESS on success, or appropriate error code
+ * @return Execution status, see @ref OSReturnCodes
  */
 int32           OS_chmod  (const char *path, uint32 access);
 
@@ -391,17 +412,18 @@ int32           OS_chmod  (const char *path, uint32 access);
 /**
  * @brief Obtain information about a file or directory
  *
- * returns information about a file or directory in a os_fs_stat structure
+ * Returns information about a file or directory in a os_fstat_t structure
  *
  * @param[in]  path      The file to operate on
  * @param[out] filestats Buffer to store file information
  *
- * @returns OS_SUCCESS on success, or appropriate error code
- * OS_INVALID_POINTER if path or filestats is NULL
- * OS_FS_ERR_PATH_TOO_LONG if the path is too long to be stored locally
- * OS_FS_ERR_NAME_TOO_LONG if the name of the file is too long to be stored
- * OS_FS_ERR_PATH_INVALID if path cannot be parsed
- * OS_ERROR if the OS call failed
+ * @return Execution status, see @ref OSReturnCodes
+ * @retval #OS_SUCCESS @copybrief OS_SUCCESS
+ * @retval #OS_INVALID_POINTER if path or filestats is NULL
+ * @retval #OS_FS_ERR_PATH_TOO_LONG if the path is too long to be stored locally
+ * @retval #OS_FS_ERR_NAME_TOO_LONG if the name of the file is too long to be stored
+ * @retval #OS_FS_ERR_PATH_INVALID if path cannot be parsed
+ * @retval #OS_ERROR if the OS call failed
  */
 int32           OS_stat   (const char *path, os_fstat_t  *filestats);
 
@@ -410,16 +432,16 @@ int32           OS_stat   (const char *path, os_fstat_t  *filestats);
 /**
  * @brief Seeks to the specified position of an open file
  *
- * sets the read/write pointer to a specific offset in a specific file.
- * Whence is either OS_SEEK_SET,OS_SEEK_CUR, or OS_SEEK_END
+ * Sets the read/write pointer to a specific offset in a specific file.
  *
  * @param[in] filedes   The handle ID to operate on
  * @param[in] offset    The file offset to seek to
- * @param[in] whence    The reference point for offset
+ * @param[in] whence    The reference point for offset, see @ref OSFileOffset
  *
- * @returns On success, a non-negative byte offset from the beginning of the file
- * OS_ERR_INVALID_ID if the file descriptor passed in is invalid
- * OS_ERROR if OS call failed
+ * @return Byte offset from the beginning of the file or appropriate error code,
+           see @ref OSReturnCodes
+ * @retval #OS_ERR_INVALID_ID if the file descriptor passed in is invalid
+ * @retval #OS_ERROR if OS call failed
  */
 int32           OS_lseek  (uint32  filedes, int32 offset, uint32 whence);
 
@@ -430,18 +452,20 @@ int32           OS_lseek  (uint32  filedes, int32 offset, uint32 whence);
  *
  * Removes a given filename from the drive
  *
- * @note Some file systems permit removal of open files while others do not.  For
- * portability, it is recommended that applications ensure the file is closed prior
- * to removal.
+ * @note The behvior of this API on an open file is not defined at the OSAL level
+ * due to dependencies on the underlying OS which may or may not allow the related
+ * operation based on a varienty of potential configurations.  For portability,
+ * it is recommended that applications ensure the file is closed prior to removal.
  *
  * @param[in]  path      The file to operate on
  *
- * @returns OS_SUCCESS on success, or appropriate error code
- * OS_ERROR if there is no device or the driver returns error
- * OS_INVALID_POINTER if path is NULL
- * OS_FS_ERR_PATH_TOO_LONG if path is too long to be stored locally
- * OS_FS_ERR_PATH_INVALID if path cannot be parsed
- * OS_FS_ERR_NAME_TOO_LONG if the name of the file to remove is too long
+ * @return Execution status, see @ref OSReturnCodes
+ * @retval #OS_SUCCESS @copybrief OS_SUCCESS
+ * @retval #OS_ERROR if there is no device or the driver returns error
+ * @retval #OS_INVALID_POINTER if path is NULL
+ * @retval #OS_FS_ERR_PATH_TOO_LONG if path is too long to be stored locally
+ * @retval #OS_FS_ERR_PATH_INVALID if path cannot be parsed
+ * @retval #OS_FS_ERR_NAME_TOO_LONG if the name of the file to remove is too long
  */
 int32           OS_remove (const char *path);
 
@@ -453,19 +477,21 @@ int32           OS_remove (const char *path);
  * Changes the name of a file, where the source and destination
  * reside on the same file system.
  *
- * @note Some file systems permit renaming of open files while others do not.  For
- * portability, it is recommended that applications ensure the file is closed prior
- * to rename.
+ * @note The behvior of this API on an open file is not defined at the OSAL level
+ * due to dependencies on the underlying OS which may or may not allow the related
+ * operation based on a varienty of potential configurations.  For portability,
+ * it is recommended that applications ensure the file is closed prior to removal.
  *
  * @param[in]  old_filename      The original filename
  * @param[in]  new_filename      The desired filename
  *
- * @returns OS_SUCCESS on success, or appropriate error code
- * OS_ERROR if the file could not be opened or renamed.
- * OS_INVALID_POINTER if old or new are NULL
- * OS_FS_ERR_PATH_INVALID if path cannot be parsed
- * OS_FS_ERR_PATH_TOO_LONG if the paths given are too long to be stored locally
- * OS_FS_ERR_NAME_TOO_LONG if the new name is too long to be stored locally
+ * @return Execution status, see @ref OSReturnCodes
+ * @retval #OS_SUCCESS @copybrief OS_SUCCESS
+ * @retval #OS_ERROR if the file could not be opened or renamed.
+ * @retval #OS_INVALID_POINTER if old or new are NULL
+ * @retval #OS_FS_ERR_PATH_INVALID if path cannot be parsed
+ * @retval #OS_FS_ERR_PATH_TOO_LONG if the paths given are too long to be stored locally
+ * @retval #OS_FS_ERR_NAME_TOO_LONG if the new name is too long to be stored locally
  */
 int32           OS_rename (const char *old_filename, const char *new_filename);
 
@@ -474,15 +500,21 @@ int32           OS_rename (const char *old_filename, const char *new_filename);
 /**
  * @brief Copies a single file from src to dest
  *
+ * @note The behvior of this API on an open file is not defined at the OSAL level
+ * due to dependencies on the underlying OS which may or may not allow the related
+ * operation based on a varienty of potential configurations.  For portability,
+ * it is recommended that applications ensure the file is closed prior to removal.
+ *
  * @param[in]  src       The source file to operate on
  * @param[in]  dest      The destination file
  *
- * @returns OS_SUCCESS on success, or appropriate error code
- * OS_ERROR if the file could not be accessed
- * OS_INVALID_POINTER if src or dest are NULL
- * OS_FS_ERR_PATH_INVALID if path cannot be parsed
- * OS_FS_ERR_PATH_TOO_LONG if the paths given are too long to be stored locally
- * OS_FS_ERR_NAME_TOO_LONG if the dest name is too long to be stored locally
+ * @return Execution status, see @ref OSReturnCodes
+ * @retval #OS_SUCCESS @copybrief OS_SUCCESS
+ * @retval #OS_ERROR if the file could not be accessed
+ * @retval #OS_INVALID_POINTER if src or dest are NULL
+ * @retval #OS_FS_ERR_PATH_INVALID if path cannot be parsed
+ * @retval #OS_FS_ERR_PATH_TOO_LONG if the paths given are too long to be stored locally
+ * @retval #OS_FS_ERR_NAME_TOO_LONG if the dest name is too long to be stored locally
  */
 int32 OS_cp (const char *src, const char *dest);
 
@@ -497,15 +529,21 @@ int32 OS_cp (const char *src, const char *dest);
  * If this fails, it falls back to copying the file and removing
  * the original.
  *
+ * @note The behvior of this API on an open file is not defined at the OSAL level
+ * due to dependencies on the underlying OS which may or may not allow the related
+ * operation based on a varienty of potential configurations.  For portability,
+ * it is recommended that applications ensure the file is closed prior to removal.
+ *
  * @param[in]  src       The source file to operate on
  * @param[in]  dest      The destination file
  *
- * @returns OS_SUCCESS on success, or appropriate error code
- * OS_ERROR if the file could not be renamed.
- * OS_INVALID_POINTER if src or dest are NULL
- * OS_FS_ERR_PATH_INVALID if path cannot be parsed
- * OS_FS_ERR_PATH_TOO_LONG if the paths given are too long to be stored locally
- * OS_FS_ERR_NAME_TOO_LONG if the dest name is too long to be stored locally
+ * @return Execution status, see @ref OSReturnCodes
+ * @retval #OS_SUCCESS @copybrief OS_SUCCESS
+ * @retval #OS_ERROR if the file could not be renamed.
+ * @retval #OS_INVALID_POINTER if src or dest are NULL
+ * @retval #OS_FS_ERR_PATH_INVALID if path cannot be parsed
+ * @retval #OS_FS_ERR_PATH_TOO_LONG if the paths given are too long to be stored locally
+ * @retval #OS_FS_ERR_NAME_TOO_LONG if the dest name is too long to be stored locally
  */
 int32 OS_mv (const char *src, const char *dest);
 
@@ -519,9 +557,9 @@ int32 OS_mv (const char *src, const char *dest);
  * @param[in]  filedes  The handle ID to operate on
  * @param[out] fd_prop  Storage buffer for file information
  *
- * @returns OS_SUCCESS on success, or appropriate error code
- * OS_ERR_INVALID_ID if the file descriptor passed in is invalid
- * OS_FS_SUCCESS if the copying was successfull
+ * @return Execution status, see @ref OSReturnCodes
+ * @retval #OS_SUCCESS @copybrief OS_SUCCESS
+ * @retval #OS_ERR_INVALID_ID if the file descriptor passed in is invalid
  */
 int32 OS_FDGetInfo (uint32 filedes, OS_file_prop_t *fd_prop);
 
@@ -529,10 +567,13 @@ int32 OS_FDGetInfo (uint32 filedes, OS_file_prop_t *fd_prop);
 /**
  * @brief Checks to see if a file is open
  *
+ * This function takes a filename and determines if the file is open. The function
+ * will return success if the file is open.
+ *
  * @param[in]  Filename      The file to operate on
  *
- * @returns OS_SUCCESS if the file is open, or appropriate error code
- * OS_ERROR if the file is not open
+ * @return OS_SUCCESS if the file is open, or appropriate error code
+ * @retval #OS_ERROR if the file is not open
  */
 int32 OS_FileOpenCheck(const char *Filename);
 
@@ -543,8 +584,9 @@ int32 OS_FileOpenCheck(const char *Filename);
  *
  * Closes All open files that were opened through the OSAL
  *
- * @returns OS_SUCCESS on success, or appropriate error code
- * OS_ERROR   if one or more file close returned an error
+ * @return Execution status, see @ref OSReturnCodes
+ * @retval #OS_SUCCESS @copybrief OS_SUCCESS
+ * @retval #OS_ERROR   if one or more file close returned an error
  */
 int32 OS_CloseAllFiles(void);
 
@@ -559,45 +601,44 @@ int32 OS_CloseAllFiles(void);
  *
  * @param[in]  Filename      The file to close
  *
- * @returns OS_SUCCESS on success, or appropriate error code
- * OS_FS_ERR_PATH_INVALID if the file is not found
- * OS_ERROR   if the file close returned an error
+ * @return Execution status, see @ref OSReturnCodes
+ * @retval #OS_SUCCESS @copybrief OS_SUCCESS
+ * @retval #OS_FS_ERR_PATH_INVALID if the file is not found
+ * @retval #OS_ERROR   if the file close returned an error
  */
 int32 OS_CloseFileByName(const char *Filename);
+/**@}*/
 
-
-/******************************************************************************
-** Directory API 
-******************************************************************************/
+/** @defgroup OSAPIDir OSAL Directory APIs
+ * @{
+ */
 
 #ifndef OSAL_OMIT_DEPRECATED
-/*
- * Opens a directory for searching
- * Replaced by OS_DirectoryOpen()
+/**
+ * @brief Opens a directory for searching
+ * @deprecated Replaced by OS_DirectoryOpen()
  */
 os_dirp_t       OS_opendir (const char *path);
 
 /*
- * Closes an open directory
- * Replaced by OS_DirectoryClose()
+ * @brief Closes an open directory
+ * @deprecated Replaced by OS_DirectoryClose()
  */
 int32           OS_closedir(os_dirp_t directory);
 
 /*
- * Rewinds an open directory
- * Replaced by OS_DirectoryRewind()
+ * @brief Rewinds an open directory
+ * @deprecated Replaced by OS_DirectoryRewind()
  */
 void            OS_rewinddir(os_dirp_t directory);
 
 /*
- * Reads the next object in the directory
- * Replaced by OS_DirectoryRead()
+ * @brief Reads the next object in the directory
+ * @deprecated Replaced by OS_DirectoryRead()
  */
 os_dirent_t *   OS_readdir (os_dirp_t directory);
 
 #endif
-
-
 
 /*-------------------------------------------------------------------------------------*/
 /**
@@ -608,7 +649,7 @@ os_dirent_t *   OS_readdir (os_dirp_t directory);
  * @param[out] dir_id    The handle ID of the directory
  * @param[in]  path      The directory to open
  *
- * @returns OS_SUCCESS on success, or appropriate error code
+ * @return Execution status, see @ref OSReturnCodes
  */
 int32           OS_DirectoryOpen(uint32 *dir_id, const char *path);
 
@@ -621,7 +662,7 @@ int32           OS_DirectoryOpen(uint32 *dir_id, const char *path);
  *
  * @param[in] dir_id    The handle ID of the directory
  *
- * @returns OS_SUCCESS on success, or appropriate error code
+ * @return Execution status, see @ref OSReturnCodes
  */
 int32           OS_DirectoryClose(uint32 dir_id);
 
@@ -634,7 +675,7 @@ int32           OS_DirectoryClose(uint32 dir_id);
  *
  * @param[in] dir_id    The handle ID of the directory
  *
- * @returns OS_SUCCESS on success, or appropriate error code
+ * @return Execution status, see @ref OSReturnCodes
  */
 int32           OS_DirectoryRewind(uint32 dir_id);
 
@@ -648,7 +689,7 @@ int32           OS_DirectoryRewind(uint32 dir_id);
  * @param[in]  dir_id    The handle ID of the directory
  * @param[out] dirent    Buffer to store directory entry information
  *
- * @returns OS_SUCCESS on success, or appropriate error code
+ * @return Execution status, see @ref OSReturnCodes
  */
 int32           OS_DirectoryRead(uint32 dir_id, os_dirent_t *dirent);
 
@@ -657,20 +698,21 @@ int32           OS_DirectoryRead(uint32 dir_id, os_dirent_t *dirent);
 /**
  * @brief Makes a new directory
  *
- * makes a directory specified by path.
+ * Makes a directory specified by path.
  *
  * @param[in]  path      The new directory name
  * @param[in]  access    The permissions for the directory (reserved for future use)
  *
- * @note current implementations do not utilize the "access" parameter.  Applications
- * should still pass the intended value (OS_READ_WRITE or OS_READ_ONLY) to be compatible
+ * @note Current implementations do not utilize the "access" parameter.  Applications
+ * should still pass the intended value (#OS_READ_WRITE or #OS_READ_ONLY) to be compatible
  * with future implementations.
  *
- * @returns OS_SUCCESS on success, or appropriate error code
- * OS_INVALID_POINTER if path is NULL
- * OS_FS_ERR_PATH_TOO_LONG if the path is too long to be stored locally
- * OS_FS_ERR_PATH_INVALID if path cannot be parsed
- * OS_ERROR if the OS call fails
+ * @return Execution status, see @ref OSReturnCodes
+ * @retval #OS_SUCCESS @copybrief OS_SUCCESS
+ * @retval #OS_INVALID_POINTER if path is NULL
+ * @retval #OS_FS_ERR_PATH_TOO_LONG if the path is too long to be stored locally
+ * @retval #OS_FS_ERR_PATH_INVALID if path cannot be parsed
+ * @retval #OS_ERROR if the OS call fails
  */
 int32           OS_mkdir   (const char *path, uint32 access);
 
@@ -684,17 +726,19 @@ int32           OS_mkdir   (const char *path, uint32 access);
  *
  * @param[in]  path      The directory to remove
  *
- * @returns OS_SUCCESS on success, or appropriate error code
- * OS_INVALID_POINTER if path is NULL
- * OS_FS_ERR_PATH_INVALID if path cannot be parsed
- * OS_FS_ER_PATH_TOO_LONG
- * OS_ERROR if the directory remove operation failed
+ * @return Execution status, see @ref OSReturnCodes
+ * @retval #OS_SUCCESS @copybrief OS_SUCCESS
+ * @retval #OS_INVALID_POINTER if path is NULL
+ * @retval #OS_FS_ERR_PATH_INVALID if path cannot be parsed
+ * @retval #OS_FS_ERR_PATH_TOO_LONG
+ * @retval #OS_ERROR if the directory remove operation failed
  */
 int32           OS_rmdir   (const char *path);
+/**@}*/
 
-/******************************************************************************
-** System Level API 
-******************************************************************************/
+/** @defgroup OSAPIFileSys OSAL File System Level APIs
+ * @{
+ */
 
 /*-------------------------------------------------------------------------------------*/
 /**
@@ -707,7 +751,7 @@ int32           OS_rmdir   (const char *path);
  * @param[in]   phys_path   The native system directory (an existing mount point)
  * @param[in]   virt_path   The virtual mount point of this filesystem
  *
- * @returns OS_SUCCESS on success, or appropriate error code
+ * @return Execution status, see @ref OSReturnCodes
  */
 int32           OS_FileSysAddFixedMap(uint32 *filesys_id, const char *phys_path,
                                 const char *virt_path);
@@ -716,13 +760,22 @@ int32           OS_FileSysAddFixedMap(uint32 *filesys_id, const char *phys_path,
 /**
  * @brief Makes a file system on the target
  *
- * Makes a file system on the target
+ * Makes a file system on the target.  Highly dependent on underlying OS and
+ * dependent on OS volume table definition.
  *
- * @returns OS_SUCCESS on success, or appropriate error code
- * OS_INVALID_POINTER if devname is NULL
- * OS_FS_ERR_DRIVE_NOT_CREATED if the OS calls to create the the drive failed
- * OS_FS_ERR_DEVICE_NOT_FREE if the volume table is full
- * OS_FS_SUCCESS on creating the disk
+ * @param[in]   address   The address at which to start the new disk.  If address == 0
+ *                        space will be allocated by the OS.
+ * @param[in]   devname   The name of the "generic" drive
+ * @param[in]   volname   The name of the volume (if needed, used on VxWorks)
+ * @param[in]   blocksize The size of a single block on the drive
+ * @param[in]   numblocks The number of blocks to allocate for the drive
+ *
+ * @return Execution status, see @ref OSReturnCodes
+ * @retval #OS_SUCCESS @copybrief OS_SUCCESS
+ * @retval #OS_INVALID_POINTER if devname is NULL
+ * @retval #OS_FS_ERR_DRIVE_NOT_CREATED if the OS calls to create the the drive failed
+ * @retval #OS_FS_ERR_DEVICE_NOT_FREE if the volume table is full
+ * @retval #OS_FS_SUCCESS on creating the disk
  */
 int32           OS_mkfs        (char *address, const char *devname, const char *volname,
                                 uint32 blocksize, uint32 numblocks);
@@ -730,9 +783,12 @@ int32           OS_mkfs        (char *address, const char *devname, const char *
 /**
  * @brief Mounts a file system
  *
- * mounts a file system / block device at the given mount point
+ * Mounts a file system / block device at the given mount point.
  *
- * @returns OS_SUCCESS on success, or appropriate error code
+ * @param[in]   devname    The name of the drive to mount. devname is the same from #OS_mkfs
+ * @param[in]   mountpoint The name to call this disk from now on
+ *
+ * @return Execution status, see @ref OSReturnCodes
  */
 int32           OS_mount       (const char *devname, const char *mountpoint);
 
@@ -742,11 +798,19 @@ int32           OS_mount       (const char *devname, const char *mountpoint);
  *
  * Initializes a file system on the target.
  *
- * @returns OS_SUCCESS on success, or appropriate error code
- * OS_INVALID_POINTER if devname or volname are  NULL
- * OS_FS_ERR_PATH_TOO_LONG if the name is too long
- * OS_FS_ERR_DEVICE_NOT_FREE if the volume table is full
- * OS_FS_ERR_DRIVE_NOT_CREATED on error
+ * @param[in]   address   The address at which to start the new disk.  If address == 0,
+ *                        then space will be allocated by the OS
+ * @param[in]   devname   The name of the "generic" drive
+ * @param[in]   volname   The name of the volume (if needed, used on VxWorks)
+ * @param[in]   blocksize The size of a single block on the drive
+ * @param[in]   numblocks The number of blocks to allocate for the drive
+ *
+ * @return Execution status, see @ref OSReturnCodes
+ * @retval #OS_SUCCESS @copybrief OS_SUCCESS
+ * @retval #OS_INVALID_POINTER if devname or volname are  NULL
+ * @retval #OS_FS_ERR_PATH_TOO_LONG if the name is too long
+ * @retval #OS_FS_ERR_DEVICE_NOT_FREE if the volume table is full
+ * @retval #OS_FS_ERR_DRIVE_NOT_CREATED on error
  */
 int32           OS_initfs      (char *address, const char *devname, const char *volname,
                                 uint32 blocksize, uint32 numblocks);
@@ -755,10 +819,15 @@ int32           OS_initfs      (char *address, const char *devname, const char *
 /**
  * @brief Removes a file system
  *
- * @returns OS_SUCCESS on success, or appropriate error code
- * OS_INVALID_POINTER if devname is NULL
- * OS_ERROR is the drive specified cannot be located
- * OS_FS_SUCCESS on removing  the disk
+ * This function will remove or un-map the target file system. Note that this is not
+ * the same as un-mounting the file system.
+ *
+ * @param[in]   devname   The name of the "generic" drive
+ *
+ * @return Execution status, see @ref OSReturnCodes
+ * @retval #OS_SUCCESS @copybrief OS_SUCCESS
+ * @retval #OS_INVALID_POINTER if devname is NULL
+ * @retval #OS_ERROR is the drive specified cannot be located
  */
 int32           OS_rmfs        (const char *devname);
 
@@ -766,13 +835,19 @@ int32           OS_rmfs        (const char *devname);
 /**
  * @brief Unmounts a mounted file system
  *
+ * This function will unmount a drive from the file system and make all open file
+ * descriptors useless.
+ *
  * @note Any open file descriptors referencing this file system should
  * be closed prior to unmounting a drive
  *
- * @returns OS_SUCCESS on success, or appropriate error code
- * OS_INVALID_POINTER if name is NULL
- * OS_FS_ERR_PATH_TOO_LONG if the absolute path given is too long
- * OS_ERROR if the OS calls failed
+ * @param[in]   mountpoint The mount point to remove from #OS_mount
+ *
+ * @return Execution status, see @ref OSReturnCodes
+ * @retval #OS_SUCCESS @copybrief OS_SUCCESS
+ * @retval #OS_INVALID_POINTER if name is NULL
+ * @retval #OS_FS_ERR_PATH_TOO_LONG if the absolute path given is too long
+ * @retval #OS_ERROR if the OS calls failed
  */
 int32           OS_unmount     (const char *mountpoint);
 
@@ -784,10 +859,10 @@ int32           OS_unmount     (const char *mountpoint);
  *
  * @param[in]  name      The device/path to operate on
  *
- * @returns non-negative block count on success, or appropriate error code
- * OS_INVALID_POINTER if name is NULL
- * OS_FS_ERR_PATH_TOO_LONG if the name is too long
- * OS_ERROR if the OS call failed
+ * @return Block count or appropriate error code, see @ref OSReturnCodes
+ * @retval #OS_INVALID_POINTER if name is NULL
+ * @retval #OS_FS_ERR_PATH_TOO_LONG if the name is too long
+ * @retval #OS_ERROR if the OS call failed
  */
 int32           OS_fsBlocksFree (const char *name);
 
@@ -803,10 +878,11 @@ int32           OS_fsBlocksFree (const char *name);
  * @param[in]  name       The device/path to operate on
  * @param[out] bytes_free The number of free bytes
  *
- * @returns OS_SUCCESS on success, or appropriate error code
- * OS_INVALID_POINTER if name is NULL
- * OS_FS_ERR_PATH_TOO_LONG if the name is too long
- * OS_ERROR if the OS call failed
+ * @return Execution status, see @ref OSReturnCodes
+ * @retval #OS_SUCCESS @copybrief OS_SUCCESS
+ * @retval #OS_INVALID_POINTER if name is NULL
+ * @retval #OS_FS_ERR_PATH_TOO_LONG if the name is too long
+ * @retval #OS_ERROR if the OS call failed
  */
 int32 OS_fsBytesFree (const char *name, uint64 *bytes_free);
 
@@ -821,10 +897,11 @@ int32 OS_fsBytesFree (const char *name, uint64 *bytes_free);
  * @param[in]  name     The device/path to operate on
  * @param[in]  repair   Whether to also repair inconsistencies
  *
- * @returns OS_SUCCESS on success, or appropriate error code
- * OS_INVALID_POINTER if name is NULL
- * OS_ERR_NOT_IMPLEMENTED if not supported
- * OS_ERROR if the OS calls fail
+ * @return Execution status, see @ref OSReturnCodes
+ * @retval #OS_SUCCESS             @copybrief OS_SUCCESS
+ * @retval #OS_INVALID_POINTER     Name is NULL
+ * @retval #OS_ERR_NOT_IMPLEMENTED @copybrief OS_ERR_NOT_IMPLEMENTED
+ * @retval #OS_ERROR               @copybrief OS_ERROR
  */
 int32   OS_chkfs       (const char *name, bool repair);
 
@@ -838,9 +915,10 @@ int32   OS_chkfs       (const char *name, bool repair);
  * @param[out] PhysDriveName    Buffer to store physical drive name
  * @param[in]  MountPoint       OSAL mount point
  *
- * @returns OS_SUCCESS on success, or appropriate error code
- * OS_INVALID_POINTER if either  parameter is NULL
- * OS_ERROR if the mountpoint could not be found
+ * @return Execution status, see @ref OSReturnCodes
+ * @retval #OS_SUCCESS @copybrief OS_SUCCESS
+ * @retval #OS_INVALID_POINTER if either parameter is NULL
+ * @retval #OS_ERROR if the mountpoint could not be found
  */
 int32       OS_FS_GetPhysDriveName  (char * PhysDriveName, const char * MountPoint);
 
@@ -853,8 +931,9 @@ int32       OS_FS_GetPhysDriveName  (char * PhysDriveName, const char * MountPoi
  * @param[in]  VirtualPath      OSAL virtual path name
  * @param[out] LocalPath        Buffer to store native/translated path name
  *
- * @returns OS_SUCCESS on success, or appropriate error code
- * OS_INVALID_POINTER if either  parameter is NULL
+ * @return Execution status, see @ref OSReturnCodes
+ * @retval #OS_SUCCESS @copybrief OS_SUCCESS
+ * @retval #OS_INVALID_POINTER if either parameter is NULL
  */
 int32       OS_TranslatePath ( const char *VirtualPath, char *LocalPath);
 
@@ -862,19 +941,21 @@ int32       OS_TranslatePath ( const char *VirtualPath, char *LocalPath);
 /**
  * @brief Returns information about the file system
  *
- * returns information about the file system in an os_fsinfo_t
+ * Returns information about the file system in an os_fsinfo_t.
  * This includes the number of open files and file systems
  *
  * @param[out] filesys_info     Buffer to store filesystem information
  *
- * @returns OS_SUCCESS on success, or appropriate error code
- * OS_INVALID_POINTER if filesys_info is NULL
+ * @return Execution status, see @ref OSReturnCodes
+ * @retval #OS_SUCCESS @copybrief OS_SUCCESS
+ * @retval #OS_INVALID_POINTER if filesys_info is NULL
  */
 int32       OS_GetFsInfo(os_fsinfo_t  *filesys_info);
+/**@}*/
 
-/******************************************************************************
-** Shell API
-******************************************************************************/
+/** @defgroup OSAPIShell OSAL Shell APIs
+ * @{
+ */
 
 /*-------------------------------------------------------------------------------------*/
 /**
@@ -886,10 +967,12 @@ int32       OS_GetFsInfo(os_fsinfo_t  *filesys_info);
  * @param[in] Cmd     Command to pass to shell
  * @param[in] filedes File to send output to.
  *
- * @returns OS_SUCCESS on success, or appropriate error code
- * OS_ERROR if the command was not executed properly
- * OS_ERR_INVALID_ID if the file descriptor passed in is invalid
+ * @return Execution status, see @ref OSReturnCodes
+ * @retval #OS_SUCCESS @copybrief OS_SUCCESS
+ * @retval #OS_ERROR if the command was not executed properly
+ * @retval #OS_ERR_INVALID_ID if the file descriptor passed in is invalid
  */
 int32 OS_ShellOutputToFile(const char* Cmd, uint32 filedes);
+/**@}*/
 
 #endif
