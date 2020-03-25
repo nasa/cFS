@@ -1294,6 +1294,7 @@ int32 OS_IntGetMask        (uint32 *mask);
 int32 OS_IntAck             (int32 InterruptNumber);
 /**@}*/
 
+#ifndef OSAL_OMIT_DEPRECATED
 /**
  * @defgroup OSAPIShMem OSAL Shared memory APIs
  * @deprecated Not in current implementations
@@ -1302,41 +1303,43 @@ int32 OS_IntAck             (int32 InterruptNumber);
  */
 
 /*-------------------------------------------------------------------------------------*/
-/** @brief placeholder; not currently implemented
+/** @brief DEPRECATED - platform dependent, never implemented in framework OSALs
  * @deprecated Never implemented
  */
 int32 OS_ShMemInit          (void);
 
 /*-------------------------------------------------------------------------------------*/
-/** @brief placeholder; not currently implemented
+/** @brief DEPRECATED - platform dependent, never implemented in framework OSALs
  * @deprecated Never implemented
  */
 int32 OS_ShMemCreate        (uint32 *Id, uint32 NBytes, const char* SegName);
 
 /*-------------------------------------------------------------------------------------*/
-/** @brief placeholder; not currently implemented
+/** @brief DEPRECATED - platform dependent, never implemented in framework OSALs
  * @deprecated Never implemented
  */
 int32 OS_ShMemSemTake       (uint32 Id);
 
 /*-------------------------------------------------------------------------------------*/
-/** @brief placeholder; not currently implemented
+/** @brief DEPRECATED - platform dependent, never implemented in framework OSALs
  * @deprecated Never implemented
  */
 int32 OS_ShMemSemGive       (uint32 Id);
 
 /*-------------------------------------------------------------------------------------*/
-/** @brief placeholder; not currently implemented
+/** @brief DEPRECATED - platform dependent, never implemented in framework OSALs
  * @deprecated Never implemented
  */
 int32 OS_ShMemAttach        (cpuaddr * Address, uint32 Id);
 
 /*-------------------------------------------------------------------------------------*/
-/** @brief placeholder; not currently implemented
+/** @brief DEPRECATED - platform dependent, never implemented in framework OSALs
  * @deprecated Never implemented
  */
 int32 OS_ShMemGetIdByName   (uint32 *ShMemId, const char *SegName );
 /**@}*/
+
+#endif /* OSAL_OMIT_DEPRECATED */
 
 /** @defgroup OSAPIHeap OSAL Heap APIs
  * @{

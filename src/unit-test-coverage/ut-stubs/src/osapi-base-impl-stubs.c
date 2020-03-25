@@ -123,6 +123,7 @@ void  OS_ConsoleOutput_Impl(uint32 local_id)
     UT_DEFAULT_IMPL(OS_ConsoleOutput_Impl);
 }
 
+#ifndef OSAL_OMIT_DEPRECATED
 /*
 ** Shared memory API
 */
@@ -132,6 +133,7 @@ UT_DEFAULT_STUB(OS_ShMemSemTake_Impl,(uint32 Id))
 UT_DEFAULT_STUB(OS_ShMemSemGive_Impl,(uint32 Id))
 UT_DEFAULT_STUB(OS_ShMemAttach_Impl,(uint32 * Address, uint32 Id))
 UT_DEFAULT_STUB(OS_ShMemGetIdByName_Impl,(uint32 *ShMemId, const char *SegName ))
+#endif /* OSAL_OMIT_DEPRECATED */
 
 
 /*
