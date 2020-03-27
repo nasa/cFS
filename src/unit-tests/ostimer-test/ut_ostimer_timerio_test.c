@@ -241,7 +241,12 @@ void UT_os_timerinit_test()
 **   2) Expect the returned value to be
 **        (a) OS_ERR_NAME_TOO_LONG
 ** -----------------------------------------------------
-** Test #3: Name-taken-argument condition
+** Test #3: Name equal to OS_MAX_API_NAME characters test
+**   1) Call this routine with a timer name equal to OS_MAX_API_NAME + 1 as argument
+**   2) Expect the returned value to be
+**        (a) OS_ERR_NAME_TOO_LONG
+** -----------------------------------------------------
+** Test #4: Name-taken-argument condition
 **   1) Call this routine with a valid timer name as argument
 **   2) Expect the returned value to be
 **        (a) OS_SUCCESS
@@ -249,23 +254,23 @@ void UT_os_timerinit_test()
 **   4) Expect the returned value to be
 **        (a) OS_ERR_NAME_TAKEN
 ** -----------------------------------------------------
-** Test #4: No-free-ids condition
+** Test #5: No-free-ids condition
 **   1) Call this routine N number of times, where N = OS_MAX_TIMERS+1
 **   2) Expect the returned value of the last call to be
 **        (a) OS_ERR_NO_FREE_IDS
 ** -----------------------------------------------------
-** Test #5: Invalid-argument condition
+** Test #6: Invalid-argument condition
 **   1) Call this routine with a null pointer for callback as argument
 **   2) Expect the returned value to be
 **        (a) OS_TIMER_ERR_INVALID_ARGS
 ** -----------------------------------------------------
-** Test #6: Timer-unavailable condition
+** Test #7: Timer-unavailable condition
 **   1) Set up test to cause the OS call inside this routine to fail
 **   2) Call this routine with valid arguments
 **   3) Expect the returned value to be
 **        (a) OS_TIMER_ERR_UNAVAILABLE
 ** -----------------------------------------------------
-** Test #7: Nominal condition
+** Test #8: Nominal condition
 **   1) Call this routine
 **   2) Expect the returned value to be
 **        (a) OS_SUCCESS
@@ -281,7 +286,7 @@ void UT_os_timercreate_test()
 {
     const char* testDesc;
     int32 res=0, i=0, j=0;
-    char tmpStr[UT_OS_NAME_BUFF_SIZE];
+    char  tmpStr[UT_OS_NAME_BUFF_SIZE];
 
     /*-----------------------------------------------------*/
     testDesc = "API not implemented";
@@ -319,7 +324,20 @@ void UT_os_timercreate_test()
         UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /*-----------------------------------------------------*/
-    testDesc = "#3 Name-taken";
+    testDesc = "#3 Name equal to OS_MAX_API_NAME characters test";
+
+    /* Test Load library returning an error on a too long library name */
+    memset(&tmpStr[0], 'a', OS_MAX_API_NAME);
+    tmpStr[OS_MAX_API_NAME] = '\0';
+
+    if (OS_TimerCreate(&g_timerIds[2], tmpStr, &g_clkAccuracy, &UT_os_timercallback) ==
+        OS_ERR_NAME_TOO_LONG)
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
+    else
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
+
+    /*-----------------------------------------------------*/
+    testDesc = "#4 Name-taken";
 
     if ((OS_TimerCreate(&g_timerIds[3], g_timerNames[3], &g_clkAccuracy, &UT_os_timercallback) ==
          OS_SUCCESS) &&
@@ -333,7 +351,7 @@ void UT_os_timercreate_test()
     OS_TimerDelete(g_timerIds[3]);
 
     /*-----------------------------------------------------*/
-    testDesc = "#4 No-free-IDs";
+    testDesc = "#5 No-free-IDs";
 
     for (i=0; i <= OS_MAX_TIMERS; i++)
     {
@@ -363,7 +381,7 @@ void UT_os_timercreate_test()
         OS_TimerDelete(g_timerIds[j]);
 
     /*-----------------------------------------------------*/
-    testDesc = "#5 Invalid-arg";
+    testDesc = "#6 Invalid-arg";
 
     if (OS_TimerCreate(&g_timerIds[5], g_timerNames[5], &g_clkAccuracy, NULL) ==
         OS_TIMER_ERR_INVALID_ARGS)
@@ -372,12 +390,12 @@ void UT_os_timercreate_test()
         UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /*-----------------------------------------------------*/
-    testDesc = "#6 Timer-unavailable";
+    testDesc = "#7 Timer-unavailable";
 
     UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_INFO);
 
     /*-----------------------------------------------------*/
-    testDesc = "#7 Nominal";
+    testDesc = "#8 Nominal";
 
     res = OS_TimerCreate(&g_timerIds[7], g_timerNames[7], &g_clkAccuracy, &UT_os_timercallback);
     if (res == OS_SUCCESS)

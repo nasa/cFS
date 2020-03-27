@@ -129,7 +129,7 @@ int32 OS_TimeBaseDelete         (uint32 timebase_id);
  * @return Execution status, see @ref OSReturnCodes
  * @retval #OS_SUCCESS @copybrief OS_SUCCESS
  * @retval #OS_INVALID_POINTER if timebase_id or timebase_name are NULL pointers
- * @retval #OS_ERR_NAME_TOO_LONG if the name given is to long to have been stored
+ * @retval #OS_ERR_NAME_TOO_LONG name length including null terminator greater than #OS_MAX_API_NAME
  * @retval #OS_ERR_NAME_NOT_FOUND if the name was not found in the table
  */
 int32 OS_TimeBaseGetIdByName    (uint32 *timebase_id, const char *timebase_name);
@@ -217,7 +217,7 @@ int32 OS_TimeBaseGetFreeRun     (uint32 timebase_id, uint32 *freerun_val);
  * @return Execution status, see @ref OSReturnCodes
  * @retval #OS_SUCCESS @copybrief OS_SUCCESS
  * @retval #OS_INVALID_POINTER if any parameters are NULL
- * @retval #OS_ERR_NAME_TOO_LONG if the name parameter is too long.
+ * @retval #OS_ERR_NAME_TOO_LONG name length including null terminator greater than #OS_MAX_API_NAME
  * @retval #OS_ERR_NAME_TAKEN if the name is already in use by another timer.
  * @retval #OS_ERR_NO_FREE_IDS if all of the timers are already allocated.
  * @retval #OS_TIMER_ERR_INVALID_ARGS if the callback pointer is zero.
@@ -316,7 +316,7 @@ int32 OS_TimerDelete            (uint32 timer_id);
  * @return Execution status, see @ref OSReturnCodes
  * @retval #OS_SUCCESS @copybrief OS_SUCCESS
  * @retval #OS_INVALID_POINTER if timer_id or timer_name are NULL pointers
- * @retval #OS_ERR_NAME_TOO_LONG if the name given is to long to have been stored
+ * @retval #OS_ERR_NAME_TOO_LONG name length including null terminator greater than #OS_MAX_API_NAME
  * @retval #OS_ERR_NAME_NOT_FOUND if the name was not found in the table
  */
 int32 OS_TimerGetIdByName       (uint32 *timer_id, const char *timer_name);
