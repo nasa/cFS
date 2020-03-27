@@ -10,16 +10,26 @@ addons:
       - ubuntu-toolchain-r-test
     packages:
       - cmake
+env:
+  global:
+   - SIMULATION=native
+   - ENABLE_UNIT_TESTS=true
+  matrix:
+   - BUILDTYPE=release OMIT_DEPRECATED=true
+   - BUILDTYPE=release OMIT_DEPRECATED=false
+   - BUILDTYPE=debug OMIT_DEPRECATED=true
+   - BUILDTYPE=debug OMIT_DEPRECATED=false
 
 before_install:
-  - sudo apt-get install cppcheck
+  - sudo apt-get install cppcheck doxygen lcov graphviz
 
 script:
   # Check versions
   - cppcheck --version
-  # Setup standard build
+  # Setup standard permissive build
   - cp cfe/cmake/Makefile.sample Makefile
   - cp -r cfe/cmake/sample_defs sample_defs
+  - sed -i 's/undef OSAL_DEBUG_PERMISSIVE_MODE/define OSAL_DEBUG_PERMISSIVE_MODE/g' sample_defs/default_osconfig.h
   # Static code analysis
   #   Below is intent but fails - exit code bug in cppcheck 1.82
   #   - cppcheck --force --inline-suppr --quiet --error-exitcode=1 .
@@ -36,5 +46,47 @@ script:
   - make prep
   - make
   - make install
+  # Run unit tests and generate coverage results
+  - make test
+  - make lcov
+  # Eventually check/enforce minimum coverage
+  # Make documentation
+  - make doc > make_doc_stdout.txt 2> make_doc_stderr.txt
+  - |
+    if [[ -s make_doc_stderr.txt ]]; then
+      echo "You must fix doxygen errors for \"doc\" before submitting a pull request"
+      echo ""
+      cat make_doc_stderr.txt
+      exit -1
+    fi
+  - make usersguide > make_usersguide_stdout.txt 2> make_usersguide_stderr.txt
+  - |
+    if [[ -s make_usersguide_stderr.txt ]]; then
+      echo "You must fix doxygen errors for \"usersguide\" before submitting a pull request"
+      echo ""
+      cat make_usersguide_stderr.txt
+      exit -1
+    fi
+  - make osalguide > make_osalguide_stdout.txt 2> make_osalguide_stderr.txt
+  - |
+    if [[ -s make_osalguide_stderr.txt ]]; then
+      echo "You must fix doxygen errors for \"osalguide\" before submitting a pull request"
+      echo ""
+      cat make_osalguide_stderr.txt
+      exit -1
+    fi
+  # Eventually enforce no doxygen warnings
   # List cpu1 for core binary
   - ls build/exe/cpu1/
+  # Start cFE (pipe output to file), pause, send reset command, check outputs
+  - cd build/exe/cpu1
+  - ./core-cpu1 > cFS_startup.txt &
+  - sleep 30
+  - ../host/cmdUtil --endian=LE --pktid=0x1806 --cmdcode=2 --half=0x0002
+  - |
+    if [[ -n $(grep -i "warn\|err\|fail" cFS_startup.txt) ]]; then
+            echo "Must resolve warn|err|fail in cFS startup before submitting a pull request"
+            echo ""
+            grep -i 'warn\|err\|fail' cFS_startup.txt
+            exit -1
+    fi
