@@ -42,38 +42,42 @@
    extern "C" {
 #endif
 
-#define OS_SUCCESS                     (0)
-#define OS_ERROR                       (-1)
-#define OS_INVALID_POINTER             (-2)
-#define OS_ERROR_ADDRESS_MISALIGNED    (-3)
-#define OS_ERROR_TIMEOUT               (-4)
-#define OS_INVALID_INT_NUM             (-5)
-#define OS_SEM_FAILURE                 (-6)
-#define OS_SEM_TIMEOUT                 (-7)
-#define OS_QUEUE_EMPTY                 (-8)
-#define OS_QUEUE_FULL                  (-9)
-#define OS_QUEUE_TIMEOUT               (-10)
-#define OS_QUEUE_INVALID_SIZE          (-11)
-#define OS_QUEUE_ID_ERROR              (-12)
-#define OS_ERR_NAME_TOO_LONG           (-13)
-#define OS_ERR_NO_FREE_IDS             (-14)
-#define OS_ERR_NAME_TAKEN              (-15)
-#define OS_ERR_INVALID_ID              (-16)
-#define OS_ERR_NAME_NOT_FOUND          (-17)
-#define OS_ERR_SEM_NOT_FULL            (-18)
-#define OS_ERR_INVALID_PRIORITY        (-19)
-#define OS_INVALID_SEM_VALUE           (-20)
-#define OS_ERR_FILE                    (-27)
-#define OS_ERR_NOT_IMPLEMENTED         (-28)
-#define OS_TIMER_ERR_INVALID_ARGS      (-29)
-#define OS_TIMER_ERR_TIMER_ID          (-30)
-#define OS_TIMER_ERR_UNAVAILABLE       (-31)
-#define OS_TIMER_ERR_INTERNAL          (-32)
-#define OS_ERR_OBJECT_IN_USE           (-33)
-#define OS_ERR_BAD_ADDRESS             (-34)
-#define OS_ERR_INCORRECT_OBJ_STATE     (-35)
-#define OS_ERR_INCORRECT_OBJ_TYPE      (-36)
-#define OS_ERR_STREAM_DISCONNECTED     (-37)
+/** @defgroup OSReturnCodes OSAL Return Code Defines
+ * @{
+ */
+#define OS_SUCCESS                     (0)   /**< @brief Successful execution */
+#define OS_ERROR                       (-1)  /**< @brief Failed execution */
+#define OS_INVALID_POINTER             (-2)  /**< @brief Invalid pointer */
+#define OS_ERROR_ADDRESS_MISALIGNED    (-3)  /**< @brief Address misalignment */
+#define OS_ERROR_TIMEOUT               (-4)  /**< @brief Error timeout */
+#define OS_INVALID_INT_NUM             (-5)  /**< @brief Invalid Interrupt number */
+#define OS_SEM_FAILURE                 (-6)  /**< @brief Semaphore failure */
+#define OS_SEM_TIMEOUT                 (-7)  /**< @brief Semaphore timeout */
+#define OS_QUEUE_EMPTY                 (-8)  /**< @brief Queue empty */
+#define OS_QUEUE_FULL                  (-9)  /**< @brief Queue full */
+#define OS_QUEUE_TIMEOUT               (-10) /**< @brief Queue timeout */
+#define OS_QUEUE_INVALID_SIZE          (-11) /**< @brief Queue invalid size */
+#define OS_QUEUE_ID_ERROR              (-12) /**< @brief Queue ID error */
+#define OS_ERR_NAME_TOO_LONG           (-13) /**< @brief Name too long */
+#define OS_ERR_NO_FREE_IDS             (-14) /**< @brief No free IDs */
+#define OS_ERR_NAME_TAKEN              (-15) /**< @brief Name taken */
+#define OS_ERR_INVALID_ID              (-16) /**< @brief Invalid ID */
+#define OS_ERR_NAME_NOT_FOUND          (-17) /**< @brief Name not found */
+#define OS_ERR_SEM_NOT_FULL            (-18) /**< @brief Semaphore not full */
+#define OS_ERR_INVALID_PRIORITY        (-19) /**< @brief Invalid priority */
+#define OS_INVALID_SEM_VALUE           (-20) /**< @brief Invalid semaphore value */
+#define OS_ERR_FILE                    (-27) /**< @brief File error */
+#define OS_ERR_NOT_IMPLEMENTED         (-28) /**< @brief Not implemented */
+#define OS_TIMER_ERR_INVALID_ARGS      (-29) /**< @brief Timer invalid arguments */
+#define OS_TIMER_ERR_TIMER_ID          (-30) /**< @brief Timer ID error */
+#define OS_TIMER_ERR_UNAVAILABLE       (-31) /**< @brief Timer unavailable */
+#define OS_TIMER_ERR_INTERNAL          (-32) /**< @brief Timer internal error */
+#define OS_ERR_OBJECT_IN_USE           (-33) /**< @brief Object in use */
+#define OS_ERR_BAD_ADDRESS             (-34) /**< @brief Bad address */
+#define OS_ERR_INCORRECT_OBJ_STATE     (-35) /**< @brief Incorrect object state */
+#define OS_ERR_INCORRECT_OBJ_TYPE      (-36) /**< @brief Incorrect object type */
+#define OS_ERR_STREAM_DISCONNECTED     (-37) /**< @brief Stream disconnected */
+/**@}*/
 
 /*
 ** Defines for Queue Timeout parameters

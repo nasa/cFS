@@ -18,10 +18,10 @@
 #ifndef _osapi_version_h_
 #define _osapi_version_h_
 
-#define OS_MAJOR_VERSION 5
-#define OS_MINOR_VERSION 0
-#define OS_REVISION      8
-#define OS_MISSION_REV   0
+#define OS_MAJOR_VERSION 5  /**< @brief Major version number */
+#define OS_MINOR_VERSION 0  /**< @brief Minor version number */
+#define OS_REVISION      9  /**< @brief Revision number */
+#define OS_MISSION_REV   0  /**< @brief Mission revision */
 
 /**
  * Combine the revision components into a single value that application code can check against

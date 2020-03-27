@@ -97,7 +97,7 @@
  * Define the "osalbool" type for backward compatibility.
  * This will be removed in a future release.
  */
-typedef bool                                  osalbool;
+typedef bool                                  osalbool; /**< @deprecated Use bool */
 
 /*
  * Boolean type for compatibility --
@@ -116,15 +116,15 @@ typedef bool                                  osalbool;
  */
 
 #if (!defined(_USING_RTEMS_INCLUDES_) || !defined(RTEMS_DEPRECATED_TYPES))
-  typedef osalbool boolean;
+  typedef osalbool boolean; /**< @deprecated Use bool */
 #endif
 
 #ifndef TRUE              /* Boolean true */
-#define TRUE     true
+#define TRUE     true  /**< @deprecated Use true */
 #endif
 
 #ifndef FALSE              /* Boolean false */
-#define FALSE    false
+#define FALSE    false /**< @deprecated Use false */
 #endif
 
 
