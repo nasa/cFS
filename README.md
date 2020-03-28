@@ -67,23 +67,21 @@ Copy in the default makefile and definitions:
     cp cfe/cmake/Makefile.sample Makefile
     cp -r cfe/cmake/sample_defs sample_defs
 
-If running on a standard linux build as a normal user, define OSAL_DEBUG_PERMISSIVE_MODE for best effort message queue depth and task priorities.
-
-    sed -i 's/undef OSAL_DEBUG_PERMISSIVE_MODE/define OSAL_DEBUG_PERMISSIVE_MODE/g' sample_defs/default_osconfig.h
-
 ## Build and Run
 
 The cFS Framework including sample applications will build and run on the pc-linux platform support package (should run on most Linux distributions), via the steps described in https://github.com/nasa/cFE/tree/master/cmake/README.md.  Quick-start is below:
 
-To prep, compile, and run (from cFS directory above):
+To prep, compile, and run on the host (from cFS directory above) as a normal user (best effort message queue depth and task priorities):
 
-    make prep
+    make SIMULATION=native prep
     make
     make install
     cd build/exe/cpu1/
     ./core-cpu1
 
 Should see startup messages, and CFE_ES_Main entering OPERATIONAL state.  Note the code must be executed from the build/exe/cpu1 directory to find the startup script and shared objects.
+
+Note: The steps above are for a debug, permissive mode build and includes deprecated elements.  For a release build, recommendation is `make BUILDTYPE=release OMIT_DEPRECATED=true prep`.  Unit tests can be added with `ENABLE_UNIT_TESTS=true`, run with `make test`, and coverage reported with `make lcov`.
 
 ## Send commands, receive telemetry
 

@@ -1,7 +1,6 @@
+os: linux
 dist: bionic
-sudo: required
-language:
-  - c
+language: c
 compiler:
   - gcc
 addons:
@@ -9,19 +8,40 @@ addons:
     sources:
       - ubuntu-toolchain-r-test
     packages:
-      - cmake
+      - cmake cppcheck doxygen lcov graphviz
 env:
   global:
    - SIMULATION=native
    - ENABLE_UNIT_TESTS=true
-  matrix:
+   - DEPLOY_DIR=$TRAVIS_BUILD_DIR/deploy
+  jobs:
    - BUILDTYPE=release OMIT_DEPRECATED=true
    - BUILDTYPE=release OMIT_DEPRECATED=false
    - BUILDTYPE=debug OMIT_DEPRECATED=true
    - BUILDTYPE=debug OMIT_DEPRECATED=false
 
-before_install:
-  - sudo apt-get install cppcheck doxygen lcov graphviz
+# Build the pdfs and copy to the deploy directory
+before_deploy:
+ - sudo apt-get install texlive-latex-base texlive-fonts-recommended texlive-fonts-extra texlive-latex-extra
+ - mkdir $DEPLOY_DIR
+ - cd $TRAVIS_BUILD_DIR/build/doc/users_guide/latex
+ - make > build.txt
+ - cp refman.pdf $DEPLOY_DIR/cFE_Users_Guide.pdf
+ - cd $TRAVIS_BUILD_DIR/build/doc/osalguide/latex
+ - make > build.txt
+ - cp refman.pdf $DEPLOY_DIR/OSAL_Users_Guide.pdf
+ - cd $TRAVIS_BUILD_DIR
+
+# Deploy documentation to github pages
+deploy:
+  provider: pages:git
+  cleanup: false
+  token: $GITHUB_TOKEN  # Set in personal repository, as a secure variable
+  keep_history: false
+  local_dir: $DEPLOY_DIR
+  on:
+    condition: $BUILDTYPE = release && $OMIT_DEPRECATED = false
+  edge: true
 
 script:
   # Check versions
@@ -29,7 +49,6 @@ script:
   # Setup standard permissive build
   - cp cfe/cmake/Makefile.sample Makefile
   - cp -r cfe/cmake/sample_defs sample_defs
-  - sed -i 's/undef OSAL_DEBUG_PERMISSIVE_MODE/define OSAL_DEBUG_PERMISSIVE_MODE/g' sample_defs/default_osconfig.h
   # Static code analysis
   #   Below is intent but fails - exit code bug in cppcheck 1.82
   #   - cppcheck --force --inline-suppr --quiet --error-exitcode=1 .
@@ -59,12 +78,20 @@ script:
       cat make_doc_stderr.txt
       exit -1
     fi
+  # Eventually enforce no doxygen warnings
   - make usersguide > make_usersguide_stdout.txt 2> make_usersguide_stderr.txt
   - |
     if [[ -s make_usersguide_stderr.txt ]]; then
       echo "You must fix doxygen errors for \"usersguide\" before submitting a pull request"
       echo ""
       cat make_usersguide_stderr.txt
+      exit -1
+    fi
+  - |
+    if [[ -s build/doc/warnings.log ]]; then
+      echo "You must fix doxygen warnings for \"usersguide\" before submitting a pull request"
+      echo ""
+      cat build/doc/warnings.log
       exit -1
     fi
   - make osalguide > make_osalguide_stdout.txt 2> make_osalguide_stderr.txt
@@ -75,7 +102,13 @@ script:
       cat make_osalguide_stderr.txt
       exit -1
     fi
-  # Eventually enforce no doxygen warnings
+  - |
+    if [[ -s build/doc/warnings.log ]]; then
+      echo "You must fix doxygen warnings for \"osalguide\" before submitting a pull request"
+      echo ""
+      cat build/doc/warnings.log
+      exit -1
+    fi
   # List cpu1 for core binary
   - ls build/exe/cpu1/
   # Start cFE (pipe output to file), pause, send reset command, check outputs
