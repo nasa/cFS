@@ -157,7 +157,7 @@ static const struct option longOpts[] = {
 **  Return:
 **    (none)
 */
-int main(int argc, char *argv[])
+void OS_Application_Startup(void)
 {
    uint32             reset_type;
    uint32             reset_subtype;
@@ -166,6 +166,8 @@ int main(int argc, char *argv[])
    int                opt = 0;
    int                longIndex = 0;
    int32              Status;
+   char * const *     argv;
+   int                argc;
 
    /*
    ** Initialize the CommandData struct 
@@ -176,6 +178,8 @@ int main(int argc, char *argv[])
    ** Process the arguments with getopt_long(), then 
    ** start the cFE
    */
+   argc = OS_BSP_GetArgC();
+   argv = OS_BSP_GetArgV();
    opt = getopt_long( argc, argv, optString, longOpts, &longIndex );
    while( opt != -1 ) 
    {
@@ -356,6 +360,10 @@ int main(int argc, char *argv[])
        CFE_PSP_SetupLocal1Hz();
    }
 
+}
+
+void OS_Application_Run(void)
+{
    /*
    ** Let the main thread sleep.
    **
@@ -377,9 +385,6 @@ int main(int argc, char *argv[])
    OS_printf("     with a Poweron Reset ( --reset PO ). \n");
 
    OS_DeleteAllObjects();
-
-
-   return(0);
 }
 
 /******************************************************************************
