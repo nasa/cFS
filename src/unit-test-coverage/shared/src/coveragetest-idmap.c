@@ -72,52 +72,6 @@ void Test_OS_ObjectIdInit(void)
     UtAssert_True(actual == expected, "OS_ObjectIdInit() (%ld) == %ld", (long)actual, (long)expected);
 }
 
-void Test_OS_ObjectIdMapUnmap(void)
-{
-    /*
-     * Test Case For:
-     * int32 OS_Id_Map(uint32 idtype, uint32 idvalue, uint32 *result);
-     */
-    uint32 objid = 0xFFFFFFFF;
-    int32 expected = OS_SUCCESS;
-    int32 actual   = OS_SUCCESS;
-    uint32 idtype = 0;
-    uint32 idvalue_out = 0;
-
-    for (idtype = 0; idtype < OS_OBJECT_TYPE_USER; ++idtype)
-    {
-        if (idtype == OS_OBJECT_TYPE_UNDEFINED)
-        {
-            expected = OS_ERR_INVALID_ID;
-        }
-        else
-        {
-            expected = OS_SUCCESS;
-        }
-
-        idvalue_out = 0;
-        objid = 0;
-        actual = OS_ObjectIdMap(idtype, 1, &objid);
-
-        /* Verify Outputs */
-        UtAssert_True(actual == expected, "OS_Id_Map() (%ld) == %ld", (long)actual, (long)expected);
-        UtAssert_True(objid != 0, "objid (%lu) != 0", (unsigned long)objid);
-
-        if (idtype == OS_OBJECT_TYPE_UNDEFINED)
-        {
-            objid = 0xFFFFFFFF;
-        }
-
-        actual = OS_ObjectIdUnMap(objid, idtype, &idvalue_out);
-
-        UtAssert_True(actual == expected, "OS_Id_UnMap() (%ld) == %ld", (long)actual, (long)expected);
-        if (expected == OS_SUCCESS)
-        {
-            UtAssert_True(idvalue_out == 1, "idvalue_out (%lu) == 1", (unsigned long)idvalue_out);
-        }
-    }
-}
-
 void Test_OS_ObjectIdConvertLock(void)
 {
     /*
@@ -280,7 +234,7 @@ void Test_OS_ObjectIdToArrayIndex(void)
     int32 actual   = ~OS_SUCCESS;
 
     /* need to get a "valid" objid for the nominal case */
-    OS_ObjectIdMap(OS_OBJECT_TYPE_OS_TASK, 1, &objid);
+    OS_ObjectIdCompose_Impl(OS_OBJECT_TYPE_OS_TASK, 1, &objid);
     actual = OS_ObjectIdToArrayIndex(OS_OBJECT_TYPE_OS_TASK, objid, &local_idx);
 
     /* Verify Outputs */
@@ -365,7 +319,7 @@ void Test_OS_ObjectIdGetById(void)
     /* set "true" for the remainder of tests */
     OS_SharedGlobalVars.Initialized = true;
 
-    OS_ObjectIdMap(OS_OBJECT_TYPE_OS_TASK, 1, &refobjid);
+    OS_ObjectIdCompose_Impl(OS_OBJECT_TYPE_OS_TASK, 1, &refobjid);
     OS_ObjectIdToArrayIndex(OS_OBJECT_TYPE_OS_TASK, refobjid, &local_idx);
     OS_global_task_table[local_idx].active_id = refobjid;
     expected = OS_SUCCESS;
@@ -606,9 +560,9 @@ void Test_OS_ConvertToArrayIndex(void)
     UtAssert_True(local_idx1 == local_idx2, "local_idx1 (%lu) == local_idx2 (%lu)",
             (unsigned long)local_idx1, (unsigned long)local_idx2);
 
-    expected = OS_ERR_INCORRECT_OBJ_TYPE;
+    expected = OS_ERR_INVALID_ID;
     actual = OS_ConvertToArrayIndex(0, &local_idx2);
-    UtAssert_True(actual == expected, "OS_ConvertToArrayIndex() (%ld) == OS_ERR_INCORRECT_OBJ_TYPE", (long)actual);
+    UtAssert_True(actual == expected, "OS_ConvertToArrayIndex() (%ld) == OS_ERR_INVALID_ID", (long)actual);
 }
 
 void Test_OS_ForEachObject(void)
@@ -620,7 +574,10 @@ void Test_OS_ForEachObject(void)
     uint32 objtype = OS_OBJECT_TYPE_UNDEFINED;
     OS_common_record_t *rptr = NULL;
     uint32 local_idx = 0xFFFFFFFF;
+    uint32 self_id;
     Test_OS_ObjTypeCount_t Count;
+
+    self_id = OS_TaskGetId();
 
     memset(&Count, 0, sizeof(Count));
 
@@ -638,6 +595,47 @@ void Test_OS_ForEachObject(void)
     UtAssert_True(Count.MutexCount == 1, "OS_ForEachObject() MutexCount (%lu) == 1", (unsigned long)Count.MutexCount);
     UtAssert_True(Count.OtherCount == 9, "OS_ForEachObject() OtherCount (%lu) == 9", (unsigned long)Count.OtherCount);
 
+    OS_ForEachObjectOfType(OS_OBJECT_TYPE_OS_QUEUE, self_id, ObjTypeCounter, &Count);
+    UtAssert_True(Count.TaskCount == 1, "OS_ForEachObjectOfType(), creator %08lx TaskCount (%lu) == 1", (unsigned long)self_id, (unsigned long)Count.TaskCount);
+    UtAssert_True(Count.QueueCount == 2, "OS_ForEachObjectOfType() QueueCount (%lu) == 2", (unsigned long)Count.QueueCount);
+    UtAssert_True(Count.MutexCount == 1, "OS_ForEachObjectOfType() MutexCount (%lu) == 1", (unsigned long)Count.MutexCount);
+
+    OS_ForEachObjectOfType(OS_OBJECT_TYPE_OS_QUEUE, self_id ^ 1, ObjTypeCounter, &Count);
+    UtAssert_True(Count.TaskCount == 1, "OS_ForEachObjectOfType(), non-matching creator TaskCount (%lu) == 1", (unsigned long)Count.TaskCount);
+    UtAssert_True(Count.QueueCount == 2, "OS_ForEachObjectOfType() QueueCount (%lu) == 2", (unsigned long)Count.QueueCount);
+    UtAssert_True(Count.MutexCount == 1, "OS_ForEachObjectOfType() MutexCount (%lu) == 1", (unsigned long)Count.MutexCount);
+}
+
+void Test_OS_GetResourceName(void)
+{
+    /*
+     * Test Case For:
+     * int32 OS_GetResourceName(uint32 id, char *buffer, uint32 buffer_size)
+     */
+    uint32 local_idx = 0xFFFFFFFF;
+    OS_common_record_t *rptr = NULL;
+    char NameBuffer[OS_MAX_API_NAME];
+    int32 expected;
+    int32 actual;
+
+    /*
+     * Set up for the OS_GetResourceName function to return success
+     */
+    /* Need a valid ID to work with */
+    OS_ObjectIdFindNext(OS_OBJECT_TYPE_OS_TASK, &local_idx, &rptr);
+    rptr->name_entry = "UTTask";
+    expected = OS_SUCCESS;
+    actual = OS_GetResourceName(rptr->active_id, NameBuffer, sizeof(NameBuffer));
+    UtAssert_True(actual == expected, "OS_GetResourceName() (%ld) == OS_SUCCESS", (long)actual);
+    UtAssert_True(strcmp(NameBuffer, "UTTask") == 0, "NameBuffer (%s) == UTTask", NameBuffer);
+
+    expected = OS_ERR_NAME_TOO_LONG;
+    actual = OS_GetResourceName(rptr->active_id, NameBuffer, 2);
+    UtAssert_True(actual == expected, "OS_GetResourceName() (%ld) == OS_ERR_NAME_TOO_LONG", (long)actual);
+
+    expected = OS_INVALID_POINTER;
+    actual = OS_GetResourceName(rptr->active_id, NULL, 0);
+    UtAssert_True(actual == expected, "OS_GetResourceName() (%ld) == OS_INVALID_POINTER", (long)actual);
 }
 
 /* Osapi_Test_Setup
@@ -677,7 +675,6 @@ void Osapi_Test_Teardown(void)
 void UtTest_Setup(void)
 {
     ADD_TEST(OS_ObjectIdInit);
-    ADD_TEST(OS_ObjectIdMapUnmap);
     ADD_TEST(OS_ObjectIdFindNext);
     ADD_TEST(OS_ObjectIdToArrayIndex);
     ADD_TEST(OS_ObjectIdFindByName);
@@ -689,6 +686,7 @@ void UtTest_Setup(void)
     ADD_TEST(OS_ForEachObject);
     ADD_TEST(OS_GetMaxForObjectType);
     ADD_TEST(OS_GetBaseForObjectType);
+    ADD_TEST(OS_GetResourceName);
 }
 
 

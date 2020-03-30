@@ -130,6 +130,38 @@ int32 OS_Unlock_Global_Impl(uint32 idtype);
  */
 
 /*----------------------------------------------------------------
+   Function: OS_ObjectIdToSerialNumber
+
+    Purpose: Obtain the serial number component of a generic OSAL Object ID
+ ------------------------------------------------------------------*/
+static inline uint32 OS_ObjectIdToSerialNumber_Impl(uint32 id)
+{
+    return (id & OS_OBJECT_INDEX_MASK);
+}
+
+/*----------------------------------------------------------------
+   Function: OS_ObjectIdToType
+
+    Purpose: Obtain the object type component of a generic OSAL Object ID
+ ------------------------------------------------------------------*/
+static inline uint32 OS_ObjectIdToType_Impl(uint32 id)
+{
+    return (id >> OS_OBJECT_TYPE_SHIFT);
+}
+
+
+/*----------------------------------------------------------------
+   Function: OS_ObjectIdCompose
+
+    Purpose: Convert an object serial number and resource type into an external 32-bit OSAL ID
+ ------------------------------------------------------------------*/
+static inline void OS_ObjectIdCompose_Impl(uint32 idtype, uint32 idserial, uint32 *result)
+{
+    *result = (idtype << OS_OBJECT_TYPE_SHIFT) | idserial;
+}
+
+
+/*----------------------------------------------------------------
    Function: OS_GetMaxForObjectType
 
     Purpose: Obtains the maximum number of objects for "idtype" in the global table
