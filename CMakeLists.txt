@@ -101,6 +101,9 @@ add_subdirectory(ut_assert)
 # The Implementation-Specific BSP subdirectory should define
 # an OBJECT target named "osal_${OSAL_SYSTEM_BSPTYPE}_impl"
 add_subdirectory(src/bsp/${OSAL_SYSTEM_BSPTYPE} ${OSAL_SYSTEM_BSPTYPE}_impl)
+target_include_directories(osal_${OSAL_SYSTEM_BSPTYPE}_impl PRIVATE
+    ${OSAL_SOURCE_DIR}/src/bsp/shared
+)
 
 # Propagate the BSP-specific compile definitions and include directories
 # Apply these to the directory-scope COMPILE_DEFINITIONS  and INCLUDE_DIRECTORIES
@@ -127,6 +130,10 @@ endif (OSAL_BSP_INCLUDE_DIRECTORIES)
 
 # Define the external "osal_bsp" static library target
 add_library(osal_bsp STATIC
+	src/bsp/shared/osapi-bsp.c
+	src/bsp/shared/bsp_default_app_run.c
+	src/bsp/shared/bsp_default_app_startup.c
+	src/bsp/shared/bsp_default_symtab.c
     $<TARGET_OBJECTS:osal_${OSAL_SYSTEM_BSPTYPE}_impl>
 )
 
@@ -147,6 +154,7 @@ add_subdirectory(src/os/${OSAL_SYSTEM_OSTYPE} ${OSAL_SYSTEM_OSTYPE}_impl)
 # be referenced outside the OSAL code
 target_include_directories(osal_${OSAL_SYSTEM_OSTYPE}_impl PRIVATE
     ${OSAL_SOURCE_DIR}/src/os/shared
+    ${OSAL_SOURCE_DIR}/src/bsp/shared
 )
 
 # Define the external "osal" static library target
@@ -181,6 +189,9 @@ add_library(osal STATIC
 target_include_directories(osal INTERFACE
     ${OSAL_API_INCLUDE_DIRECTORIES}
 )
+
+# Link the OSAL with the BSP
+target_link_libraries(osal osal_bsp)
 
 # propagate the BSP-specific compile flags to OSAL external library target, if defined
 if (OSAL_BSP_COMPILE_DEFINITIONS)
@@ -218,7 +229,7 @@ if (ENABLE_UNIT_TESTS)
     function(add_osal_ut_exe TGTNAME)
 
       add_executable(${TGTNAME} ${ARGN})
-      target_link_libraries(${TGTNAME} ut_assert ut_bsp osal)
+      target_link_libraries(${TGTNAME} ut_assert osal)
       add_test(${TGTNAME} ${TGTNAME})
       foreach(TGT ${INSTALL_TARGET_LIST})
         install(TARGETS ${TGTNAME} DESTINATION ${TGT}/${UT_INSTALL_SUBDIR})

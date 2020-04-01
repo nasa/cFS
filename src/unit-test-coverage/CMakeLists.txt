@@ -104,7 +104,7 @@ include_directories(${CMAKE_SOURCE_DIR}/ut-stubs/inc)
 # This removes the need to use the "real" CFE PSP and also provides the necessary 
 # UT output functions that UT assert may rely upon to report test messages 
 # This is the OSAL BSP but with the _UNIT_TEST_ macro defined so it may have UT-specific features
-aux_source_directory(${OSAL_SOURCE_DIR}/src/bsp/${OSALCOVERAGE_HOST_BSPTYPE}/ut-src BSPFILES)
+aux_source_directory(${OSAL_SOURCE_DIR}/src/bsp/${OSALCOVERAGE_HOST_BSPTYPE}/src BSPFILES)
 add_library(ut_bsp STATIC ${BSPFILES})    
 
 # The "utassert" library is the core GSFC-provided unit test library

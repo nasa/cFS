@@ -6,9 +6,9 @@
 
 
 
-# Linux system libraries required for the final link of applications using OSAL 
-target_link_libraries(osal 
-    pthread dl rt 
+# Linux system libraries required for the final link of applications using OSAL
+target_link_libraries(osal_bsp
+    pthread dl rt
 )
 
 # C flags that should be used when (re-) compiling code for unit testing.

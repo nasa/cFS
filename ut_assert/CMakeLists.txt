@@ -23,6 +23,7 @@ project(UT_ASSERT C)
 
 add_library(ut_assert STATIC EXCLUDE_FROM_ALL
     src/utassert.c
+    src/utbsp.c
     src/utlist.c
     src/utstubs.c
     src/uttest.c
@@ -32,10 +33,13 @@ add_library(ut_assert STATIC EXCLUDE_FROM_ALL
 target_include_directories(ut_assert PUBLIC
     "${CMAKE_CURRENT_SOURCE_DIR}/inc"
 )
+target_include_directories(ut_assert PRIVATE
+    "${OSAL_SOURCE_DIR}/src/bsp/shared"
+)
 target_compile_definitions(ut_assert PUBLIC
     "_UNIT_TEST_"
 )
-target_link_libraries(ut_assert ut_bsp)
+target_link_libraries(ut_assert osal_bsp)
 
 
 

@@ -8,9 +8,10 @@
 # enough to be applied to non-PC systems running embedded Linux, such
 # as Raspberry Pi, BeagleBoard, Zync, or custom hardware.
 
-add_library(osal_pc-linux_impl OBJECT 
+add_library(osal_pc-linux_impl OBJECT
 	src/bsp_start.c
 	src/bsp_voltab.c
+	src/bsp_console.c
 )
 
 # OSAL needs conformance to at least POSIX.1c (aka POSIX 1995) - this includes all the
@@ -23,18 +24,6 @@ add_library(osal_pc-linux_impl OBJECT
 #
 # See http://www.gnu.org/software/libc/manual/html_node/Feature-Test-Macros.html
 # for a more detailed description of the feature test macros and available values
-target_compile_definitions(osal_pc-linux_impl PUBLIC 
+target_compile_definitions(osal_pc-linux_impl PUBLIC
     _XOPEN_SOURCE=600
 )
-
-add_library(ut_bsp STATIC EXCLUDE_FROM_ALL
-	ut-src/bsp_ut.c
-	ut-src/bsp_ut_voltab.c
-)
-target_include_directories(ut_bsp PRIVATE 
-	${UT_ASSERT_SOURCE_DIR}/inc
-)
-target_compile_definitions(ut_bsp PUBLIC 
-    _XOPEN_SOURCE=600
-)
-

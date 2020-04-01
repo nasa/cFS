@@ -4,9 +4,10 @@
 #
 ######################################################################
 
-add_library(osal_mcp750-vxworks_impl OBJECT 
+add_library(osal_mcp750-vxworks_impl OBJECT
 	src/bsp_start.c
 	src/bsp_voltab.c
+	src/bsp_console.c
 )
 
 target_include_directories(osal_mcp750-vxworks_impl PUBLIC
@@ -21,11 +22,5 @@ target_compile_definitions(osal_mcp750-vxworks_impl PUBLIC
     "__PPC__"
     "MCP750"
 )
-
-add_library(ut_bsp STATIC EXCLUDE_FROM_ALL
-	ut-src/bsp_ut.c
-	ut-src/bsp_ut_voltab.c
-)
-target_include_directories(ut_bsp PRIVATE ${UT_ASSERT_SOURCE_DIR}/inc)
 
 
