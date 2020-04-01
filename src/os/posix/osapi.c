@@ -31,7 +31,7 @@
  * Defines
  */
 #ifndef PTHREAD_STACK_MIN
-#define PTHREAD_STACK_MIN 8092
+#define PTHREAD_STACK_MIN 8*1024
 #endif
 
 /*
