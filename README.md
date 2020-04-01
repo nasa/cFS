@@ -19,7 +19,8 @@ This distribution contains:
 
 Version Notes:
 ==============
-
+- 5.0.10: DEVELOPMENT
+  - Minor updates (see https://github.com/nasa/osal/pull/401)
 - 5.0.9: DEVELOPMENT
   - Documentation updates (see https://github.com/nasa/osal/pull/375)
 - 5.0.8: DEVELOPMENT
