@@ -19,7 +19,7 @@
 */
 
 /**
- * \file cfe_psp_config.c
+ * \file cfe_psp_configdata.c
  *
  *  Created on: Dec 31, 2014
  *      Author: joseph.p.hickey@nasa.gov
@@ -35,7 +35,7 @@
  *
  * Because this is compiled within the context of the PSP code,
  * this can access the internal PSP macros directly.  External
- * code such as CFE core or apps would not be able to #include the
+ * code such as CFE core or apps would not be able to \#include the
  * PSP cfe_psp_config.h or psp_version.h files
  */
 Target_PspConfigData GLOBAL_PSP_CONFIGDATA =
@@ -59,4 +59,3 @@ Target_PspConfigData GLOBAL_PSP_CONFIGDATA =
             .MissionRev = CFE_PSP_IMPL_MISSION_REV
       }
 };
-
