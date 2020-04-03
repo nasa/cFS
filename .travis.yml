@@ -34,7 +34,8 @@ before_deploy:
 
 # Deploy documentation to github pages
 deploy:
-  provider: pages:git
+  provider: pages
+  strategy: git
   cleanup: false
   token: $GITHUB_TOKEN  # Set in personal repository, as a secure variable
   keep_history: false
