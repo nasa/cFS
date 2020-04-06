@@ -147,17 +147,6 @@ void OS_ApplicationExit_Impl(int32 Status)
 }
 
 /*
- * Interrupt API low-level handlers
- */
-UT_DEFAULT_STUB(OS_IntAttachHandler_Impl,(uint32 InterruptNumber, osal_task_entry InterruptHandler, int32 parameter))
-UT_DEFAULT_STUB(OS_IntUnlock_Impl,(int32 IntLevel))
-UT_DEFAULT_STUB(OS_IntLock_Impl,( void ))
-UT_DEFAULT_STUB(OS_IntEnable_Impl,(int32 Level))
-UT_DEFAULT_STUB(OS_IntDisable_Impl,(int32 Level))
-UT_DEFAULT_STUB(OS_IntSetMask_Impl,( uint32 MaskSetting ))
-UT_DEFAULT_STUB(OS_IntGetMask_Impl,( uint32 * MaskSettingPtr ))
-
-/*
  * Heap API low-level handler
  */
 UT_DEFAULT_STUB(OS_HeapGetInfo_Impl,(OS_heap_prop_t *heap_prop))

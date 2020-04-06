@@ -1180,13 +1180,18 @@ int32 OS_FPUExcSetMask         (uint32 mask);
 int32 OS_FPUExcGetMask         (uint32 *mask);
 /**@}*/
 
+#ifndef OSAL_OMIT_DEPRECATED
+
 /** @defgroup OSAPIInterrupt OSAL Interrupt APIs
  * @{
+ * @deprecated Platform dependencies
  */
 
 /*-------------------------------------------------------------------------------------*/
 /**
- * @brief Associate an interrupt number to a specified handler routine
+ * @brief DEPRECATED; Associate an interrupt number to a specified handler routine
+ *
+ * @deprecated platform dependencies, removing from OSAL
  *
  * The call associates a specified C routine to a specified interrupt
  * number. Upon occurring of the InterruptNumber, the InerruptHandler
@@ -1205,7 +1210,9 @@ int32 OS_IntAttachHandler  (uint32 InterruptNumber, osal_task_entry InterruptHan
 
 /*-------------------------------------------------------------------------------------*/
 /**
- * @brief Enable interrupts
+ * @brief DEPRECATED; Enable interrupts
+ *
+ * @deprecated platform dependencies, removing from OSAL
  *
  * @param[in] IntLevel value from previous call to OS_IntLock()
  *
@@ -1217,7 +1224,9 @@ int32 OS_IntUnlock         (int32 IntLevel);
 
 /*-------------------------------------------------------------------------------------*/
 /**
- * @brief Disable interrupts
+ * @brief DEPRECATED; Disable interrupts
+ *
+ * @deprecated platform dependencies, removing from OSAL
  *
  * @return An key value to be passed to OS_IntUnlock() to restore interrupts or error
  *         status, see @ref OSReturnCodes
@@ -1228,7 +1237,9 @@ int32 OS_IntLock           (void);
 
 /*-------------------------------------------------------------------------------------*/
 /**
- * @brief Enables interrupts through Level
+ * @brief DEPRECATED; Enables interrupts through Level
+ *
+ * @deprecated platform dependencies, removing from OSAL
  *
  * @param[in] Level  the interrupts to enable
  *
@@ -1240,7 +1251,9 @@ int32 OS_IntEnable         (int32 Level);
 
 /*-------------------------------------------------------------------------------------*/
 /**
- * @brief Disable interrupts through Level
+ * @brief DEPRECATED; Disable interrupts through Level
+ *
+ * @deprecated platform dependencies, removing from OSAL
  *
  * @param[in] Level  the interrupts to disable
  *
@@ -1252,7 +1265,9 @@ int32 OS_IntDisable        (int32 Level);
 
 /*-------------------------------------------------------------------------------------*/
 /**
- * @brief Set the CPU interrupt mask register
+ * @brief DEPRECATED; Set the CPU interrupt mask register
+ *
+ * @deprecated platform dependencies, removing from OSAL
  *
  * @note The interrupt bits are architecture-specific.
  *
@@ -1266,7 +1281,9 @@ int32 OS_IntSetMask        (uint32 mask);
 
 /*-------------------------------------------------------------------------------------*/
 /**
- * @brief Get the CPU interrupt mask register
+ * @brief DEPRECATED; Get the CPU interrupt mask register
+ *
+ * @deprecated platform dependencies, removing from OSAL
  *
  * @note The interrupt bits are architecture-specific.
  *
@@ -1280,7 +1297,9 @@ int32 OS_IntGetMask        (uint32 *mask);
 
 /*-------------------------------------------------------------------------------------*/
 /**
- * @brief Acknowledge the corresponding interrupt number.
+ * @brief DEPRECATED; Acknowledge the corresponding interrupt number.
+ *
+ * @deprecated platform dependencies, removing from OSAL
  *
  * @note: placeholder; not currently implemented in sample implementations
  *
@@ -1294,7 +1313,7 @@ int32 OS_IntGetMask        (uint32 *mask);
 int32 OS_IntAck             (int32 InterruptNumber);
 /**@}*/
 
-#ifndef OSAL_OMIT_DEPRECATED
+
 /**
  * @defgroup OSAPIShMem OSAL Shared memory APIs
  * @deprecated Not in current implementations

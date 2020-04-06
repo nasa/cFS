@@ -32,6 +32,8 @@
 #include "common_types.h"
 #include "os-impl.h"
 
+#ifndef OSAL_OMIT_DEPRECATED /* Remove file and remove from build when deleted */
+                             /* Optionally remove from sources once source selection is in cmake options */
                         
 /*----------------------------------------------------------------
  *
@@ -135,3 +137,4 @@ int32 OS_IntGetMask ( uint32 * MaskSettingPtr )
     return OS_IntGetMask_Impl(MaskSettingPtr);
 } /* end OS_IntGetMask */
 
+#endif /* OSAL_OMIT_DEPRECATED */

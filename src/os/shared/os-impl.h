@@ -1786,6 +1786,7 @@ int32 OS_SocketAddrGetPort_Impl(uint16 *PortNum, const OS_SockAddr_t *Addr);
  ------------------------------------------------------------------*/
 int32 OS_SocketAddrSetPort_Impl(OS_SockAddr_t *Addr, uint16 PortNum);
 
+#ifndef OSAL_OMIT_DEPRECATED
 
 /****************************************************************************************
                  INTERRUPT API LOW-LEVEL IMPLEMENTATION FUNCTIONS
@@ -1865,6 +1866,8 @@ int32 OS_IntSetMask_Impl ( uint32 MaskSetting );
     Returns: OS_SUCCESS on success, or relevant error code
  ------------------------------------------------------------------*/
 int32 OS_IntGetMask_Impl ( uint32 * MaskSettingPtr );
+
+#endif /* OSAL_OMIT_DEPRECATED */
 
 /****************************************************************************************
             FLOATING POINT CONFIG/EXCEPTION API LOW-LEVEL IMPLEMENTATION FUNCTIONS
