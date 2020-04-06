@@ -97,6 +97,11 @@ void Test_OS_API_Init(void)
     OS_SharedGlobalVars.Initialized = false;
     OSAPI_TEST_FUNCTION_RC(OS_API_Init(), OS_SUCCESS);
 
+    Test_MicroSecPerTick = 1000;
+    Test_TicksPerSecond = 1001;
+    OS_SharedGlobalVars.Initialized = false;
+    OSAPI_TEST_FUNCTION_RC(OS_API_Init(), OS_SUCCESS);
+
     /* Second call should return ERROR */
     OSAPI_TEST_FUNCTION_RC(OS_API_Init(), OS_ERROR);
 
