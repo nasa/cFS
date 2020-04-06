@@ -575,13 +575,7 @@ int32 OS_rmfs (const char *devname)
     }
     else
     {
-        /*
-         * Although OS_ERR_NAME_NOT_FOUND is more descriptive and a
-         * better indicator of the real failure, this preserves
-         * backward compatibility with unit tests that
-         * are checking specifically for the "OS_FS_ERROR" code.
-         */
-        return_code = OS_FS_ERROR;
+        return_code = OS_ERR_NAME_NOT_FOUND;
     }
 
     return return_code;
@@ -692,13 +686,7 @@ int32 OS_mount (const char *devname, const char* mountpoint)
 
     if (return_code != OS_SUCCESS)
     {
-        /*
-         * Although OS_ERR_NAME_NOT_FOUND is more descriptive and a
-         * better indicator of the real failure, this preserves
-         * backward compatibility with unit tests that
-         * are checking specifically for the "OS_FS_ERROR" code.
-         */
-        return_code = OS_FS_ERROR;
+        return_code = OS_ERR_NAME_NOT_FOUND;
     }
 
     return return_code;
@@ -777,13 +765,7 @@ int32 OS_unmount (const char *mountpoint)
 
     if (return_code != OS_SUCCESS)
     {
-        /*
-         * Although OS_ERR_NAME_NOT_FOUND is more descriptive and a
-         * better indicator of the real failure, this preserves
-         * backward compatibility with unit tests that
-         * are checking specifically for the "OS_FS_ERROR" code.
-         */
-        return_code = OS_FS_ERROR;
+        return_code = OS_ERR_NAME_NOT_FOUND;
     }
 
     return return_code;
@@ -991,8 +973,7 @@ int32 OS_FS_GetPhysDriveName(char * PhysDriveName, const char * MountPoint)
     }
     else
     {
-        /* preserves historical (vague) error code */
-        return_code = OS_FS_ERROR;
+        return_code = OS_ERR_NAME_NOT_FOUND;
     }
 
 
