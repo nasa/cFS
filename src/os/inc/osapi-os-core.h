@@ -139,6 +139,21 @@ typedef struct
 } OS_FdSet;
 
 /**
+ * @brief For the OS_SelectSingle() function's in/out StateFlags parameter,
+ * the state(s) of the stream and the result of the select is a combination
+ * of one or more of these states.
+ *
+ * @sa OS_SelectSingle()
+ */
+typedef enum
+{
+    OS_STREAM_STATE_BOUND      = 0x01, /**< @brief whether the stream is bound     */
+    OS_STREAM_STATE_CONNECTED  = 0x02, /**< @brief whether the stream is connected */
+    OS_STREAM_STATE_READABLE   = 0x04, /**< @brief whether the stream is readable  */
+    OS_STREAM_STATE_WRITABLE   = 0x08, /**< @brief whether the stream is writable  */
+} OS_StreamState_t;
+
+/**
  * @brief For the @ref OS_GetErrorName() function, to ensure
  * everyone is making an array of the same length.
  *
@@ -1409,9 +1424,9 @@ int32 OS_SelectMultiple(OS_FdSet *ReadSet, OS_FdSet *WriteSet, int32 msecs);
  *
  * This function can be used to wait for a single OSAL stream ID
  * to become readable or writable.   On entry, the "StateFlags"
- * parameter should be set to the desired state (readble or writable)
- * and upon return the flags will be set to the state actually
- * detected.
+ * parameter should be set to the desired state (OS_STREAM_STATE_READABLE
+ * and/or OS_STREAM_STATE_WRITABLE) and upon return the flags
+ * will be set to the state actually detected.
  *
  * As this operates on a single ID, the filehandle is protected
  * during this call, such that another thread accessing the same

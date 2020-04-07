@@ -59,6 +59,8 @@ int32 OS_SelectSingle(uint32 objid, uint32 *StateFlags, int32 msecs)
    uint32 local_id;
    OS_common_record_t *record;
 
+    if(StateFlags == NULL) return OS_INVALID_POINTER;
+
    return_code = OS_ObjectIdGetById(OS_LOCK_MODE_REFCOUNT, OS_OBJECT_TYPE_OS_STREAM, objid, &local_id, &record);
    if (return_code == OS_SUCCESS)
    {
@@ -102,6 +104,8 @@ int32 OS_SelectMultiple(OS_FdSet *ReadSet, OS_FdSet *WriteSet, int32 msecs)
  *-----------------------------------------------------------------*/
 int32 OS_SelectFdZero(OS_FdSet *Set)
 {
+    if (Set == NULL) return OS_INVALID_POINTER;
+
    memset(Set,0,sizeof(OS_FdSet));
    return OS_SUCCESS;
 } /* end OS_SelectFdZero */
@@ -118,6 +122,8 @@ int32 OS_SelectFdAdd(OS_FdSet *Set, uint32 objid)
 {
    int32 return_code;
    uint32 local_id;
+
+    if(Set == NULL) return OS_INVALID_POINTER;
 
    return_code = OS_ObjectIdToArrayIndex(OS_OBJECT_TYPE_OS_STREAM, objid, &local_id);
    if (return_code == OS_SUCCESS)
@@ -141,6 +147,8 @@ int32 OS_SelectFdClear(OS_FdSet *Set, uint32 objid)
    int32 return_code;
    uint32 local_id;
 
+    if(Set == NULL) return OS_INVALID_POINTER;
+
    return_code = OS_ObjectIdToArrayIndex(OS_OBJECT_TYPE_OS_STREAM, objid, &local_id);
    if (return_code == OS_SUCCESS)
    {
@@ -162,6 +170,8 @@ bool OS_SelectFdIsSet(OS_FdSet *Set, uint32 objid)
 {
    int32 return_code;
    uint32 local_id;
+
+    if(Set == NULL) return false;
 
    return_code = OS_ObjectIdToArrayIndex(OS_OBJECT_TYPE_OS_STREAM, objid, &local_id);
    if (return_code != OS_SUCCESS)

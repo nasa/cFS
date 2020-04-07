@@ -205,6 +205,10 @@ void UtTest_Setup(void)
     UtTest_Add(UT_os_queue_get_id_by_name_test, NULL, NULL, "OS_QueueGetIdByName");
     UtTest_Add(UT_os_queue_get_info_test, NULL, NULL, "OS_QueueGetInfo");
 
+    UtTest_Add(UT_os_select_fd_test, NULL, NULL, "OS_SelectFd");
+    UtTest_Add(UT_os_select_single_test, NULL, NULL, "OS_SelectSingle");
+    UtTest_Add(UT_os_select_multi_test, NULL, NULL, "OS_SelectMultiple");
+
     UtTest_Add(
             NULL,
             UT_os_init_task_misc,
