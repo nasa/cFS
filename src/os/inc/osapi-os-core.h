@@ -591,7 +591,6 @@ int32 OS_QueueGetIdByName      (uint32 *queue_id, const char *queue_name);
  * @retval #OS_SUCCESS @copybrief OS_SUCCESS
  * @retval #OS_INVALID_POINTER if queue_prop is NULL
  * @retval #OS_ERR_INVALID_ID if the ID given is not  a valid queue
- * @retval #OS_SUCCESS if the info was copied over correctly
  */
 int32 OS_QueueGetInfo          (uint32 queue_id, OS_queue_prop_t *queue_prop);
 /**@}*/
