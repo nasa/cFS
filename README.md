@@ -17,8 +17,12 @@ This distribution contains:
 2. Tests and example applications
 3. A directory structure and makefiles to manage it all.
 
-Version Notes:
-==============
+## Version Notes:
+
+- 5.0.11: DEVELOPMENT
+  - The more descriptive return value OS_ERR_NAME_NOT_FOUND (instead of OS_FS_ERROR) will now be returned from the following functions (): OS_rmfs, OS_mount, OS_unmount, OS_FS_GetPhysDriveName
+  - Wraps OS_ShMem* prototype and unit test wrapper additions in OSAL_OMIT_DEPRECATED
+  - Minor updates (see https://github.com/nasa/osal/pull/408)
 - 5.0.10: DEVELOPMENT
   - Minor updates (see https://github.com/nasa/osal/pull/401)
 - 5.0.9: DEVELOPMENT
