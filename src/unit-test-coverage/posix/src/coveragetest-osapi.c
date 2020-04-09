@@ -392,67 +392,11 @@ void Test_OS_MutSemGetInfo_Impl(void)
      */
 }
 
-void Test_OS_IntAttachHandler_Impl(void)
-{
-    /*
-     * Test Case For:
-     * int32 OS_IntAttachHandler_Impl  (uint32 InterruptNumber, osal_task_entry InterruptHandler, int32 parameter)
-     */
-}
-
-void Test_OS_IntUnlock_Impl(void)
-{
-    /*
-     * Test Case For:
-     * int32 OS_IntUnlock_Impl (int32 IntLevel)
-     */
-}
-
-void Test_OS_IntLock_Impl(void)
-{
-    /*
-     * Test Case For:
-     * int32 OS_IntLock_Impl ( void )
-     */
-}
-
-void Test_OS_IntEnable_Impl(void)
-{
-    /*
-     * Test Case For:
-     * int32 OS_IntEnable_Impl(int32 Level)
-     */
-}
-
-void Test_OS_IntDisable_Impl(void)
-{
-    /*
-     * Test Case For:
-     * int32 OS_IntDisable_Impl(int32 Level)
-     */
-}
-
 void Test_OS_HeapGetInfo_Impl(void)
 {
     /*
      * Test Case For:
      * int32 OS_HeapGetInfo_Impl(OS_heap_prop_t *heap_prop)
-     */
-}
-
-void Test_OS_IntSetMask_Impl(void)
-{
-    /*
-     * Test Case For:
-     * int32 OS_IntSetMask_Impl ( uint32 MaskSetting )
-     */
-}
-
-void Test_OS_IntGetMask_Impl(void)
-{
-    /*
-     * Test Case For:
-     * int32 OS_IntGetMask_Impl ( uint32 * MaskSettingPtr )
      */
 }
 
@@ -582,14 +526,7 @@ void UtTest_Setup(void)
     ADD_TEST(OS_MutSemGive_Impl);
     ADD_TEST(OS_MutSemTake_Impl);
     ADD_TEST(OS_MutSemGetInfo_Impl);
-    ADD_TEST(OS_IntAttachHandler_Impl);
-    ADD_TEST(OS_IntUnlock_Impl);
-    ADD_TEST(OS_IntLock_Impl);
-    ADD_TEST(OS_IntEnable_Impl);
-    ADD_TEST(OS_IntDisable_Impl);
     ADD_TEST(OS_HeapGetInfo_Impl);
-    ADD_TEST(OS_IntSetMask_Impl);
-    ADD_TEST(OS_IntGetMask_Impl);
     ADD_TEST(OS_CompAbsDelayTime);
     ADD_TEST(OS_FPUExcAttachHandler_Impl);
     ADD_TEST(OS_FPUExcEnable_Impl);

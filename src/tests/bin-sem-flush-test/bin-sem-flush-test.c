@@ -226,8 +226,8 @@ void BinSemFlushCheck(void)
 
     /* At first, No task should have done any work yet (all blocked) */
     UtAssert_True(task_1_work == 0, "Task 1 work = %u",(unsigned int)task_1_work);
-    UtAssert_True(task_2_work == 0, "Task 2 work = %u",(unsigned int)task_1_work);
-    UtAssert_True(task_3_work == 0, "Task 3 work = %u",(unsigned int)task_1_work);
+    UtAssert_True(task_2_work == 0, "Task 2 work = %u",(unsigned int)task_2_work);
+    UtAssert_True(task_3_work == 0, "Task 3 work = %u",(unsigned int)task_3_work);
 
     status = OS_BinSemFlush(bin_sem_id);
     UtAssert_True(status == OS_SUCCESS, "BinSem1 flush Rc=%d", (int)status);
@@ -239,8 +239,8 @@ void BinSemFlushCheck(void)
     OS_TaskDelay(4000);
 
     UtAssert_True(task_1_work != 0, "Task 1 work = %u",(unsigned int)task_1_work);
-    UtAssert_True(task_2_work != 0, "Task 2 work = %u",(unsigned int)task_1_work);
-    UtAssert_True(task_3_work != 0, "Task 3 work = %u",(unsigned int)task_1_work);
+    UtAssert_True(task_2_work != 0, "Task 2 work = %u",(unsigned int)task_2_work);
+    UtAssert_True(task_3_work != 0, "Task 3 work = %u",(unsigned int)task_3_work);
 
     UtAssert_True(task_1_failures == 0, "Task 1 failures = %u",(unsigned int)task_1_failures);
     UtAssert_True(task_2_failures == 0, "Task 2 failures = %u",(unsigned int)task_2_failures);

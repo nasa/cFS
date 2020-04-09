@@ -123,6 +123,7 @@ void  OS_ConsoleOutput_Impl(uint32 local_id)
     UT_DEFAULT_IMPL(OS_ConsoleOutput_Impl);
 }
 
+#ifndef OSAL_OMIT_DEPRECATED
 /*
 ** Shared memory API
 */
@@ -132,6 +133,7 @@ UT_DEFAULT_STUB(OS_ShMemSemTake_Impl,(uint32 Id))
 UT_DEFAULT_STUB(OS_ShMemSemGive_Impl,(uint32 Id))
 UT_DEFAULT_STUB(OS_ShMemAttach_Impl,(uint32 * Address, uint32 Id))
 UT_DEFAULT_STUB(OS_ShMemGetIdByName_Impl,(uint32 *ShMemId, const char *SegName ))
+#endif /* OSAL_OMIT_DEPRECATED */
 
 
 /*
@@ -143,17 +145,6 @@ void OS_ApplicationExit_Impl(int32 Status)
 {
     UT_DEFAULT_IMPL(OS_ApplicationExit_Impl);
 }
-
-/*
- * Interrupt API low-level handlers
- */
-UT_DEFAULT_STUB(OS_IntAttachHandler_Impl,(uint32 InterruptNumber, osal_task_entry InterruptHandler, int32 parameter))
-UT_DEFAULT_STUB(OS_IntUnlock_Impl,(int32 IntLevel))
-UT_DEFAULT_STUB(OS_IntLock_Impl,( void ))
-UT_DEFAULT_STUB(OS_IntEnable_Impl,(int32 Level))
-UT_DEFAULT_STUB(OS_IntDisable_Impl,(int32 Level))
-UT_DEFAULT_STUB(OS_IntSetMask_Impl,( uint32 MaskSetting ))
-UT_DEFAULT_STUB(OS_IntGetMask_Impl,( uint32 * MaskSettingPtr ))
 
 /*
  * Heap API low-level handler

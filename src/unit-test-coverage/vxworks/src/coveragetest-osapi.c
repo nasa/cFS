@@ -574,61 +574,6 @@ void Test_OS_MutSemGetInfo_Impl(void)
     OSAPI_TEST_FUNCTION_RC(OS_MutSemGetInfo_Impl(0,&mut_prop), OS_SUCCESS);
 }
 
-void Test_OS_IntAttachHandler_Impl(void)
-{
-    /*
-     * Test Case For:
-     * int32 OS_IntAttachHandler_Impl  (uint32 InterruptNumber, osal_task_entry InterruptHandler, int32 parameter)
-     */
-    OSAPI_TEST_FUNCTION_RC(OS_IntAttachHandler_Impl(0,NULL,0), OS_SUCCESS);
-
-    UT_SetForceFail(UT_KEY(OCS_intConnect), OCS_ERROR);
-    OSAPI_TEST_FUNCTION_RC(OS_IntAttachHandler_Impl(0,NULL,0), OS_ERROR);
-}
-
-void Test_OS_IntUnlock_Impl(void)
-{
-    /*
-     * Test Case For:
-     * int32 OS_IntUnlock_Impl (int32 IntLevel)
-     */
-    OSAPI_TEST_FUNCTION_RC(OS_IntUnlock_Impl(0), OS_SUCCESS);
-}
-
-void Test_OS_IntLock_Impl(void)
-{
-    /*
-     * Test Case For:
-     * int32 OS_IntLock_Impl ( void )
-     */
-    UT_SetForceFail(UT_KEY(OCS_intLock), 0x1111);
-    OSAPI_TEST_FUNCTION_RC(OS_IntLock_Impl(), 0x1111);
-}
-
-void Test_OS_IntEnable_Impl(void)
-{
-    /*
-     * Test Case For:
-     * int32 OS_IntEnable_Impl(int32 Level)
-     */
-    OSAPI_TEST_FUNCTION_RC(OS_IntEnable_Impl(0), OS_SUCCESS);
-
-    UT_SetForceFail(UT_KEY(OCS_intEnable), OCS_ERROR);
-    OSAPI_TEST_FUNCTION_RC(OS_IntEnable_Impl(0), OS_ERROR);
-}
-
-void Test_OS_IntDisable_Impl(void)
-{
-    /*
-     * Test Case For:
-     * int32 OS_IntDisable_Impl(int32 Level)
-     */
-    OSAPI_TEST_FUNCTION_RC(OS_IntDisable_Impl(0), OS_SUCCESS);
-
-    UT_SetForceFail(UT_KEY(OCS_intDisable), OCS_ERROR);
-    OSAPI_TEST_FUNCTION_RC(OS_IntDisable_Impl(0), OS_ERROR);
-}
-
 void Test_OS_HeapGetInfo_Impl(void)
 {
     /*
@@ -642,25 +587,6 @@ void Test_OS_HeapGetInfo_Impl(void)
 
     UT_SetForceFail(UT_KEY(OCS_memPartInfoGet), OCS_ERROR);
     OSAPI_TEST_FUNCTION_RC(OS_HeapGetInfo_Impl(&heap_prop), OS_ERROR);
-}
-
-void Test_OS_IntSetMask_Impl(void)
-{
-    /*
-     * Test Case For:
-     * int32 OS_IntSetMask_Impl ( uint32 MaskSetting )
-     */
-    OSAPI_TEST_FUNCTION_RC(OS_IntSetMask_Impl(0x1111), OS_ERR_NOT_IMPLEMENTED);
-}
-
-void Test_OS_IntGetMask_Impl(void)
-{
-    /*
-     * Test Case For:
-     * int32 OS_IntGetMask_Impl ( uint32 * MaskSettingPtr )
-     */
-    uint32 Mask = 0x1111;
-    OSAPI_TEST_FUNCTION_RC(OS_IntGetMask_Impl(&Mask), OS_ERR_NOT_IMPLEMENTED);
 }
 
 void Test_OS_FPUExcAttachHandler_Impl(void)
@@ -783,14 +709,7 @@ void UtTest_Setup(void)
     ADD_TEST(OS_MutSemGive_Impl);
     ADD_TEST(OS_MutSemTake_Impl);
     ADD_TEST(OS_MutSemGetInfo_Impl);
-    ADD_TEST(OS_IntAttachHandler_Impl);
-    ADD_TEST(OS_IntUnlock_Impl);
-    ADD_TEST(OS_IntLock_Impl);
-    ADD_TEST(OS_IntEnable_Impl);
-    ADD_TEST(OS_IntDisable_Impl);
     ADD_TEST(OS_HeapGetInfo_Impl);
-    ADD_TEST(OS_IntSetMask_Impl);
-    ADD_TEST(OS_IntGetMask_Impl);
     ADD_TEST(OS_FPUExcAttachHandler_Impl);
     ADD_TEST(OS_FPUExcEnable_Impl);
     ADD_TEST(OS_FPUExcDisable_Impl);
