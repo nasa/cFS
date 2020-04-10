@@ -89,7 +89,7 @@
 #define OS_FS_UNIMPLEMENTED            OS_ERR_NOT_IMPLEMENTED   /**< @brief Not implemented */
 /**@}*/
 
-
+#ifndef OSAL_OMIT_DEPRECATED
 /* This typedef is for OS_FS_GetErrorName(), to ensure
  * everyone is making an array of the same length
  *
@@ -103,7 +103,7 @@
  * os_err_name_t.
  */
 typedef os_err_name_t os_fs_err_name_t;
-
+#endif
 
 /**
  * @brief Internal structure of the OS volume table for 

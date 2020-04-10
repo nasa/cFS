@@ -21,7 +21,7 @@ void TestStat(void);
 void TestOpenFileAPI(void);
 void TestUnmountRemount(void);
 
-os_fs_err_name_t errname;
+os_err_name_t errname;
 
 /* *************************************** MAIN ************************************** */
 
