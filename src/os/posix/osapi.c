@@ -2300,6 +2300,8 @@ static int OS_PriorityRemap(uint32 InputPri)
 
     return OutputPri;
 } /* end OS_PriorityRemap */
+                        
+#ifndef OSAL_OMIT_DEPRECATED
 
 /*----------------------------------------------------------------
  *
@@ -2384,6 +2386,8 @@ int32 OS_FPUExcGetMask_Impl(uint32 *mask)
     *mask = 0;
     return(OS_ERR_NOT_IMPLEMENTED);
 } /* end OS_FPUExcGetMask_Impl */
+
+#endif /* OSAL_OMIT_DEPRECATED */
 
 /********************************************************************/
 /*                 CONSOLE OUTPUT                                   */

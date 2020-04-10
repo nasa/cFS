@@ -1596,6 +1596,8 @@ int32 OS_HeapGetInfo_Impl       (OS_heap_prop_t *heap_prop)
     return (OS_SUCCESS);
 } /* end OS_HeapGetInfo_Impl */
 
+#ifndef OSAL_OMIT_DEPRECATED
+
 /*----------------------------------------------------------------
  *
  * Function: OS_FPUExcAttachHandler_Impl
@@ -1678,6 +1680,8 @@ int32 OS_FPUExcGetMask_Impl(uint32 *mask)
     */
     return(OS_ERR_NOT_IMPLEMENTED);
 } /* end OS_FPUExcGetMask_Impl */
+
+#endif /* OSAL_OMIT_DEPRECATED */
 
 /********************************************************************/
 /*                 CONSOLE OUTPUT                                   */

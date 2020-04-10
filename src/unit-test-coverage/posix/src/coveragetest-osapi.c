@@ -408,47 +408,6 @@ void Test_OS_CompAbsDelayTime(void)
      */
 }
 
-void Test_OS_FPUExcAttachHandler_Impl(void)
-{
-    /*
-     * Test Case For:
-     * int32 OS_FPUExcAttachHandler_Impl(uint32 ExceptionNumber, void * ExceptionHandler,
-     *       int32 parameter)
-     */
-}
-
-void Test_OS_FPUExcEnable_Impl(void)
-{
-    /*
-     * Test Case For:
-     * int32 OS_FPUExcEnable_Impl(int32 ExceptionNumber)
-     */
-}
-
-void Test_OS_FPUExcDisable_Impl(void)
-{
-    /*
-     * Test Case For:
-     * int32 OS_FPUExcDisable_Impl(int32 ExceptionNumber)
-     */
-}
-
-void Test_OS_FPUExcSetMask_Impl(void)
-{
-    /*
-     * Test Case For:
-     * int32 OS_FPUExcSetMask_Impl(uint32 mask)
-     */
-}
-
-void Test_OS_FPUExcGetMask_Impl(void)
-{
-    /*
-     * Test Case For:
-     * int32 OS_FPUExcGetMask_Impl(uint32 *mask)
-     */
-}
-
 /* ------------------- End of test cases --------------------------------------*/
 
 /* Osapi_Task_Setup
@@ -528,11 +487,6 @@ void UtTest_Setup(void)
     ADD_TEST(OS_MutSemGetInfo_Impl);
     ADD_TEST(OS_HeapGetInfo_Impl);
     ADD_TEST(OS_CompAbsDelayTime);
-    ADD_TEST(OS_FPUExcAttachHandler_Impl);
-    ADD_TEST(OS_FPUExcEnable_Impl);
-    ADD_TEST(OS_FPUExcDisable_Impl);
-    ADD_TEST(OS_FPUExcSetMask_Impl);
-    ADD_TEST(OS_FPUExcGetMask_Impl);
 }
 
 

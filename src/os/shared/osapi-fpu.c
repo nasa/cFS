@@ -25,6 +25,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifndef OSAL_OMIT_DEPRECATED
 
 /*
  * User defined include files
@@ -110,4 +111,4 @@ int32 OS_FPUExcDisable         (int32 ExceptionNumber)
     return OS_FPUExcDisable_Impl(ExceptionNumber);
 } /* end OS_FPUExcDisable */
 
-
+#endif /* OSAL_OMIT_DEPRECATED */
