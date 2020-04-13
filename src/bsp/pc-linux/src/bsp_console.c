@@ -64,8 +64,21 @@ static void OS_BSP_ExecTput(const char *cap, const char *param)
  ------------------------------------------------------------------*/
 void OS_BSP_ConsoleOutput_Impl(const char *Str, uint32 DataLen)
 {
-    /* writes the raw data directly to STDOUT_FILENO (unbuffered) */
-    write(STDOUT_FILENO, Str, DataLen);
+    ssize_t WriteLen;
+
+    do
+    {
+        /* writes the raw data directly to STDOUT_FILENO (unbuffered) */
+        WriteLen = write(STDOUT_FILENO, Str, DataLen);
+        if (WriteLen <= 0)
+        {
+            /* no recourse if this fails, just stop. */
+            break;
+        }
+        Str += WriteLen;
+        DataLen -= WriteLen;
+    }
+    while(true);
 }
 
 /*----------------------------------------------------------------
