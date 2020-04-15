@@ -66,7 +66,7 @@ void OS_BSP_ConsoleOutput_Impl(const char *Str, uint32 DataLen)
 {
     ssize_t WriteLen;
 
-    do
+    while(DataLen > 0)
     {
         /* writes the raw data directly to STDOUT_FILENO (unbuffered) */
         WriteLen = write(STDOUT_FILENO, Str, DataLen);
@@ -78,7 +78,6 @@ void OS_BSP_ConsoleOutput_Impl(const char *Str, uint32 DataLen)
         Str += WriteLen;
         DataLen -= WriteLen;
     }
-    while(true);
 }
 
 /*----------------------------------------------------------------
