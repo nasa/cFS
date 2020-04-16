@@ -25,6 +25,7 @@
  ***************************************************************************************/
 
 #include "os-posix.h"
+#include "bsp-impl.h"
 #include <sched.h>
 
 /*
@@ -177,7 +178,7 @@ static void  OS_NoopSigHandler (int signal)
 } /* end OS_NoopSigHandler */
 
 
-                        
+
 /*----------------------------------------------------------------
  *
  * Function: OS_Lock_Global_Impl
@@ -221,7 +222,7 @@ int32 OS_Lock_Global_Impl(uint32 idtype)
    return OS_SUCCESS;
 } /* end OS_Lock_Global_Impl */
 
-                        
+
 /*----------------------------------------------------------------
  *
  * Function: OS_Unlock_Global_Impl
@@ -367,7 +368,7 @@ int32 OS_API_Impl_Init(uint32 idtype)
    return(return_code);
 } /* end OS_API_Impl_Init */
 
-                        
+
 /*----------------------------------------------------------------
  *
  * Function: OS_IdleLoop_Impl
@@ -389,7 +390,7 @@ void OS_IdleLoop_Impl()
    sigsuspend(&POSIX_GlobalVars.NormalSigMask);
 } /* end OS_IdleLoop_Impl */
 
-                        
+
 /*----------------------------------------------------------------
  *
  * Function: OS_ApplicationShutdown_Impl
@@ -726,7 +727,7 @@ int32 OS_Posix_TaskAPI_Impl_Init(void)
    return OS_SUCCESS;
 } /* end OS_Posix_TaskAPI_Impl_Init */
 
-                        
+
 /*----------------------------------------------------------------
  *
  * Function: OS_Posix_InternalTaskCreate_Impl
@@ -851,7 +852,7 @@ int32 OS_Posix_InternalTaskCreate_Impl(pthread_t *pthr, uint32 priority, size_t 
     return OS_SUCCESS;
 } /* end OS_Posix_InternalTaskCreate_Impl */
 
-                        
+
 /*----------------------------------------------------------------
  *
  * Function: OS_TaskCreate_Impl
@@ -878,7 +879,7 @@ int32 OS_TaskCreate_Impl (uint32 task_id, uint32 flags)
    return return_code;
 } /* end OS_TaskCreate_Impl */
 
-                        
+
 /*----------------------------------------------------------------
  *
  * Function: OS_TaskMatch_Impl
@@ -897,7 +898,7 @@ int32 OS_TaskMatch_Impl(uint32 task_id)
    return OS_SUCCESS;
 } /* end OS_TaskMatch_Impl */
 
-                        
+
 /*----------------------------------------------------------------
  *
  * Function: OS_TaskDelete_Impl
@@ -919,7 +920,7 @@ int32 OS_TaskDelete_Impl (uint32 task_id)
 
 } /* end OS_TaskDelete_Impl */
 
-                        
+
 /*----------------------------------------------------------------
  *
  * Function: OS_TaskExit_Impl
@@ -934,7 +935,7 @@ void OS_TaskExit_Impl()
 
 } /* end OS_TaskExit_Impl */
 
-                        
+
 /*----------------------------------------------------------------
  *
  * Function: OS_TaskDelay_Impl
@@ -974,7 +975,7 @@ int32 OS_TaskDelay_Impl(uint32 millisecond)
    }
 } /* end OS_TaskDelay_Impl */
 
-                        
+
 /*----------------------------------------------------------------
  *
  * Function: OS_TaskSetPriority_Impl
@@ -1008,7 +1009,7 @@ int32 OS_TaskSetPriority_Impl (uint32 task_id, uint32 new_priority)
    return OS_SUCCESS;
 } /* end OS_TaskSetPriority_Impl */
 
-                        
+
 /*----------------------------------------------------------------
  *
  * Function: OS_TaskRegister_Impl
@@ -1039,7 +1040,7 @@ int32 OS_TaskRegister_Impl(uint32 global_task_id)
    return return_code;
 } /* end OS_TaskRegister_Impl */
 
-                        
+
 /*----------------------------------------------------------------
  *
  * Function: OS_TaskGetId_Impl
@@ -1057,7 +1058,7 @@ uint32 OS_TaskGetId_Impl (void)
    return(self_record.value);
 } /* end OS_TaskGetId_Impl */
 
-                        
+
 /*----------------------------------------------------------------
  *
  * Function: OS_TaskGetInfo_Impl
@@ -1109,49 +1110,27 @@ int32 OS_Posix_QueueAPI_Impl_Init(void)
    memset(OS_impl_queue_table, 0, sizeof(OS_impl_queue_table));
 
    /*
-    * Initialize this to zero to indicate no limit
-    * (would have expected osconfig.h to specify an upper limit, but it does not)
-    */
-   POSIX_GlobalVars.TruncateQueueDepth = 0;
-
-   /*
     * Automatic truncation is dependent on the OSAL_DEBUG_PERMISSIVE_MODE compile-time define - so
     * creating a too-large message queue on a target without OSAL_DEBUG_PERMISSIVE_MODE will fail
     * with an OS error as intended.
     */
 #ifdef OSAL_DEBUG_PERMISSIVE_MODE
-   {
-      FILE *fp;
-      char buffer[32];
-
-      /*
-       * If running on Linux, /proc/sys/fs/mqueue/msg_max represents the max depth of a posix message queue for a user.
-       *
-       * In order to facilitate running in simulation mode without any need for root access --
-       * this will allow the OSAL to successfully create message queues by truncating anything larger than this size.
-       *
-       * No need to check _LINUX_OS_ here; if the file fails to open, i.e. if not on Linux and the file does not exist,
-       * then leave well enough alone and don't do anything.
-       */
-
-      fp = fopen("/proc/sys/fs/mqueue/msg_max","r");
-      if (fp)
-      {
-         if (fgets(buffer,sizeof(buffer),fp) != NULL)
-         {
-            POSIX_GlobalVars.TruncateQueueDepth = strtoul(buffer, NULL, 10);
-            OS_DEBUG("Maximum user msg queue depth = %u\n", (unsigned int)POSIX_GlobalVars.TruncateQueueDepth);
-         }
-         fclose(fp);
-      }
-   }
+   /*
+    * Use the BSP-provided limit
+    */
+   POSIX_GlobalVars.TruncateQueueDepth = OS_BSP_Global.MaxQueueDepth;
+#else
+   /*
+    * Initialize this to zero to indicate no limit
+    */
+   POSIX_GlobalVars.TruncateQueueDepth = 0;
 #endif
 
    return OS_SUCCESS;
 } /* end OS_Posix_QueueAPI_Impl_Init */
 
 
-                        
+
 /*----------------------------------------------------------------
  *
  * Function: OS_QueueCreate_Impl
@@ -1231,7 +1210,7 @@ int32 OS_QueueCreate_Impl (uint32 queue_id, uint32 flags)
    return return_code;
 } /* end OS_QueueCreate_Impl */
 
-                        
+
 /*----------------------------------------------------------------
  *
  * Function: OS_QueueDelete_Impl
@@ -1258,7 +1237,7 @@ int32 OS_QueueDelete_Impl (uint32 queue_id)
     return return_code;
 } /* end OS_QueueDelete_Impl */
 
-                        
+
 /*----------------------------------------------------------------
  *
  * Function: OS_QueueGet_Impl
@@ -1358,7 +1337,7 @@ int32 OS_QueueGet_Impl (uint32 queue_id, void *data, uint32 size, uint32 *size_c
    return return_code;
 } /* end OS_QueueGet_Impl */
 
-                        
+
 /*----------------------------------------------------------------
  *
  * Function: OS_QueuePut_Impl
@@ -1432,7 +1411,7 @@ int32 OS_Posix_BinSemAPI_Impl_Init(void)
    return OS_SUCCESS;
 } /* end OS_Posix_BinSemAPI_Impl_Init */
 
-                        
+
 /*----------------------------------------------------------------
  *
  * Function: OS_BinSemCreate_Impl
@@ -1556,7 +1535,7 @@ int32 OS_BinSemCreate_Impl (uint32 sem_id, uint32 initial_value, uint32 options)
 
 } /* end OS_BinSemCreate_Impl */
 
-                        
+
 /*----------------------------------------------------------------
  *
  * Function: OS_BinSemDelete_Impl
@@ -1597,7 +1576,7 @@ int32 OS_BinSemDelete_Impl (uint32 sem_id)
 } /* end OS_BinSemDelete_Impl */
 
 
-                        
+
 /*----------------------------------------------------------------
  *
  * Function: OS_BinSemGive_Impl
@@ -1640,7 +1619,7 @@ int32 OS_BinSemGive_Impl ( uint32 sem_id )
     return OS_SUCCESS;
 } /* end OS_BinSemGive_Impl */
 
-                        
+
 /*----------------------------------------------------------------
  *
  * Function: OS_BinSemFlush_Impl
@@ -1744,7 +1723,7 @@ static int32 OS_GenericBinSemTake_Impl (OS_impl_binsem_internal_record_t *sem, c
    return return_code;
 } /* end OS_GenericBinSemTake_Impl */
 
-                        
+
 /*----------------------------------------------------------------
  *
  * Function: OS_BinSemTake_Impl
@@ -1758,7 +1737,7 @@ int32 OS_BinSemTake_Impl ( uint32 sem_id )
    return (OS_GenericBinSemTake_Impl (&OS_impl_bin_sem_table[sem_id], NULL));
 } /* end OS_BinSemTake_Impl */
 
-                        
+
 /*----------------------------------------------------------------
  *
  * Function: OS_BinSemTimedWait_Impl
@@ -1779,7 +1758,7 @@ int32 OS_BinSemTimedWait_Impl ( uint32 sem_id, uint32 msecs )
    return (OS_GenericBinSemTake_Impl (&OS_impl_bin_sem_table[sem_id], &ts));
 } /* end OS_BinSemTimedWait_Impl */
 
-                        
+
 /*----------------------------------------------------------------
  *
  * Function: OS_BinSemGetInfo_Impl
@@ -1819,7 +1798,7 @@ int32 OS_Posix_CountSemAPI_Impl_Init(void)
    return OS_SUCCESS;
 } /* end OS_Posix_CountSemAPI_Impl_Init */
 
-                        
+
 /*----------------------------------------------------------------
  *
  * Function: OS_CountSemCreate_Impl
@@ -1844,7 +1823,7 @@ int32 OS_CountSemCreate_Impl (uint32 sem_id, uint32 sem_initial_value, uint32 op
 
 } /* end OS_CountSemCreate_Impl */
 
-                        
+
 /*----------------------------------------------------------------
  *
  * Function: OS_CountSemDelete_Impl
@@ -1864,7 +1843,7 @@ int32 OS_CountSemDelete_Impl (uint32 sem_id)
 
 } /* end OS_CountSemDelete_Impl */
 
-                        
+
 /*----------------------------------------------------------------
  *
  * Function: OS_CountSemGive_Impl
@@ -1884,7 +1863,7 @@ int32 OS_CountSemGive_Impl ( uint32 sem_id )
 
 } /* end OS_CountSemGive_Impl */
 
-                        
+
 /*----------------------------------------------------------------
  *
  * Function: OS_CountSemTake_Impl
@@ -1903,7 +1882,7 @@ int32 OS_CountSemTake_Impl ( uint32 sem_id )
     return OS_SUCCESS;
 } /* end OS_CountSemTake_Impl */
 
-                        
+
 /*----------------------------------------------------------------
  *
  * Function: OS_CountSemTimedWait_Impl
@@ -1939,7 +1918,7 @@ int32 OS_CountSemTimedWait_Impl ( uint32 sem_id, uint32 msecs )
    return result;
 } /* end OS_CountSemTimedWait_Impl */
 
-                        
+
 /*----------------------------------------------------------------
  *
  * Function: OS_CountSemGetInfo_Impl
@@ -1966,7 +1945,7 @@ int32 OS_CountSemGetInfo_Impl (uint32 sem_id, OS_count_sem_prop_t *count_prop)
                                   MUTEX API
  ***************************************************************************************/
 
-                        
+
 /*----------------------------------------------------------------
  *
  * Function: OS_Posix_MutexAPI_Impl_Init
@@ -1980,7 +1959,7 @@ int32 OS_Posix_MutexAPI_Impl_Init(void)
    return OS_SUCCESS;
 } /* end OS_Posix_MutexAPI_Impl_Init */
 
-                        
+
 /*----------------------------------------------------------------
  *
  * Function: OS_MutSemCreate_Impl
@@ -2042,7 +2021,7 @@ int32 OS_MutSemCreate_Impl (uint32 sem_id, uint32 options)
     return OS_SUCCESS;
 } /* end OS_MutSemCreate_Impl */
 
-                        
+
 /*----------------------------------------------------------------
  *
  * Function: OS_MutSemDelete_Impl
@@ -2066,7 +2045,7 @@ int32 OS_MutSemDelete_Impl (uint32 sem_id)
 
 } /* end OS_MutSemDelete_Impl */
 
-                        
+
 /*----------------------------------------------------------------
  *
  * Function: OS_MutSemGive_Impl
@@ -2091,7 +2070,7 @@ int32 OS_MutSemGive_Impl ( uint32 sem_id )
    return OS_SUCCESS;
 } /* end OS_MutSemGive_Impl */
 
-                        
+
 /*----------------------------------------------------------------
  *
  * Function: OS_MutSemTake_Impl
@@ -2116,7 +2095,7 @@ int32 OS_MutSemTake_Impl ( uint32 sem_id )
     return OS_SUCCESS;
 } /* end OS_MutSemTake_Impl */
 
-                        
+
 /*----------------------------------------------------------------
  *
  * Function: OS_MutSemGetInfo_Impl
@@ -2137,7 +2116,7 @@ int32 OS_MutSemGetInfo_Impl (uint32 sem_id, OS_mut_sem_prop_t *mut_prop)
                                     INT API
  ***************************************************************************************/
 
-                        
+
 /*----------------------------------------------------------------
  *
  * Function: OS_IntAttachHandler_Impl
@@ -2151,7 +2130,7 @@ int32 OS_IntAttachHandler_Impl  (uint32 InterruptNumber, osal_task_entry Interru
     return(OS_ERR_NOT_IMPLEMENTED);
 } /* end OS_IntAttachHandler_Impl */
 
-                        
+
 /*----------------------------------------------------------------
  *
  * Function: OS_IntUnlock_Impl
@@ -2165,7 +2144,7 @@ int32 OS_IntUnlock_Impl (int32 IntLevel)
     return(OS_ERR_NOT_IMPLEMENTED);
 } /* end OS_IntUnlock_Impl */
 
-                        
+
 /*----------------------------------------------------------------
  *
  * Function: OS_IntLock_Impl
@@ -2178,7 +2157,7 @@ int32 OS_IntLock_Impl ( void )
 {
     return(OS_ERR_NOT_IMPLEMENTED);
 } /* end OS_IntLock_Impl */
-                        
+
 /*----------------------------------------------------------------
  *
  * Function: OS_IntEnable_Impl
@@ -2192,7 +2171,7 @@ int32 OS_IntEnable_Impl(int32 Level)
     return(OS_ERR_NOT_IMPLEMENTED);
 } /* end OS_IntEnable_Impl */
 
-                        
+
 /*----------------------------------------------------------------
  *
  * Function: OS_IntDisable_Impl
@@ -2206,7 +2185,7 @@ int32 OS_IntDisable_Impl(int32 Level)
     return(OS_ERR_NOT_IMPLEMENTED);
 } /* end OS_IntDisable_Impl */
 
-                        
+
 /*----------------------------------------------------------------
  *
  * Function: OS_IntSetMask_Impl
@@ -2220,7 +2199,7 @@ int32 OS_IntSetMask_Impl ( uint32 MaskSetting )
     return(OS_ERR_NOT_IMPLEMENTED);
 } /* end OS_IntSetMask_Impl */
 
-                        
+
 /*----------------------------------------------------------------
  *
  * Function: OS_IntGetMask_Impl
@@ -2321,7 +2300,7 @@ static int OS_PriorityRemap(uint32 InputPri)
 
     return OutputPri;
 } /* end OS_PriorityRemap */
-                        
+
 /*----------------------------------------------------------------
  *
  * Function: OS_FPUExcAttachHandler_Impl
@@ -2338,7 +2317,7 @@ int32 OS_FPUExcAttachHandler_Impl(uint32 ExceptionNumber, osal_task_entry Except
     */
     return(OS_ERR_NOT_IMPLEMENTED);
 } /* end OS_FPUExcAttachHandler_Impl */
-                        
+
 /*----------------------------------------------------------------
  *
  * Function: OS_FPUExcEnable_Impl
@@ -2354,7 +2333,7 @@ int32 OS_FPUExcEnable_Impl(int32 ExceptionNumber)
     */
     return(OS_SUCCESS);
 } /* end OS_FPUExcEnable_Impl */
-                        
+
 /*----------------------------------------------------------------
  *
  * Function: OS_FPUExcDisable_Impl
@@ -2371,7 +2350,7 @@ int32 OS_FPUExcDisable_Impl(int32 ExceptionNumber)
     return(OS_SUCCESS);
 } /* end OS_FPUExcDisable_Impl */
 
-                        
+
 /*----------------------------------------------------------------
  *
  * Function: OS_FPUExcSetMask_Impl
@@ -2388,7 +2367,7 @@ int32 OS_FPUExcSetMask_Impl(uint32 mask)
     return(OS_ERR_NOT_IMPLEMENTED);
 } /* end OS_FPUExcSetMask_Impl */
 
-                        
+
 /*----------------------------------------------------------------
  *
  * Function: OS_FPUExcGetMask_Impl
@@ -2412,7 +2391,7 @@ int32 OS_FPUExcGetMask_Impl(uint32 *mask)
 
 /* use the portable version of OS_ConsoleWrite_Impl() */
 #include "../portable/os-impl-console-directwrite.c"
-                        
+
 /*----------------------------------------------------------------
  *
  * Function: OS_ConsoleWakeup_Impl
@@ -2459,7 +2438,7 @@ static void*  OS_ConsoleTask_Entry(void* arg)
     }
     return NULL;
 } /* end OS_ConsoleTask_Entry */
-                        
+
 /*----------------------------------------------------------------
  *
  * Function: OS_ConsoleCreate_Impl

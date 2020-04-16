@@ -1527,4 +1527,59 @@ void OS_printf_disable(void);
 void OS_printf_enable(void);
 /**@}*/
 
+
+/****************************************************************************************
+                    BSP LOW-LEVEL IMPLEMENTATION FUNCTIONS
+ ****************************************************************************************/
+
+/*----------------------------------------------------------------
+   Function: OS_BSP_GetArgC
+
+    Purpose: Obtain the number of boot arguments passed from the bootloader
+             or shell if supported by the platform
+
+    Returns: The number of boot arguments, or 0 if no arguments were passed
+             or not supported by the BSP.
+ ------------------------------------------------------------------*/
+uint32 OS_BSP_GetArgC(void);
+
+/*----------------------------------------------------------------
+   Function: OS_BSP_GetArgV
+
+    Purpose: Obtain an array of boot argument strings passed from the bootloader
+             or shell if supported by the platform
+
+    Returns: Pointer to char* array containing the argument strings, or NULL if
+             no arguments are available or not supported by the BSP.
+
+             The array is sized according to OS_BSP_GetArgC()
+ ------------------------------------------------------------------*/
+char * const * OS_BSP_GetArgV(void);
+
+/*----------------------------------------------------------------
+   Function: OS_BSP_SetExitCode
+
+    Purpose: Sets the status to be returned to the shell or bootloader
+             if supported by the platform.  The value is an integer with
+             platform and application-defined meaning, but BSP's should
+             attempt to provide consistent meaning for the following values
+
+             OS_SUCCESS: normal status (default)
+             OS_ERROR: any abnormal status
+
+             Other more specific status values may be passed, with
+             implementation-defined behavior.  Depending on the system
+             capabilities, the BSP implementation may either pass the
+             value through as-is, translate it to defined value, or
+             ignore it.
+
+             Note this does NOT cause the application to exit, it only
+             sets the state that will be returned if/when the application
+             exits itself at a future time.
+
+ ------------------------------------------------------------------*/
+void OS_BSP_SetExitCode(int32 code);
+
+
+
 #endif

@@ -30,7 +30,6 @@
  * and the way pass/fail determinations are made.
  */
 
-
 #ifndef _UTBSP_H_
 #define _UTBSP_H_
 
@@ -40,20 +39,6 @@
 /**************************************************************
  * Functions implemented by the UT-specific BSP
  **************************************************************/
-
-/**
- * Gets the number of additional user-supplied options
- *
- * For instance, this would be command line parameters on platforms that have a command line.
- */
-int32 UT_BSP_GetTotalOptions(void);
-
-/**
- * Gets the text string associated with a specific user-supplied option
- *
- * For instance, this would be command line parameters on platforms that have a command line.
- */
-const char * UT_BSP_GetOptionString(int32 OptionNum);
 
 /*
  * Note - functions here are not typically directly called by UT code, they
@@ -94,7 +79,6 @@ void UT_BSP_StartTestSegment(uint32 SegmentNumber, const char *SegmentName);
  */
 void UT_BSP_DoText(uint8 MessageType, const char *OutputMessage);
 
-
 /**
  * The BSP single test case reporting function.
  *
@@ -111,7 +95,8 @@ void UT_BSP_DoText(uint8 MessageType, const char *OutputMessage);
  * \param SegmentNum   Sequence among the overall/global test Segments
  * \param TestDescr    Sequence within the current test Segment
  */
-void UT_BSP_DoReport(const char *File, uint32 LineNum, uint32 SegmentNum, uint32 SegmentSeq, uint8 MessageType, const char *SubsysName, const char *ShortDesc);
+void UT_BSP_DoReport(const char *File, uint32 LineNum, uint32 SegmentNum, uint32 SegmentSeq, uint8 MessageType,
+                     const char *SubsysName, const char *ShortDesc);
 
 /**
  * The BSP overall test reporting function.
@@ -136,6 +121,5 @@ void UT_BSP_DoTestSegmentReport(const char *SegmentName, const UtAssert_TestCoun
  * \param TestCounters  Counter object for the completed test
  */
 void UT_BSP_EndTest(const UtAssert_TestCounter_t *TestCounters);
-
 
 #endif /* _UTBSP_H_ */
