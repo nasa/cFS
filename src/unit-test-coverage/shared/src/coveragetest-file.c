@@ -56,10 +56,10 @@ void Test_OS_creat(void)
     UtAssert_True(actual >= 0, "OS_creat() (%ld) >= 0", (long)actual);
 
     actual = OS_creat("/cf/file", OS_READ_ONLY);
-    UtAssert_True(actual == OS_FS_ERROR, "OS_creat() (%ld) == OS_FS_ERROR", (long)actual);
+    UtAssert_True(actual == OS_ERROR, "OS_creat() (%ld) == OS_ERROR", (long)actual);
 
     actual = OS_creat(NULL, OS_WRITE_ONLY);
-    UtAssert_True(actual == OS_FS_ERR_INVALID_POINTER, "OS_creat() (%ld) == OS_FS_ERR_INVALID_POINTER", (long)actual);
+    UtAssert_True(actual == OS_INVALID_POINTER, "OS_creat() (%ld) == OS_INVALID_POINTER", (long)actual);
 
     UT_SetForceFail(UT_KEY(OCS_strlen), 2 + OS_MAX_PATH_LEN);
     actual = OS_creat("/file", OS_WRITE_ONLY);
@@ -68,7 +68,7 @@ void Test_OS_creat(void)
 
     UT_SetForceFail(UT_KEY(OCS_strrchr), -1);
     actual = OS_creat("/file", OS_WRITE_ONLY);
-    UtAssert_True(actual == OS_FS_ERROR, "OS_creat() (%ld) == OS_FS_ERROR", (long)actual);
+    UtAssert_True(actual == OS_ERROR, "OS_creat() (%ld) == OS_ERROR", (long)actual);
     UT_ClearForceFail(UT_KEY(OCS_strrchr));
 
     UT_SetDeferredRetcode(UT_KEY(OCS_strlen), 2, 2 + OS_MAX_FILE_NAME);
@@ -280,12 +280,12 @@ void Test_OS_cp(void)
      * Test Case For:
      * int32 OS_cp (const char *src, const char *dest)
      */
-    int32 expected = OS_FS_ERR_INVALID_POINTER;
+    int32 expected = OS_INVALID_POINTER;
     int32 actual = OS_cp(NULL,NULL);
     char ReadBuf[] = "cpcpcpcp";
     char WriteBuf[sizeof(ReadBuf)] = "";
 
-    UtAssert_True(actual == expected, "OS_cp() (%ld) == OS_FS_ERR_INVALID_POINTER", (long)actual);
+    UtAssert_True(actual == expected, "OS_cp() (%ld) == OS_INVALID_POINTER", (long)actual);
 
     /* setup to make internal copy loop execute at least once */
     expected = OS_SUCCESS;
@@ -308,7 +308,7 @@ void Test_OS_cp(void)
     UtAssert_True(actual == expected, "OS_cp() (%ld) == -555", (long)actual);
 
     UT_SetDeferredRetcode(UT_KEY(OCS_strrchr), 1, -1);
-    expected = OS_FS_ERROR;
+    expected = OS_ERROR;
     actual = OS_cp("/cf/file1", "/cf/file2");
     UtAssert_True(actual == expected, "OS_cp() (%ld) == OS_INVALID_POINTER", (long)actual);
     UT_SetDeferredRetcode(UT_KEY(OCS_strrchr), 2, -1);
@@ -362,9 +362,9 @@ void Test_OS_FDGetInfo(void)
     UtAssert_True(strcmp(file_prop.Path, "ABC") == 0, "file_prop.Path (%s) == ABC",
             file_prop.Path);
 
-    expected = OS_FS_ERR_INVALID_POINTER;
+    expected = OS_INVALID_POINTER;
     actual = OS_FDGetInfo(1, NULL);
-    UtAssert_True(actual == expected, "OS_FDGetInfo() (%ld) == OS_FS_ERR_INVALID_POINTER", (long)actual);
+    UtAssert_True(actual == expected, "OS_FDGetInfo() (%ld) == OS_INVALID_POINTER", (long)actual);
 
 }
 
@@ -374,10 +374,10 @@ void Test_OS_FileOpenCheck(void)
      * Test Case For:
      * int32 OS_FileOpenCheck(const char *Filename)
      */
-    int32 expected = OS_FS_ERROR;
+    int32 expected = OS_ERROR;
     int32 actual = OS_FileOpenCheck("/cf/file");
 
-    UtAssert_True(actual == expected, "OS_FileOpenCheck() (%ld) == OS_FS_ERROR", (long)actual);
+    UtAssert_True(actual == expected, "OS_FileOpenCheck() (%ld) == OS_ERROR", (long)actual);
 
     OS_global_stream_table[0].active_id = 1;
     UT_SetForceFail(UT_KEY(OCS_strcmp), 0);
@@ -386,9 +386,9 @@ void Test_OS_FileOpenCheck(void)
 
     UtAssert_True(actual == expected, "OS_FileOpenCheck() (%ld) == OS_SUCCESS", (long)actual);
 
-    expected = OS_FS_ERR_INVALID_POINTER;
+    expected = OS_INVALID_POINTER;
     actual = OS_FileOpenCheck(NULL);
-    UtAssert_True(actual == expected, "OS_FDGetInfo() (%ld) == OS_FS_ERR_INVALID_POINTER", (long)actual);
+    UtAssert_True(actual == expected, "OS_FDGetInfo() (%ld) == OS_INVALID_POINTER", (long)actual);
 
 }
 
@@ -411,9 +411,9 @@ void Test_OS_CloseFileByName(void)
     actual = OS_CloseFileByName("/cf/file");
     UtAssert_True(actual == expected, "OS_CloseFileByName() (%ld) == OS_SUCCESS", (long)actual);
 
-    expected = OS_FS_ERR_INVALID_POINTER;
+    expected = OS_INVALID_POINTER;
     actual = OS_CloseFileByName(NULL);
-    UtAssert_True(actual == expected, "OS_CloseFileByName() (%ld) == OS_FS_ERR_INVALID_POINTER", (long)actual);
+    UtAssert_True(actual == expected, "OS_CloseFileByName() (%ld) == OS_INVALID_POINTER", (long)actual);
 
 }
 
@@ -448,7 +448,7 @@ void Test_OS_ShellOutputToFile(void)
     UtAssert_True(actual == expected, "OS_ShellOutputToFile() (%ld) == OS_SUCCESS", (long)actual);
 
 
-    expected = OS_FS_ERR_INVALID_POINTER;
+    expected = OS_INVALID_POINTER;
     actual = OS_ShellOutputToFile(NULL, 1);
 
     UtAssert_True(actual == expected, "OS_ShellOutputToFile() (%ld) == OS_SUCCESS", (long)actual);

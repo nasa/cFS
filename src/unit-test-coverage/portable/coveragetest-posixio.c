@@ -78,15 +78,15 @@ void Test_OS_GenericSeek_Impl (void)
     OSAPI_TEST_FUNCTION_RC(OS_GenericSeek_Impl,(0,0,OS_SEEK_END), 333);
 
     /* bad whence */
-    OSAPI_TEST_FUNCTION_RC(OS_GenericSeek_Impl,(0,0,-1234), OS_FS_ERROR);
+    OSAPI_TEST_FUNCTION_RC(OS_GenericSeek_Impl,(0,0,-1234), OS_ERROR);
 
     /* generic failure of lseek() */
     UT_SetForceFail(UT_KEY(OCS_lseek),-1);
-    OSAPI_TEST_FUNCTION_RC(OS_GenericSeek_Impl,(0,0,OS_SEEK_END), OS_FS_ERROR);
+    OSAPI_TEST_FUNCTION_RC(OS_GenericSeek_Impl,(0,0,OS_SEEK_END), OS_ERROR);
 
     /* The seek implementation also checks for this specific pipe errno */
     OCS_errno = OCS_ESPIPE;
-    OSAPI_TEST_FUNCTION_RC(OS_GenericSeek_Impl,(0,0,OS_SEEK_END), OS_FS_UNIMPLEMENTED);
+    OSAPI_TEST_FUNCTION_RC(OS_GenericSeek_Impl,(0,0,OS_SEEK_END), OS_ERR_NOT_IMPLEMENTED);
 }
 
 void Test_OS_GenericRead_Impl (void)

@@ -135,5 +135,3 @@ int32 OS_Rtems_DirAPI_Impl_Init(void)
    return OS_SUCCESS;
 } /* end OS_Rtems_DirAPI_Impl_Init */
 
-
-/* FIXME - need to do something better here */

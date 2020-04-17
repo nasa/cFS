@@ -49,7 +49,7 @@
  *-----------------------------------------------------------------*/
 int32 OS_ShellOutputToFile_Impl(uint32 file_id, const char *Cmd)
 {
-    int32 ReturnCode = OS_FS_ERROR;
+    int32 ReturnCode = OS_ERROR;
     int32 Result = ERROR;
     int32 fdCmd;
     uint32 cmdidx;
@@ -58,9 +58,9 @@ int32 OS_ShellOutputToFile_Impl(uint32 file_id, const char *Cmd)
     /* Create a file to write the command to (or write over the old one) */
     fdCmd = OS_creat(OS_SHELL_CMD_INPUT_FILE_NAME,OS_READ_WRITE);
 
-    if (fdCmd < OS_FS_SUCCESS)
+    if (fdCmd < OS_SUCCESS)
     {
-        return OS_FS_ERROR;
+        return OS_ERROR;
     }
 
     if (OS_ConvertToArrayIndex(fdCmd, &cmdidx) == OS_SUCCESS)

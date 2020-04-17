@@ -544,7 +544,7 @@ void TestOpenReadCloseDir(void)
     UtAssert_True(status == OS_SUCCESS, "DIRECTORY_ONE found");
 
     /* Advance to end of dir */
-    while (status == OS_FS_SUCCESS)
+    while (status == OS_SUCCESS)
     {
        status = OS_DirectoryRead(dirh, &dirent);
     }
@@ -756,7 +756,7 @@ void TestRename(void)
     size  = strlen(copybuffer1);
     status = OS_read(fd1,buffer1,size);
     UtAssert_True(status == size, "status after read 1 = %d size = %d",(int)status, (int)size);
-    if (status >= OS_FS_SUCCESS)
+    if (status >= OS_SUCCESS)
     {
         UtAssert_True(strncmp(buffer1,copybuffer1, size) == 0, "Read and Written Results are equal");
     }

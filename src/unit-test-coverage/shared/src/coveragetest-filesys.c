@@ -92,9 +92,9 @@ void Test_OS_mkfs(void)
     UtAssert_True(actual == expected, "OS_mkfs() (%ld) == OS_SUCCESS", (long)actual);
 
 
-    expected = OS_FS_ERR_INVALID_POINTER;
+    expected = OS_INVALID_POINTER;
     actual = OS_mkfs(NULL,NULL,NULL,0,0);
-    UtAssert_True(actual == expected, "OS_mkfs() (%ld) == OS_FS_ERR_INVALID_POINTER", (long)actual);
+    UtAssert_True(actual == expected, "OS_mkfs() (%ld) == OS_INVALID_POINTER", (long)actual);
 
     UT_SetForceFail(UT_KEY(OCS_strlen), 2 + OS_FS_DEV_NAME_LEN);
     expected = OS_FS_ERR_PATH_TOO_LONG;
@@ -139,9 +139,9 @@ void Test_OS_rmfs(void)
     UtAssert_True(actual == expected, "OS_rmfs() (%ld) == OS_ERR_NAME_NOT_FOUND", (long)actual);
     UT_ClearForceFail(UT_KEY(OS_ObjectIdGetByName));
 
-    expected = OS_FS_ERR_INVALID_POINTER;
+    expected = OS_INVALID_POINTER;
     actual = OS_rmfs(NULL);
-    UtAssert_True(actual == expected, "OS_rmfs() (%ld) == OS_FS_ERR_INVALID_POINTER", (long)actual);
+    UtAssert_True(actual == expected, "OS_rmfs() (%ld) == OS_INVALID_POINTER", (long)actual);
 
     UT_SetForceFail(UT_KEY(OCS_strlen), 2 + OS_FS_DEV_NAME_LEN);
     expected = OS_FS_ERR_PATH_TOO_LONG;
@@ -168,9 +168,9 @@ void Test_OS_initfs(void)
     actual = OS_initfs(NULL,"/hda2","vol2",0,0);
     UtAssert_True(actual == expected, "OS_initfs() (%ld) == OS_SUCCESS", (long)actual);
 
-    expected = OS_FS_ERR_INVALID_POINTER;
+    expected = OS_INVALID_POINTER;
     actual = OS_initfs(NULL,NULL,NULL,0,0);
-    UtAssert_True(actual == expected, "OS_initfs() (%ld) == OS_FS_ERR_INVALID_POINTER", (long)actual);
+    UtAssert_True(actual == expected, "OS_initfs() (%ld) == OS_INVALID_POINTER", (long)actual);
 
     UT_SetForceFail(UT_KEY(OCS_strlen), 2 + OS_FS_DEV_NAME_LEN);
     expected = OS_FS_ERR_PATH_TOO_LONG;
@@ -213,9 +213,9 @@ void Test_OS_mount(void)
     actual = OS_mount("/ramdev5","/ram5");
     UtAssert_True(actual == expected, "OS_mount(nominal) (%ld) == OS_SUCCESS", (long)actual);
 
-    expected = OS_FS_ERR_INVALID_POINTER;
+    expected = OS_INVALID_POINTER;
     actual = OS_mount(NULL,NULL);
-    UtAssert_True(actual == expected, "OS_mount() (%ld) == OS_FS_ERR_INVALID_POINTER", (long)actual);
+    UtAssert_True(actual == expected, "OS_mount() (%ld) == OS_INVALID_POINTER", (long)actual);
 
     UT_SetForceFail(UT_KEY(OCS_strlen), 2 + OS_FS_DEV_NAME_LEN);
     expected = OS_FS_ERR_PATH_TOO_LONG;
@@ -256,9 +256,9 @@ void Test_OS_unmount(void)
     actual = OS_unmount("/ram0");
     UtAssert_True(actual == expected, "OS_unmount(nominal) (%ld) == OS_SUCCESS", (long)actual);
 
-    expected = OS_FS_ERR_INVALID_POINTER;
+    expected = OS_INVALID_POINTER;
     actual = OS_unmount(NULL);
-    UtAssert_True(actual == expected, "OS_unmount() (%ld) == OS_FS_ERR_INVALID_POINTER", (long)actual);
+    UtAssert_True(actual == expected, "OS_unmount() (%ld) == OS_INVALID_POINTER", (long)actual);
 
     UT_SetForceFail(UT_KEY(OCS_strlen), 2 + OS_MAX_PATH_LEN);
     expected = OS_FS_ERR_PATH_TOO_LONG;
@@ -287,9 +287,9 @@ void Test_OS_fsBlocksFree(void)
     actual = OS_fsBlocksFree("/cf");
     UtAssert_True(actual == expected, "OS_fsBlocksFree() (%ld) == 1111", (long)actual);
 
-    expected = OS_FS_ERR_INVALID_POINTER;
+    expected = OS_INVALID_POINTER;
     actual = OS_fsBlocksFree(NULL);
-    UtAssert_True(actual == expected, "OS_fsBlocksFree() (%ld) == OS_FS_ERR_INVALID_POINTER", (long)actual);
+    UtAssert_True(actual == expected, "OS_fsBlocksFree() (%ld) == OS_INVALID_POINTER", (long)actual);
 
     UT_SetForceFail(UT_KEY(OCS_strlen), 2 + OS_MAX_PATH_LEN);
     expected = OS_FS_ERR_PATH_TOO_LONG;
@@ -329,9 +329,9 @@ void Test_OS_fsBytesFree(void)
     UtAssert_True(bytes_free == (1024*1111), "bytes_free (%lu) == (1024*1111)",
             (unsigned long)bytes_free);
 
-    expected = OS_FS_ERR_INVALID_POINTER;
+    expected = OS_INVALID_POINTER;
     actual = OS_fsBytesFree(NULL, NULL);
-    UtAssert_True(actual == expected, "OS_fsBytesFree() (%ld) == OS_FS_ERR_INVALID_POINTER", (long)actual);
+    UtAssert_True(actual == expected, "OS_fsBytesFree() (%ld) == OS_INVALID_POINTER", (long)actual);
 
     UT_SetForceFail(UT_KEY(OCS_strlen), 2 + OS_MAX_PATH_LEN);
     expected = OS_FS_ERR_PATH_TOO_LONG;
@@ -361,9 +361,9 @@ void Test_OS_chkfs(void)
     actual = OS_chkfs("/cf",true);
     UtAssert_True(actual == expected, "OS_chkfs() (%ld) == OS_SUCCESS", (long)actual);
 
-    expected = OS_FS_ERR_INVALID_POINTER;
+    expected = OS_INVALID_POINTER;
     actual = OS_chkfs(NULL,false);
-    UtAssert_True(actual == expected, "OS_fsBytesFree() (%ld) == OS_FS_ERR_INVALID_POINTER", (long)actual);
+    UtAssert_True(actual == expected, "OS_fsBytesFree() (%ld) == OS_INVALID_POINTER", (long)actual);
 
     UT_SetForceFail(UT_KEY(OCS_strlen), 2 + OS_MAX_PATH_LEN);
     expected = OS_FS_ERR_PATH_TOO_LONG;
@@ -385,11 +385,11 @@ void Test_OS_FS_GetPhysDriveName(void)
      * Test Case For:
      * int32 OS_FS_GetPhysDriveName(char * PhysDriveName, const char * MountPoint)
      */
-    int32 expected = OS_FS_ERR_INVALID_POINTER;
+    int32 expected = OS_INVALID_POINTER;
     int32 actual = OS_FS_GetPhysDriveName(NULL, NULL);
     char NameBuf[OS_FS_PHYS_NAME_LEN];
 
-    UtAssert_True(actual == expected, "OS_FS_GetPhysDriveName() (%ld) == OS_FS_ERR_INVALID_POINTER", (long)actual);
+    UtAssert_True(actual == expected, "OS_FS_GetPhysDriveName() (%ld) == OS_INVALID_POINTER", (long)actual);
 
     UT_SetForceFail(UT_KEY(OCS_strlen), OS_MAX_PATH_LEN + 10);
     expected = OS_FS_ERR_PATH_TOO_LONG;
@@ -444,9 +444,9 @@ void Test_OS_GetFsInfo(void)
             "filesys_info.FreeVolumes (%lu) == OS_MAX_FILE_SYSTEMS",
             (unsigned long)filesys_info.FreeVolumes);
 
-    expected = OS_FS_ERR_INVALID_POINTER;
+    expected = OS_INVALID_POINTER;
     actual = OS_GetFsInfo(NULL);
-    UtAssert_True(actual == expected, "OS_GetFsInfo() (%ld) == OS_FS_ERR_INVALID_POINTER", (long)actual);
+    UtAssert_True(actual == expected, "OS_GetFsInfo() (%ld) == OS_INVALID_POINTER", (long)actual);
 
 }
 
@@ -470,9 +470,9 @@ void Test_OS_TranslatePath(void)
     UtAssert_True(strcmp(LocalBuffer,"/mnt/cf/test") == 0, "OS_TranslatePath(/cf/test) (%s)  == /mnt/cf/test", LocalBuffer);
 
     /* Check various error paths */
-    expected = OS_FS_ERR_INVALID_POINTER;
+    expected = OS_INVALID_POINTER;
     actual = OS_TranslatePath(NULL, NULL);
-    UtAssert_True(actual == expected, "OS_TranslatePath(NULL,NULL) (%ld) == OS_FS_ERR_INVALID_POINTER", (long)actual);
+    UtAssert_True(actual == expected, "OS_TranslatePath(NULL,NULL) (%ld) == OS_INVALID_POINTER", (long)actual);
 
     UT_SetForceFail(UT_KEY(OCS_strlen), OS_MAX_PATH_LEN + 10);
     expected = OS_FS_ERR_PATH_TOO_LONG;

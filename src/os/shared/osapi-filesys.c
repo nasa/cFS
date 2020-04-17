@@ -237,7 +237,7 @@ static int32 OS_FileSys_SetupInitialParamsForDevice(const char *devname, OS_file
  *           Implements Common code between the mkfs and initfs calls -
  *           mkfs passes the "should_format" as true and initfs passes as false.
  *
- *  Returns: OS_FS_SUCCESS on creating the disk, or appropriate error code.
+ *  Returns: OS_SUCCESS on creating the disk, or appropriate error code.
  *
  *-----------------------------------------------------------------*/
 static int32 OS_FileSys_Initialize(char *address, const char *fsdevname, const char * fsvolname, uint32 blocksize,
@@ -253,7 +253,7 @@ static int32 OS_FileSys_Initialize(char *address, const char *fsdevname, const c
     */
     if ( fsdevname == NULL || fsvolname == NULL )
     {
-        return OS_FS_ERR_INVALID_POINTER;
+        return OS_INVALID_POINTER;
     }
 
     /* check names are not empty strings */
@@ -541,7 +541,7 @@ int32 OS_rmfs (const char *devname)
 
     if ( devname == NULL )
     {
-        return OS_FS_ERR_INVALID_POINTER;
+        return OS_INVALID_POINTER;
     }
 
     if ( strlen(devname) >= OS_MAX_API_NAME )
@@ -634,7 +634,7 @@ int32 OS_mount (const char *devname, const char* mountpoint)
     /* Check parameters */
     if ( devname == NULL || mountpoint == NULL )
     {
-        return OS_FS_ERR_INVALID_POINTER;
+        return OS_INVALID_POINTER;
     }
 
     if( strlen(devname) >= sizeof(local->device_name) ||
@@ -712,7 +712,7 @@ int32 OS_unmount (const char *mountpoint)
     /* Check parameters */
     if ( mountpoint == NULL )
     {
-        return OS_FS_ERR_INVALID_POINTER;
+        return OS_INVALID_POINTER;
     }
 
     if( strlen(mountpoint) >= sizeof(local->virtual_mountpt) )
@@ -789,7 +789,7 @@ int32 OS_fsBlocksFree (const char *name)
 
     if ( name == NULL )
     {
-        return(OS_FS_ERR_INVALID_POINTER);
+        return(OS_INVALID_POINTER);
     }
 
     if( strlen(name) >= OS_MAX_PATH_LEN )
@@ -841,7 +841,7 @@ int32 OS_fsBytesFree (const char *name, uint64 *bytes_free)
 
     if ( name == NULL || bytes_free == NULL )
     {
-        return(OS_FS_ERR_INVALID_POINTER);
+        return(OS_INVALID_POINTER);
     }
 
     if( strlen(name) >= OS_MAX_PATH_LEN )
@@ -896,7 +896,7 @@ int32 OS_chkfs (const char *name, bool repair)
     */
     if (name == NULL)
     {
-        return OS_FS_ERR_INVALID_POINTER;
+        return OS_INVALID_POINTER;
     }
 
     /*
@@ -942,7 +942,7 @@ int32 OS_FS_GetPhysDriveName(char * PhysDriveName, const char * MountPoint)
 
     if (MountPoint == NULL || PhysDriveName == NULL)
     {
-        return OS_FS_ERR_INVALID_POINTER;
+        return OS_INVALID_POINTER;
     }
 
     if( strlen(MountPoint) >= OS_MAX_PATH_LEN )
@@ -999,7 +999,7 @@ int32 OS_GetFsInfo(os_fsinfo_t  *filesys_info)
    */
    if (filesys_info == NULL)
    {
-       return OS_FS_ERR_INVALID_POINTER;
+       return OS_INVALID_POINTER;
    }
 
    memset(filesys_info, 0, sizeof(*filesys_info));
@@ -1031,7 +1031,7 @@ int32 OS_GetFsInfo(os_fsinfo_t  *filesys_info)
 
    OS_Unlock_Global_Impl(OS_OBJECT_TYPE_OS_FILESYS);
 
-   return(OS_FS_SUCCESS);
+   return(OS_SUCCESS);
 } /* end OS_GetFsInfo */
 
                         
@@ -1058,7 +1058,7 @@ int32 OS_TranslatePath(const char *VirtualPath, char *LocalPath)
     */
     if (VirtualPath == NULL || LocalPath == NULL)
     {
-        return OS_FS_ERR_INVALID_POINTER;
+        return OS_INVALID_POINTER;
     }
 
     SysMountPointLen = 0;

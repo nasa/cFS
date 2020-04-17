@@ -57,14 +57,14 @@ int32 UT_os_setup_fs()
     int32 res;
 
     res = OS_mkfs(g_fsAddrPtr, g_devName, " ", 512, 20);
-    if (res != OS_FS_SUCCESS)
+    if (res != OS_SUCCESS)
     {
         UT_OS_LOG("OS_mkfs() returns %d\n", (int)res);;
         goto UT_os_setup_fs_exit_tag;
     }
 
     res = OS_mount(g_devName, g_mntName);
-    if (res != OS_FS_SUCCESS)
+    if (res != OS_SUCCESS)
     {
         UT_OS_LOG("OS_mount() returns %d\n", (int)res);;
         OS_rmfs(g_devName);
@@ -112,7 +112,7 @@ void UtTest_Setup(void)
 {
     UT_os_initfs_test();
 
-    if (UT_os_setup_fs() == OS_FS_SUCCESS)
+    if (UT_os_setup_fs() == OS_SUCCESS)
     {
         UT_os_init_file_misc();
 

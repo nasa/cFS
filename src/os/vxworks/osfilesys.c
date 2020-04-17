@@ -252,7 +252,7 @@ int32 OS_FileSysMountVolume_Impl (uint32 filesys_id)
     fd = open ( local->system_mountpt, O_RDONLY, 0644 );
     if ( fd < 0 )
     {
-        status = OS_FS_ERROR;
+        status = OS_ERROR;
     }
     else
     {
@@ -285,13 +285,13 @@ int32 OS_FileSysUnmountVolume_Impl (uint32 filesys_id)
     fd = open ( local->system_mountpt, O_RDONLY, 0644 );
     if ( fd < 0 )
     {
-        status = OS_FS_ERROR;
+        status = OS_ERROR;
     }
     else
     {
         if ( ioctl( fd, FIOUNMOUNT,0) < 0 )
         {
-            status = OS_FS_ERROR;
+            status = OS_ERROR;
         }
         else
         {
@@ -322,7 +322,7 @@ int32 OS_FileSysStatVolume_Impl (uint32 filesys_id, OS_statvfs_t *result)
 
    if (statfs(local->system_mountpt, &stat_buf) != 0)
    {
-       return_code = OS_FS_ERROR;
+       return_code = OS_ERROR;
        memset(result, 0, sizeof(*result));
    }
    else
@@ -330,7 +330,7 @@ int32 OS_FileSysStatVolume_Impl (uint32 filesys_id, OS_statvfs_t *result)
        result->block_size = stat_buf.f_bsize;
        result->blocks_free = stat_buf.f_bfree;
        result->total_blocks = stat_buf.f_blocks;
-       return_code = OS_FS_SUCCESS;
+       return_code = OS_SUCCESS;
    }
 
    return return_code;
@@ -357,7 +357,7 @@ int32 OS_FileSysCheckVolume_Impl (uint32 filesys_id, bool repair)
     fd = open (local->system_mountpt, O_RDONLY, 0);
     if (fd < 0)
     {
-        return OS_FS_ERROR;
+        return OS_ERROR;
     }
 
     /* Fix the disk if there are errors */
@@ -378,10 +378,10 @@ int32 OS_FileSysCheckVolume_Impl (uint32 filesys_id, bool repair)
 
     if (chk_status != OK)
     {
-        return OS_FS_ERROR;
+        return OS_ERROR;
     }
 
-    return OS_FS_SUCCESS;
+    return OS_SUCCESS;
 
 } /* end OS_FileSysCheckVolume_Impl */
 
