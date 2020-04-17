@@ -95,55 +95,65 @@ void TestCreatRemove(void)
     char maxfilename[OS_MAX_PATH_LEN];
     char longfilename [OS_MAX_PATH_LEN + 10];
     int  status;
+    int  fd;
+    int  i;
  
-    strncpy(filename,"/drive0/test11chars", sizeof(filename) - 1);
-    filename[sizeof(filename) - 1] = 0;
+    /* Short file name */
+    strncpy(filename,"/drive0/a", sizeof(filename));
 
-    /* make the two really long filenames */
-    
-    /* 1 '/' and 40 'm' */
-    strncpy(maxfilename,"/drive0/mmmmmmmmmmmmmmmmmmmm", sizeof(maxfilename) - 1);
-    maxfilename[sizeof(maxfilename) - 1] = 0;
+    /* Create max file name (OS_MAX_FILE_NAME including terminating null) */
+    strncpy(maxfilename,"/drive0/", sizeof(maxfilename));
+    for (i = strlen(maxfilename); i < (OS_MAX_FILE_NAME - 1); i++)
+    {
+        maxfilename[i] = 'm';
+    }
 
-    /* 1 '/' and 41 'l' */
-    strncpy(longfilename,"/drive0/lllllllllllllllllllllllllllllllllllllllll", sizeof(longfilename) - 1);
-    longfilename[sizeof(longfilename) - 1] = 0;
+    /* Create longer than max file name */
+    strncpy(longfilename,"/drive0/", sizeof(longfilename));
+    for (i = strlen(longfilename); i < (sizeof(longfilename) - 1); i++)
+    {
+        longfilename[i] = 'm';
+    }
     
-    /* create a file of reasonable length (but over 8 chars) */
-    status = OS_creat(filename,OS_READ_WRITE);
-    UtAssert_True(status >= OS_SUCCESS, "status after creat = %d",(int)status);
+    /* create a file with short name */
+    fd = OS_creat(filename,OS_READ_WRITE);
+    UtAssert_True(fd >= 0, "fd after creat short name length file = %d",(int)fd);
 
     /* close the first file */
-    status = OS_close(status);
-    UtAssert_True(status == OS_SUCCESS, "status after close = %d",(int)status);
+    status = OS_close(fd);
+    UtAssert_True(status == OS_SUCCESS, "status after close short name length file = %d",(int)status);
 
-    /* create a file of OS_max_file_name size */
-    status = OS_creat(maxfilename,OS_READ_WRITE);
-    UtAssert_True(status >= OS_SUCCESS, "status after creat = %d",(int)status);
+    /* create a file with max name size */
+    fd = OS_creat(maxfilename,OS_READ_WRITE);
+    UtAssert_True(fd >= 0, "fd after creat max name length file = %d",(int)fd);
 
     /* close the second file */
-    status = OS_close(status);
-    UtAssert_True(status == OS_SUCCESS, "status after close = %d",(int)status);
+    status = OS_close(fd);
+    UtAssert_True(status == OS_SUCCESS, "status after close max name length file = %d",(int)status);
 
-    /* try removing the file from the drive */
+    /* remove the file from the drive */
     status = OS_remove(filename);
-    UtAssert_True(status == OS_SUCCESS, "status after remove = %d",(int)status);
+    UtAssert_True(status == OS_SUCCESS, "status after short name length file remove = %d",(int)status);
     
-    /* try removing the file from the drive */
+    /* remove the file from the drive */
     status = OS_remove(maxfilename);
-    UtAssert_True(status == OS_SUCCESS, "status after remove = %d",(int)status);
+    UtAssert_True(status == OS_SUCCESS, "status after remove max name length file = %d",(int)status);
 
-    /* try removing the file from the drive. Should Fail */
+    /* try creating with file name too big, should fail */
+    status = OS_creat(longfilename,OS_READ_WRITE);
+    UtAssert_True(status < OS_SUCCESS, "status after create file name too long = %d",(int)status);
+
+    /* try removing with file name too big. Should Fail */
     status = OS_remove(longfilename);
-    UtAssert_True(status < OS_SUCCESS, "status after remove = %d",(int)status);
+    UtAssert_True(status < OS_SUCCESS, "status after remove file name too long = %d",(int)status);
 
-    /* try removing the file from the drive. Should Fail */
-    status = OS_remove("/drive0/FileNotOnDrive");
-    UtAssert_True(status < OS_SUCCESS, "status after remove = %d",(int)status);
+    /* try removing file that no longer exists. Should Fail */
+    status = OS_remove(filename);
+    UtAssert_True(status < OS_SUCCESS, "status after remove file doesn't exist = %d",(int)status);
 
     /* Similar to previous but with a bad mount point (gives different error code) */
-    status = OS_remove("/FileNotOnDrive");
-    UtAssert_True(status == OS_FS_ERR_PATH_INVALID, "status after remove = %d",(int)status);
+    status = OS_remove("/x");
+    UtAssert_True(status == OS_FS_ERR_PATH_INVALID, "status after remove bad mount = %d",(int)status);
 }
 
 /*---------------------------------------------------------------------------------------
@@ -781,13 +791,16 @@ void TestStat(void)
 
     char        filename1[OS_MAX_PATH_LEN];
     char        dir1 [OS_MAX_PATH_LEN];
+    char        dir1slash[OS_MAX_PATH_LEN];
     char        buffer1 [OS_MAX_PATH_LEN];
     os_fstat_t  StatBuff;
     int32       fd1;
     int         size;
 
-    strcpy(dir1,"/drive0/ThisIsALongDirectoryName");
-    strcpy(filename1,"/drive0/ThisIsALongDirectoryName/MyFile1");
+    strcpy(dir1,"/drive0/DirectoryName");
+    strcpy(dir1slash, dir1);
+    strcat(dir1slash, "/");
+    strcpy(filename1,"/drive0/DirectoryName/MyFile1");
     strcpy(buffer1,"111111111111");
  
     /* make the directory */
@@ -812,13 +825,13 @@ void TestStat(void)
     /* 
     ** Make the stat calls 
     */
-    status = OS_stat( "/drive0/ThisIsALongDirectoryName/",&StatBuff);
+    status = OS_stat(dir1slash,&StatBuff);
     UtAssert_True(status == OS_SUCCESS, "status after stat 1 = %d",(int)status);
 
-    status = OS_stat( "/drive0/ThisIsALongDirectoryName",&StatBuff);
+    status = OS_stat(dir1,&StatBuff);
     UtAssert_True(status == OS_SUCCESS, "status after stat 2 = %d",(int)status);
 
-    status = OS_stat( "/drive0/ThisIsALongDirectoryName/MyFile1",&StatBuff);
+    status = OS_stat(filename1,&StatBuff);
     UtAssert_True(status == OS_SUCCESS, "status after stat 3 = %d",(int)status);
 
     /* Clean up */

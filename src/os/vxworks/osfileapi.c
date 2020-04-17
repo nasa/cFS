@@ -176,8 +176,8 @@ int32 OS_DirRead_Impl(uint32 local_id, os_dirent_t *dirent)
       return OS_ERROR;
    }
 
-   strncpy(dirent->FileName, de->d_name, OS_MAX_PATH_LEN - 1);
-   dirent->FileName[OS_MAX_PATH_LEN - 1] = 0;
+   strncpy(dirent->FileName, de->d_name, sizeof(dirent->FileName) - 1);
+   dirent->FileName[sizeof(dirent->FileName) - 1] = 0;
 
    return OS_SUCCESS;
 } /* end OS_DirRead_Impl */

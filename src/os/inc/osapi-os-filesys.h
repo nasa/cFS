@@ -190,7 +190,7 @@ enum
 /** @brief Directory entry */
 typedef struct
 {
-   char FileName[OS_MAX_PATH_LEN];
+   char FileName[OS_MAX_FILE_NAME];
 } os_dirent_t;
 
 #ifndef OSAL_OMIT_DEPRECATED

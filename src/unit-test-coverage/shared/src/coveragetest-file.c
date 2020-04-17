@@ -52,29 +52,15 @@ void Test_OS_creat(void)
      * int32 OS_creat  (const char *path, int32  access)
      */
     int32 actual = OS_creat("/cf/file", OS_READ_WRITE);
-
     UtAssert_True(actual >= 0, "OS_creat() (%ld) >= 0", (long)actual);
 
     actual = OS_creat("/cf/file", OS_READ_ONLY);
     UtAssert_True(actual == OS_ERROR, "OS_creat() (%ld) == OS_ERROR", (long)actual);
 
+    UT_SetForceFail(UT_KEY(OS_TranslatePath), OS_ERROR);
     actual = OS_creat(NULL, OS_WRITE_ONLY);
-    UtAssert_True(actual == OS_INVALID_POINTER, "OS_creat() (%ld) == OS_INVALID_POINTER", (long)actual);
-
-    UT_SetForceFail(UT_KEY(OCS_strlen), 2 + OS_MAX_PATH_LEN);
-    actual = OS_creat("/file", OS_WRITE_ONLY);
-    UtAssert_True(actual == OS_FS_ERR_PATH_TOO_LONG, "OS_creat() (%ld) == OS_FS_ERR_PATH_TOO_LONG", (long)actual);
-    UT_ClearForceFail(UT_KEY(OCS_strlen));
-
-    UT_SetForceFail(UT_KEY(OCS_strrchr), -1);
-    actual = OS_creat("/file", OS_WRITE_ONLY);
     UtAssert_True(actual == OS_ERROR, "OS_creat() (%ld) == OS_ERROR", (long)actual);
-    UT_ClearForceFail(UT_KEY(OCS_strrchr));
-
-    UT_SetDeferredRetcode(UT_KEY(OCS_strlen), 2, 2 + OS_MAX_FILE_NAME);
-    actual = OS_creat("/file", OS_WRITE_ONLY);
-    UtAssert_True(actual == OS_FS_ERR_NAME_TOO_LONG, "OS_creat() (%ld) == OS_FS_ERR_NAME_TOO_LONG", (long)actual);
-    UT_ClearForceFail(UT_KEY(OCS_strlen));
+    UT_ClearForceFail(UT_KEY(OS_TranslatePath));
 
 }
 
@@ -307,13 +293,11 @@ void Test_OS_cp(void)
     actual = OS_cp("/cf/file1", "/cf/file2");
     UtAssert_True(actual == expected, "OS_cp() (%ld) == -555", (long)actual);
 
-    UT_SetDeferredRetcode(UT_KEY(OCS_strrchr), 1, -1);
-    expected = OS_ERROR;
+    UT_SetForceFail(UT_KEY(OS_TranslatePath), OS_INVALID_POINTER);
+    expected = OS_INVALID_POINTER;
     actual = OS_cp("/cf/file1", "/cf/file2");
     UtAssert_True(actual == expected, "OS_cp() (%ld) == OS_INVALID_POINTER", (long)actual);
-    UT_SetDeferredRetcode(UT_KEY(OCS_strrchr), 2, -1);
-    actual = OS_cp("/cf/file1", "/cf/file2");
-    UtAssert_True(actual == expected, "OS_cp() (%ld) == OS_INVALID_POINTER", (long)actual);
+    UT_ClearForceFail(UT_KEY(OS_TranslatePath));
 }
 
 

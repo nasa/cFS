@@ -66,6 +66,40 @@ extern const OS_VolumeInfo_t OS_VolumeTable[];
 #define OS_COMPAT_VOLTAB_SIZE       0
 #endif
 
+
+/*----------------------------------------------------------------
+ *
+ * Function: OS_check_name_length
+ *
+ *  Purpose: Local helper routine, not part of OSAL API.
+ *           Validates that the path length is within spec and
+ *           contains at least one directory separator (/) char.
+ *
+ *-----------------------------------------------------------------*/
+static int32 OS_check_name_length(const char *path)
+{
+    char* name_ptr;
+
+    /* NULL check is done in calling function */
+
+    if (strlen(path) >= OS_MAX_PATH_LEN)
+        return OS_FS_ERR_PATH_TOO_LONG;
+
+    /* checks to see if there is a '/' somewhere in the path */
+    name_ptr = strrchr(path, '/');
+    if (name_ptr == NULL)
+        return OS_FS_ERR_PATH_INVALID;
+
+    /* strrchr returns a pointer to the last '/' char, so we advance one char */
+    name_ptr = name_ptr + 1;
+
+    if( strlen(name_ptr) >= OS_MAX_FILE_NAME)
+        return OS_FS_ERR_NAME_TOO_LONG;
+
+    return OS_SUCCESS;
+
+} /* end OS_check_name_length */
+
                         
 /*----------------------------------------------------------------
  *
@@ -1061,17 +1095,18 @@ int32 OS_TranslatePath(const char *VirtualPath, char *LocalPath)
         return OS_INVALID_POINTER;
     }
 
+    /*
+    ** Check length
+    */
+    return_code = OS_check_name_length(VirtualPath);
+    if (return_code != OS_SUCCESS)
+    {
+        return return_code;
+    }
+
     SysMountPointLen = 0;
     VirtPathLen = strlen(VirtualPath);
     VirtPathBegin = VirtPathLen;
-
-    /*
-    ** Check to see if the path is too long
-    */
-    if (VirtPathLen >= OS_MAX_PATH_LEN)
-    {
-        return OS_FS_ERR_PATH_TOO_LONG;
-    }
 
     /*
     ** All valid Virtual paths must start with a '/' character

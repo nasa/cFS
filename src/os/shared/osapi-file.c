@@ -53,41 +53,7 @@ enum
 };
 
 OS_stream_internal_record_t         OS_stream_table[OS_MAX_NUM_OPEN_FILES];
-
                         
-/*----------------------------------------------------------------
- *
- * Function: OS_check_name_length
- *
- *  Purpose: Local helper routine, not part of OSAL API.
- *           Validates that the path length is within spec and
- *           contains at least one directory separator (/) char.
- *
- *-----------------------------------------------------------------*/
-static int32 OS_check_name_length(const char *path)
-{
-    char* name_ptr;
-
-    if (path == NULL)
-        return OS_INVALID_POINTER;
-
-    if (strlen(path) > OS_MAX_PATH_LEN)
-        return OS_FS_ERR_PATH_TOO_LONG;
-
-    /* checks to see if there is a '/' somewhere in the path */
-    name_ptr = strrchr(path, '/');
-    if (name_ptr == NULL)
-        return OS_ERROR;
-
-    /* strrchr returns a pointer to the last '/' char, so we advance one char */
-    name_ptr = name_ptr + 1;
-
-    if( strlen(name_ptr) > OS_MAX_FILE_NAME)
-        return OS_FS_ERR_NAME_TOO_LONG;
-
-    return OS_SUCCESS;
-
-} /* end OS_check_name_length */
 
 /****************************************************************************************
                                   FILE API
@@ -126,16 +92,9 @@ static int32 OS_OpenCreate(uint32 *filedes, const char *path, int32 flags, int32
    char   local_path[OS_MAX_LOCAL_PATH_LEN];
 
    /*
-   ** check if the name of the file is too long
-   */
-   return_code = OS_check_name_length(path);
-   if (return_code == OS_SUCCESS)
-   {
-      /*
-      ** Translate the path
-      */
-      return_code = OS_TranslatePath(path, (char *)local_path);
-   }
+    * Translate the path
+    */
+   return_code = OS_TranslatePath(path, (char *)local_path);
 
    if (return_code == OS_SUCCESS)
    {
@@ -455,14 +414,10 @@ int32 OS_remove (const char *path)
    int32 return_code;
    char local_path[OS_MAX_LOCAL_PATH_LEN];
 
-   return_code = OS_check_name_length(path);
+   return_code = OS_TranslatePath(path, local_path);
    if (return_code == OS_SUCCESS)
    {
-      return_code = OS_TranslatePath(path, local_path);
-      if (return_code == OS_SUCCESS)
-      {
-         return_code = OS_FileRemove_Impl(local_path);
-      }
+      return_code = OS_FileRemove_Impl(local_path);
    }
 
    return return_code;
@@ -485,15 +440,7 @@ int32 OS_rename (const char *old, const char *new)
    char old_path[OS_MAX_LOCAL_PATH_LEN];
    char new_path[OS_MAX_LOCAL_PATH_LEN];
 
-   return_code = OS_check_name_length(old);
-   if (return_code == OS_SUCCESS)
-   {
-      return_code = OS_check_name_length(new);
-   }
-   if (return_code == OS_SUCCESS)
-   {
-      return_code = OS_TranslatePath(old, old_path);
-   }
+   return_code = OS_TranslatePath(old, old_path);
    if (return_code == OS_SUCCESS)
    {
       return_code = OS_TranslatePath(new, new_path);
