@@ -17,9 +17,8 @@
 /****************************************************************************************
                                     INCLUDE FILES
 ****************************************************************************************/
-#include "common_types.h"
-#include "osapi.h"
 
+#include "pclinux_bsp_internal.h"
 
 /* 
 **  volume table. 
@@ -47,6 +46,4 @@ OS_VolumeInfo_t OS_VolumeTable [NUM_TABLE_ENTRIES] =
 {"unused",   "unused",    FS_BASED,        true,      true,     false,     " ",      " ",     0        },
 {"unused",   "unused",    FS_BASED,        true,      true,     false,     " ",      " ",     0        }
 };
-
-
 

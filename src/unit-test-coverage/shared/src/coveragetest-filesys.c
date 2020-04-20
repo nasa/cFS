@@ -134,9 +134,9 @@ void Test_OS_rmfs(void)
 
     /* check error paths */
     UT_SetForceFail(UT_KEY(OS_ObjectIdGetByName), OS_ERR_NAME_NOT_FOUND);
-    expected = OS_FS_ERROR;
+    expected = OS_ERR_NAME_NOT_FOUND;
     actual = OS_rmfs("/ramdev4");
-    UtAssert_True(actual == expected, "OS_rmfs() (%ld) == OS_FS_ERROR", (long)actual);
+    UtAssert_True(actual == expected, "OS_rmfs() (%ld) == OS_ERR_NAME_NOT_FOUND", (long)actual);
     UT_ClearForceFail(UT_KEY(OS_ObjectIdGetByName));
 
     expected = OS_FS_ERR_INVALID_POINTER;
@@ -194,11 +194,9 @@ void Test_OS_mount(void)
     int32 expected;
     int32 actual;
 
-    /* supposed to be OS_ERR_INCORRECT_OBJ_STATE, but
-     * actually OS_FS_ERROR for compatibility */
-    expected = OS_FS_ERROR;
+    expected = OS_ERR_NAME_NOT_FOUND;
     actual = OS_mount("/ramdev5","/ram5");
-    UtAssert_True(actual == expected, "OS_mount() (%ld) == OS_FS_ERROR", (long)actual);
+    UtAssert_True(actual == expected, "OS_mount() (%ld) == OS_ERR_NAME_NOT_FOUND", (long)actual);
 
     /* mount on a fixed disk historically returns OS_SUCCESS and is a no-op.
      * This is for backward compatibility (it should probably an error to do this) */
@@ -236,11 +234,9 @@ void Test_OS_unmount(void)
     int32 expected;
     int32 actual;
 
-    /* supposed to be OS_ERR_INCORRECT_OBJ_STATE, but
-     * actually OS_FS_ERROR for compatibility */
-    expected = OS_FS_ERROR;
+    expected = OS_ERR_NAME_NOT_FOUND;
     actual = OS_unmount("/ram0");
-    UtAssert_True(actual == expected, "OS_mount() (%ld) == OS_FS_ERROR", (long)actual);
+    UtAssert_True(actual == expected, "OS_mount() (%ld) == OS_ERR_NAME_NOT_FOUND", (long)actual);
 
     /* unmount on a fixed disk historically returns OS_SUCCESS and is a no-op.
      * This is for backward compatibility (it should probably an error to do this) */
@@ -408,13 +404,13 @@ void Test_OS_FS_GetPhysDriveName(void)
     OS_filesys_table[1].flags = OS_FILESYS_FLAG_IS_READY | OS_FILESYS_FLAG_IS_MOUNTED_SYSTEM | OS_FILESYS_FLAG_IS_MOUNTED_VIRTUAL;
     expected = OS_SUCCESS;
     actual = OS_FS_GetPhysDriveName(NameBuf,"none");
-    UtAssert_True(actual == expected, "OS_FS_GetPhysDriveName() (%ld) == OS_FS_ERROR", (long)actual);
+    UtAssert_True(actual == expected, "OS_FS_GetPhysDriveName() (%ld) == OS_SUCCESS", (long)actual);
 
     /* Test Fail due to no matching VolTab entry */
     UT_SetForceFail(UT_KEY(OS_ObjectIdGetBySearch), OS_ERR_NAME_NOT_FOUND);
-    expected = OS_FS_ERROR;
+    expected = OS_ERR_NAME_NOT_FOUND;
     actual = OS_FS_GetPhysDriveName(NameBuf,"none");
-    UtAssert_True(actual == expected, "OS_FS_GetPhysDriveName() (%ld) == OS_FS_ERROR", (long)actual);
+    UtAssert_True(actual == expected, "OS_FS_GetPhysDriveName() (%ld) == OS_ERR_NAME_NOT_FOUND", (long)actual);
 }
 
 
