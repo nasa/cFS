@@ -8,6 +8,10 @@ This is a collection of APIs abstracting platform specific functionality to be l
 
 ## Version Notes
 
+- 1.4.9 DEVELOPMENT
+  - RTEMS builds successfully without errors
+  - Build script uses a proper CMakeLists.txt instead of the aux_source directory
+  - Minor updates (see https://github.com/nasa/PSP/pull/153)
 - 1.4.8 DEVELOPMENT
   - Minor updates (see https://github.com/nasa/PSP/pull/151)
 - 1.4.7 DEVELOPMENT

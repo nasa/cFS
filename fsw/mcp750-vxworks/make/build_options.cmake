@@ -1,11 +1,16 @@
+##########################################################################
+#
+# Build options for "mcp750-vxworks" PSP
+# This file specifies any global-scope compiler options when using this PSP
+#
+##########################################################################
+
 # This indicates where to install target binaries created during the build
+# Note - this should be phased out in favor of the staging dir from OSAL BSP
 set(INSTALL_SUBDIR "cf")
 
-# Additional preprocessor macro definitions to identify this platform
+# Some upper-level code may be gated on _VXWORKS_OS_ being defined
+# This is for compatibility with older build scripts which defined this symbol,
+# but no CFE/OSAL framework code depends on this symbol.
 add_definitions("-D_VXWORKS_OS_")
-add_definitions("-D__PPC__")
-add_definitions("-DMCP750")
 
-include_directories($ENV{WIND_BASE}/target/h)
-include_directories($ENV{WIND_BASE}/target/h/wrn/coreip)
-include_directories($ENV{WIND_BASE}/target/config/mcp750)
