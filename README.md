@@ -18,7 +18,11 @@ This distribution contains:
 3. A directory structure and makefiles to manage it all.
 
 ## Version Notes:
-
+- 5.0.12: DEVELOPMENT
+  - Use the target_include_directories and target_compile_definitions functions from CMake to manage the build flags per target.
+  - Build implementation components using a separate CMakeLists.txt file rather than aux_source_directory.
+  - Provide sufficient framework for combining the OSAL BSP, UT BSP, and the CFE PSP and eliminating the duplication/overlap between these items.
+  - Minor updates (see https://github.com/nasa/osal/pull/417)
 - 5.0.11: DEVELOPMENT
   - The more descriptive return value OS_ERR_NAME_NOT_FOUND (instead of OS_FS_ERROR) will now be returned from the following functions (): OS_rmfs, OS_mount, OS_unmount, OS_FS_GetPhysDriveName
   - Wraps OS_ShMem* prototype and unit test wrapper additions in OSAL_OMIT_DEPRECATED
