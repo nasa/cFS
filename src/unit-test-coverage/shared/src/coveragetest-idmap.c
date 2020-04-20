@@ -607,7 +607,7 @@ void Test_OS_ConvertToArrayIndex(void)
     Osapi_Call_ObjectIdFindNext(OS_OBJECT_TYPE_OS_TASK, &local_idx1, &rptr);
     actual = OS_ConvertToArrayIndex(rptr->active_id, &local_idx2);
     UtAssert_True(actual == expected, "OS_ConvertToArrayIndex() (%ld) == OS_SUCCESS", (long)actual);
-    UtAssert_True(local_idx1 == local_idx1, "local_idx1 (%lu) == local_idx2 (%lu)",
+    UtAssert_True(local_idx1 == local_idx2, "local_idx1 (%lu) == local_idx2 (%lu)",
             (unsigned long)local_idx1, (unsigned long)local_idx2);
 
     expected = OS_ERR_INCORRECT_OBJ_TYPE;
