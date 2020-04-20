@@ -17,8 +17,6 @@
 #     any coverage test referencing on the shared/ng OSAL layer.
 #
 
-include_directories(${OSAL_SOURCE_DIR}/src/ut-stubs)
-
 # The "ut_libc_stubs" target provides stub versions of C library calls.
 # They are prefixed with "OCS_" and target code must be recompiled to
 # call the OCS_ version of the syscall instead of the regular syscall.
@@ -72,6 +70,11 @@ add_library(ut_libc_stubs STATIC EXCLUDE_FROM_ALL
     src/vxworks-taskVarLib-stubs.c
     src/vxworks-xbdBlkDev-stubs.c)
     
+target_include_directories(ut_libc_stubs PUBLIC 
+    ${CMAKE_CURRENT_SOURCE_DIR}/inc
+)
+    
+    
 # The "ut_osapi_impl_stubs" provides stub functions for internal
 # OSAL calls used by or implemented by the shared layer.  These
 # are not public API calls.   This is only compiled if used. 
@@ -84,5 +87,9 @@ add_library(ut_osapi_impl_stubs STATIC EXCLUDE_FROM_ALL
     src/osapi-select-impl-stubs.c 
     src/osapi-timer-impl-stubs.c)
 
-list(APPEND OSALCOVERAGE_STUB_LIB_LIST ut_osapi_impl_stubs ut_libc_stubs)
+list(APPEND OSALCOVERAGE_STUB_LIB_LIST 
+    ut_osapi_impl_stubs 
+    ut_libc_stubs 
+)
 set(OSALCOVERAGE_STUB_LIB_LIST ${OSALCOVERAGE_STUB_LIB_LIST} PARENT_SCOPE)
+

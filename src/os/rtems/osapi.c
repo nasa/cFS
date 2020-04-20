@@ -1410,6 +1410,8 @@ int32 OS_MutSemGetInfo_Impl (uint32 sem_id, OS_mut_sem_prop_t *mut_prop)
                                     TICK API
  ***************************************************************************************/
 
+#ifndef OSAL_OMIT_DEPRECATED
+
 /****************************************************************************************
                                  INT API
  ***************************************************************************************/
@@ -1539,34 +1541,6 @@ int32 OS_IntDisable_Impl (int32 Level)
                         
 /*----------------------------------------------------------------
  *
- * Function: OS_HeapGetInfo_Impl
- *
- *  Purpose: Implemented per internal OSAL API
- *           See prototype in os-impl.h for argument/return detail
- *
- *-----------------------------------------------------------------*/
-int32 OS_HeapGetInfo_Impl       (OS_heap_prop_t *heap_prop)
-{
-    region_information_block info;
-    int                      status;
-
-    status = malloc_info( &info );
-
-    if ( status != 0 )
-    {
-       return(OS_ERROR);
-    }
-
-    heap_prop->free_bytes         = (uint32) info.Free.total;
-    heap_prop->free_blocks        = (uint32) info.Free.number;
-    heap_prop->largest_free_block = (uint32) info.Free.largest;
-
-    return (OS_SUCCESS);
-} /* end OS_HeapGetInfo_Impl */
-
-                        
-/*----------------------------------------------------------------
- *
  * Function: OS_IntSetMask_Impl
  *
  *  Purpose: Implemented per internal OSAL API
@@ -1592,7 +1566,36 @@ int32 OS_IntGetMask_Impl ( uint32 * MaskSettingPtr )
     *MaskSettingPtr = 0;
     return(OS_ERR_NOT_IMPLEMENTED);
 } /* end OS_IntGetMask_Impl */
-                        
+
+#endif /* OSAL_OMIT_DEPRECATED */
+
+/*----------------------------------------------------------------
+ *
+ * Function: OS_HeapGetInfo_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype in os-impl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+int32 OS_HeapGetInfo_Impl       (OS_heap_prop_t *heap_prop)
+{
+    region_information_block info;
+    int                      status;
+
+    status = malloc_info( &info );
+
+    if ( status != 0 )
+    {
+       return(OS_ERROR);
+    }
+
+    heap_prop->free_bytes         = (uint32) info.Free.total;
+    heap_prop->free_blocks        = (uint32) info.Free.number;
+    heap_prop->largest_free_block = (uint32) info.Free.largest;
+
+    return (OS_SUCCESS);
+} /* end OS_HeapGetInfo_Impl */
+
 /*----------------------------------------------------------------
  *
  * Function: OS_FPUExcAttachHandler_Impl

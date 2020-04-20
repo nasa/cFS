@@ -1195,13 +1195,18 @@ int32 OS_FPUExcSetMask         (uint32 mask);
 int32 OS_FPUExcGetMask         (uint32 *mask);
 /**@}*/
 
+#ifndef OSAL_OMIT_DEPRECATED
+
 /** @defgroup OSAPIInterrupt OSAL Interrupt APIs
  * @{
+ * @deprecated Platform dependencies
  */
 
 /*-------------------------------------------------------------------------------------*/
 /**
- * @brief Associate an interrupt number to a specified handler routine
+ * @brief DEPRECATED; Associate an interrupt number to a specified handler routine
+ *
+ * @deprecated platform dependencies, removing from OSAL
  *
  * The call associates a specified C routine to a specified interrupt
  * number. Upon occurring of the InterruptNumber, the InerruptHandler
@@ -1220,7 +1225,9 @@ int32 OS_IntAttachHandler  (uint32 InterruptNumber, osal_task_entry InterruptHan
 
 /*-------------------------------------------------------------------------------------*/
 /**
- * @brief Enable interrupts
+ * @brief DEPRECATED; Enable interrupts
+ *
+ * @deprecated platform dependencies, removing from OSAL
  *
  * @param[in] IntLevel value from previous call to OS_IntLock()
  *
@@ -1232,7 +1239,9 @@ int32 OS_IntUnlock         (int32 IntLevel);
 
 /*-------------------------------------------------------------------------------------*/
 /**
- * @brief Disable interrupts
+ * @brief DEPRECATED; Disable interrupts
+ *
+ * @deprecated platform dependencies, removing from OSAL
  *
  * @return An key value to be passed to OS_IntUnlock() to restore interrupts or error
  *         status, see @ref OSReturnCodes
@@ -1243,7 +1252,9 @@ int32 OS_IntLock           (void);
 
 /*-------------------------------------------------------------------------------------*/
 /**
- * @brief Enables interrupts through Level
+ * @brief DEPRECATED; Enables interrupts through Level
+ *
+ * @deprecated platform dependencies, removing from OSAL
  *
  * @param[in] Level  the interrupts to enable
  *
@@ -1255,7 +1266,9 @@ int32 OS_IntEnable         (int32 Level);
 
 /*-------------------------------------------------------------------------------------*/
 /**
- * @brief Disable interrupts through Level
+ * @brief DEPRECATED; Disable interrupts through Level
+ *
+ * @deprecated platform dependencies, removing from OSAL
  *
  * @param[in] Level  the interrupts to disable
  *
@@ -1267,7 +1280,9 @@ int32 OS_IntDisable        (int32 Level);
 
 /*-------------------------------------------------------------------------------------*/
 /**
- * @brief Set the CPU interrupt mask register
+ * @brief DEPRECATED; Set the CPU interrupt mask register
+ *
+ * @deprecated platform dependencies, removing from OSAL
  *
  * @note The interrupt bits are architecture-specific.
  *
@@ -1281,7 +1296,9 @@ int32 OS_IntSetMask        (uint32 mask);
 
 /*-------------------------------------------------------------------------------------*/
 /**
- * @brief Get the CPU interrupt mask register
+ * @brief DEPRECATED; Get the CPU interrupt mask register
+ *
+ * @deprecated platform dependencies, removing from OSAL
  *
  * @note The interrupt bits are architecture-specific.
  *
@@ -1295,7 +1312,9 @@ int32 OS_IntGetMask        (uint32 *mask);
 
 /*-------------------------------------------------------------------------------------*/
 /**
- * @brief Acknowledge the corresponding interrupt number.
+ * @brief DEPRECATED; Acknowledge the corresponding interrupt number.
+ *
+ * @deprecated platform dependencies, removing from OSAL
  *
  * @note: placeholder; not currently implemented in sample implementations
  *
@@ -1309,6 +1328,7 @@ int32 OS_IntGetMask        (uint32 *mask);
 int32 OS_IntAck             (int32 InterruptNumber);
 /**@}*/
 
+
 /**
  * @defgroup OSAPIShMem OSAL Shared memory APIs
  * @deprecated Not in current implementations
@@ -1317,41 +1337,43 @@ int32 OS_IntAck             (int32 InterruptNumber);
  */
 
 /*-------------------------------------------------------------------------------------*/
-/** @brief placeholder; not currently implemented
+/** @brief DEPRECATED - platform dependent, never implemented in framework OSALs
  * @deprecated Never implemented
  */
 int32 OS_ShMemInit          (void);
 
 /*-------------------------------------------------------------------------------------*/
-/** @brief placeholder; not currently implemented
+/** @brief DEPRECATED - platform dependent, never implemented in framework OSALs
  * @deprecated Never implemented
  */
 int32 OS_ShMemCreate        (uint32 *Id, uint32 NBytes, const char* SegName);
 
 /*-------------------------------------------------------------------------------------*/
-/** @brief placeholder; not currently implemented
+/** @brief DEPRECATED - platform dependent, never implemented in framework OSALs
  * @deprecated Never implemented
  */
 int32 OS_ShMemSemTake       (uint32 Id);
 
 /*-------------------------------------------------------------------------------------*/
-/** @brief placeholder; not currently implemented
+/** @brief DEPRECATED - platform dependent, never implemented in framework OSALs
  * @deprecated Never implemented
  */
 int32 OS_ShMemSemGive       (uint32 Id);
 
 /*-------------------------------------------------------------------------------------*/
-/** @brief placeholder; not currently implemented
+/** @brief DEPRECATED - platform dependent, never implemented in framework OSALs
  * @deprecated Never implemented
  */
 int32 OS_ShMemAttach        (cpuaddr * Address, uint32 Id);
 
 /*-------------------------------------------------------------------------------------*/
-/** @brief placeholder; not currently implemented
+/** @brief DEPRECATED - platform dependent, never implemented in framework OSALs
  * @deprecated Never implemented
  */
 int32 OS_ShMemGetIdByName   (uint32 *ShMemId, const char *SegName );
 /**@}*/
+
+#endif /* OSAL_OMIT_DEPRECATED */
 
 /** @defgroup OSAPIHeap OSAL Heap APIs
  * @{
@@ -1519,5 +1541,60 @@ void OS_printf_disable(void);
  */
 void OS_printf_enable(void);
 /**@}*/
+
+
+/****************************************************************************************
+                    BSP LOW-LEVEL IMPLEMENTATION FUNCTIONS
+ ****************************************************************************************/
+
+/*----------------------------------------------------------------
+   Function: OS_BSP_GetArgC
+
+    Purpose: Obtain the number of boot arguments passed from the bootloader
+             or shell if supported by the platform
+
+    Returns: The number of boot arguments, or 0 if no arguments were passed
+             or not supported by the BSP.
+ ------------------------------------------------------------------*/
+uint32 OS_BSP_GetArgC(void);
+
+/*----------------------------------------------------------------
+   Function: OS_BSP_GetArgV
+
+    Purpose: Obtain an array of boot argument strings passed from the bootloader
+             or shell if supported by the platform
+
+    Returns: Pointer to char* array containing the argument strings, or NULL if
+             no arguments are available or not supported by the BSP.
+
+             The array is sized according to OS_BSP_GetArgC()
+ ------------------------------------------------------------------*/
+char * const * OS_BSP_GetArgV(void);
+
+/*----------------------------------------------------------------
+   Function: OS_BSP_SetExitCode
+
+    Purpose: Sets the status to be returned to the shell or bootloader
+             if supported by the platform.  The value is an integer with
+             platform and application-defined meaning, but BSP's should
+             attempt to provide consistent meaning for the following values
+
+             OS_SUCCESS: normal status (default)
+             OS_ERROR: any abnormal status
+
+             Other more specific status values may be passed, with
+             implementation-defined behavior.  Depending on the system
+             capabilities, the BSP implementation may either pass the
+             value through as-is, translate it to defined value, or
+             ignore it.
+
+             Note this does NOT cause the application to exit, it only
+             sets the state that will be returned if/when the application
+             exits itself at a future time.
+
+ ------------------------------------------------------------------*/
+void OS_BSP_SetExitCode(int32 code);
+
+
 
 #endif

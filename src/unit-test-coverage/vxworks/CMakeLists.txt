@@ -2,9 +2,6 @@
 
 set(MODULE_LIST osapi osfileapi osfilesys osloader osnetwork osselect ostimer posixio posixfile posixgettime printf)
 
-# This always uses OSAL_OPAQUE_OBJECT_IDS and OSAL_ABSTRACT_FILESYS_TYPES
-add_definitions(-DOSAL_OPAQUE_OBJECT_IDS -DOSAL_ABSTRACT_FILESYS_TYPES)
-
 # This unit test is allowed to directly include any internal file in 
 # the respective set under test.
 include_directories(${OSAL_SOURCE_DIR}/src/os/${SETNAME})

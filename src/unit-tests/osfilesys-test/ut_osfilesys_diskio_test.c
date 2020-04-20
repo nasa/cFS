@@ -50,84 +50,6 @@ extern char  g_mntNames[UT_OS_FILESYS_LIST_LEN][UT_OS_FILE_BUFF_SIZE];
 ** Local function definitions
 **--------------------------------------------------------------------------------*/
 
-/* Test code template for testing a single OSAL API with multiple test cases */
-
-#if 0
-void UT_os_sample_test()
-{
-    /* Must declare these variables for each function. They can be renamed.
-     * They're referenced in the macros used to track test cases and their results. */
-    int32 idx = 0;
-    const char* testDesc;
-
-    /*-----------------------------------------------------*
-     * For each test case,
-     *   1. Assign testDesc a brief description of the test
-     *   2. Setup the test environment, if necessary
-     *   3. Run the test
-     *   4. Log result by calling UT_OS_SET_TEST_RESULT_MACRO
-     *   4. Reset the test environment, if neccessary
-     *
-     * NOTE: "Not implemented" is always checked first but not
-     *       being included as a test case.
-     *       "Nominal" test case is always the last test case.
-     *-----------------------------------------------------*/
-
-    /*-----------------------------------------------------*/
-    testDesc = "API not implemented";
-
-    /* TODO: Setup the test environment, if necessary */
-
-    if (OS_xxx() == OS_ERR_NOT_IMPLEMENTED)
-    {
-        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_NA);
-        goto UT_os_sample_test_exit_tag;
-    }
-
-    /* TODO: Reset the test environment here, if necessary */
-
-    /*-----------------------------------------------------*/
-    testDesc = "#1 Null-pointer-arg";
-
-    /* TODO: Setup the test environment here, if necessary */
-
-    if (OS_xxx(NULL,...) == OS_INVALID_POINTER)
-        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
-    else
-        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
-
-    /* TODO: Reset the test environment here, if necessary */
-
-    /*-----------------------------------------------------*/
-    testDesc = "#2 Name-too-long-arg";
-
-    /* TODO: Setup the test environment here, if necessary */
-
-    if (OS_xxx(aVeryLoooooongName) == OS_ERR_NAME_TOO_LONG)
-        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
-    else
-        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
-
-    /* TODO: Reset the test environment here, if necessary */
-
-    /*-----------------------------------------------------*/
-    testDesc = "#3 Nominal";
-
-    /* TODO: Setup the test environment here, if necessary */
-
-    if (OS_xxx(...) != OS_SUCCESS)
-        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
-    else
-        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
-
-    /* TODO: Reset the test environment here, if necessary */
-
-UT_os_sample_test_exit_tag:
-    return;
-    
-}
-#endif
-
 /*--------------------------------------------------------------------------------*
 ** Syntax: int32 OS_initfs(char *address, char *devname, char *volname, uint32 blocksize, uint32 numblocks)
 ** Purpose: Initializes (without re-formatting) a drive on the target without
@@ -407,7 +329,7 @@ UT_os_makefs_test_exit_tag:
 ** Purpose: Removes or un-maps the target file system
 ** Parameters: *devname - a pointer to the name of the "generic" drive
 ** Returns: OS_FS_ERR_INVALID_POINTER if any of the pointers passed in is NULL
-**          OS_FS_ERROR if the given device is not found in the Volume table
+**          OS_ERR_NAME_NOT_FOUND if the given device is not found in the Volume table
 **          OS_FS_SUCCESS if succeeded
 **          OS_ERR_NOT_IMPLEMENTED if not implemented
 ** -----------------------------------------------------
@@ -426,7 +348,7 @@ UT_os_makefs_test_exit_tag:
 **   1) Make sure no file system has been created previously
 **   2) Call this routine with some device name as argument
 **   3) Expect the returned value to be
-**        (a) OS_FS_ERROR
+**        (a) OS_ERR_NAME_NOT_FOUND
 ** -----------------------------------------------------
 ** Test #3: Nominal condition
 **   1) Call OS_mkfs to create a file system
@@ -465,7 +387,7 @@ void UT_os_removefs_test()
     /*-----------------------------------------------------*/
     testDesc = "#2 Invalid-device-arg";
 
-    if (OS_rmfs(g_devNames[2]) == OS_FS_ERROR)
+    if (OS_rmfs(g_devNames[2]) == OS_ERR_NAME_NOT_FOUND)
         UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
         UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
@@ -500,7 +422,7 @@ UT_os_removefs_test_exit_tag:
 ** Parameters: *devname - a pointer to the name of the drive to mount
 **             *mountpoint - a pointer to the name to call this disk from now on
 ** Returns: OS_FS_ERR_INVALID_POINTER if any of the pointers passed in is NULL
-**          OS_FS_ERROR if the given device is not found in the Volume table
+**          OS_ERR_NAME_NOT_FOUND if the given device is not found in the Volume table
 **          OS_FS_SUCCESS if succeeded
 **          OS_ERR_NOT_IMPLEMENTED if not implemented
 ** -----------------------------------------------------
@@ -520,7 +442,7 @@ UT_os_removefs_test_exit_tag:
 **   1) Make sure no file system has been created previously
 **   2) Call this routine with some device name as argument
 **   3) Expect the returned value to be
-**        (a) OS_FS_ERROR
+**        (a) OS_ERR_NAME_NOT_FOUND
 ** -----------------------------------------------------
 ** Test #3: Nominal condition
 **   1) Call OS_mkfs to create a file system
@@ -531,7 +453,7 @@ UT_os_removefs_test_exit_tag:
 **        (a) OS_FS_SUCCESS
 **   5) Call this routine again exactly as in #3
 **   6) Expect the returned value to be
-**        (a) OS_FS_ERROR
+**        (a) OS_ERR_NAME_NOT_FOUND
 **   7) Call OS_unmount with the mount-point used in #3 as argument
 **   8) Expect the returned value to be
 **        (a) OS_FS_SUCCESS
@@ -563,7 +485,7 @@ void UT_os_mount_test()
     /*-----------------------------------------------------*/
     testDesc = "#2 Invalid-device-arg";
 
-    if (OS_mount("ramdev0", g_mntNames[2]) == OS_FS_ERROR)
+    if (OS_mount("ramdev0", g_mntNames[2]) == OS_ERR_NAME_NOT_FOUND)
         UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
         UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
@@ -579,7 +501,7 @@ void UT_os_mount_test()
     }
 
     if ((OS_mount(g_devNames[3], g_mntNames[3]) == OS_FS_SUCCESS) &&
-        (OS_mount(g_devNames[3], g_mntNames[3]) == OS_FS_ERROR))
+        (OS_mount(g_devNames[3], g_mntNames[3]) == OS_ERR_NAME_NOT_FOUND))
         UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
         UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
@@ -599,7 +521,7 @@ UT_os_mount_test_exit_tag:
 ** Parameters: *mountpoint - a pointer to the name of the drive to unmount
 ** Returns: OS_FS_ERR_INVALID_POINTER if any of the pointers passed in is NULL
 **          OS_FS_ERR_PATH_TOO_LONG if the absolute path passed in is too long
-**          OS_FS_ERROR if the mount-point passed in is not found in the Volume table
+**          OS_ERR_NAME_NOT_FOUND if the mount-point passed in is not found in the Volume table
 **          OS_FS_SUCCESS if succeeded
 **          OS_ERR_NOT_IMPLEMENTED if not implemented
 ** -----------------------------------------------------
@@ -625,7 +547,7 @@ UT_os_mount_test_exit_tag:
 **   1) Make sure no file system has been created previously
 **   2) Call this routine with some mount-point name as argument
 **   3) Expect the returned value to be
-**        (a) OS_FS_ERROR
+**        (a) OS_ERR_NAME_NOT_FOUND
 ** -----------------------------------------------------
 ** Test #4: Nominal condition
 **   1) Call OS_mkfs to create a file system
@@ -639,7 +561,7 @@ UT_os_mount_test_exit_tag:
 **        (a) OS_FS_SUCCESS
 **   7) Call this routine again exactly as in #5
 **   8) Expect the returned value to be
-**        (a) OS_FS_ERROR
+**        (a) OS_ERR_NAME_NOT_FOUND
 **--------------------------------------------------------------------------------*/
 void UT_os_unmount_test()
 {
@@ -675,7 +597,7 @@ void UT_os_unmount_test()
     /*-----------------------------------------------------*/
     testDesc = "#3 Invalid-mount-point-arg";
 
-    if (OS_unmount(g_mntNames[3]) == OS_FS_ERROR)
+    if (OS_unmount(g_mntNames[3]) == OS_ERR_NAME_NOT_FOUND)
         UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
         UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
@@ -692,7 +614,7 @@ void UT_os_unmount_test()
 
     if ((OS_mount(g_devNames[4], g_mntNames[4]) == OS_FS_SUCCESS) &&
         (OS_unmount(g_mntNames[4]) == OS_FS_SUCCESS) &&
-        (OS_unmount(g_mntNames[4]) == OS_FS_ERROR))
+        (OS_unmount(g_mntNames[4]) == OS_ERR_NAME_NOT_FOUND))
         UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
         UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
@@ -712,7 +634,7 @@ UT_os_unmount_test_exit_tag:
 **             *MountPoint - a pointer to the name of the mount-point
 ** Returns: OS_FS_ERR_INVALID_POINTER if any of the pointers passed in is NULL
 **          OS_FS_ERR_PATH_TOO_LONG if the mount-point passed in is too long
-**          OS_FS_ERROR if the mount-point passed in is not found in the Volume table
+**          OS_ERR_NAME_NOT_FOUND if the mount-point passed in is not found in the Volume table
 **          OS_FS_SUCCESS if succeeded
 **          OS_ERR_NOT_IMPLEMENTED if not implemented
 ** -----------------------------------------------------
@@ -740,7 +662,7 @@ UT_os_unmount_test_exit_tag:
 **        (a) OS_FS_SUCCESS
 **   3) Call this routine
 **   4) Expect the returned value to be
-**        (a) OS_FS_ERROR
+**        (a) OS_ERR_NAME_NOT_FOUND
 ** -----------------------------------------------------
 ** Test #4: Nominal condition
 **   1) Call OS_mkfs
@@ -789,7 +711,7 @@ void UT_os_getphysdrivename_test()
     /*-----------------------------------------------------*/
     testDesc = "#3 Invalid-mount-point-arg";
 
-    if (OS_FS_GetPhysDriveName(physDevName, g_mntNames[3]) == OS_FS_ERROR)
+    if (OS_FS_GetPhysDriveName(physDevName, g_mntNames[3]) == OS_ERR_NAME_NOT_FOUND)
         UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
     else
         UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);

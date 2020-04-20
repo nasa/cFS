@@ -1,7 +1,6 @@
+os: linux
 dist: bionic
-sudo: required
-language:
-  - c
+language: c
 compiler:
   - gcc
 addons:

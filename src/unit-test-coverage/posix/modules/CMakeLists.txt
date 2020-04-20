@@ -17,19 +17,25 @@
 # - Each sub-module is compiled to a separate "OBJECT" library
 #       this simplifies the testrunner linking by allow only one specific
 #       object file to be linked into each test
-# - Each sub-module is wrapped to divert C library calls to the 
-#       stub (OCS) counterpart 
-# - UT_C_FLAGS are enabled to include any code coverage instrumentation  
+# - Each sub-module is wrapped to divert C library calls to the
+#       stub (OCS) counterpart
+# - UT_COVERAGE_COMPILE_FLAGS are enabled to include any code coverage instrumentation
 
 # the "overrides" dir contains empty versions of the C-library include files.
 include_directories(${OSALCOVERAGE_SOURCE_DIR}/ut-stubs/inc)
 include_directories(${OSALCOVERAGE_SOURCE_DIR}/ut-stubs/override_inc)
+include_directories(${OSAL_SOURCE_DIR}/src/bsp/shared)
+include_directories(${OSAL_SOURCE_DIR}/src/os/shared)
 
 foreach(MODULE ${MODULE_LIST})
   if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/src/ut-${MODULE}.c)
-    add_library(ut_${SETNAME}_${MODULE} OBJECT src/ut-${MODULE}.c)
-    set_target_properties(ut_${SETNAME}_${MODULE} PROPERTIES COMPILE_FLAGS "${UT_C_FLAGS}")
+    add_library(ut_${SETNAME}_${MODULE} OBJECT
+        src/ut-${MODULE}.c
+    )
+    target_compile_options(ut_${SETNAME}_${MODULE} PRIVATE
+        ${UT_COVERAGE_COMPILE_FLAGS}
+    )
   endif ()
 endforeach()
-  
-  
+
+

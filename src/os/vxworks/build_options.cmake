@@ -1,2 +1,9 @@
-# Set the OSAL_USE_SHARED flag to indicate this uses the shared OSAL base layer
-set(OSAL_USE_SHARED TRUE)
+##########################################################################
+#
+# Build options for "vxworks" implementation layer
+#
+##########################################################################
+
+# this file is a placeholder for VxWorks-specific compile tuning
+# currently no extra flags/definitions needed
+ 
