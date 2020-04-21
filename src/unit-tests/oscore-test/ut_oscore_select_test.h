@@ -1,26 +1,17 @@
 /*================================================================================*
-** File:  ut_oscore_test.h
-** Owner: Tam Ngo/Alan Cudmore
-** Date:  May 2013
+** File:  ut_oscore_select_test.h
+** Owner: Chris Knight
+** Date:  March 2020
 **================================================================================*/
 
-#ifndef _UT_OSCORE_TEST_H_
-#define _UT_OSCORE_TEST_H_
+#ifndef _UT_OSCORE_SELECT_TEST_H_
+#define _UT_OSCORE_SELECT_TEST_H_
 
 /*--------------------------------------------------------------------------------*
 ** Includes
 **--------------------------------------------------------------------------------*/
 
 #include "ut_os_support.h"
-#include "ut_oscore_misc_test.h"
-#include "ut_oscore_binsem_test.h"
-#include "ut_oscore_countsem_test.h"
-#include "ut_oscore_mutex_test.h"
-#include "ut_oscore_queue_test.h"
-#include "ut_oscore_select_test.h"
-#include "ut_oscore_task_test.h"
-#include "ut_oscore_interrupt_test.h"
-#include "ut_oscore_exception_test.h"
 
 /*--------------------------------------------------------------------------------*
 ** Macros
@@ -42,10 +33,14 @@
 ** Function prototypes
 **--------------------------------------------------------------------------------*/
 
+void UT_os_select_fd_test(void);
+void UT_os_select_single_test(void);
+void UT_os_select_multi_test(void);
+
 /*--------------------------------------------------------------------------------*/
 
-#endif  /* _UT_OSCORE_TEST_H_ */
+#endif  /* _UT_OSCORE_SELECT_TEST_H_ */
 
 /*================================================================================*
-** End of File: ut_oscore_test_posix.h
+** End of File: ut_oscore_select_test.h
 **================================================================================*/
