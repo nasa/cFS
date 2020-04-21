@@ -340,7 +340,7 @@ int32 OS_SocketSendTo(uint32 sock_id, const void *buffer, uint32 buflen, const O
  * @return Execution status, see @ref OSReturnCodes
  * @retval #OS_SUCCESS @copybrief OS_SUCCESS
  * @retval #OS_INVALID_POINTER is id or name are NULL pointers
- * @retval #OS_ERR_NAME_TOO_LONG if the name given is to long to have been stored
+ * @retval #OS_ERR_NAME_TOO_LONG name length including null terminator greater than #OS_MAX_API_NAME
  * @retval #OS_ERR_NAME_NOT_FOUND if the name was not found in the table
  */
 int32 OS_SocketGetIdByName (uint32 *sock_id, const char *sock_name);

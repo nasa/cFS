@@ -24,7 +24,7 @@
 #define OS_MAX_MUTEXES              20
 
 /*
-** Maximum length for an absolute path name
+** Maximum length (including terminator) for an absolute path name
 */
 #define OS_MAX_PATH_LEN     64
 
@@ -36,7 +36,7 @@
 #define OS_MAX_LOCAL_PATH_LEN (OS_MAX_PATH_LEN + OS_FS_PHYS_NAME_LEN)
 
 /* 
-** The maxium length allowed for a object (task,queue....) name 
+** The maxium length allowed for a object name (task, queue, etc.), including terminating null 
 */
 #define OS_MAX_API_NAME     20
 
