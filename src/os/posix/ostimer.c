@@ -285,9 +285,10 @@ int32 OS_Posix_TimeBaseAPI_Impl_Init(void)
        }
 
        /*
-        * Calculate microseconds per tick - Rounding UP
-        *  - If the ratio is not an integer, this will choose the next higher value
-        *  - The result is guaranteed not to be zero.
+        * Calculate microseconds per tick 
+        *  - If the ratio is not an integer, this will round to the nearest integer value
+        *  - This is used internally for reporting accuracy,
+        *  - TicksPerSecond values over 2M will return zero
         */
        OS_SharedGlobalVars.MicroSecPerTick = (1000000 + (OS_SharedGlobalVars.TicksPerSecond / 2)) /
              OS_SharedGlobalVars.TicksPerSecond;
