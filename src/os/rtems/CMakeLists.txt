@@ -14,4 +14,5 @@ add_library(osal_rtems_impl OBJECT
 	osnetwork.c
 	osselect.c
 	ostimer.c
+        ../portable/os-impl-no-shell.c
 )

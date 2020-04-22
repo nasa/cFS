@@ -15,5 +15,5 @@ add_library(osal_posix_impl OBJECT
 	osnetwork.c
 	osselect.c
 	ostimer.c
+        ../portable/os-impl-no-shell.c
 )
-
