@@ -151,6 +151,7 @@ void OS_ApplicationExit_Impl(int32 Status)
  */
 UT_DEFAULT_STUB(OS_HeapGetInfo_Impl,(OS_heap_prop_t *heap_prop))
 
+#ifndef OSAL_OMIT_DEPRECATED
 /*
  * FPU API low-level handlers
  */
@@ -159,4 +160,5 @@ UT_DEFAULT_STUB(OS_FPUExcEnable_Impl,(int32 ExceptionNumber))
 UT_DEFAULT_STUB(OS_FPUExcDisable_Impl,(int32 ExceptionNumber))
 UT_DEFAULT_STUB(OS_FPUExcSetMask_Impl,(uint32 mask))
 UT_DEFAULT_STUB(OS_FPUExcGetMask_Impl,(uint32 *mask))
+#endif /* OSAL_OMIT_DEPRECATED */
 

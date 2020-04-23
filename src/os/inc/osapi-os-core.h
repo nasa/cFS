@@ -1072,6 +1072,8 @@ int32  OS_GetLocalTime         (OS_time_t *time_struct);
 int32  OS_SetLocalTime         (OS_time_t *time_struct);  
 /**@}*/
 
+#ifndef OSAL_OMIT_DEPRECATED
+
 /**
  * @defgroup OSAPIExc OSAL Exception APIs
  *
@@ -1193,8 +1195,6 @@ int32 OS_FPUExcSetMask         (uint32 mask);
  */
 int32 OS_FPUExcGetMask         (uint32 *mask);
 /**@}*/
-
-#ifndef OSAL_OMIT_DEPRECATED
 
 /** @defgroup OSAPIInterrupt OSAL Interrupt APIs
  * @{

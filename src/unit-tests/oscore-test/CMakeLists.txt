@@ -8,7 +8,6 @@ set(TEST_MODULE_FILES
   ut_oscore_countsem_test.c  
   ut_oscore_mutex_test.c  
   ut_oscore_task_test.c   
-  ut_oscore_exception_test.c   
   ut_oscore_test.c
 )
   

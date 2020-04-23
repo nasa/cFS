@@ -1859,8 +1859,6 @@ int32 OS_IntSetMask_Impl ( uint32 MaskSetting );
  ------------------------------------------------------------------*/
 int32 OS_IntGetMask_Impl ( uint32 * MaskSettingPtr );
 
-#endif /* OSAL_OMIT_DEPRECATED */
-
 /****************************************************************************************
             FLOATING POINT CONFIG/EXCEPTION API LOW-LEVEL IMPLEMENTATION FUNCTIONS
  ****************************************************************************************/
@@ -1892,7 +1890,7 @@ int32 OS_FPUExcSetMask_Impl(uint32 mask);
  ------------------------------------------------------------------*/
 int32 OS_FPUExcGetMask_Impl(uint32 *mask);
 
-
+#endif /* OSAL_OMIT_DEPRECATED */
 
 /****************************************************************************************
                     MEMORY HEAP API LOW-LEVEL IMPLEMENTATION FUNCTIONS

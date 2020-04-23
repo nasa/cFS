@@ -24,6 +24,7 @@
 
 #include "utstub-helpers.h"
 
+#ifndef OSAL_OMIT_DEPRECATED
 
 /*****************************************************************************
  *
@@ -97,3 +98,4 @@ int32 OS_FPUExcGetMask         (uint32 *mask)
     return status;
 }
 
+#endif /* OSAL_OMIT_DEPRECATED */

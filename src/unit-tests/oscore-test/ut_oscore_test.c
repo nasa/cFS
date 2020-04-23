@@ -274,11 +274,6 @@ void UtTest_Setup(void)
     UtTest_Add(UT_os_setlocaltime_test, NULL, NULL, "OS_SetLocalTime");
 
     UtTest_Add(UT_os_heapgetinfo_test, NULL, NULL, "OS_HeapGetInfo");
-
-    UtTest_Add(UT_os_fpuexc_setmask_test, NULL, NULL, "OS_FPUExcSetMask");
-    UtTest_Add(UT_os_fpuexc_getmask_test, NULL, NULL, "OS_FPUExcGetMask");
-
-
 }
 
 /*================================================================================*
