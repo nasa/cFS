@@ -27,3 +27,8 @@ add_library(osal_pc-linux_impl OBJECT
 target_compile_definitions(osal_pc-linux_impl PUBLIC
     _XOPEN_SOURCE=600
 )
+
+
+# This BSP only works with "posix" OS layer.
+# Confirming this reduces risk of accidental misconfiguration
+set(OSAL_EXPECTED_OSTYPE    "posix" PARENT_SCOPE)
