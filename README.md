@@ -63,6 +63,8 @@ Getting Started:
 
 See the document *doc/OSAL-Configuration-Guide.doc* for complete details.
 
+See User's Guide: https://github.com/nasa/cFS/blob/gh-pages/OSAL_Users_Guide.pdf
+
 An easy way to get started is to use the Linux port and classic build:
 
 1. Set the *OSAL_SRC* environment variable to point to the OSAL source code.
