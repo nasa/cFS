@@ -99,8 +99,21 @@ void CFE_PSP_GetTime( OS_time_t *LocalTime)
     DecCount = DecCount & 0x7FFFFFFF;
     DecCount = ((uint32)  0x0D6937E5) - DecCount;
     LocalTime->seconds = DecCount / 8333311;
+
+    /* Get subseconds (discard seconds) */
     DecCount = DecCount % 8333311;
-    LocalTime->microsecs = (DecCount/8333) * 1000;
+
+    /* Microsecond conversion
+     * If speed really matters, recommend testing the following
+     * options on hardware being used (all should give the exact same answer):
+     * - long long to avoid overflow: (DecCount*1000000ULL)/8333311
+     * - Double w/ divide: DecCount/8.333311
+     * - Approximation: ((300 * DecCount) + (DecCount / 1244)) / 2500
+     * At cost of up to 2us error (at max value):
+     * - Approximation: (DecCount * 3) / 25
+     */
+    LocalTime->microsecs = ((300 * DecCount) + (DecCount / 1244)) / 2500;
+
 }/* end CFE_PSP_GetLocalTime */
 
 /******************************************************************************

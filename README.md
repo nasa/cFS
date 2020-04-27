@@ -6,35 +6,49 @@ This repository contains NASA's Platform Support Package (PSP), which is a frame
 
 This is a collection of APIs abstracting platform specific functionality to be located in the `psp` subdirectory of a cFS Mission Tree.  The Core Flight System is bundled at https://github.com/nasa/cFS, which includes build and execution instructions.
 
-## Version Notes
+## Version History
 
-- 1.4.9 DEVELOPMENT
+#### Development Build: 1.4.10
+  - Implements full-precision microsecond conversion
+  - See https://github.com/nasa/PSP/pull/155
+
+#### Development Build: 1.4.9
   - RTEMS builds successfully without errors
   - Build script uses a proper CMakeLists.txt instead of the aux_source directory
   - Minor updates (see https://github.com/nasa/PSP/pull/153)
-- 1.4.8 DEVELOPMENT
+
+#### Development Build: 1.4.8
   - Minor updates (see https://github.com/nasa/PSP/pull/151)
-- 1.4.7 DEVELOPMENT
+
+#### Development Build: 1.4.7
   - Fixed some build warnings for MCP750
   - Minor updates (see https://github.com/nasa/PSP/pull/142)
-- 1.4.6 DEVELOPMENT
+
+#### Development Build: 1.4.6
   - Minor updates (see https://github.com/nasa/PSP/pull/141)
-- 1.4.5 DEVELOPMENT
+
+#### Development Build: 1.4.5
   - Simplifies array handling in VxWorks
   - Minor updates (see https://github.com/nasa/PSP/pull/138)
-- 1.4.4 DEVELOPMENT
+
+#### Development Build: 1.4.4
   - Minor updates (see https://github.com/nasa/PSP/pull/132)
-- 1.4.3 DEVELOPMENT
+
+#### Development Build: 1.4.3
   - Minor updates (see https://github.com/nasa/PSP/pull/130)
-- 1.4.2 DEVELOPMENT
+
+#### Development Build: 1.4.2
   - Minor updates (see https://github.com/nasa/PSP/pull/127)
-- 1.4.1 DEVELOPMENT
+
+#### Development Build: 1.4.1
   - Minor updates (see https://github.com/nasa/PSP/pull/115)
-- **1.4.0 OFFICIAL RELEASE**:
+
+### \*\*\* 1.4.0 OFFICIAL RELEASE \*\*\*
   - This is a point release from an internal repository
   - Changes are detailed in [cFS repo](https://github.com/nasa/cFS) release documentation
   - Released as part of cFE 6.7.0, Apache 2.0
-- **1.3.0a OFFICIAL RELEASE**:
+
+### \*\*\* 1.3.0a OFFICIAL RELEASE \*\*\*
   - This is a point release from an internal repository
   - See [version description document](https://github.com/nasa/PSP/blob/v1.3.0a/doc/PSP%201.3.0.0%20Version%20Description%20Document.pdf)
   - Released as part of cFE 6.6.0a, Apache 2.0

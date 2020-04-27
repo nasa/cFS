@@ -19,7 +19,7 @@
 */
 
 /**
- * \file iodriver_manager.c
+ * \file cfe_psp_module.c
  *
  *  Created on: Jul 25, 2014
  *      Author: jphickey
@@ -131,4 +131,3 @@ int32 CFE_PSP_Module_FindByName(const char *ModuleName, uint32 *PspModuleId)
 
     return Result;
 }
-
