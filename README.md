@@ -17,43 +17,63 @@ This distribution contains:
 2. Tests and example applications
 3. A directory structure and makefiles to manage it all.
 
-## Version Notes:
-- 5.0.12: DEVELOPMENT
+## Version History
+
+#### Development Build:  5.0.13
+  - Added coverage test to `OS_TimerCreate` for `OS_ERR_NAME_TOO_LONG`.
+  - Externalize enum for `SelectSingle`, ensures that pointers passed to `SelectFd...()` APIs are not null, ensures that pointer to `SelectSingle` is not null.
+  - Command to run in shell and output to fill will fail with default (not implemented) setting.
+  - Builds successfully using the inferred OS when only `OSAL_SYSTEM_BSPTYPE` is set. Generates a warning when `OSAL_SYSTEM_BSPTYPE` and `OSAL_SYSTEM_OSTYPE` are both set but are mismatched.
+  - See https://github.com/nasa/osal/pull/433 for more details
+
+#### Development Build:  5.0.12
   - Use the target_include_directories and target_compile_definitions functions from CMake to manage the build flags per target.
   - Build implementation components using a separate CMakeLists.txt file rather than aux_source_directory.
   - Provide sufficient framework for combining the OSAL BSP, UT BSP, and the CFE PSP and eliminating the duplication/overlap between these items.
   - Minor updates (see https://github.com/nasa/osal/pull/417)
-- 5.0.11: DEVELOPMENT
+
+#### Development Build:  5.0.11
   - The more descriptive return value OS_ERR_NAME_NOT_FOUND (instead of OS_FS_ERROR) will now be returned from the following functions (): OS_rmfs, OS_mount, OS_unmount, OS_FS_GetPhysDriveName
   - Wraps OS_ShMem* prototype and unit test wrapper additions in OSAL_OMIT_DEPRECATED
   - Minor updates (see https://github.com/nasa/osal/pull/408)
-- 5.0.10: DEVELOPMENT
+
+#### Development Build:  5.0.10
   - Minor updates (see https://github.com/nasa/osal/pull/401)
 - 5.0.9: DEVELOPMENT
   - Documentation updates (see https://github.com/nasa/osal/pull/375)
-- 5.0.8: DEVELOPMENT
+
+#### Development Build:  5.0.8
   - Minor updates (see https://github.com/nasa/osal/pull/369)
-- 5.0.7: DEVELOPMENT
+
+#### Development Build:  5.0.7
   - Fixes memset bug
   - Minor updates (see https://github.com/nasa/osal/pull/361)
-- 5.0.6: DEVELOPMENT
+
+#### Development Build:  5.0.6
   - Minor updates (see https://github.com/nasa/osal/pull/355)
-- 5.0.5: DEVELOPMENT
+
+#### Development Build:  5.0.5
   - Fixed osal_timer_UT test failure case
   - Minor updates (see https://github.com/nasa/osal/pull/350)
-- 5.0.4: DEVELOPMENT
+
+#### Development Build:  5.0.4
   - Minor updates (see https://github.com/nasa/osal/pull/334)
-- 5.0.3: DEVELOPMENT
+
+#### Development Build:  5.0.3
   - Minor updates (see https://github.com/nasa/osal/pull/292)
-- 5.0.2: DEVELOPMENT
+
+#### Development Build:  5.0.2
   - Bug fixes and minor updates (see https://github.com/nasa/osal/pull/281)
-- 5.0.1: DEVELOPMENT
+
+#### Development Build:  5.0.1
   - Minor updates (see https://github.com/nasa/osal/pull/264)
-- 5.0.0: RELEASE CANDIDATE
+
+#### ***Release Candidate: 5.0.0µ***
   - In build verification testing to be considered for official release
   - Release documentation in work
   - This is a point release from an internal repository
-- **4.2.1a OFFICIAL RELEASE**
+
+### ***OFFICIAL RELEASE: 4.2.1a***
   - Released under the NOSA license, see [LICENSE](LICENSE)
   - See [version description document](OSAL%204.2.1.0%20Version%20Description%20Document.pdf)
   - This is a point release from an internal repository

@@ -105,14 +105,6 @@ typedef struct
    uint16     flags;
 }OS_common_record_t;
 
-typedef enum
-{
-   OS_STREAM_STATE_BOUND      = 0x01,
-   OS_STREAM_STATE_CONNECTED  = 0x02,
-   OS_STREAM_STATE_READABLE   = 0x04,
-   OS_STREAM_STATE_WRITABLE   = 0x08,
-} OS_StreamState_t;
-
 /*tasks */
 typedef struct
 {
@@ -1867,8 +1859,6 @@ int32 OS_IntSetMask_Impl ( uint32 MaskSetting );
  ------------------------------------------------------------------*/
 int32 OS_IntGetMask_Impl ( uint32 * MaskSettingPtr );
 
-#endif /* OSAL_OMIT_DEPRECATED */
-
 /****************************************************************************************
             FLOATING POINT CONFIG/EXCEPTION API LOW-LEVEL IMPLEMENTATION FUNCTIONS
  ****************************************************************************************/
@@ -1900,7 +1890,7 @@ int32 OS_FPUExcSetMask_Impl(uint32 mask);
  ------------------------------------------------------------------*/
 int32 OS_FPUExcGetMask_Impl(uint32 *mask);
 
-
+#endif /* OSAL_OMIT_DEPRECATED */
 
 /****************************************************************************************
                     MEMORY HEAP API LOW-LEVEL IMPLEMENTATION FUNCTIONS

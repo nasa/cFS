@@ -17,9 +17,8 @@
 #include "ut_oscore_countsem_test.h"
 #include "ut_oscore_mutex_test.h"
 #include "ut_oscore_queue_test.h"
+#include "ut_oscore_select_test.h"
 #include "ut_oscore_task_test.h"
-#include "ut_oscore_interrupt_test.h"
-#include "ut_oscore_exception_test.h"
 
 /*--------------------------------------------------------------------------------*
 ** Macros

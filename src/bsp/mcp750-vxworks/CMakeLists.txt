@@ -23,4 +23,6 @@ target_compile_definitions(osal_mcp750-vxworks_impl PUBLIC
     "MCP750"
 )
 
-
+# This BSP only works with "vxworks" OS layer.
+# Confirming this reduces risk of accidental misconfiguration
+set(OSAL_EXPECTED_OSTYPE    "vxworks" PARENT_SCOPE)

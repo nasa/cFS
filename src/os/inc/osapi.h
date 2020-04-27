@@ -58,7 +58,7 @@
 #define OS_QUEUE_TIMEOUT               (-10) /**< @brief Queue timeout */
 #define OS_QUEUE_INVALID_SIZE          (-11) /**< @brief Queue invalid size */
 #define OS_QUEUE_ID_ERROR              (-12) /**< @brief Queue ID error */
-#define OS_ERR_NAME_TOO_LONG           (-13) /**< @brief Name too long */
+#define OS_ERR_NAME_TOO_LONG           (-13) /**< @brief name length including null terminator greater than #OS_MAX_API_NAME */
 #define OS_ERR_NO_FREE_IDS             (-14) /**< @brief No free IDs */
 #define OS_ERR_NAME_TAKEN              (-15) /**< @brief Name taken */
 #define OS_ERR_INVALID_ID              (-16) /**< @brief Invalid ID */

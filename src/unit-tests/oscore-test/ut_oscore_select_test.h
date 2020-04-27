@@ -1,11 +1,11 @@
 /*================================================================================*
-** File:  ut_oscore_interrupt_test.h
-** Owner: Tam Ngo
-** Date:  June 2015
+** File:  ut_oscore_select_test.h
+** Owner: Chris Knight
+** Date:  March 2020
 **================================================================================*/
 
-#ifndef _UT_OSCORE_INTERRUPT_TEST_H_
-#define _UT_OSCORE_INTERRUPT_TEST_H_
+#ifndef _UT_OSCORE_SELECT_TEST_H_
+#define _UT_OSCORE_SELECT_TEST_H_
 
 /*--------------------------------------------------------------------------------*
 ** Includes
@@ -33,16 +33,14 @@
 ** Function prototypes
 **--------------------------------------------------------------------------------*/
 
-void UT_os_int_attachhandler_test(void);
-void UT_os_int_enable_test(void);
-void UT_os_int_disable_test(void);
-void UT_os_int_lock_test(void);
-void UT_os_int_unlock_test(void);
+void UT_os_select_fd_test(void);
+void UT_os_select_single_test(void);
+void UT_os_select_multi_test(void);
 
 /*--------------------------------------------------------------------------------*/
 
-#endif  /* _UT_OSCORE_INTERRUPT_TEST_H_ */
+#endif  /* _UT_OSCORE_SELECT_TEST_H_ */
 
 /*================================================================================*
-** End of File: ut_oscore_interrupt_test.h
+** End of File: ut_oscore_select_test.h
 **================================================================================*/

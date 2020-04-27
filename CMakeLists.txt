@@ -48,26 +48,6 @@
 cmake_minimum_required(VERSION 2.8.12)
 project(OSAL C)
 
-# OSAL_SYSTEM_OSTYPE and OSAL_SYSTEM_BSPTYPE indicate which of the OS packages
-# to build.  These are required and must be defined. Confirm that this exists
-# and error out now if it does not.
-if (NOT DEFINED OSAL_SYSTEM_OSTYPE OR
-    NOT IS_DIRECTORY "${OSAL_SOURCE_DIR}/src/os/${OSAL_SYSTEM_OSTYPE}")
-  # It is an error if the indicated OSTYPE does not correspond to a subdirectory
-  # If this is not caught here then a more obfuscated error will occur later.
-  message("Error: \"${OSAL_SYSTEM_OSTYPE}\" is not a valid OS type")
-  message(FATAL_ERROR "OSAL_SYSTEM_OSTYPE must be set to the appropriate OS")
-endif ()
-if (NOT DEFINED OSAL_SYSTEM_BSPTYPE OR
-    NOT IS_DIRECTORY "${OSAL_SOURCE_DIR}/src/bsp/${OSAL_SYSTEM_BSPTYPE}")
-  # It is an error if the indicated BSPTYPE does not correspond to a subdirectory
-  # If this is not caught here then a more obfuscated error will occur later.
-  message("Error: \"${OSAL_SYSTEM_BSPTYPE}\" is not a valid BSP type")
-  message(FATAL_ERROR "OSAL_SYSTEM_BSPTYPE must be set to the appropriate BSP")
-endif ()
-
-message(STATUS "OSAL Selection: ${OSAL_SYSTEM_OSTYPE}")
-message(STATUS "BSP Selection: ${OSAL_SYSTEM_BSPTYPE}")
 
 # The initial set of directories that define the OSAL API
 # This is used to initialize the interface include directory property of external targets
@@ -89,11 +69,26 @@ add_definitions(${OSAL_USER_C_FLAGS})
 # This is done early, so that other targets may reference UT_ASSERT_SOURCE_DIR if needed
 add_subdirectory(ut_assert)
 
-
 #
 # Step 1:
 # Build the BSP layer
 #
+
+
+# OSAL_SYSTEM_BSPTYPE indicate which of the BSP packages
+# to build.  These is required and must be defined. Confirm that this exists
+# and error out now if it does not.
+if (NOT DEFINED OSAL_SYSTEM_BSPTYPE OR
+    NOT IS_DIRECTORY "${OSAL_SOURCE_DIR}/src/bsp/${OSAL_SYSTEM_BSPTYPE}")
+  # It is an error if the indicated BSPTYPE does not correspond to a subdirectory
+  # If this is not caught here then a more obfuscated error will occur later.
+  message("Error: \"${OSAL_SYSTEM_BSPTYPE}\" is not a valid BSP type")
+  message(FATAL_ERROR "OSAL_SYSTEM_BSPTYPE must be set to the appropriate BSP")
+endif ()
+
+message(STATUS "BSP Selection: ${OSAL_SYSTEM_BSPTYPE}")
+
+
 # The BSP library is a separate target from OSAL and can be used
 # independently of the OSAL library and/or in combination with
 # UT assert and the OSAL stub library for unit testing.
@@ -104,6 +99,19 @@ add_subdirectory(src/bsp/${OSAL_SYSTEM_BSPTYPE} ${OSAL_SYSTEM_BSPTYPE}_impl)
 target_include_directories(osal_${OSAL_SYSTEM_BSPTYPE}_impl PRIVATE
     ${OSAL_SOURCE_DIR}/src/bsp/shared
 )
+
+# Confirm that the selected OS is compatible with the selected BSP.
+if (DEFINED OSAL_EXPECTED_OSTYPE)
+    if (NOT DEFINED OSAL_SYSTEM_OSTYPE)
+        # In the event that OSAL_SYSTEM_OSTYPE was not specified at all,
+        # implicitly assume the expected OSTYPE.
+        set(OSAL_SYSTEM_OSTYPE ${OSAL_EXPECTED_OSTYPE})
+    elseif(NOT OSAL_SYSTEM_OSTYPE STREQUAL OSAL_EXPECTED_OSTYPE)
+        # Generate a warning about the OSTYPE not being expected.
+        # Not calling this a fatal error because it could possibly be intended during development
+        message(WARNING "Mismatched BSP/OS: ${OSAL_SYSTEM_BSPTYPE} implies ${OSAL_EXPECTED_OSTYPE}, but ${OSAL_SYSTEM_OSTYPE} is configured")
+    endif(NOT DEFINED OSAL_SYSTEM_OSTYPE)
+endif (DEFINED OSAL_EXPECTED_OSTYPE)
 
 # Propagate the BSP-specific compile definitions and include directories
 # Apply these to the directory-scope COMPILE_DEFINITIONS  and INCLUDE_DIRECTORIES
@@ -145,6 +153,19 @@ target_include_directories(osal_bsp INTERFACE
 # Step 2:
 # Build the OSAL layer
 #
+
+# OSAL_SYSTEM_OSTYPE indicates which of the OS packages
+# to build.  If not defined, this may be inferred by the BSP type.
+if (NOT DEFINED OSAL_SYSTEM_OSTYPE OR
+    NOT IS_DIRECTORY "${OSAL_SOURCE_DIR}/src/os/${OSAL_SYSTEM_OSTYPE}")
+  # It is an error if the indicated OSTYPE does not correspond to a subdirectory
+  # If this is not caught here then a more obfuscated error will occur later.
+  message("Error: \"${OSAL_SYSTEM_OSTYPE}\" is not a valid OS type")
+  message(FATAL_ERROR "OSAL_SYSTEM_OSTYPE must be set to the appropriate OS")
+endif ()
+
+message(STATUS "OSAL Selection: ${OSAL_SYSTEM_OSTYPE}")
+
 # The implementation-specific OSAL subdirectory should define
 # an OBJECT target named "osal_${OSAL_SYSTEM_OSTYPE}_impl"
 add_subdirectory(src/os/${OSAL_SYSTEM_OSTYPE} ${OSAL_SYSTEM_OSTYPE}_impl)

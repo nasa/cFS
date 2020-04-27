@@ -64,6 +64,7 @@ int32 OS_API_Init(void)
 {
    int32  return_code = OS_SUCCESS;
    uint32 idtype;
+   uint32 microSecPerSec;
 
    if (OS_SharedGlobalVars.Initialized != false)
    {
@@ -159,6 +160,14 @@ int32 OS_API_Init(void)
    {
       OS_DEBUG("Implementation failed to initialize tick time globals\n");
       return_code = OS_ERROR;
+   }
+
+   microSecPerSec = OS_SharedGlobalVars.MicroSecPerTick * OS_SharedGlobalVars.TicksPerSecond;
+	
+   if ( microSecPerSec != 1000000 )
+   {   
+      OS_DEBUG("Warning: Microsecs per sec value of %lu does not equal 1000000 (MicroSecPerTick: %ld   TicksPerSecond: %ld)\n", 
+                (unsigned long) microSecPerSec, (long) OS_SharedGlobalVars.MicroSecPerTick, (long) OS_SharedGlobalVars.TicksPerSecond);
    }
 
    return(return_code);

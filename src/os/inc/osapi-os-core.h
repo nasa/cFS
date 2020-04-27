@@ -139,6 +139,21 @@ typedef struct
 } OS_FdSet;
 
 /**
+ * @brief For the OS_SelectSingle() function's in/out StateFlags parameter,
+ * the state(s) of the stream and the result of the select is a combination
+ * of one or more of these states.
+ *
+ * @sa OS_SelectSingle()
+ */
+typedef enum
+{
+    OS_STREAM_STATE_BOUND      = 0x01, /**< @brief whether the stream is bound     */
+    OS_STREAM_STATE_CONNECTED  = 0x02, /**< @brief whether the stream is connected */
+    OS_STREAM_STATE_READABLE   = 0x04, /**< @brief whether the stream is readable  */
+    OS_STREAM_STATE_WRITABLE   = 0x08, /**< @brief whether the stream is writable  */
+} OS_StreamState_t;
+
+/**
  * @brief For the @ref OS_GetErrorName() function, to ensure
  * everyone is making an array of the same length.
  *
@@ -327,7 +342,7 @@ void OS_ForEachObject           (uint32 creator_id, OS_ArgCallback_t callback_pt
  * @return Execution status, see @ref OSReturnCodes
  * @retval #OS_SUCCESS @copybrief OS_SUCCESS
  * @retval #OS_INVALID_POINTER if any of the necessary pointers are NULL
- * @retval #OS_ERR_NAME_TOO_LONG if the name of the task is too long to be copied
+ * @retval #OS_ERR_NAME_TOO_LONG name length including null terminator greater than #OS_MAX_API_NAME
  * @retval #OS_ERR_INVALID_PRIORITY if the priority is bad
  * @retval #OS_ERR_NO_FREE_IDS if there can be no more tasks created
  * @retval #OS_ERR_NAME_TAKEN if the name specified is already used by a task
@@ -442,7 +457,7 @@ uint32 OS_TaskGetId            (void);
  * @return Execution status, see @ref OSReturnCodes
  * @retval #OS_SUCCESS @copybrief OS_SUCCESS
  * @retval #OS_INVALID_POINTER if the pointers passed in are NULL
- * @retval #OS_ERR_NAME_TOO_LONG if the name to found is too long to begin with
+ * @retval #OS_ERR_NAME_TOO_LONG name length including null terminator greater than #OS_MAX_API_NAME
  * @retval #OS_ERR_NAME_NOT_FOUND if the name wasn't found in the table
  */
 int32 OS_TaskGetIdByName       (uint32 *task_id, const char *task_name);
@@ -489,7 +504,7 @@ int32 OS_TaskGetInfo           (uint32 task_id, OS_task_prop_t *task_prop);
  * @return Execution status, see @ref OSReturnCodes
  * @retval #OS_SUCCESS @copybrief OS_SUCCESS
  * @retval #OS_INVALID_POINTER if a pointer passed in is NULL
- * @retval #OS_ERR_NAME_TOO_LONG if the name passed in is too long
+ * @retval #OS_ERR_NAME_TOO_LONG name length including null terminator greater than #OS_MAX_API_NAME
  * @retval #OS_ERR_NO_FREE_IDS if there are already the max queues created
  * @retval #OS_ERR_NAME_TAKEN if the name is already being used on another queue
  * @retval #OS_ERROR if the OS create call fails
@@ -572,7 +587,7 @@ int32 OS_QueuePut              (uint32 queue_id, const void *data, uint32 size,
  * @return Execution status, see @ref OSReturnCodes
  * @retval #OS_SUCCESS @copybrief OS_SUCCESS
  * @retval #OS_INVALID_POINTER if the name or id pointers are NULL
- * @retval #OS_ERR_NAME_TOO_LONG the name passed in is too long
+ * @retval #OS_ERR_NAME_TOO_LONG name length including null terminator greater than #OS_MAX_API_NAME
  * @retval #OS_ERR_NAME_NOT_FOUND the name was not found in the table
  */
 int32 OS_QueueGetIdByName      (uint32 *queue_id, const char *queue_name);
@@ -591,7 +606,6 @@ int32 OS_QueueGetIdByName      (uint32 *queue_id, const char *queue_name);
  * @retval #OS_SUCCESS @copybrief OS_SUCCESS
  * @retval #OS_INVALID_POINTER if queue_prop is NULL
  * @retval #OS_ERR_INVALID_ID if the ID given is not  a valid queue
- * @retval #OS_SUCCESS if the info was copied over correctly
  */
 int32 OS_QueueGetInfo          (uint32 queue_id, OS_queue_prop_t *queue_prop);
 /**@}*/
@@ -616,7 +630,7 @@ int32 OS_QueueGetInfo          (uint32 queue_id, OS_queue_prop_t *queue_prop);
  * @return Execution status, see @ref OSReturnCodes
  * @retval #OS_SUCCESS @copybrief OS_SUCCESS
  * @retval #OS_INVALID_POINTER if sen name or sem_id are NULL
- * @retval #OS_ERR_NAME_TOO_LONG if the name given is too long
+ * @retval #OS_ERR_NAME_TOO_LONG name length including null terminator greater than #OS_MAX_API_NAME
  * @retval #OS_ERR_NO_FREE_IDS if all of the semaphore ids are taken
  * @retval #OS_ERR_NAME_TAKEN if this is already the name of a binary semaphore
  * @retval #OS_SEM_FAILURE if the OS call failed
@@ -729,7 +743,7 @@ int32 OS_BinSemDelete          (uint32 sem_id);
  * @return Execution status, see @ref OSReturnCodes
  * @retval #OS_SUCCESS @copybrief OS_SUCCESS
  * @retval #OS_INVALID_POINTER is semid or sem_name are NULL pointers
- * @retval #OS_ERR_NAME_TOO_LONG if the name given is to long to have been stored
+ * @retval #OS_ERR_NAME_TOO_LONG name length including null terminator greater than #OS_MAX_API_NAME
  * @retval #OS_ERR_NAME_NOT_FOUND if the name was not found in the table
  */
 int32 OS_BinSemGetIdByName     (uint32 *sem_id, const char *sem_name);
@@ -768,7 +782,7 @@ int32 OS_BinSemGetInfo         (uint32 sem_id, OS_bin_sem_prop_t *bin_prop);
  * @return Execution status, see @ref OSReturnCodes
  * @retval #OS_SUCCESS @copybrief OS_SUCCESS
  * @retval #OS_INVALID_POINTER if sen name or sem_id are NULL
- * @retval #OS_ERR_NAME_TOO_LONG if the name given is too long
+ * @retval #OS_ERR_NAME_TOO_LONG name length including null terminator greater than #OS_MAX_API_NAME
  * @retval #OS_ERR_NO_FREE_IDS if all of the semaphore ids are taken
  * @retval #OS_ERR_NAME_TAKEN if this is already the name of a counting semaphore
  * @retval #OS_SEM_FAILURE if the OS call failed
@@ -863,7 +877,7 @@ int32 OS_CountSemDelete          (uint32 sem_id);
  * @return Execution status, see @ref OSReturnCodes
  * @retval #OS_SUCCESS @copybrief OS_SUCCESS
  * @retval #OS_INVALID_POINTER is semid or sem_name are NULL pointers
- * @retval #OS_ERR_NAME_TOO_LONG if the name given is to long to have been stored
+ * @retval #OS_ERR_NAME_TOO_LONG name length including null terminator greater than #OS_MAX_API_NAME
  * @retval #OS_ERR_NAME_NOT_FOUND if the name was not found in the table
  */
 int32 OS_CountSemGetIdByName     (uint32 *sem_id, const char *sem_name);
@@ -899,7 +913,7 @@ int32 OS_CountSemGetInfo         (uint32 sem_id, OS_count_sem_prop_t *count_prop
  * @return Execution status, see @ref OSReturnCodes
  * @retval #OS_SUCCESS @copybrief OS_SUCCESS
  * @retval #OS_INVALID_POINTER if sem_id or sem_name are NULL
- * @retval #OS_ERR_NAME_TOO_LONG if the sem_name is too long to be stored
+ * @retval #OS_ERR_NAME_TOO_LONG name length including null terminator greater than #OS_MAX_API_NAME
  * @retval #OS_ERR_NO_FREE_IDS if there are no more free mutex Ids
  * @retval #OS_ERR_NAME_TAKEN if there is already a mutex with the same name
  * @retval #OS_SEM_FAILURE if the OS call failed
@@ -972,7 +986,7 @@ int32 OS_MutSemDelete           (uint32 sem_id);
  * @return Execution status, see @ref OSReturnCodes
  * @retval #OS_SUCCESS @copybrief OS_SUCCESS
  * @retval #OS_INVALID_POINTER is semid or sem_name are NULL pointers
- * @retval #OS_ERR_NAME_TOO_LONG if the name given is to long to have been stored
+ * @retval #OS_ERR_NAME_TOO_LONG name length including null terminator greater than #OS_MAX_API_NAME
  * @retval #OS_ERR_NAME_NOT_FOUND if the name was not found in the table
  */
 int32 OS_MutSemGetIdByName      (uint32 *sem_id, const char *sem_name); 
@@ -1057,6 +1071,8 @@ int32  OS_GetLocalTime         (OS_time_t *time_struct);
  */
 int32  OS_SetLocalTime         (OS_time_t *time_struct);  
 /**@}*/
+
+#ifndef OSAL_OMIT_DEPRECATED
 
 /**
  * @defgroup OSAPIExc OSAL Exception APIs
@@ -1179,8 +1195,6 @@ int32 OS_FPUExcSetMask         (uint32 mask);
  */
 int32 OS_FPUExcGetMask         (uint32 *mask);
 /**@}*/
-
-#ifndef OSAL_OMIT_DEPRECATED
 
 /** @defgroup OSAPIInterrupt OSAL Interrupt APIs
  * @{
@@ -1431,9 +1445,9 @@ int32 OS_SelectMultiple(OS_FdSet *ReadSet, OS_FdSet *WriteSet, int32 msecs);
  *
  * This function can be used to wait for a single OSAL stream ID
  * to become readable or writable.   On entry, the "StateFlags"
- * parameter should be set to the desired state (readble or writable)
- * and upon return the flags will be set to the state actually
- * detected.
+ * parameter should be set to the desired state (OS_STREAM_STATE_READABLE
+ * and/or OS_STREAM_STATE_WRITABLE) and upon return the flags
+ * will be set to the state actually detected.
  *
  * As this operates on a single ID, the filehandle is protected
  * during this call, such that another thread accessing the same
@@ -1504,7 +1518,9 @@ bool OS_SelectFdIsSet(OS_FdSet *Set, uint32 objid);
  * Operates in a manner similar to the printf() call defined by the standard C
  * library and takes all the parameters and formatting options of printf.
  * This abstraction may implement additional buffering, if necessary,
- * to improve the real-time performance of the call.
+ * to improve the real-time performance of the call. 
+ * 
+ * Strings (including terminator) longer than #OS_BUFFER_SIZE will be truncated.
  *
  * The output of this routine also may be dynamically enabled or disabled by
  * the OS_printf_enable() and OS_printf_disable() calls, respectively.

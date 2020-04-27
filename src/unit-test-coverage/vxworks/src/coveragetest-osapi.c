@@ -589,52 +589,6 @@ void Test_OS_HeapGetInfo_Impl(void)
     OSAPI_TEST_FUNCTION_RC(OS_HeapGetInfo_Impl(&heap_prop), OS_ERROR);
 }
 
-void Test_OS_FPUExcAttachHandler_Impl(void)
-{
-    /*
-     * Test Case For:
-     * int32 OS_FPUExcAttachHandler_Impl(uint32 ExceptionNumber, void * ExceptionHandler,
-     *       int32 parameter)
-     */
-    OSAPI_TEST_FUNCTION_RC(OS_FPUExcAttachHandler_Impl(0, NULL, 0), OS_ERR_NOT_IMPLEMENTED);
-}
-
-void Test_OS_FPUExcEnable_Impl(void)
-{
-    /*
-     * Test Case For:
-     * int32 OS_FPUExcEnable_Impl(int32 ExceptionNumber)
-     */
-    OSAPI_TEST_FUNCTION_RC(OS_FPUExcEnable_Impl(0), OS_SUCCESS);
-}
-
-void Test_OS_FPUExcDisable_Impl(void)
-{
-    /*
-     * Test Case For:
-     * int32 OS_FPUExcDisable_Impl(int32 ExceptionNumber)
-     */
-    OSAPI_TEST_FUNCTION_RC(OS_FPUExcDisable_Impl(0), OS_SUCCESS);
-}
-
-void Test_OS_FPUExcSetMask_Impl(void)
-{
-    /*
-     * Test Case For:
-     * int32 OS_FPUExcSetMask_Impl(uint32 mask)
-     */
-    OSAPI_TEST_FUNCTION_RC(OS_FPUExcSetMask_Impl(0), OS_ERR_NOT_IMPLEMENTED);
-}
-
-void Test_OS_FPUExcGetMask_Impl(void)
-{
-    /*
-     * Test Case For:
-     * int32 OS_FPUExcGetMask_Impl(uint32 *mask)
-     */
-    OSAPI_TEST_FUNCTION_RC(OS_FPUExcGetMask_Impl(0), OS_ERR_NOT_IMPLEMENTED);
-}
-
 /* ------------------- End of test cases --------------------------------------*/
 
 /* Osapi_Task_Setup
@@ -710,11 +664,6 @@ void UtTest_Setup(void)
     ADD_TEST(OS_MutSemTake_Impl);
     ADD_TEST(OS_MutSemGetInfo_Impl);
     ADD_TEST(OS_HeapGetInfo_Impl);
-    ADD_TEST(OS_FPUExcAttachHandler_Impl);
-    ADD_TEST(OS_FPUExcEnable_Impl);
-    ADD_TEST(OS_FPUExcDisable_Impl);
-    ADD_TEST(OS_FPUExcSetMask_Impl);
-    ADD_TEST(OS_FPUExcGetMask_Impl);
 }
 
 

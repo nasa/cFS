@@ -1,6 +1,6 @@
 # CMake snippet for building the shared OSAL layer coverage tests
 
-set(MODULE_LIST osapi osfileapi osfilesys osloader osnetwork osselect ostimer posixio posixfile posixgettime printf)
+set(MODULE_LIST osapi osfileapi osfilesys osloader osnetwork osselect osshell ostimer posixio posixfile posixgettime printf)
 
 # This unit test is allowed to directly include any internal file in 
 # the respective set under test.
