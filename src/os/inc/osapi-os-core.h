@@ -73,7 +73,9 @@ typedef struct
     uint32 creator;
     uint32 stack_size;
     uint32 priority;
-    uint32 OStask_id;
+#ifndef OSAL_OMIT_DEPRECATED
+    uint32 OStask_id;   /**< @deprecated */
+#endif
 }OS_task_prop_t;
     
 /** @brief OSAL queue properties */
@@ -479,6 +481,29 @@ int32 OS_TaskGetIdByName       (uint32 *task_id, const char *task_name);
  * @retval #OS_INVALID_POINTER if the task_prop pointer is NULL
  */
 int32 OS_TaskGetInfo           (uint32 task_id, OS_task_prop_t *task_prop);          
+
+
+/*-------------------------------------------------------------------------------------*/
+/**
+ * @brief Reverse-lookup the OSAL task ID from an operating system ID
+ *
+ * This provides a method by which an external entity may find the OSAL task
+ * ID corresponding to a system-defined identifier (e.g. TASK_ID, pthread_t, rtems_id, etc).
+ *
+ * Normally OSAL does not expose the underlying OS-specific values to the application,
+ * but in some circumstances, such as exception handling, the OS may provide this information
+ * directly to handler outside of the normal OSAL API.
+ *
+ * @param[out]  task_id         The buffer where the task id output is stored
+ * @param[in]   sysdata         Pointer to the system-provided identification data
+ * @param[in]   sysdata_size    Size of the system-provided identification data
+ *
+ * @return Execution status, see @ref OSReturnCodes
+ * @retval #OS_SUCCESS @copybrief OS_SUCCESS
+ */
+int32 OS_TaskFindIdBySystemData(uint32 *task_id, const void *sysdata, size_t sysdata_size);
+
+
 /**@}*/
 
 /** @defgroup OSAPIMsgQueue OSAL Message Queue APIs
