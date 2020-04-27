@@ -15,6 +15,6 @@ extraction:
       build_command:
       - "cp cfe/cmake/Makefile.sample Makefile"
       - "cp -r cfe/cmake/sample_defs sample_defs"
-      - "make prep"
+      - "make OMIT_DEPRECATED=true prep"
       - "make"
 
