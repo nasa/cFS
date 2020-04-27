@@ -186,7 +186,9 @@ void OS_Application_Startup(void)
       switch( opt ) 
       {
          case 'R':
-            strncpy(CommandData.ResetType, optarg, CFE_PSP_RESET_NAME_LENGTH);
+            strncpy(CommandData.ResetType, optarg, CFE_PSP_RESET_NAME_LENGTH-1);
+            CommandData.ResetType[CFE_PSP_RESET_NAME_LENGTH-1] = 0;
+
             if ((strncmp(CommandData.ResetType, "PO", CFE_PSP_RESET_NAME_LENGTH ) != 0 ) &&
                 (strncmp(CommandData.ResetType, "PR", CFE_PSP_RESET_NAME_LENGTH ) != 0 ))
             {
@@ -214,7 +216,8 @@ void OS_Application_Startup(void)
             break;
 
          case 'N':
-            strncpy(CommandData.CpuName, optarg, CFE_PSP_CPU_NAME_LENGTH );
+            strncpy(CommandData.CpuName, optarg, CFE_PSP_CPU_NAME_LENGTH-1 );
+            CommandData.CpuName[CFE_PSP_CPU_NAME_LENGTH-1] = 0;
             printf("CFE_PSP: CPU Name: %s\n",CommandData.CpuName);
             CommandData.GotCpuName = 1;
             break;
@@ -521,7 +524,8 @@ void CFE_PSP_ProcessArgumentDefaults(CFE_PSP_CommandData_t *CommandDataDefault)
    
    if ( CommandDataDefault->GotCpuName == 0 )
    {
-      strncpy(CommandDataDefault->CpuName, CFE_PSP_CPU_NAME, CFE_PSP_CPU_NAME_LENGTH );
+      strncpy(CommandDataDefault->CpuName, CFE_PSP_CPU_NAME, CFE_PSP_CPU_NAME_LENGTH-1 );
+      CommandDataDefault->CpuName[CFE_PSP_CPU_NAME_LENGTH-1] = 0;
       printf("CFE_PSP: Default CPU Name: %s\n",CFE_PSP_CPU_NAME);
       CommandDataDefault->GotCpuName = 1;
    }
