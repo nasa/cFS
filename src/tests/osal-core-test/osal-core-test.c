@@ -9,6 +9,9 @@
 #include "uttest.h"
 #include "utbsp.h"
 
+/* Defines */
+#define UT_EXIT_LOOP_MAX 100  /* Used to limit wait for self-exiting task to exit */
+
 /* OS Constructs */
 
 void TestTasks (void);
@@ -73,6 +76,8 @@ void TestTasks(void)
     int tasknum;
     uint32 saved_task0_id;
     static TestTaskData TaskData[OS_MAX_TASKS + 1];
+    OS_task_prop_t taskprop;
+    int loopcnt;
     
    /* OS_TaskRegister(); */
 
@@ -118,15 +123,19 @@ void TestTasks(void)
        status = OS_TaskCreate( &TaskData[tasknum].task_id, taskname, task_generic_with_exit, TaskData[tasknum].task_stack,
                                TASK_0_STACK_SIZE, (250 - OS_MAX_TASKS) + tasknum, 0);
 
-       /*
-        * A small delay in this parent task to allow the child task to run.
-        * It should exit immediately....
-        */
-       OS_TaskDelay(10);
-
        UtDebug("Create %s Status = %d, Id = %d\n",taskname,(int)status,(int)TaskData[tasknum].task_id);
 
        UtAssert_True(status == OS_SUCCESS, "OS_TaskCreate, self exiting task");
+
+       /* Looping delay in parent task to wait for child task to exit */
+       loopcnt = 0;
+       while ((OS_TaskGetInfo(TaskData[tasknum].task_id, &taskprop) == OS_SUCCESS) && (loopcnt < UT_EXIT_LOOP_MAX))
+       {
+          OS_TaskDelay(10);
+          loopcnt++;
+       }
+       UtDebug("Looped %d times waiting for child task Id %d to exit\n", loopcnt, (int)TaskData[tasknum].task_id);
+       UtAssert_True(loopcnt < UT_EXIT_LOOP_MAX, "Looped %d times without self-exiting task exiting", loopcnt);
 
        /*
         * Attempting to delete the task that exited itself should always fail
