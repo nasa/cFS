@@ -189,7 +189,7 @@ int32 OS_TranslatePath( const char *VirtualPath, char *LocalPath)
 
     status = UT_DEFAULT_IMPL(OS_TranslatePath);
 
-    if (status == OS_SUCCESS &&
+    if (status == OS_SUCCESS && VirtualPath != NULL && LocalPath != NULL &&
             UT_Stub_CopyToLocal(UT_KEY(OS_TranslatePath), LocalPath, OS_MAX_LOCAL_PATH_LEN) == 0)
     {
         strncpy(LocalPath, VirtualPath, OS_MAX_LOCAL_PATH_LEN);

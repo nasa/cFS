@@ -68,7 +68,7 @@ int32 OS_GenericClose_Impl(uint32 local_id)
        OS_DEBUG("close: %s\n",strerror(errno));
    }
    OS_impl_filehandle_table[local_id].fd = -1;
-   return OS_FS_SUCCESS;
+   return OS_SUCCESS;
 } /* end OS_GenericClose_Impl */
                         
 /*----------------------------------------------------------------
@@ -96,7 +96,7 @@ int32 OS_GenericSeek_Impl (uint32 local_id, int32 offset, uint32 whence)
       where = SEEK_END;
       break;
    default:
-      return OS_FS_ERROR;
+      return OS_ERROR;
    }
 
    result = lseek(OS_impl_filehandle_table[local_id].fd, (off_t)offset, where);
@@ -111,7 +111,7 @@ int32 OS_GenericSeek_Impl (uint32 local_id, int32 offset, uint32 whence)
             * Use a different error code to differentiate from an
             * error involving a bad whence/offset
             */
-           result = OS_FS_UNIMPLEMENTED;
+           result = OS_ERR_NOT_IMPLEMENTED;
        }
        else
        {
@@ -119,7 +119,7 @@ int32 OS_GenericSeek_Impl (uint32 local_id, int32 offset, uint32 whence)
             * Most likely the "whence" and/or "offset" combo was not valid.
             */
            OS_DEBUG("lseek: %s\n",strerror(errno));
-           result = OS_FS_ERROR;
+           result = OS_ERROR;
        }
    }
 

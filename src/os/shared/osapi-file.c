@@ -53,41 +53,7 @@ enum
 };
 
 OS_stream_internal_record_t         OS_stream_table[OS_MAX_NUM_OPEN_FILES];
-
                         
-/*----------------------------------------------------------------
- *
- * Function: OS_check_name_length
- *
- *  Purpose: Local helper routine, not part of OSAL API.
- *           Validates that the path length is within spec and
- *           contains at least one directory separator (/) char.
- *
- *-----------------------------------------------------------------*/
-static int32 OS_check_name_length(const char *path)
-{
-    char* name_ptr;
-
-    if (path == NULL)
-        return OS_FS_ERR_INVALID_POINTER;
-
-    if (strlen(path) > OS_MAX_PATH_LEN)
-        return OS_FS_ERR_PATH_TOO_LONG;
-
-    /* checks to see if there is a '/' somewhere in the path */
-    name_ptr = strrchr(path, '/');
-    if (name_ptr == NULL)
-        return OS_FS_ERROR;
-
-    /* strrchr returns a pointer to the last '/' char, so we advance one char */
-    name_ptr = name_ptr + 1;
-
-    if( strlen(name_ptr) > OS_MAX_FILE_NAME)
-        return OS_FS_ERR_NAME_TOO_LONG;
-
-    return OS_FS_SUCCESS;
-
-} /* end OS_check_name_length */
 
 /****************************************************************************************
                                   FILE API
@@ -126,18 +92,11 @@ static int32 OS_OpenCreate(uint32 *filedes, const char *path, int32 flags, int32
    char   local_path[OS_MAX_LOCAL_PATH_LEN];
 
    /*
-   ** check if the name of the file is too long
-   */
-   return_code = OS_check_name_length(path);
-   if (return_code == OS_FS_SUCCESS)
-   {
-      /*
-      ** Translate the path
-      */
-      return_code = OS_TranslatePath(path, (char *)local_path);
-   }
+    * Translate the path
+    */
+   return_code = OS_TranslatePath(path, (char *)local_path);
 
-   if (return_code == OS_FS_SUCCESS)
+   if (return_code == OS_SUCCESS)
    {
       /* Note - the common ObjectIdAllocate routine will lock the object type and leave it locked. */
       return_code = OS_ObjectIdAllocateNew(LOCAL_OBJID_TYPE, NULL, &local_id, &record);
@@ -184,12 +143,12 @@ int32 OS_creat  (const char *path, int32  access)
        case OS_READ_ONLY:
        default:
           /* Read only does not make sense for creat() */
-          return OS_FS_ERROR;
+          return OS_ERROR;
    }
 
 
    return_code = OS_OpenCreate(&filedes, path, OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE, access);
-   if (return_code == OS_FS_SUCCESS)
+   if (return_code == OS_SUCCESS)
    {
       return_code = (int32)filedes;
    }
@@ -221,12 +180,12 @@ int32 OS_open   (const char *path,  int32 access,  uint32  mode)
        case OS_READ_ONLY:
            break;
        default:
-          return OS_FS_ERROR;
+          return OS_ERROR;
    }
 
 
    return_code = OS_OpenCreate(&filedes, path, OS_FILE_FLAG_NONE, access);
-   if (return_code == OS_FS_SUCCESS)
+   if (return_code == OS_SUCCESS)
    {
       return_code = (int32)filedes;
    }
@@ -376,7 +335,7 @@ int32 OS_chmod  (const char *path, uint32 access)
     int32 return_code;
 
     return_code = OS_TranslatePath(path, local_path);
-    if (return_code == OS_FS_SUCCESS)
+    if (return_code == OS_SUCCESS)
     {
        return_code = OS_FileChmod_Impl(local_path, access);
     }
@@ -407,7 +366,7 @@ int32 OS_stat   (const char *path, os_fstat_t *filestats)
    memset(filestats, 0, sizeof(*filestats));
 
    return_code = OS_TranslatePath(path, local_path);
-   if (return_code == OS_FS_SUCCESS)
+   if (return_code == OS_SUCCESS)
    {
       return_code = OS_FileStat_Impl(local_path, filestats);
    }
@@ -455,14 +414,10 @@ int32 OS_remove (const char *path)
    int32 return_code;
    char local_path[OS_MAX_LOCAL_PATH_LEN];
 
-   return_code = OS_check_name_length(path);
-   if (return_code == OS_FS_SUCCESS)
+   return_code = OS_TranslatePath(path, local_path);
+   if (return_code == OS_SUCCESS)
    {
-      return_code = OS_TranslatePath(path, local_path);
-      if (return_code == OS_FS_SUCCESS)
-      {
-         return_code = OS_FileRemove_Impl(local_path);
-      }
+      return_code = OS_FileRemove_Impl(local_path);
    }
 
    return return_code;
@@ -485,26 +440,18 @@ int32 OS_rename (const char *old, const char *new)
    char old_path[OS_MAX_LOCAL_PATH_LEN];
    char new_path[OS_MAX_LOCAL_PATH_LEN];
 
-   return_code = OS_check_name_length(old);
-   if (return_code == OS_FS_SUCCESS)
-   {
-      return_code = OS_check_name_length(new);
-   }
-   if (return_code == OS_FS_SUCCESS)
-   {
-      return_code = OS_TranslatePath(old, old_path);
-   }
-   if (return_code == OS_FS_SUCCESS)
+   return_code = OS_TranslatePath(old, old_path);
+   if (return_code == OS_SUCCESS)
    {
       return_code = OS_TranslatePath(new, new_path);
    }
 
-   if (return_code == OS_FS_SUCCESS)
+   if (return_code == OS_SUCCESS)
    {
       return_code = OS_FileRename_Impl(old_path, new_path);
    }
 
-   if (return_code == OS_FS_SUCCESS)
+   if (return_code == OS_SUCCESS)
    {
       OS_Lock_Global_Impl(LOCAL_OBJID_TYPE);
       for ( i =0; i < OS_MAX_NUM_OPEN_FILES; i++)
@@ -547,7 +494,7 @@ int32 OS_cp (const char *src, const char *dest)
         return OS_INVALID_POINTER;
     }
 
-    return_code = OS_FS_SUCCESS;
+    return_code = OS_SUCCESS;
     file2 = -1;
     file1 = OS_open(src, OS_READ_ONLY, 0);
     if (file1 < 0)
@@ -563,7 +510,7 @@ int32 OS_cp (const char *src, const char *dest)
        }
     }
 
-    while (return_code == OS_FS_SUCCESS)
+    while (return_code == OS_SUCCESS)
     {
        rd_size = OS_read((uint32)file1, copyblock, sizeof(copyblock));
        if (rd_size < 0)
@@ -616,10 +563,10 @@ int32 OS_mv (const char *src, const char *dest)
 
    /* First try rename - this only works if it is on the same filesystem */
    return_code = OS_rename(src, dest);
-   if (return_code != OS_FS_SUCCESS)
+   if (return_code != OS_SUCCESS)
    {
       return_code = OS_cp(src, dest);
-      if (return_code == OS_FS_SUCCESS)
+      if (return_code == OS_SUCCESS)
       {
          OS_remove(src);
       }
@@ -649,7 +596,7 @@ int32 OS_FDGetInfo (uint32 filedes, OS_file_prop_t *fd_prop)
    /* Check parameters */
    if (fd_prop == NULL)
    {
-       return(OS_FS_ERR_INVALID_POINTER);
+       return(OS_INVALID_POINTER);
    }
 
    memset(fd_prop,0,sizeof(OS_file_prop_t));
@@ -684,10 +631,10 @@ int32 OS_FileOpenCheck(const char *Filename)
 
    if (Filename == NULL)
    {
-      return(OS_FS_ERR_INVALID_POINTER);
+      return(OS_INVALID_POINTER);
    }
 
-   return_code = OS_FS_ERROR;
+   return_code = OS_ERROR;
 
    OS_Lock_Global_Impl(LOCAL_OBJID_TYPE);
 
@@ -697,7 +644,7 @@ int32 OS_FileOpenCheck(const char *Filename)
             OS_stream_table[i].socket_domain == OS_SocketDomain_INVALID &&
             (strcmp(OS_stream_table[i].stream_name, Filename) == 0))
       {
-         return_code = OS_FS_SUCCESS;
+         return_code = OS_SUCCESS;
          break;
       }
    }/* end for */
@@ -725,7 +672,7 @@ int32 OS_CloseFileByName(const char *Filename)
 
    if (Filename == NULL)
    {
-      return(OS_FS_ERR_INVALID_POINTER);
+      return(OS_INVALID_POINTER);
    }
 
    return_code = OS_FS_ERR_PATH_INVALID;
@@ -739,11 +686,11 @@ int32 OS_CloseFileByName(const char *Filename)
             (strcmp(OS_stream_table[i].stream_name, Filename) == 0))
       {
          close_code = OS_GenericClose_Impl(i);
-         if (close_code == OS_FS_SUCCESS)
+         if (close_code == OS_SUCCESS)
          {
              OS_global_stream_table[i].active_id = 0;
          }
-         if (return_code == OS_FS_ERR_PATH_INVALID || close_code != OS_FS_SUCCESS)
+         if (return_code == OS_FS_ERR_PATH_INVALID || close_code != OS_SUCCESS)
          {
             return_code = close_code;
          }
@@ -771,7 +718,7 @@ int32 OS_CloseAllFiles(void)
    int32 close_code;
    uint32  i;
 
-   return_code = OS_FS_SUCCESS;
+   return_code = OS_SUCCESS;
 
    OS_Lock_Global_Impl(LOCAL_OBJID_TYPE);
 
@@ -780,11 +727,11 @@ int32 OS_CloseAllFiles(void)
       if (OS_global_stream_table[i].active_id != 0)
       {
          close_code = OS_GenericClose_Impl(i);
-         if (close_code == OS_FS_SUCCESS)
+         if (close_code == OS_SUCCESS)
          {
              OS_global_stream_table[i].active_id = 0;
          }
-         if (close_code != OS_FS_SUCCESS)
+         if (close_code != OS_SUCCESS)
          {
             return_code = close_code;
          }
@@ -815,7 +762,7 @@ int32 OS_ShellOutputToFile(const char* Cmd, uint32 filedes)
    /* Check Parameters */
    if (Cmd == NULL)
    {
-       return OS_FS_ERR_INVALID_POINTER;
+       return OS_INVALID_POINTER;
    }
 
    return_code = OS_ObjectIdGetById(OS_LOCK_MODE_REFCOUNT, LOCAL_OBJID_TYPE, filedes, &local_id, &record);

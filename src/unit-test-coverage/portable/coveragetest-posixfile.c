@@ -56,7 +56,7 @@ void Test_OS_FileOpen_Impl(void)
     OSAPI_TEST_FUNCTION_RC(OS_FileOpen_Impl(0,"local",OS_FILE_FLAG_TRUNCATE,OS_WRITE_ONLY), OS_SUCCESS);
     OSAPI_TEST_FUNCTION_RC(OS_FileOpen_Impl(0,"local",0,OS_READ_ONLY), OS_SUCCESS);
     OSAPI_TEST_FUNCTION_RC(OS_FileOpen_Impl(0,"local",OS_FILE_FLAG_CREATE,OS_READ_WRITE), OS_SUCCESS);
-    OSAPI_TEST_FUNCTION_RC(OS_FileOpen_Impl(0,"local",0,-1234), OS_FS_ERROR);
+    OSAPI_TEST_FUNCTION_RC(OS_FileOpen_Impl(0,"local",0,-1234), OS_ERROR);
 
 
     /* failure mode */

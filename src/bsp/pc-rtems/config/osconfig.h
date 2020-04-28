@@ -41,7 +41,7 @@
 #define OS_MAX_API_NAME     20
 
 /* 
-** The maximum length for a file name 
+** The maximum length (including null terminator) for a file name 
 */
 #define OS_MAX_FILE_NAME    20
 

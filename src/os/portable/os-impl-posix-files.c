@@ -67,7 +67,7 @@ int32 OS_FileOpen_Impl(uint32 local_id, const char *local_path, int32 flags, int
           os_perm = O_RDWR;
            break;
        default:
-           return OS_FS_ERROR;
+           return OS_ERROR;
    }
 
    if (flags & OS_FILE_FLAG_CREATE)
@@ -88,7 +88,7 @@ int32 OS_FileOpen_Impl(uint32 local_id, const char *local_path, int32 flags, int
    if (OS_impl_filehandle_table[local_id].fd < 0)
    {
        OS_DEBUG("open(%s): %s\n", local_path, strerror(errno));
-       return OS_FS_ERROR;
+       return OS_ERROR;
    }
 
    /*
@@ -98,7 +98,7 @@ int32 OS_FileOpen_Impl(uint32 local_id, const char *local_path, int32 flags, int
    OS_impl_filehandle_table[local_id].selectable =
            ((os_perm & O_NONBLOCK) != 0);
 
-   return OS_FS_SUCCESS;
+   return OS_SUCCESS;
 } /* end OS_FileOpen_Impl */
                         
 /*----------------------------------------------------------------
@@ -118,7 +118,7 @@ int32 OS_FileStat_Impl(const char *local_path, os_fstat_t *FileStats)
 
    if ( stat(local_path, &st) < 0 )
    {
-      return OS_FS_ERROR;
+      return OS_ERROR;
    }
 
    FileStats->FileSize = st.st_size;
@@ -164,7 +164,7 @@ int32 OS_FileStat_Impl(const char *local_path, os_fstat_t *FileStats)
       FileStats->FileModeBits |= OS_FILESTAT_MODE_EXEC;
    }
 
-   return OS_FS_SUCCESS;
+   return OS_SUCCESS;
 } /* end OS_FileStat_Impl */
 
                         
@@ -193,7 +193,7 @@ int32 OS_FileChmod_Impl(const char *local_path, uint32 access)
      */
     if ( stat(local_path, &st) < 0 )
     {
-       return OS_FS_ERROR;
+       return OS_ERROR;
     }
 
     /* always check world bits */
@@ -239,7 +239,7 @@ int32 OS_FileChmod_Impl(const char *local_path, uint32 access)
     /* finally, write the modified mode back to the file */
     if ( chmod(local_path, st.st_mode) < 0 )
     {
-        return OS_FS_ERROR;
+        return OS_ERROR;
     }
 
     return OS_SUCCESS;

@@ -159,14 +159,14 @@ int32 OS_FileSysStartVolume_Impl (uint32 filesys_id)
            OS_DEBUG("OSAL: Error: RAM disk too large, %lu blocks requested, %lu available.\n",
                    (unsigned long)local->numblocks,
                    (unsigned long)rtems_ramdisk_configuration[os_idx].block_num);
-           return_code = OS_FS_ERROR;
+           return_code = OS_ERROR;
            break;
         }
         if ( local->blocksize != rtems_ramdisk_configuration[os_idx].block_size )
         {
            OS_DEBUG("OSAL: Error: RAM Disk needs a block size of %lu.\n",
                    (unsigned long)rtems_ramdisk_configuration[os_idx].block_size);
-           return_code = OS_FS_ERROR;
+           return_code = OS_ERROR;
            break;
         }
 
@@ -326,7 +326,7 @@ int32 OS_FileSysMountVolume_Impl (uint32 filesys_id)
     {
         OS_DEBUG("OSAL: Error: mount of %s to %s failed: %s\n",
                 impl->blockdev_name, local->system_mountpt, strerror(errno));
-        return OS_FS_ERROR;
+        return OS_ERROR;
     }
 
     return OS_SUCCESS;
@@ -352,7 +352,7 @@ int32 OS_FileSysUnmountVolume_Impl (uint32 filesys_id)
     if ( unmount(local->system_mountpt) < 0)
     {
        OS_DEBUG("OSAL: RTEMS unmount of %s failed :%s\n",local->system_mountpt, strerror(errno));
-       return OS_FS_ERROR;
+       return OS_ERROR;
     }
 
     return OS_SUCCESS;
@@ -375,14 +375,14 @@ int32 OS_FileSysStatVolume_Impl (uint32 filesys_id, OS_statvfs_t *result)
 
    if ( statvfs(local->system_mountpt, &stat_buf) != 0 )
    {
-       return OS_FS_ERROR;
+       return OS_ERROR;
    }
 
    result->block_size = stat_buf.f_bsize;
    result->blocks_free = stat_buf.f_bfree;
    result->total_blocks = stat_buf.f_blocks;
 
-   return(OS_FS_SUCCESS);
+   return(OS_SUCCESS);
 } /* end OS_FileSysStatVolume_Impl */
 
 
