@@ -54,32 +54,10 @@
 
 #include "cfe_psp.h"
 #include "cfe_psp_config.h"
+#include "cfe_psp_exceptionstorage.h"
 #include "cfe_psp_memory.h"
 
 #include <target_config.h>
-
-/*
-** Types and prototypes for this module
-*/
-
-/* use the exception ISR binding from the global config data */
-#define CFE_PSP_ES_EXCEPTION_FUNCTION   (*GLOBAL_CONFIGDATA.CfeConfig->SystemExceptionISR)
-
-/*
-** BSP Specific defines
-*/
-
-
-/*
-**  External Declarations
-*/
-
-/*
-** Global variables
-*/
-
-CFE_PSP_ExceptionContext_t CFE_PSP_ExceptionContext;
-char                  CFE_PSP_ExceptionReasonString[256];
 
 /*
 **
@@ -110,7 +88,8 @@ void CFE_PSP_ExceptionHook ( TASK_ID task_id, int vector, void* vpEsf );
 void CFE_PSP_AttachExceptions(void)
 {
     excHookAdd( CFE_PSP_ExceptionHook );
-    OS_printf("CFE_PSP: Attached cFE Exception Handler. Context Size = %d bytes.\n",CFE_PSP_CPU_CONTEXT_SIZE);
+    OS_printf("CFE_PSP: Attached cFE Exception Handler. Context Size = %u bytes.\n",sizeof(CFE_PSP_Exception_ContextDataEntry_t));
+    CFE_PSP_Exception_Reset();
 }
 
 
@@ -135,46 +114,42 @@ void CFE_PSP_AttachExceptions(void)
 */
 void CFE_PSP_ExceptionHook (TASK_ID task_id, int vector, void* vpEsf )
 {
-    ESFPPC *pEsf = vpEsf;
-    char *TaskName;
+    CFE_PSP_Exception_LogData_t* Buffer;
 
-    /*
-    ** Get the vxWorks task name
-    */
-    TaskName = taskName(task_id);
-
-    if ( TaskName == NULL )
+    Buffer = CFE_PSP_Exception_GetNextContextBuffer();
+    if (Buffer != NULL)
     {
-       sprintf(CFE_PSP_ExceptionReasonString, "Exception: Vector=0x%06X, vxWorks Task Name=NULL, Task ID=0x%08X",
-               vector,task_id);
+        /*
+         * Immediately get a snapshot of the timebase when exception occurred
+         *
+         * This is because the remainder of exception processing might be done
+         * in a cleanup job as a low priority background task, and might be
+         * considerably delayed from the time the actual exception occurred.
+         */
+        vxTimeBaseGet(&Buffer->context_info.timebase_upper, &Buffer->context_info.timebase_lower);
+
+        Buffer->sys_task_id = task_id;
+        Buffer->context_info.vector = vector;
+
+        /*
+         * Save Exception Stack frame
+         */
+        memcpy(&Buffer->context_info.esf, vpEsf, sizeof(Buffer->context_info.esf));
+
+        /*
+         * Save floating point registers
+         */
+        fppSave(&Buffer->context_info.fp);
+
+        CFE_PSP_Exception_WriteComplete();
     }
-    else
+
+    if (GLOBAL_CFE_CONFIGDATA.SystemNotify != NULL)
     {
-       sprintf(CFE_PSP_ExceptionReasonString, "Exception: Vector=0x%06X, vxWorks Task Name=%s, Task ID=0x%08X",
-                vector, TaskName, task_id);
+        /* notify the CFE of the event */
+        GLOBAL_CFE_CONFIGDATA.SystemNotify();
     }
 
-    /*
-    ** Save Exception Stack frame
-    */
-    memcpy(&(CFE_PSP_ExceptionContext.esf), pEsf, sizeof(ESFPPC));
-
-    /*
-    ** Save floating point registers
-    */
-    fppSave(&CFE_PSP_ExceptionContext.fp);
-
-    /*
-    ** Call the Generic cFE routine to finish processing the exception and
-    ** restart the cFE
-    */
-    CFE_PSP_ES_EXCEPTION_FUNCTION((uint32) task_id,
-            (char *) CFE_PSP_ExceptionReasonString,
-            (uint32 *) &CFE_PSP_ExceptionContext,
-            sizeof(CFE_PSP_ExceptionContext_t));
-    /*
-    ** No return to here
-    */
 
 } /* end function */
 
@@ -209,4 +184,30 @@ void CFE_PSP_SetDefaultExceptionEnvironment(void)
                  _PPC_FPSCR_XE              |  /* fp inexact exc enable */
                  _PPC_FPSCR_UE              ); /* fp underflow enable */
 }
+
+/*
+ * Name: CFE_PSP_ExceptionGetSummary_Impl
+ *
+ * Purpose: Translate a stored exception log entry into a summary string
+ */
+int32 CFE_PSP_ExceptionGetSummary_Impl(const CFE_PSP_Exception_LogData_t* Buffer, char *ReasonBuf, uint32 ReasonSize)
+{
+    const char *TaskName;
+
+    /*
+    ** Get the vxWorks task name
+    */
+    TaskName = taskName(Buffer->sys_task_id);
+
+    if ( TaskName == NULL )
+    {
+        TaskName = "NULL";
+    }
+
+    snprintf(ReasonBuf, ReasonSize, "Vector=0x%06X, vxWorks Task Name=%s, Task ID=0x%08X",
+            Buffer->context_info.vector,TaskName,Buffer->sys_task_id);
+
+    return CFE_PSP_SUCCESS;
+}
+
 

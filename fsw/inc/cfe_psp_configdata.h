@@ -58,17 +58,11 @@ typedef const struct
    uint32 PSP_WatchdogMin;                /**< PSP Minimum watchdog in milliseconds */
    uint32 PSP_WatchdogMax;                /**< PSP Maximum watchdog in milliseconds */
    uint32 PSP_MemTableSize;               /**< Size of PSP memory table */
+   uint32 PSP_ExceptionLogSize;           /**< Size of PSP exception log */
    CFE_PSP_MemTable_t *PSP_MemoryTable;   /**< Pointer to PSP memory table (forward reference) */
 
    uint32 OS_VolumeTableSize;             /**< Size of OS volume table */
    OS_VolumeInfo_t *OS_VolumeTable;       /**< Pointer to OS volume table (forward reference) */
-
-   /**
-    * Processor Context type.
-    * This is needed to determine the size of the context entry in the ER log.
-    * It is a placeholder as the implementation to use it is not merged in yet.
-    */
-   uint32 OS_CpuContextSize;
 
    /**
     * Number of EEPROM banks on this platform

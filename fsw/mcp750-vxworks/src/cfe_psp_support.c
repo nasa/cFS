@@ -63,6 +63,18 @@
 #include "cfe_psp.h"
 #include "cfe_psp_memory.h"
 
+#include <target_config.h>
+
+#define CFE_PSP_CPU_ID               (GLOBAL_CONFIGDATA.Default_CpuId)
+#define CFE_PSP_SPACECRAFT_ID        (GLOBAL_CONFIGDATA.Default_SpacecraftId)
+
+/*
+ * Track the overall "reserved memory block" at the start of RAM.
+ * This single large block is then subdivided into separate areas for CFE use.
+ */
+extern CFE_PSP_MemoryBlock_t MCP750_ReservedMemBlock;
+
+
 /******************************************************************************
 **  Function:  CFE_PSP_Restart()
 **
@@ -81,14 +93,14 @@ void CFE_PSP_Restart(uint32 reset_type)
 
    if ( reset_type == CFE_PSP_RST_TYPE_POWERON )
    {
-      CFE_PSP_ReservedMemoryPtr->bsp_reset_type = CFE_PSP_RST_TYPE_POWERON;
-      CFE_PSP_FlushCaches(1, (uint32 )CFE_PSP_ReservedMemoryPtr, sizeof(CFE_PSP_ReservedMemory_t));
+      CFE_PSP_ReservedMemoryMap.BootPtr->bsp_reset_type = CFE_PSP_RST_TYPE_POWERON;
+      CFE_PSP_FlushCaches(1, MCP750_ReservedMemBlock.BlockPtr, MCP750_ReservedMemBlock.BlockSize);
       reboot(BOOT_CLEAR);
    }
    else
    {
-      CFE_PSP_ReservedMemoryPtr->bsp_reset_type = CFE_PSP_RST_TYPE_PROCESSOR;
-      CFE_PSP_FlushCaches(1, (uint32 )CFE_PSP_ReservedMemoryPtr, sizeof(CFE_PSP_ReservedMemory_t));
+      CFE_PSP_ReservedMemoryMap.BootPtr->bsp_reset_type = CFE_PSP_RST_TYPE_PROCESSOR;
+      CFE_PSP_FlushCaches(1, MCP750_ReservedMemBlock.BlockPtr, MCP750_ReservedMemBlock.BlockSize);
       reboot(BOOT_NORMAL);
    }
 
@@ -128,11 +140,11 @@ void CFE_PSP_Panic(int32 ErrorCode)
 **    (none)
 */
 
-void CFE_PSP_FlushCaches(uint32 type, uint32 address, uint32 size)
+void CFE_PSP_FlushCaches(uint32 type, void* address, uint32 size)
 {
    if ( type == 1 )
    {
-      cacheTextUpdate((void *)address, size);
+      cacheTextUpdate(address, size);
    }
 
 }
@@ -156,7 +168,7 @@ void CFE_PSP_FlushCaches(uint32 type, uint32 address, uint32 size)
 */
 uint32 CFE_PSP_GetProcessorId    (void)
 {
-    return(CFE_PLATFORM_CPU_ID);
+    return CFE_PSP_CPU_ID;
 }
 
 
@@ -177,6 +189,6 @@ uint32 CFE_PSP_GetProcessorId    (void)
 */
 uint32 CFE_PSP_GetSpacecraftId   (void)
 {
-   return(CFE_MISSION_SPACECRAFT_ID);
+   return CFE_PSP_SPACECRAFT_ID;
 }
 

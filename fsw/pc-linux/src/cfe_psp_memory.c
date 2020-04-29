@@ -62,6 +62,7 @@
 ** PSP Specific defines
 */
 #include "cfe_psp_config.h"
+#include "cfe_psp_memory.h"
 
 #define CFE_PSP_CDS_KEY_FILE ".cdskeyfile"
 #define CFE_PSP_RESET_KEY_FILE ".resetkeyfile"
@@ -77,13 +78,21 @@
 #define CFE_PSP_RESET_AREA_SIZE     (GLOBAL_CONFIGDATA.CfeConfig->ResetAreaSize)
 #define CFE_PSP_USER_RESERVED_SIZE  (GLOBAL_CONFIGDATA.CfeConfig->UserReservedSize)
 
+
+typedef struct
+{
+    CFE_PSP_ReservedMemoryBootRecord_t BootRecord;
+    CFE_PSP_ExceptionStorage_t ExceptionStorage;
+} CFE_PSP_LinuxReservedAreaFixedLayout_t;
+
+
 /*
 ** Internal prototypes for this module
 */
-int32 CFE_PSP_InitCDS(uint32 RestartType );
-int32 CFE_PSP_InitResetArea(uint32 RestartType);
-int32 CFE_PSP_InitVolatileDiskMem(uint32 RestartType );
-int32 CFE_PSP_InitUserReservedArea(uint32 RestartType );
+void CFE_PSP_InitCDS(void);
+void CFE_PSP_InitResetArea(void);
+void CFE_PSP_InitVolatileDiskMem(void);
+void CFE_PSP_InitUserReservedArea(void);
 
 /*
 **  External Declarations
@@ -94,14 +103,16 @@ extern unsigned int _fini;
 /*
 ** Global variables
 */
-uint8 *CFE_PSP_CDSPtr = 0;
-uint8 *CFE_PSP_ResetAreaPtr = 0;
-uint8 *CFE_PSP_UserReservedAreaPtr = 0;
 int    ResetAreaShmId;
 int    CDSShmId;
 int    UserShmId;
                                                                               
-                                                                              
+/*
+** Pointer to the vxWorks USER_RESERVED_MEMORY area
+** The sizes of each memory area is defined in os_processor.h for this architecture.
+*/
+CFE_PSP_ReservedMemoryMap_t CFE_PSP_ReservedMemoryMap;
+
                                                                               
 /*
 *********************************************************************************
@@ -125,9 +136,8 @@ int    UserShmId;
 **    (none)
 */
 
-int32 CFE_PSP_InitCDS(uint32 RestartType )
+void CFE_PSP_InitCDS(void)
 {
-   int32 return_code;
    key_t key;
 
    /* 
@@ -151,22 +161,14 @@ int32 CFE_PSP_InitCDS(uint32 RestartType )
    /* 
    ** attach to the segment to get a pointer to it: 
    */
-   CFE_PSP_CDSPtr = shmat(CDSShmId, (void *)0, 0);
-   if (CFE_PSP_CDSPtr == (uint8 *)(-1)) 
+   CFE_PSP_ReservedMemoryMap.CDSMemory.BlockPtr = shmat(CDSShmId, (void *)0, 0);
+   if (CFE_PSP_ReservedMemoryMap.CDSMemory.BlockPtr == (void*)(-1))
    {
         OS_printf("CFE_PSP: Cannot shmat to CDS Shared memory Segment!\n");
         exit(-1);
    }
 
-   if ( RestartType == CFE_PSP_RST_TYPE_POWERON )
-   {
-      OS_printf("CFE_PSP: Clearing out CFE CDS Shared memory segment.\n");
-      memset(CFE_PSP_CDSPtr, 0, CFE_PSP_CDS_SIZE);
-   }
-   
-   return_code = CFE_PSP_SUCCESS;
-   return(return_code);
-
+   CFE_PSP_ReservedMemoryMap.CDSMemory.BlockSize = CFE_PSP_CDS_SIZE;
 }
 
 
@@ -192,12 +194,12 @@ void CFE_PSP_DeleteCDS(void)
    
    if ( ReturnCode == 0 )
    {
-      printf("CFE_PSP: Critical Data Store Shared memory segment removed\n");
+       OS_printf("CFE_PSP: Critical Data Store Shared memory segment removed\n");
    }
    else
    {
-      printf("CFE_PSP: Error Removing Critical Data Store Shared memory Segment.\n");
-      printf("CFE_PSP: It can be manually checked and removed using the ipcs and ipcrm commands.\n");
+       OS_printf("CFE_PSP: Error Removing Critical Data Store Shared memory Segment.\n");
+       OS_printf("CFE_PSP: It can be manually checked and removed using the ipcs and ipcrm commands.\n");
    }
 
 
@@ -259,10 +261,11 @@ int32 CFE_PSP_WriteToCDS(const void *PtrToDataToWrite, uint32 CDSOffset, uint32 
    {
        if ( (CDSOffset < CFE_PSP_CDS_SIZE ) && ( (CDSOffset + NumBytes) <= CFE_PSP_CDS_SIZE ))
        {
-          CopyPtr = &(CFE_PSP_CDSPtr[CDSOffset]);
-          memcpy(CopyPtr, (char *)PtrToDataToWrite,NumBytes);
+           CopyPtr = CFE_PSP_ReservedMemoryMap.CDSMemory.BlockPtr;
+           CopyPtr += CDSOffset;
+           memcpy(CopyPtr, (char *)PtrToDataToWrite,NumBytes);
           
-          return_code = CFE_PSP_SUCCESS;
+           return_code = CFE_PSP_SUCCESS;
        }
        else
        {
@@ -302,10 +305,11 @@ int32 CFE_PSP_ReadFromCDS(void *PtrToDataToRead, uint32 CDSOffset, uint32 NumByt
    {
        if ( (CDSOffset < CFE_PSP_CDS_SIZE ) && ( (CDSOffset + NumBytes) <= CFE_PSP_CDS_SIZE ))
        {
-          CopyPtr = &(CFE_PSP_CDSPtr[CDSOffset]);
-          memcpy((char *)PtrToDataToRead,CopyPtr, NumBytes);
+           CopyPtr = CFE_PSP_ReservedMemoryMap.CDSMemory.BlockPtr;
+           CopyPtr += CDSOffset;
+           memcpy((char *)PtrToDataToRead,CopyPtr, NumBytes);
           
-          return_code = CFE_PSP_SUCCESS;
+           return_code = CFE_PSP_SUCCESS;
        }
        else
        {
@@ -337,12 +341,15 @@ int32 CFE_PSP_ReadFromCDS(void *PtrToDataToRead, uint32 CDSOffset, uint32 NumByt
 **  Return:
 **    (none)
 */
-int32 CFE_PSP_InitResetArea(uint32 RestartType)
+void CFE_PSP_InitResetArea(void)
 {
 
-   int32 return_code;
    key_t key;
-
+   size_t total_size;
+   size_t reset_offset;
+   size_t align_mask;
+   cpuaddr block_addr;
+   CFE_PSP_LinuxReservedAreaFixedLayout_t *FixedBlocksPtr;
    /* 
    ** Make the Shared memory key
    */
@@ -352,10 +359,23 @@ int32 CFE_PSP_InitResetArea(uint32 RestartType)
         exit(-1);
    }
 
+   /*
+    * NOTE: Historically the CFE ES reset area also contains the Exception log.
+    * This is now allocated as a separate structure in the PSP, but it can
+    * reside in this shared memory segment so it will be preserved on a processor
+    * reset.
+    */
+   align_mask = sysconf(_SC_PAGESIZE) - 1; /* align blocks to whole memory pages */
+   total_size = sizeof(CFE_PSP_LinuxReservedAreaFixedLayout_t);
+   total_size = (total_size + align_mask) & ~align_mask;
+   reset_offset = total_size;
+   total_size += CFE_PSP_RESET_AREA_SIZE;
+   total_size = (total_size + align_mask) & ~align_mask;
+
    /* 
    ** connect to (and possibly create) the segment: 
    */
-   if ((ResetAreaShmId = shmget(key, CFE_PSP_RESET_AREA_SIZE, 0644 | IPC_CREAT)) == -1) 
+   if ((ResetAreaShmId = shmget(key, total_size, 0644 | IPC_CREAT)) == -1)
    {
         OS_printf("CFE_PSP: Cannot shmget Reset Area Shared memory Segment!\n");
         exit(-1);
@@ -364,21 +384,21 @@ int32 CFE_PSP_InitResetArea(uint32 RestartType)
    /* 
    ** attach to the segment to get a pointer to it: 
    */
-   CFE_PSP_ResetAreaPtr = shmat(ResetAreaShmId, (void *)0, 0);
-   if (CFE_PSP_ResetAreaPtr == (uint8 *)(-1)) 
+   block_addr = (cpuaddr)shmat(ResetAreaShmId, (void *)0, 0);
+   if (block_addr == (cpuaddr)(-1))
    {
         OS_printf("CFE_PSP: Cannot shmat to Reset Area Shared memory Segment!\n");
         exit(-1);
    }
 
-   if ( RestartType == CFE_PSP_RST_TYPE_POWERON )
-   {
-      OS_printf("CFE_PSP: Clearing out CFE Reset Shared memory segment.\n");
-      memset(CFE_PSP_ResetAreaPtr, 0, CFE_PSP_RESET_AREA_SIZE);
-   }
-   
-   return_code = CFE_PSP_SUCCESS;
-   return(return_code);
+   FixedBlocksPtr = (CFE_PSP_LinuxReservedAreaFixedLayout_t *)block_addr;
+   block_addr += reset_offset;
+
+   CFE_PSP_ReservedMemoryMap.BootPtr = &FixedBlocksPtr->BootRecord;
+   CFE_PSP_ReservedMemoryMap.ExceptionStoragePtr = &FixedBlocksPtr->ExceptionStorage;
+
+   CFE_PSP_ReservedMemoryMap.ResetMemory.BlockPtr = (void*)block_addr;
+   CFE_PSP_ReservedMemoryMap.ResetMemory.BlockSize = CFE_PSP_RESET_AREA_SIZE;
 }
 
 
@@ -403,12 +423,12 @@ void CFE_PSP_DeleteResetArea(void)
    
    if ( ReturnCode == 0 )
    {
-      printf("Reset Area Shared memory segment removed\n");
+       OS_printf("Reset Area Shared memory segment removed\n");
    }
    else
    {
-      printf("Error Removing Reset Area Shared memory Segment.\n");
-      printf("It can be manually checked and removed using the ipcs and ipcrm commands.\n");
+       OS_printf("Error Removing Reset Area Shared memory Segment.\n");
+       OS_printf("It can be manually checked and removed using the ipcs and ipcrm commands.\n");
    }
 
 
@@ -441,8 +461,8 @@ int32 CFE_PSP_GetResetArea (cpuaddr *PtrToResetArea, uint32 *SizeOfResetArea)
    }
    else
    {
-      *PtrToResetArea = (cpuaddr)CFE_PSP_ResetAreaPtr;
-      *SizeOfResetArea = CFE_PSP_RESET_AREA_SIZE;
+      *PtrToResetArea = (cpuaddr)CFE_PSP_ReservedMemoryMap.ResetMemory.BlockPtr;
+      *SizeOfResetArea = CFE_PSP_ReservedMemoryMap.ResetMemory.BlockSize;
       return_code = CFE_PSP_SUCCESS;
    }
    
@@ -468,9 +488,8 @@ int32 CFE_PSP_GetResetArea (cpuaddr *PtrToResetArea, uint32 *SizeOfResetArea)
 **  Return:
 **    (none)
 */
-int32 CFE_PSP_InitUserReservedArea(uint32 RestartType )
+void CFE_PSP_InitUserReservedArea(void)
 {
-   int32 return_code;
    key_t key;
 
    /* 
@@ -494,22 +513,14 @@ int32 CFE_PSP_InitUserReservedArea(uint32 RestartType )
    /* 
    ** attach to the segment to get a pointer to it: 
    */
-   CFE_PSP_UserReservedAreaPtr = shmat(UserShmId, (void *)0, 0);
-   if (CFE_PSP_UserReservedAreaPtr == (uint8 *)(-1)) 
+   CFE_PSP_ReservedMemoryMap.UserReservedMemory.BlockPtr = shmat(UserShmId, (void *)0, 0);
+   if (CFE_PSP_ReservedMemoryMap.UserReservedMemory.BlockPtr == (void*)(-1))
    {
         OS_printf("CFE_PSP: Cannot shmat to User Reserved Area Shared memory Segment!\n");
         exit(-1);
    }
 
-   if ( RestartType == CFE_PSP_RST_TYPE_POWERON )
-   {
-      OS_printf("CFE_PSP: Clearing out CFE User Reserved Shared memory segment.\n");
-      memset(CFE_PSP_UserReservedAreaPtr, 0, CFE_PSP_USER_RESERVED_SIZE);
-   }
-   
-   return_code = CFE_PSP_SUCCESS;
-   return(return_code);
-
+   CFE_PSP_ReservedMemoryMap.UserReservedMemory.BlockSize = CFE_PSP_USER_RESERVED_SIZE;
 }
 
 /******************************************************************************
@@ -533,12 +544,12 @@ void CFE_PSP_DeleteUserReservedArea(void)
    
    if ( ReturnCode == 0 )
    {
-      printf("User Reserved Area Shared memory segment removed\n");
+       OS_printf("User Reserved Area Shared memory segment removed\n");
    }
    else
    {
-      printf("Error Removing User Reserved Area Shared memory Segment.\n");
-      printf("It can be manually checked and removed using the ipcs and ipcrm commands.\n");
+       OS_printf("Error Removing User Reserved Area Shared memory Segment.\n");
+       OS_printf("It can be manually checked and removed using the ipcs and ipcrm commands.\n");
    }
 }
 
@@ -566,8 +577,8 @@ int32 CFE_PSP_GetUserReservedArea(cpuaddr *PtrToUserArea, uint32 *SizeOfUserArea
    }
    else
    {
-      *PtrToUserArea = (cpuaddr)(&CFE_PSP_UserReservedAreaPtr);
-      *SizeOfUserArea = CFE_PSP_USER_RESERVED_SIZE;
+      *PtrToUserArea = (cpuaddr)CFE_PSP_ReservedMemoryMap.UserReservedMemory.BlockPtr;
+      *SizeOfUserArea = CFE_PSP_ReservedMemoryMap.UserReservedMemory.BlockSize;
       return_code = CFE_PSP_SUCCESS;
    }
    
@@ -594,18 +605,12 @@ int32 CFE_PSP_GetUserReservedArea(cpuaddr *PtrToUserArea, uint32 *SizeOfUserArea
 **  Return:
 **    (none)
 */
-int32 CFE_PSP_InitVolatileDiskMem(uint32 RestartType )
+void CFE_PSP_InitVolatileDiskMem(void)
 {
-   int32 return_code;
-    
    /*
    ** Here, we want to clear out the volatile ram disk contents
    ** on a power on reset 
    */
-    
-   return_code = CFE_PSP_SUCCESS;
-   return(return_code);
-
 }
 
 /******************************************************************************
@@ -631,8 +636,8 @@ int32 CFE_PSP_GetVolatileDiskMem(cpuaddr *PtrToVolDisk, uint32 *SizeOfVolDisk )
    }
    else
    {
-      *PtrToVolDisk = 0;
-      *SizeOfVolDisk = 0;
+      *PtrToVolDisk = (cpuaddr)CFE_PSP_ReservedMemoryMap.VolatileDiskMemory.BlockPtr;
+      *SizeOfVolDisk = CFE_PSP_ReservedMemoryMap.VolatileDiskMemory.BlockSize;
       return_code = CFE_PSP_SUCCESS;
    }
    
@@ -658,9 +663,8 @@ int32 CFE_PSP_GetVolatileDiskMem(cpuaddr *PtrToVolDisk, uint32 *SizeOfVolDisk )
 **  Return:
 **    (none)
 */
-int32 CFE_PSP_InitProcessorReservedMemory( uint32 RestartType )
+void CFE_PSP_SetupReservedMemoryMap(void)
 {
-   int32 return_code;
    int   tempFd;
    
    /*
@@ -673,41 +677,72 @@ int32 CFE_PSP_InitProcessorReservedMemory( uint32 RestartType )
    close(tempFd);
    tempFd = open(CFE_PSP_RESERVED_KEY_FILE, O_RDONLY | O_CREAT, S_IRWXU );
    close(tempFd);
-      
 
-   return_code = CFE_PSP_InitCDS( RestartType );
-   if (return_code != CFE_PSP_SUCCESS)
-   {
-        OS_printf("CFE_PSP_InitCDS didn't return success (%d)\n", return_code);
+   /*
+    * The setup of each section is done as a separate init.
+    *
+    * Any failures within these routines call exit(), so there
+    * is no need to check status - failure means no return.
+    */
 
-        return(return_code);
-   }
+   CFE_PSP_InitCDS();
+   CFE_PSP_InitResetArea();
+   CFE_PSP_InitVolatileDiskMem();
+   CFE_PSP_InitUserReservedArea();
+}
 
-   return_code = CFE_PSP_InitResetArea( RestartType );
-   if (return_code != CFE_PSP_SUCCESS)
-   {
-        OS_printf("CFE_PSP_InitResetArea didn't return success (%d)\n", return_code);
+int32 CFE_PSP_InitProcessorReservedMemory( uint32 RestartType )
+{
 
-        return(return_code);
-   }
+    /*
+     * Clear the segments only on a POWER ON reset
+     *
+     * Newly-created segments should already be zeroed out,
+     * but this ensures it.
+     */
+    if ( RestartType == CFE_PSP_RST_TYPE_POWERON )
+    {
+        OS_printf("CFE_PSP: Clearing out CFE CDS Shared memory segment.\n");
+        memset(CFE_PSP_ReservedMemoryMap.CDSMemory.BlockPtr, 0, CFE_PSP_CDS_SIZE);
+        OS_printf("CFE_PSP: Clearing out CFE Reset Shared memory segment.\n");
+        memset(CFE_PSP_ReservedMemoryMap.ResetMemory.BlockPtr, 0, CFE_PSP_RESET_AREA_SIZE);
+        OS_printf("CFE_PSP: Clearing out CFE User Reserved Shared memory segment.\n");
+        memset(CFE_PSP_ReservedMemoryMap.UserReservedMemory.BlockPtr, 0, CFE_PSP_USER_RESERVED_SIZE);
 
-   return_code = CFE_PSP_InitVolatileDiskMem( RestartType );
-   if (return_code != CFE_PSP_SUCCESS)
-   {
-        OS_printf("CFE_PSP_InitVolatileDiskMem didn't return success (%d)\n", return_code);
+        memset(CFE_PSP_ReservedMemoryMap.BootPtr, 0, sizeof(*CFE_PSP_ReservedMemoryMap.BootPtr));
+        memset(CFE_PSP_ReservedMemoryMap.ExceptionStoragePtr, 0, sizeof(*CFE_PSP_ReservedMemoryMap.ExceptionStoragePtr));
 
-        return(return_code);
-   }
+        /*
+         * If an unclean shutdown occurs, try to do a PROCESSOR reset next.
+         * This will attempt to preserve the exception and reset log content.
+         */
+        CFE_PSP_ReservedMemoryMap.BootPtr->NextResetType = CFE_PSP_RST_TYPE_PROCESSOR;
+    }
+    else
+    {
+        /*
+         * If an unclean shutdown occurs after a PROCESSOR reset, then next time should
+         * be a POWERON reset.
+         */
+        CFE_PSP_ReservedMemoryMap.BootPtr->NextResetType = CFE_PSP_RST_TYPE_POWERON;
+    }
 
-   return_code = CFE_PSP_InitUserReservedArea( RestartType );
-   if (return_code != CFE_PSP_SUCCESS)
-   {
-        OS_printf("CFE_PSP_InitVolatileDiskMem didn't return success (%d)\n", return_code);
+    /*
+     * Reset the boot record validity flag (always).
+     *
+     * If an unclean shutdown occurs, such as a software crash or abort, this
+     * will remain in the shm structure and it can be detected at startup.
+     *
+     * This can be used to differentiate between an intentional and unintentional
+     * processor reset.
+     *
+     * If a directed shutdown occurs (via CFE_PSP_Restart) then this
+     * is overwritten with the valid value.
+     */
+    CFE_PSP_ReservedMemoryMap.BootPtr->ValidityFlag = CFE_PSP_BOOTRECORD_INVALID;
 
-        return(return_code);
-   }
 
-   return(return_code);
+    return(CFE_PSP_SUCCESS);
 }
 
 /******************************************************************************
