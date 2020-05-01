@@ -105,7 +105,7 @@ int32 OS_mkdir (const char *path, uint32 access)
    char local_path[OS_MAX_LOCAL_PATH_LEN];
 
    return_code = OS_TranslatePath(path, local_path);
-   if (return_code == OS_FS_SUCCESS)
+   if (return_code == OS_SUCCESS)
    {
       return_code = OS_DirCreate_Impl(local_path, access);
    }
@@ -136,7 +136,7 @@ int32 OS_DirectoryOpen(uint32 *dir_id, const char *path)
     }
 
     return_code = OS_TranslatePath(path, local_path);
-    if (return_code == OS_FS_SUCCESS)
+    if (return_code == OS_SUCCESS)
     {
        /* Note - the common ObjectIdAllocate routine will lock the object type and leave it locked. */
        return_code = OS_ObjectIdAllocateNew(LOCAL_OBJID_TYPE, NULL, &local_id, &record);
@@ -209,7 +209,7 @@ int32 OS_DirectoryRead(uint32 dir_id, os_dirent_t *dirent)
 
    if (dirent == NULL)
    {
-       return OS_FS_ERR_INVALID_POINTER;
+       return OS_INVALID_POINTER;
    }
 
    /* Make sure the file descriptor is legit before using it */
@@ -275,7 +275,7 @@ int32  OS_rmdir (const char *path)
    char local_path [OS_MAX_LOCAL_PATH_LEN];
 
    return_code = OS_TranslatePath(path, local_path);
-   if (return_code == OS_FS_SUCCESS)
+   if (return_code == OS_SUCCESS)
    {
       OS_DirRemove_Impl(local_path);
    }
@@ -320,7 +320,7 @@ int32 OS_closedir (os_dirp_t directory)
 
     if (directory == NULL)
     {
-        return OS_FS_ERR_INVALID_POINTER;
+        return OS_INVALID_POINTER;
     }
     dirdescptr.dirp = directory;
 

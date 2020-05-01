@@ -68,7 +68,7 @@ int32 OS_ShellOutputToFile_Impl(uint32 file_id, const char* Cmd)
 
    if (Result != 0)
    {
-      return OS_FS_ERROR;
+      return OS_ERROR;
    }
    return OS_SUCCESS;
 } /* end OS_ShellOutputToFile_Impl */

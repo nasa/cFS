@@ -260,7 +260,7 @@ int32 OS_FileSysMountVolume_Impl (uint32 filesys_id)
     }
 
 
-    return OS_FS_SUCCESS;
+    return OS_SUCCESS;
 
 } /* end OS_FileSysMountVolume_Impl */
 
@@ -281,7 +281,7 @@ int32 OS_FileSysUnmountVolume_Impl (uint32 filesys_id)
      * This is a no-op.  The mount point that was created during
      * the mount process can stay for the next mount.
      */
-    return OS_FS_SUCCESS;
+    return OS_SUCCESS;
 
 } /* end OS_FileSysUnmountVolume_Impl */
 
@@ -307,7 +307,7 @@ int32 OS_FileSysStatVolume_Impl (uint32 filesys_id, OS_statvfs_t *result)
    result->blocks_free = stat_buf.f_bfree;
    result->total_blocks = stat_buf.f_blocks;
 
-   return(OS_FS_SUCCESS);
+   return(OS_SUCCESS);
 } /* end OS_FileSysStatVolume_Impl */
 
 
