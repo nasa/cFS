@@ -19,6 +19,15 @@ This distribution contains:
 
 ## Version History
 
+#### Development Build:  5.0.14
+  - Adds library build, functional, and coverage test to CI
+  - Deprecates `OS_FS_SUCCESS, OS_FS_ERROR , OS_FS_ERR_INVALID_POINTER, OS_FS_ERR_NO_FREE_FDS , OS_FS_ERR_INVALID_FD, and OS_FS_UNIMPLEMENTED` from from `osapi-os-filesys.h`
+  - Individual directory names now limited to OS_MAX_FILE_NAME
+  - Fix tautology, local_idx1 is now compared with local_idx2
+  - Module files are generated when the `osal_loader_UT` test is built and run
+  - Consistent osal-core-test execution status
+  - See https://github.com/nasa/osal/pull/440 for more details
+  
 #### Development Build:  5.0.13
   - Added coverage test to `OS_TimerCreate` for `OS_ERR_NAME_TOO_LONG`.
   - Externalize enum for `SelectSingle`, ensures that pointers passed to `SelectFd...()` APIs are not null, ensures that pointer to `SelectSingle` is not null.
