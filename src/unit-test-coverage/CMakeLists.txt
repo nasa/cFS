@@ -30,7 +30,7 @@ enable_testing()
 # code coverage analysis.  Because the actual underlying OS calls are stubbed out, there
 # is no dependency on the actual underlying OS.  Note that RTEMS is not included as the
 # coverage test is not implemented at this time.
-set(OSALCOVERAGE_TARGET_OSTYPE "vxworks;posix;shared" CACHE STRING "OSAL target(s) to build coverage tests for (default=all)")
+set(OSALCOVERAGE_TARGET_OSTYPE "vxworks;shared" CACHE STRING "OSAL target(s) to build coverage tests for (default=all)")
 
 # Check that coverage has been implemented for this OSTYPE
 foreach(OSTYPE ${OSALCOVERAGE_TARGET_OSTYPE})
@@ -44,63 +44,50 @@ message(STATUS "Coverage Test Target OS: ${OSALCOVERAGE_TARGET_OSTYPE}")
 # Utilize the shared UT assert library, along with the standard OSAL includes
 include_directories(${UT_ASSERT_SOURCE_DIR}/inc)
 include_directories(${OSAL_SOURCE_DIR}/src/os/inc)
-include_directories(${OSAL_SOURCE_DIR}/src/os/shared)
+include_directories(${OSAL_SOURCE_DIR}/src/os/shared/inc)
+include_directories(${OSALCOVERAGE_SOURCE_DIR}/ut-stubs/inc)
 
-# The OSALCOVERAGE_STUB_LIB_LIST is a list of stub libraries to link the
-# test runner executables with.  It will be appended at various points
-# depending on what is under test.
-set(OSALCOVERAGE_STUB_LIB_LIST)
 add_subdirectory(ut-stubs)
-
-# The "ut_osapi_stubs" library is the stubs for the OSAL public API
-# this should be supplied by the parent build
-list(APPEND OSALCOVERAGE_STUB_LIB_LIST ut_osapi_stubs)
 
 # A generic function to add a coverage test case source file
 # This combines the following into an executable
 #  - The test case setup (a C source file starting with "coveragetest" prefix)
 #  - The object code of the unit under test (special build with instrumentation)
 #  - Links to the stub libraries of everything else, plus UT assert
-function (add_coverage_tests SETNAME)
-  foreach(MODNAME ${ARGN})
-    set (TESTCASE_SRCFILE)
-    foreach (SRCFILE
-        "${PROJECT_SOURCE_DIR}/portable/coveragetest-${MODNAME}.c"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/coveragetest-${MODNAME}.c"
+function (add_coverage_testrunner TESTNAME FSW_SRCFILE TESTCASE_SRCFILE)
+    add_library(utobj_${TESTNAME} OBJECT
+        ${FSW_SRCFILE}
     )
-        if (EXISTS "${SRCFILE}")
-            set (TESTCASE_SRCFILE "${SRCFILE}")
-        endif (EXISTS "${SRCFILE}")
+
+    # only the actual FSW src file gets the coverage instrumentation
+    target_compile_options(utobj_${TESTNAME} PRIVATE
+        ${UT_COVERAGE_COMPILE_FLAGS}
+    )
+
+    # both the FSW src file and the adaptor file get compiled with override includes
+    target_include_directories(utobj_${TESTNAME} BEFORE PRIVATE
+        ${OSALCOVERAGE_SOURCE_DIR}/ut-stubs/override_inc
+    )
+
+    # the testcase is compiled with no special flags or override includes
+    add_executable(${TESTNAME}-testrunner
+        ${TESTCASE_SRCFILE}
+        $<TARGET_OBJECTS:utobj_${TESTNAME}>
+    )
+
+    target_link_libraries(${TESTNAME}-testrunner
+        ${UT_COVERAGE_LINK_FLAGS}
+        ${ARGN}
+        ut_assert
+    )
+
+    add_test(${TESTNAME} ${TESTNAME}-testrunner)
+
+    foreach(TGT ${INSTALL_TARGET_LIST})
+        install(TARGETS ${TESTNAME}-testrunner DESTINATION ${TGTNAME}/${UT_INSTALL_SUBDIR})
     endforeach()
 
-    if (TESTCASE_SRCFILE)
-      set(TESTNAME "coverage-${SETNAME}-${MODNAME}")
-
-      if (DEFINED MODULE_LINK_MAP_${MODNAME})
-        set(LINKMOD ${MODULE_LINK_MAP_${MODNAME}})
-      else()
-        set(LINKMOD ${MODNAME})
-      endif()
-
-      add_executable(${TESTNAME}-testrunner
-        ${TESTCASE_SRCFILE}
-        $<TARGET_OBJECTS:ut_${SETNAME}_${LINKMOD}>)
-
-      target_link_libraries(${TESTNAME}-testrunner
-        ${UT_COVERAGE_LINK_FLAGS}
-        ${OSALCOVERAGE_STUB_LIB_LIST}
-        ut_assert
-      )
-      add_test(${TESTNAME} ${TESTNAME}-testrunner)
-
-      foreach(TGT ${INSTALL_TARGET_LIST})
-        install(TARGETS ${TESTNAME}-testrunner DESTINATION ${TGTNAME}/${UT_INSTALL_SUBDIR})
-      endforeach()
-
-    endif()
-  endforeach(MODNAME ${ARGN})
-
-endfunction(add_coverage_tests SETNAME)
+endfunction()
 
 
 foreach(SETNAME ${OSALCOVERAGE_TARGET_OSTYPE})

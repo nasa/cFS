@@ -1,11 +1,21 @@
 /*
- *      Copyright (c) 2019, United States government as represented by the
- *      administrator of the National Aeronautics Space Administration.
- *      All rights reserved. This software was created at NASA Goddard
- *      Space Flight Center pursuant to government contracts.
+ * 
+ *    Copyright (c) 2020, United States government as represented by the
+ *    administrator of the National Aeronautics Space Administration.
+ *    All rights reserved. This software was created at NASA Goddard
+ *    Space Flight Center pursuant to government contracts.
+ * 
+ *    This is governed by the NASA Open Source Agreement and may be used,
+ *    distributed and modified only according to the terms of that agreement.
+ * 
+ */
+
+
+/**
+ * \file     vxworks-symLib-stubs.c
+ * \ingroup  ut-stubs
+ * \author   joseph.p.hickey@nasa.gov
  *
- *      This is governed by the NASA Open Source Agreement and may be used,
- *      distributed and modified only according to the terms of that agreement.
  */
 
 /* OSAL coverage stub replacement for symLib.h */
@@ -34,7 +44,8 @@ OCS_STATUS OCS_symFindByName(OCS_SYMTAB_ID symTblId, char * name, char ** pValue
 {
     return (UT_DEFAULT_IMPL(OCS_symFindByName));
 }
-OCS_SYMBOL * OCS_symEach(OCS_SYMTAB_ID symTblId, OCS_FUNCPTR routine, int routineArg)
+
+OCS_SYMBOL * OCS_symEach(OCS_SYMTAB_ID symTblId, OCS_symEach_Routine_t routine, int routineArg)
 {
     int32 Status;
     OCS_SYMBOL *retval;
@@ -50,5 +61,18 @@ OCS_SYMBOL * OCS_symEach(OCS_SYMTAB_ID symTblId, OCS_FUNCPTR routine, int routin
     }
 
     return retval;
+}
+
+OCS_STATUS   OCS_symFind     (OCS_SYMTAB_ID symTblId, OCS_SYMBOL_DESC * pSymbol)
+{
+    int32 Status;
+
+    Status = UT_DEFAULT_IMPL(OCS_symFind);
+    if (Status == 0 && UT_Stub_CopyToLocal(UT_KEY(OCS_symFind), pSymbol, sizeof(*pSymbol)) < sizeof(*pSymbol))
+    {
+        memset(pSymbol,0, sizeof(*pSymbol));
+    }
+
+    return Status;
 }
 

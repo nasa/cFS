@@ -1,29 +1,26 @@
 /*
- *      Copyright (c) 2019, United States government as represented by the
- *      administrator of the National Aeronautics Space Administration.
- *      All rights reserved. This software was created at NASA Goddard
- *      Space Flight Center pursuant to government contracts.
- *
- *      This is governed by the NASA Open Source Agreement and may be used,
- *      distributed and modified only according to the terms of that agreement.
- */
-
-/*
- * Filename: osapi_testcase_module.c
- *
- * Purpose: This file contains unit test cases for items in the "osapi-module" file
- *
- * Notes:
- *
+ * 
+ *    Copyright (c) 2020, United States government as represented by the
+ *    administrator of the National Aeronautics Space Administration.
+ *    All rights reserved. This software was created at NASA Goddard
+ *    Space Flight Center pursuant to government contracts.
+ * 
+ *    This is governed by the NASA Open Source Agreement and may be used,
+ *    distributed and modified only according to the terms of that agreement.
+ * 
  */
 
 
-/*
- * Includes
+/**
+ * \file     coveragetest-module.c
+ * \ingroup  shared
+ * \author   joseph.p.hickey@nasa.gov
+ *
  */
-
 #include "os-shared-coveragetest.h"
-#include "ut-osapi-module.h"
+#include "ut-adaptor-module.h"
+
+#include "os-shared-module.h"
 
 #include <OCS_string.h>
 
@@ -75,13 +72,17 @@ void Test_OS_ModuleLoad(void)
     int32 actual = OS_ModuleLoad(&objid, "UT", "File");
 
     UtAssert_True(actual == expected, "OS_ModuleLoad() (%ld) == OS_SUCCESS", (long)actual);
+    actual = UT_GetStubCount(UT_KEY(OS_ModuleLoad_Impl));
+    UtAssert_True(actual == 1, "OS_ModuleLoad_Impl() called (%ld) == 1", (long)actual);
     UtAssert_True(objid != 0, "objid (%lu) != 0", (unsigned long)objid);
 
 
-    /* for a static module, it should return objid=0 */
+    /* for a static module, it should also return a valid objid, but should NOT invoke OS_ModuleLoad_Impl */
     actual = OS_ModuleLoad(&objid, "UTS", "File2");
     UtAssert_True(actual == expected, "OS_ModuleLoad() (%ld) == OS_SUCCESS", (long)actual);
-    UtAssert_True(objid == 0, "objid (%lu) == 0", (unsigned long)objid);
+    actual = UT_GetStubCount(UT_KEY(OS_ModuleLoad_Impl));
+    UtAssert_True(actual == 1, "OS_ModuleLoad_Impl() called (%ld) == 1", (long)actual);
+    UtAssert_True(objid != 0, "objid (%lu) != 0", (unsigned long)objid);
 
     /* error cases */
     actual = OS_ModuleLoad(NULL,NULL,NULL);
@@ -171,23 +172,23 @@ void Test_OS_StaticSymbolLookup(void)
     cpuaddr addr;
 
     /* nominal */
-    actual = Osapi_Call_SymbolLookup_Static(&addr, "UT_staticsym");
+    actual = OS_SymbolLookup_Static(&addr, "UT_staticsym");
     UtAssert_True(actual == expected, "OS_SymbolLookup_Static(name=%s) (%ld) == OS_SUCCESS",
             "Test_Func1", (long)actual);
     UtAssert_True(addr == (cpuaddr)&Test_DummyFunc, "OS_SymbolLookup_Static(address=%lx) == %lx",
             (unsigned long)addr, (unsigned long)&Test_DummyFunc);
 
-    actual = Osapi_Call_ModuleLoad_Static("UTS");
+    actual = OS_ModuleLoad_Static("UTS");
     UtAssert_True(actual == expected, "OS_ModuleLoad_Static(name=%s) (%ld) == OS_SUCCESS",
             "UT", (long)actual);
 
     expected = OS_ERROR;
-    actual = Osapi_Call_SymbolLookup_Static(&addr, "Invalid");
+    actual = OS_SymbolLookup_Static(&addr, "Invalid");
     UtAssert_True(actual == expected, "OS_SymbolLookup_Static(name=%s) (%ld) == OS_ERROR",
             "Invalid", (long)actual);
 
     expected = OS_ERR_NAME_NOT_FOUND;
-    actual = Osapi_Call_ModuleLoad_Static("Invalid");
+    actual = OS_ModuleLoad_Static("Invalid");
     UtAssert_True(actual == expected, "OS_ModuleLoad_Static(name=%s) (%ld) == OS_SUCCESS",
             "Invalid", (long)actual);
 }
@@ -254,23 +255,23 @@ void Test_OS_ModuleGetInfo(void)
 
 
 
-/* Osapi_Task_Setup
+/* Osapi_Test_Setup
  *
  * Purpose:
  *   Called by the unit test tool to set up the app prior to each test
  */
-void Osapi_Task_Setup(void)
+void Osapi_Test_Setup(void)
 {
     UT_ResetState(0);
 }
 
 /*
- * Osapi_TearDown
+ * Osapi_Test_Teardown
  *
  * Purpose:
  *   Called by the unit test tool to tear down the app after each test
  */
-void Osapi_TearDown(void)
+void Osapi_Test_Teardown(void)
 {
 
 }

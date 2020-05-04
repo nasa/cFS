@@ -1,29 +1,24 @@
 /*
- *      Copyright (c) 2019, United States government as represented by the
- *      administrator of the National Aeronautics Space Administration.
- *      All rights reserved. This software was created at NASA Goddard
- *      Space Flight Center pursuant to government contracts.
- *
- *      This is governed by the NASA Open Source Agreement and may be used,
- *      distributed and modified only according to the terms of that agreement.
- */
-
-/*
- * Filename: osapi_testcase_filesys.c
- *
- * Purpose: This file contains unit test cases for items in the "osapi-filesys" file
- *
- * Notes:
- *
+ * 
+ *    Copyright (c) 2020, United States government as represented by the
+ *    administrator of the National Aeronautics Space Administration.
+ *    All rights reserved. This software was created at NASA Goddard
+ *    Space Flight Center pursuant to government contracts.
+ * 
+ *    This is governed by the NASA Open Source Agreement and may be used,
+ *    distributed and modified only according to the terms of that agreement.
+ * 
  */
 
 
-/*
- * Includes
+/**
+ * \file     coveragetest-filesys.c
+ * \ingroup  shared
+ * \author   joseph.p.hickey@nasa.gov
+ *
  */
-
 #include "os-shared-coveragetest.h"
-#include "ut-osapi-filesys.h"
+#include "os-shared-filesys.h"
 
 #include <OCS_string.h>
 
@@ -501,13 +496,13 @@ void Test_OS_TranslatePath(void)
     UT_ClearForceFail(UT_KEY(OS_ObjectIdGetBySearch));
 
    /* VirtPathLen < VirtPathBegin */
-    UT_SetDeferredRetcode(UT_KEY(OCS_strlen), 5, OS_MAX_PATH_LEN);
+    UT_SetDeferredRetcode(UT_KEY(OCS_strlen), 4, OS_MAX_PATH_LEN);
     expected = OS_FS_ERR_PATH_INVALID;
     actual = OS_TranslatePath("/cf/test",LocalBuffer);
     UtAssert_True(actual == expected, "OS_TranslatePath(/cf/test) (%ld) == OS_FS_ERR_PATH_INVALID", (long)actual);
 
     /* (SysMountPointLen + VirtPathLen) > OS_MAX_LOCAL_PATH_LEN */
-    UT_SetDeferredRetcode(UT_KEY(OCS_strlen), 4, OS_MAX_LOCAL_PATH_LEN);
+    UT_SetDeferredRetcode(UT_KEY(OCS_strlen), 3, OS_MAX_LOCAL_PATH_LEN);
     expected = OS_FS_ERR_PATH_TOO_LONG;
     actual = OS_TranslatePath("/cf/test",LocalBuffer);
     UtAssert_True(actual == expected, "OS_TranslatePath(/cf/test) (%ld) == OS_FS_ERR_PATH_TOO_LONG", (long)actual);
@@ -536,7 +531,7 @@ void Test_OS_FileSys_FindVirtMountPoint(void)
     OS_filesys_table[1].flags = 0;
     OS_filesys_table[1].virtual_mountpt[0] = 0;
 
-    result = Osapi_Internal_FileSys_FindVirtMountPoint((void*)refstr, 1, &refobj);
+    result = OS_FileSys_FindVirtMountPoint((void*)refstr, 1, &refobj);
     UtAssert_True(!result, "OS_FileSys_FindVirtMountPoint(%s) (unmounted) == false", refstr);
 
     OS_filesys_table[1].flags = OS_FILESYS_FLAG_IS_MOUNTED_VIRTUAL;
@@ -544,15 +539,15 @@ void Test_OS_FileSys_FindVirtMountPoint(void)
     /* Verify cases where one is a substring of the other -
      * these should also return false */
     strncpy(OS_filesys_table[1].virtual_mountpt, "/ut11", sizeof(OS_filesys_table[1].virtual_mountpt));
-    result = Osapi_Internal_FileSys_FindVirtMountPoint((void*)refstr, 1, &refobj);
+    result = OS_FileSys_FindVirtMountPoint((void*)refstr, 1, &refobj);
     UtAssert_True(!result, "OS_FileSys_FindVirtMountPoint(%s) (mountpt=%s) == false", refstr, OS_filesys_table[1].virtual_mountpt);
 
     strncpy(OS_filesys_table[1].virtual_mountpt, "/u", sizeof(OS_filesys_table[1].virtual_mountpt));
-    result = Osapi_Internal_FileSys_FindVirtMountPoint((void*)refstr, 1, &refobj);
+    result = OS_FileSys_FindVirtMountPoint((void*)refstr, 1, &refobj);
     UtAssert_True(!result, "OS_FileSys_FindVirtMountPoint(%s) (mountpt=%s) == false", refstr, OS_filesys_table[1].virtual_mountpt);
 
     strncpy(OS_filesys_table[1].virtual_mountpt, "/ut", sizeof(OS_filesys_table[1].virtual_mountpt));
-    result = Osapi_Internal_FileSys_FindVirtMountPoint((void*)refstr, 1, &refobj);
+    result = OS_FileSys_FindVirtMountPoint((void*)refstr, 1, &refobj);
     UtAssert_True(result, "OS_FileSys_FindVirtMountPoint(%s) (nominal) == true", refstr);
 }
 
@@ -583,42 +578,42 @@ void Test_OS_FileSys_InitLocalFromVolTable(void)
     /* this should return OS_ERROR because the mount point was not valid */
     memset(&temprec,0,sizeof(temprec));
     expected = OS_ERROR;
-    actual = Osapi_Internal_FileSys_InitLocalFromVolTable(&temprec, &UT_VOLTAB_TESTCASES[0]);
+    actual = OS_FileSys_InitLocalFromVolTable(&temprec, &UT_VOLTAB_TESTCASES[0]);
     UtAssert_True(actual == expected, "OS_FileSys_InitLocalFromVolTable(0) (%ld) == OS_ERROR", (long)actual);
 
     memset(&temprec,0,sizeof(temprec));
     expected = OS_SUCCESS;
-    actual = Osapi_Internal_FileSys_InitLocalFromVolTable(&temprec, &UT_VOLTAB_TESTCASES[1]);
+    actual = OS_FileSys_InitLocalFromVolTable(&temprec, &UT_VOLTAB_TESTCASES[1]);
     UtAssert_True(actual == expected, "OS_FileSys_InitLocalFromVolTable(1) (%ld) == OS_SUCCESS", (long)actual);
     UtAssert_True(temprec.fstype == OS_FILESYS_TYPE_MTD, "OS_FileSys_InitLocalFromVolTable(1) fstype(%u) == OS_FILESYS_TYPE_MTD",
             (unsigned int)temprec.fstype);
 
     memset(&temprec,0,sizeof(temprec));
     expected = OS_SUCCESS;
-    actual = Osapi_Internal_FileSys_InitLocalFromVolTable(&temprec, &UT_VOLTAB_TESTCASES[2]);
+    actual = OS_FileSys_InitLocalFromVolTable(&temprec, &UT_VOLTAB_TESTCASES[2]);
     UtAssert_True(actual == expected, "OS_FileSys_InitLocalFromVolTable(1) (%ld) == OS_SUCCESS", (long)actual);
     UtAssert_True(temprec.fstype == OS_FILESYS_TYPE_VOLATILE_DISK, "OS_FileSys_InitLocalFromVolTable(2) fstype(%u) == OS_FILESYS_TYPE_MTD",
             (unsigned int)temprec.fstype);
 }
 
-/* Osapi_Task_Setup
+/* Osapi_Test_Setup
  *
  * Purpose:
  *   Called by the unit test tool to set up the app prior to each test
  */
-void Osapi_Task_Setup(void)
+void Osapi_Test_Setup(void)
 {
     UT_ResetState(0);
     memset(OS_filesys_table, 0, sizeof(OS_filesys_table));
 }
 
 /*
- * Osapi_TearDown
+ * Osapi_Test_Teardown
  *
  * Purpose:
  *   Called by the unit test tool to tear down the app after each test
  */
-void Osapi_TearDown(void)
+void Osapi_Test_Teardown(void)
 {
 
 }
