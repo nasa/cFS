@@ -54,9 +54,9 @@ include("${OSAL_SOURCE_DIR}/default_config.cmake")
 
 # The user-specified file is optional, but in case the value is defined but the
 # file does not exist, this should be treated as an error.
-if (DEFINED OSAL_CONFIGURATION_FILE)
-    include(${OSAL_CONFIGURATION_FILE})
-endif (DEFINED OSAL_CONFIGURATION_FILE)
+foreach(CONFIG ${OSAL_CONFIGURATION_FILE})
+    include(${CONFIG})
+endforeach(CONFIG OSAL_CONFIGURATION_FILE)
 
 # Use the supplied configuration to generate the osconfig.h file
 # which can be referenced by the code.  This will be stored in the top level
