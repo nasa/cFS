@@ -13,17 +13,28 @@
  * \author joseph.p.hickey@nasa.gov
  *
  * Purpose: This file contains wrappers around the select() system call
- *
- * NOTE: This is a "template" file and not a directly usable source file.
- *       It must be adapted/instantiated from within the OS-specific
- *       implementation on platforms that wish to use this template.
  */
 
 /****************************************************************************************
                                     INCLUDE FILES
  ***************************************************************************************/
 
-/* Handled by includer */
+/*
+ * Inclusions Defined by OSAL layer.
+ *
+ * This must include whatever is required to get the prototypes of these functions:
+ *
+ *   FD_SET/FD_CLR/FD_ISSET macros and fd_set typedef
+ *   select()
+ *   clock_gettime() - for computing select timeouts
+ */
+#include <string.h>
+#include <errno.h>
+#include <time.h>
+
+#include <osapi.h>
+#include "os-impl-select.h"
+#include "os-shared-select.h"
 
 /****************************************************************************************
                                      DEFINES
@@ -221,13 +232,13 @@ static int32 OS_DoSelect(int maxfd, fd_set *rd_set, fd_set *wr_set, int32 msecs)
                                 SELECT API
  ***************************************************************************************/
 
-                        
+
 /*----------------------------------------------------------------
  *
  * Function: OS_SelectSingle_Impl
  *
  *  Purpose: Implemented per internal OSAL API
- *           See description in os-impl.h for argument/return detail
+ *           See prototype for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 OS_SelectSingle_Impl(uint32 stream_id, uint32 *SelectFlags, int32 msecs)
@@ -276,13 +287,13 @@ int32 OS_SelectSingle_Impl(uint32 stream_id, uint32 *SelectFlags, int32 msecs)
    return return_code;
 } /* end OS_SelectSingle_Impl */
 
-                        
+
 /*----------------------------------------------------------------
  *
  * Function: OS_SelectMultiple_Impl
  *
  *  Purpose: Implemented per internal OSAL API
- *           See description in os-impl.h for argument/return detail
+ *           See prototype for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 OS_SelectMultiple_Impl(OS_FdSet *ReadSet, OS_FdSet *WriteSet, int32 msecs)

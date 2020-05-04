@@ -1,29 +1,25 @@
 /*
- *      Copyright (c) 2019, United States government as represented by the
- *      administrator of the National Aeronautics Space Administration.
- *      All rights reserved. This software was created at NASA Goddard
- *      Space Flight Center pursuant to government contracts.
- *
- *      This is governed by the NASA Open Source Agreement and may be used,
- *      distributed and modified only according to the terms of that agreement.
- */
-
-/*
- * Filename: osapi_testcase_common.c
- *
- * Purpose: This file contains unit test cases for items in the "osapi-common" file
- *
- * Notes:
- *
+ * 
+ *    Copyright (c) 2020, United States government as represented by the
+ *    administrator of the National Aeronautics Space Administration.
+ *    All rights reserved. This software was created at NASA Goddard
+ *    Space Flight Center pursuant to government contracts.
+ * 
+ *    This is governed by the NASA Open Source Agreement and may be used,
+ *    distributed and modified only according to the terms of that agreement.
+ * 
  */
 
 
-/*
- * Includes
+/**
+ * \file     coveragetest-idmap.c
+ * \ingroup  shared
+ * \author   joseph.p.hickey@nasa.gov
+ *
  */
-
 #include "os-shared-coveragetest.h"
-#include "ut-osapi-idmap.h"
+#include "os-shared-idmap.h"
+#include "os-shared-common.h"
 
 #include <OCS_string.h>
 
@@ -146,7 +142,7 @@ void Test_OS_ObjectIdConvertLock(void)
      * Attempt to obtain a lock for the same record with a non-matching ID
      * This should return an error.
      */
-    actual = Osapi_Call_ObjectIdConvertLock(OS_LOCK_MODE_NONE, OS_OBJECT_TYPE_OS_TASK,
+    actual = OS_ObjectIdConvertLock(OS_LOCK_MODE_NONE, OS_OBJECT_TYPE_OS_TASK,
             objid + 123, record);
     expected = OS_ERR_INVALID_ID;
 
@@ -156,7 +152,7 @@ void Test_OS_ObjectIdConvertLock(void)
      * Use mode OS_LOCK_MODE_NONE with matching ID
      * This should return success.
      */
-    actual = Osapi_Call_ObjectIdConvertLock(OS_LOCK_MODE_NONE,
+    actual = OS_ObjectIdConvertLock(OS_LOCK_MODE_NONE,
             OS_OBJECT_TYPE_OS_TASK, objid, record);
     expected = OS_SUCCESS;
 
@@ -168,7 +164,7 @@ void Test_OS_ObjectIdConvertLock(void)
      */
     record->flags = 0;
     record->refcount = 0;
-    actual = Osapi_Call_ObjectIdConvertLock(OS_LOCK_MODE_EXCLUSIVE,
+    actual = OS_ObjectIdConvertLock(OS_LOCK_MODE_EXCLUSIVE,
             OS_OBJECT_TYPE_OS_TASK, objid, record);
     expected = OS_SUCCESS;
 
@@ -443,7 +439,7 @@ void Test_OS_ObjectIdFindNext(void)
 
     /* Need to first obtain a valid ID to finalize */
     expected = OS_SUCCESS;
-    actual = Osapi_Call_ObjectIdFindNext(OS_OBJECT_TYPE_OS_TASK, NULL, &rec1);
+    actual = OS_ObjectIdFindNext(OS_OBJECT_TYPE_OS_TASK, NULL, &rec1);
     UtAssert_True(actual == expected, "OS_ObjectIdFindNext() (%ld) == OS_SUCCESS", (long)actual);
 
     /* nominal case (success) */
@@ -456,7 +452,7 @@ void Test_OS_ObjectIdFindNext(void)
             (unsigned long)id1, (unsigned long)rec1->active_id);
 
     /* Allocate another ID (should be different!) */
-    actual = Osapi_Call_ObjectIdFindNext(OS_OBJECT_TYPE_OS_TASK, NULL, &rec2);
+    actual = OS_ObjectIdFindNext(OS_OBJECT_TYPE_OS_TASK, NULL, &rec2);
     UtAssert_True(actual == expected, "OS_ObjectIdFindNext() (%ld) == OS_SUCCESS", (long)actual);
     UtAssert_True(rec2->active_id != rec1->active_id, "OS_ObjectIdFindNext() id (%lx) != %lx",
             (unsigned long)rec2->active_id, (unsigned long)rec1->active_id);
@@ -475,7 +471,7 @@ void Test_OS_ObjectIdFindNext(void)
 
     /* next call should re-issue the same id because init failed */
     expected = OS_SUCCESS;
-    actual = Osapi_Call_ObjectIdFindNext(OS_OBJECT_TYPE_OS_TASK, NULL, &rec2);
+    actual = OS_ObjectIdFindNext(OS_OBJECT_TYPE_OS_TASK, NULL, &rec2);
     UtAssert_True(actual == expected, "OS_ObjectIdFindNext() (%ld) == OS_SUCCESS", (long)actual);
     UtAssert_True(rec2->active_id == saved_id, "OS_ObjectIdFindNext() id (%lx) != %lx",
             (unsigned long)rec2->active_id, (unsigned long)saved_id);
@@ -497,7 +493,7 @@ void Test_OS_ObjectIdFindNext(void)
     saved_id = 0;
     for (i=0; i < (OS_OBJECT_INDEX_MASK+2); ++i)
     {
-        actual = Osapi_Call_ObjectIdFindNext(OS_OBJECT_TYPE_OS_TASK, NULL, &rec2);
+        actual = OS_ObjectIdFindNext(OS_OBJECT_TYPE_OS_TASK, NULL, &rec2);
         /* not usuing UtAssert_True here as it will create thousands  of duplicates. */
         if (expected != actual)
         {
@@ -558,7 +554,7 @@ void Test_OS_ObjectIdAllocateNew(void)
      * This test case mainly focuses on additional error checking
      */
     int32 expected = OS_SUCCESS;
-    int32 actual   = ~OS_SUCCESS; //OS_ObjectIdAllocate();
+    int32 actual   = ~OS_SUCCESS;
     uint32 objid = 0xFFFFFFFF;
     OS_common_record_t *rptr = NULL;
 
@@ -604,7 +600,7 @@ void Test_OS_ConvertToArrayIndex(void)
     OS_common_record_t *rptr = NULL;
 
     /* Need a valid ID to work with */
-    Osapi_Call_ObjectIdFindNext(OS_OBJECT_TYPE_OS_TASK, &local_idx1, &rptr);
+    OS_ObjectIdFindNext(OS_OBJECT_TYPE_OS_TASK, &local_idx1, &rptr);
     actual = OS_ConvertToArrayIndex(rptr->active_id, &local_idx2);
     UtAssert_True(actual == expected, "OS_ConvertToArrayIndex() (%ld) == OS_SUCCESS", (long)actual);
     UtAssert_True(local_idx1 == local_idx2, "local_idx1 (%lu) == local_idx2 (%lu)",
@@ -630,7 +626,7 @@ void Test_OS_ForEachObject(void)
 
     while (objtype < OS_OBJECT_TYPE_USER)
     {
-        Osapi_Call_ObjectIdFindNext(objtype, &local_idx, &rptr);
+        OS_ObjectIdFindNext(objtype, &local_idx, &rptr);
         ++objtype;
     }
 
@@ -644,25 +640,33 @@ void Test_OS_ForEachObject(void)
 
 }
 
-/* Osapi_Task_Setup
+/* Osapi_Test_Setup
  *
  * Purpose:
  *   Called by the unit test tool to set up the app prior to each test
  */
-void Osapi_Task_Setup(void)
+void Osapi_Test_Setup(void)
 {
     UT_ResetState(0);
+
     /* for sanity also clear out the task table, which is used by several test cases */
     memset(OS_global_task_table, 0, OS_MAX_TASKS * sizeof(OS_common_record_t));
+
+    /*
+     * The OS_SharedGlobalVars is also used here, but set the
+     * "Initialized" field to true by default, as this is needed by most tests.
+     */
+    memset(&OS_SharedGlobalVars, 0, sizeof(OS_SharedGlobalVars));
+    OS_SharedGlobalVars.Initialized = true;
 }
 
 /*
- * Osapi_TearDown
+ * Osapi_Test_Teardown
  *
  * Purpose:
  *   Called by the unit test tool to tear down the app after each test
  */
-void Osapi_TearDown(void)
+void Osapi_Test_Teardown(void)
 {
 
 }

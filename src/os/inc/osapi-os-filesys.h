@@ -59,6 +59,15 @@
 #define OS_FS_PHYS_NAME_LEN 64  /**< Physical drive name length */
 #define OS_FS_VOL_NAME_LEN  32  /**< Volume name length */
 
+/**
+ * @brief Maximum length of a local/native path name string
+ *
+ * This is a concatenation of the OSAL virtual path with the system
+ * mount point or device name
+ */
+#define OS_MAX_LOCAL_PATH_LEN       (OS_MAX_PATH_LEN + OS_FS_PHYS_NAME_LEN)
+
+
 /** @addtogroup OSReturnCodes
  * @{
  */

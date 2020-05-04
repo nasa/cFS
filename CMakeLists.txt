@@ -48,13 +48,39 @@
 cmake_minimum_required(VERSION 2.8.12)
 project(OSAL C)
 
+# Read the default compile-time configuration, and update with
+# any mission/project specific options in the OSAL_CONFIGURATION_FILE
+include("${OSAL_SOURCE_DIR}/default_config.cmake")
+
+# The user-specified file is optional, but in case the value is defined but the
+# file does not exist, this should be treated as an error.
+if (DEFINED OSAL_CONFIGURATION_FILE)
+    include(${OSAL_CONFIGURATION_FILE})
+endif (DEFINED OSAL_CONFIGURATION_FILE)
+
+# Use the supplied configuration to generate the osconfig.h file
+# which can be referenced by the code.  This will be stored in the top level
+# "inc" directory of the binary output directory
+file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/inc")
+configure_file(
+    "${OSAL_SOURCE_DIR}/osconfig.h.in"
+    "${OSAL_BINARY_DIR}/osconfig.gen"
+    @ONLY
+)
+
+# Only copy the osconfig.h into place if different from the existing file
+# This avoids unnecessarily rebuilding all code in case cmake was re-run
+# and but generated the same file.
+execute_process(COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    "${OSAL_BINARY_DIR}/osconfig.gen"
+    "${CMAKE_BINARY_DIR}/inc/osconfig.h"
+)
 
 # The initial set of directories that define the OSAL API
 # This is used to initialize the interface include directory property of external targets
 set(OSAL_API_INCLUDE_DIRECTORIES
     "${OSAL_SOURCE_DIR}/src/os/inc"
     "${CMAKE_BINARY_DIR}/inc"
-    ${OSAL_INCLUDEDIR}
 )
 include_directories(${OSAL_API_INCLUDE_DIRECTORIES})
 
@@ -97,7 +123,7 @@ message(STATUS "BSP Selection: ${OSAL_SYSTEM_BSPTYPE}")
 # an OBJECT target named "osal_${OSAL_SYSTEM_BSPTYPE}_impl"
 add_subdirectory(src/bsp/${OSAL_SYSTEM_BSPTYPE} ${OSAL_SYSTEM_BSPTYPE}_impl)
 target_include_directories(osal_${OSAL_SYSTEM_BSPTYPE}_impl PRIVATE
-    ${OSAL_SOURCE_DIR}/src/bsp/shared
+    ${OSAL_SOURCE_DIR}/src/bsp/shared/inc
 )
 
 # Confirm that the selected OS is compatible with the selected BSP.
@@ -138,16 +164,21 @@ endif (OSAL_BSP_INCLUDE_DIRECTORIES)
 
 # Define the external "osal_bsp" static library target
 add_library(osal_bsp STATIC
-	src/bsp/shared/osapi-bsp.c
-	src/bsp/shared/bsp_default_app_run.c
-	src/bsp/shared/bsp_default_app_startup.c
-	src/bsp/shared/bsp_default_symtab.c
+	src/bsp/shared/src/osapi-bsp.c
+	src/bsp/shared/src/bsp_default_app_run.c
+	src/bsp/shared/src/bsp_default_app_startup.c
+	src/bsp/shared/src/bsp_default_symtab.c
     $<TARGET_OBJECTS:osal_${OSAL_SYSTEM_BSPTYPE}_impl>
 )
 
 target_include_directories(osal_bsp INTERFACE
     ${OSAL_API_INCLUDE_DIRECTORIES}
 )
+
+target_include_directories(osal_bsp PRIVATE
+    ${OSAL_SOURCE_DIR}/src/bsp/shared/inc
+)
+
 
 #
 # Step 2:
@@ -174,41 +205,66 @@ add_subdirectory(src/os/${OSAL_SYSTEM_OSTYPE} ${OSAL_SYSTEM_OSTYPE}_impl)
 # are referenced in implementation OSAL modules, but should _NOT_
 # be referenced outside the OSAL code
 target_include_directories(osal_${OSAL_SYSTEM_OSTYPE}_impl PRIVATE
-    ${OSAL_SOURCE_DIR}/src/os/shared
-    ${OSAL_SOURCE_DIR}/src/bsp/shared
+    ${OSAL_SOURCE_DIR}/src/os/shared/inc
+    ${OSAL_SOURCE_DIR}/src/bsp/shared/inc
 )
+
+set(OSAL_SRCLIST
+    src/os/shared/src/osapi-binsem.c
+    src/os/shared/src/osapi-clock.c
+    src/os/shared/src/osapi-common.c
+    src/os/shared/src/osapi-countsem.c
+    src/os/shared/src/osapi-dir.c
+    src/os/shared/src/osapi-errors.c
+    src/os/shared/src/osapi-file.c
+    src/os/shared/src/osapi-filesys.c
+    src/os/shared/src/osapi-heap.c
+    src/os/shared/src/osapi-idmap.c
+    src/os/shared/src/osapi-module.c
+    src/os/shared/src/osapi-mutex.c
+    src/os/shared/src/osapi-network.c
+    src/os/shared/src/osapi-printf.c
+    src/os/shared/src/osapi-queue.c
+    src/os/shared/src/osapi-select.c
+    src/os/shared/src/osapi-shell.c
+    src/os/shared/src/osapi-sockets.c
+    src/os/shared/src/osapi-task.c
+    src/os/shared/src/osapi-timebase.c
+    src/os/shared/src/osapi-time.c
+)
+
+if (OSAL_CONFIG_DEBUG_PRINTF)
+    list(APPEND OSAL_SRCLIST
+        src/os/shared/src/osapi-debug.c
+    )
+endif (OSAL_CONFIG_DEBUG_PRINTF)
+
+
+# The FPU and interrupt modules are deprecated.
+# If the "OMIT_DEPRECATED" switch is set, then these are not built.
+if (NOT OMIT_DEPRECATED)
+    list(APPEND OSAL_SRCLIST
+        src/os/shared/src/osapi-fpu.c
+        src/os/shared/src/osapi-interrupts.c
+    )
+endif (NOT OMIT_DEPRECATED)
+
 
 # Define the external "osal" static library target
 # This is a combination of the generic parts with the low level
 # system-specific parts
 add_library(osal STATIC
-	src/os/shared/osapi-binsem.c
-	src/os/shared/osapi-clock.c
-	src/os/shared/osapi-common.c
-	src/os/shared/osapi-countsem.c
-	src/os/shared/osapi-dir.c
-	src/os/shared/osapi-errors.c
-	src/os/shared/osapi-file.c
-	src/os/shared/osapi-filesys.c
-	src/os/shared/osapi-fpu.c
-	src/os/shared/osapi-heap.c
-	src/os/shared/osapi-idmap.c
-	src/os/shared/osapi-interrupts.c
-	src/os/shared/osapi-module.c
-	src/os/shared/osapi-mutex.c
-	src/os/shared/osapi-network.c
-	src/os/shared/osapi-printf.c
-	src/os/shared/osapi-queue.c
-	src/os/shared/osapi-select.c
-	src/os/shared/osapi-sockets.c
-	src/os/shared/osapi-task.c
-	src/os/shared/osapi-timebase.c
-	src/os/shared/osapi-time.c
+    ${OSAL_SRCLIST}
     $<TARGET_OBJECTS:osal_${OSAL_SYSTEM_OSTYPE}_impl>
 )
 
 target_include_directories(osal INTERFACE
     ${OSAL_API_INCLUDE_DIRECTORIES}
+)
+
+target_include_directories(osal PRIVATE
+    ${OSAL_SOURCE_DIR}/src/os/shared/inc
+    ${OSAL_SOURCE_DIR}/src/bsp/shared/inc
 )
 
 # Link the OSAL with the BSP

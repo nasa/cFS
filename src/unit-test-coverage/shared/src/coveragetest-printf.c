@@ -1,29 +1,25 @@
 /*
- *      Copyright (c) 2019, United States government as represented by the
- *      administrator of the National Aeronautics Space Administration.
- *      All rights reserved. This software was created at NASA Goddard
- *      Space Flight Center pursuant to government contracts.
- *
- *      This is governed by the NASA Open Source Agreement and may be used,
- *      distributed and modified only according to the terms of that agreement.
- */
-
-/*
- * Filename: osapi_testcase_common.c
- *
- * Purpose: This file contains unit test cases for items in the "osapi-common" file
- *
- * Notes:
- *
+ * 
+ *    Copyright (c) 2020, United States government as represented by the
+ *    administrator of the National Aeronautics Space Administration.
+ *    All rights reserved. This software was created at NASA Goddard
+ *    Space Flight Center pursuant to government contracts.
+ * 
+ *    This is governed by the NASA Open Source Agreement and may be used,
+ *    distributed and modified only according to the terms of that agreement.
+ * 
  */
 
 
-/*
- * Includes
+/**
+ * \file     coveragetest-printf.c
+ * \ingroup  shared
+ * \author   joseph.p.hickey@nasa.gov
+ *
  */
-
 #include "os-shared-coveragetest.h"
-#include "ut-osapi-printf.h"
+#include "os-shared-printf.h"
+#include "os-shared-common.h"
 
 #include <OCS_stdio.h>
 
@@ -95,26 +91,27 @@ void Test_OS_printf(void)
     OS_printf("UnitTest7");
 }
 
-/* Osapi_Task_Setup
+/* Osapi_Test_Setup
  *
  * Purpose:
  *   Called by the unit test tool to set up the app prior to each test
  */
-void Osapi_Task_Setup(void)
+void Osapi_Test_Setup(void)
 {
     UT_ResetState(0);
     memset(OS_console_table, 0, sizeof(OS_console_table));
+    memset(&OS_SharedGlobalVars, 0, sizeof(OS_SharedGlobalVars));
     OS_console_table[0].BufBase = TestConsoleBuffer;
     OS_console_table[0].BufSize = sizeof(TestConsoleBuffer);
 }
 
 /*
- * Osapi_TearDown
+ * Osapi_Test_Teardown
  *
  * Purpose:
  *   Called by the unit test tool to tear down the app after each test
  */
-void Osapi_TearDown(void)
+void Osapi_Test_Teardown(void)
 {
 
 }

@@ -1,29 +1,26 @@
 /*
- *      Copyright (c) 2019, United States government as represented by the
- *      administrator of the National Aeronautics Space Administration.
- *      All rights reserved. This software was created at NASA Goddard
- *      Space Flight Center pursuant to government contracts.
- *
- *      This is governed by the NASA Open Source Agreement and may be used,
- *      distributed and modified only according to the terms of that agreement.
- */
-
-/*
- * Filename: osapi_testcase_common.c
- *
- * Purpose: This file contains unit test cases for items in the "osapi-common" file
- *
- * Notes:
- *
+ * 
+ *    Copyright (c) 2020, United States government as represented by the
+ *    administrator of the National Aeronautics Space Administration.
+ *    All rights reserved. This software was created at NASA Goddard
+ *    Space Flight Center pursuant to government contracts.
+ * 
+ *    This is governed by the NASA Open Source Agreement and may be used,
+ *    distributed and modified only according to the terms of that agreement.
+ * 
  */
 
 
-/*
- * Includes
+/**
+ * \file     coveragetest-sockets.c
+ * \ingroup  shared
+ * \author   joseph.p.hickey@nasa.gov
+ *
  */
-
 #include "os-shared-coveragetest.h"
-#include "ut-osapi-sockets.h"
+#include "os-shared-sockets.h"
+#include "os-shared-idmap.h"
+#include "os-shared-file.h"
 
 #include <OCS_stdio.h>
 
@@ -54,19 +51,16 @@ void Test_OS_CreateSocketName(void)
      *
      * This focuses on coverage paths, as this function does not return a value
      */
-    OS_stream_internal_record_t testrec;
     OS_SockAddr_t testaddr;
 
-    memset(&testrec, 'x', sizeof(testrec));
-    memset(&testaddr, 0, sizeof(testaddr));
     UT_SetForceFail(UT_KEY(OS_SocketAddrToString_Impl), OS_ERROR);
-    Osapi_Call_CreateSocketName_Static(&testrec, &testaddr, "ut");
+    OS_CreateSocketName(0, &testaddr, "ut");
 
     /*
      * The function should have called snprintf() to create the name
      */
     UtAssert_True(UT_GetStubCount(UT_KEY(OCS_snprintf)) == 2, "OS_CreateSocketName() invoked snprintf()");
-    UtAssert_True(testrec.stream_name[0] != 'x', "OS_CreateSocketName() set stream name");
+    UtAssert_True(OS_stream_table[0].stream_name[0] != 'x', "OS_CreateSocketName() set stream name");
 }
 
 /*****************************************************************************
@@ -455,23 +449,25 @@ void Test_OS_SocketAddr (void)
 
 }
 
-/* Osapi_Task_Setup
+/* Osapi_Test_Setup
  *
  * Purpose:
  *   Called by the unit test tool to set up the app prior to each test
  */
-void Osapi_Task_Setup(void)
+void Osapi_Test_Setup(void)
 {
     UT_ResetState(0);
+    memset(OS_stream_table, 0, sizeof(OS_stream_table));
+    memset(OS_global_stream_table, 0, sizeof(OS_common_record_t) * OS_MAX_NUM_OPEN_FILES);
 }
 
 /*
- * Osapi_TearDown
+ * Osapi_Test_Teardown
  *
  * Purpose:
  *   Called by the unit test tool to tear down the app after each test
  */
-void Osapi_TearDown(void)
+void Osapi_Test_Teardown(void)
 {
 
 }
