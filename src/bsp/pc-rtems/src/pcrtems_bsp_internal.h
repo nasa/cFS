@@ -32,15 +32,10 @@
 #define RTEMS_MAX_CMDLINE        256
 
 /*
- * For debugging, it is helpful to keep the shell
- * priority relatively high.  But this may cause the
- * shell activity to preempt the actual realtime tasks.
+ * By default put the shell at the same priority
+ * as the utility task which handles OS_printf()
  */
-#ifdef NDEBUG
-#define RTEMS_SHELL_PRIORITY 100
-#else
-#define RTEMS_SHELL_PRIORITY 5
-#endif
+#define RTEMS_SHELL_PRIORITY     OS_UTILITYTASK_PRIORITY
 
 /*
 ** BSP types

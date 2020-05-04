@@ -34,7 +34,7 @@ target_include_directories(ut_assert PUBLIC
     "${CMAKE_CURRENT_SOURCE_DIR}/inc"
 )
 target_include_directories(ut_assert PRIVATE
-    "${OSAL_SOURCE_DIR}/src/bsp/shared"
+    "${OSAL_SOURCE_DIR}/src/bsp/shared/inc"
 )
 target_compile_definitions(ut_assert PUBLIC
     "_UNIT_TEST_"

@@ -40,9 +40,9 @@ add_library(ut_osapi_stubs STATIC
 )
 
 # Some of the internal API definitions in stubs are based on
-# types/definitions in the os-impl.h internal header file.
+# types/definitions in the shared layer internal header file.
 target_include_directories(ut_osapi_stubs PRIVATE
-    ${OSAL_SOURCE_DIR}/src/os/shared
+    ${OSAL_SOURCE_DIR}/src/os/shared/inc
 )
 
 # These stubs must always link to UT Assert.

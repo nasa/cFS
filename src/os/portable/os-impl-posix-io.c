@@ -3,7 +3,7 @@
  *      administrator of the National Aeronautics Space Administration.
  *      All rights reserved. This software was created at NASA Glenn
  *      Research Center pursuant to government contracts.
- *
+ * 
  *      This is governed by the NASA Open Source Agreement and may be used,
  *      distributed and modified only according to the terms of that agreement.
  */
@@ -12,22 +12,33 @@
  * \file   os-impl-posix-io.c
  * \author joseph.p.hickey@nasa.gov
  *
- * Purpose: This file contains generic calls for manipulating filehandles
- *      in a file system / C library that implements the UNIX-style file API
+ * This file contains generic calls for manipulating filehandles
+ * in a file system / C library that implements the UNIX-style file API
  *
- *      These generic ops may apply to regular files, sockets, pipes, or
- *      special devices, depending on the OS in use.
- *
- * NOTE: This is a "template" file and not a directly usable source file.
- *       It must be adapted/instantiated from within the OS-specific
- *       implementation on platforms that wish to use this template.
+ * These generic ops may apply to regular files, sockets, pipes, or
+ * special devices, depending on the OS in use.
  */
 
 /****************************************************************************************
                                     INCLUDE FILES
  ***************************************************************************************/
 
-/* handled by includer */
+/*
+ * Inclusions Defined by OSAL layer.
+ *
+ * This must include whatever is required to get the prototypes of these functions:
+ *
+ *   read()
+ *   write()
+ *   close()
+ */
+#include <string.h>
+#include <errno.h>
+
+#include "os-impl-io.h"
+#include "os-shared-file.h"
+#include "os-shared-select.h"
+
 
 /* some OS libraries (e.g. VxWorks) do not declare the API to be const-correct
  * It can still use this generic implementation but the call to write() must be
@@ -38,13 +49,13 @@
 #define GENERIC_IO_CONST_DATA_CAST
 #endif
 
-                        
+
 /*----------------------------------------------------------------
  *
  * Function: OS_GenericClose_Impl
  *
  *  Purpose: Implemented per internal OSAL API
- *           See description in os-impl.h for argument/return detail
+ *           See prototype for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 OS_GenericClose_Impl(uint32 local_id)
@@ -70,13 +81,13 @@ int32 OS_GenericClose_Impl(uint32 local_id)
    OS_impl_filehandle_table[local_id].fd = -1;
    return OS_SUCCESS;
 } /* end OS_GenericClose_Impl */
-                        
+
 /*----------------------------------------------------------------
  *
  * Function: OS_GenericSeek_Impl
  *
  *  Purpose: Implemented per internal OSAL API
- *           See description in os-impl.h for argument/return detail
+ *           See prototype for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 OS_GenericSeek_Impl (uint32 local_id, int32 offset, uint32 whence)
@@ -125,13 +136,13 @@ int32 OS_GenericSeek_Impl (uint32 local_id, int32 offset, uint32 whence)
 
    return result;
 } /* end OS_GenericSeek_Impl */
-                        
+
 /*----------------------------------------------------------------
  *
  * Function: OS_GenericRead_Impl
  *
  *  Purpose: Implemented per internal OSAL API
- *           See description in os-impl.h for argument/return detail
+ *           See prototype for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 OS_GenericRead_Impl (uint32 local_id, void *buffer, uint32 nbytes, int32 timeout)
@@ -176,13 +187,13 @@ int32 OS_GenericRead_Impl (uint32 local_id, void *buffer, uint32 nbytes, int32 t
 
    return (return_code);
 } /* end OS_GenericRead_Impl */
-                        
+
 /*----------------------------------------------------------------
  *
  * Function: OS_GenericWrite_Impl
  *
  *  Purpose: Implemented per internal OSAL API
- *           See description in os-impl.h for argument/return detail
+ *           See prototype for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 OS_GenericWrite_Impl(uint32 local_id, const void *buffer, uint32 nbytes, int32 timeout)

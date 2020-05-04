@@ -3,7 +3,7 @@
  *      administrator of the National Aeronautics Space Administration.
  *      All rights reserved. This software was created at NASA Glenn
  *      Research Center pursuant to government contracts.
- *
+ * 
  *      This is governed by the NASA Open Source Agreement and may be used,
  *      distributed and modified only according to the terms of that agreement.
  */
@@ -12,19 +12,31 @@
  * \file   os-impl-posix-files.c
  * \author joseph.p.hickey@nasa.gov
  *
- * Purpose: This file Contains all of the api calls for manipulating files
- *      in a file system / C library that implements the POSIX-style file API
- *
- * NOTE: This is a "template" file and not a directly usable source file.
- *       It must be adapted/instantiated from within the OS-specific
- *       implementation on platforms that wish to use this template.
+ * This file Contains all of the api calls for manipulating files
+ * in a file system / C library that implements the POSIX-style file API
  */
 
 /****************************************************************************************
                                     INCLUDE FILES
  ***************************************************************************************/
 
-/* Handled by includer */
+/*
+ * Inclusions Defined by OSAL layer.
+ *
+ * This must include whatever is required to get the prototypes of these functions:
+ *
+ *   open()
+ *   stat()
+ *   chmod()
+ *   remove()
+ *   rename()
+ */
+#include <string.h>
+#include <errno.h>
+
+#include "os-impl-files.h"
+#include "os-shared-file.h"
+
 
 /****************************************************************************************
                                      DEFINES
@@ -37,13 +49,13 @@
 
 
 
-                        
+
 /*----------------------------------------------------------------
  *
  * Function: OS_FileOpen_Impl
  *
  *  Purpose: Implemented per internal OSAL API
- *           See description in os-impl.h for argument/return detail
+ *           See prototype for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 OS_FileOpen_Impl(uint32 local_id, const char *local_path, int32 flags, int32 access)
@@ -100,13 +112,13 @@ int32 OS_FileOpen_Impl(uint32 local_id, const char *local_path, int32 flags, int
 
    return OS_SUCCESS;
 } /* end OS_FileOpen_Impl */
-                        
+
 /*----------------------------------------------------------------
  *
  * Function: OS_FileStat_Impl
  *
  *  Purpose: Implemented per internal OSAL API
- *           See description in os-impl.h for argument/return detail
+ *           See prototype for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 OS_FileStat_Impl(const char *local_path, os_fstat_t *FileStats)
@@ -167,13 +179,13 @@ int32 OS_FileStat_Impl(const char *local_path, os_fstat_t *FileStats)
    return OS_SUCCESS;
 } /* end OS_FileStat_Impl */
 
-                        
+
 /*----------------------------------------------------------------
  *
  * Function: OS_FileChmod_Impl
  *
  *  Purpose: Implemented per internal OSAL API
- *           See description in os-impl.h for argument/return detail
+ *           See prototype for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 OS_FileChmod_Impl(const char *local_path, uint32 access)
@@ -245,13 +257,13 @@ int32 OS_FileChmod_Impl(const char *local_path, uint32 access)
     return OS_SUCCESS;
 
 } /* end OS_FileChmod_Impl */
-                        
+
 /*----------------------------------------------------------------
  *
  * Function: OS_FileRemove_Impl
  *
  *  Purpose: Implemented per internal OSAL API
- *           See description in os-impl.h for argument/return detail
+ *           See prototype for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 OS_FileRemove_Impl(const char *local_path)
@@ -263,13 +275,13 @@ int32 OS_FileRemove_Impl(const char *local_path)
 
    return OS_SUCCESS;
 } /* end OS_FileRemove_Impl */
-                        
+
 /*----------------------------------------------------------------
  *
  * Function: OS_FileRename_Impl
  *
  *  Purpose: Implemented per internal OSAL API
- *           See description in os-impl.h for argument/return detail
+ *           See prototype for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 OS_FileRename_Impl(const char *old_path, const char *new_path)
