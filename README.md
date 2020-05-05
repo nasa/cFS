@@ -19,6 +19,14 @@ This distribution contains:
 
 ## Version History
 
+
+#### Development Build:  5.0.15
+
+- Changes the build system. 
+- No more user-maintained osconfig.h file, this is now replaced by a cmake configuration file.
+- Breaks up low-level implementation into small, separate subsystem units, with a separate header file for each one.
+- See https://github.com/nasa/osal/pull/444
+
 #### Development Build:  5.0.14
   - Adds library build, functional, and coverage test to CI
   - Deprecates `OS_FS_SUCCESS, OS_FS_ERROR , OS_FS_ERR_INVALID_POINTER, OS_FS_ERR_NO_FREE_FDS , OS_FS_ERR_INVALID_FD, and OS_FS_UNIMPLEMENTED` from from `osapi-os-filesys.h`
