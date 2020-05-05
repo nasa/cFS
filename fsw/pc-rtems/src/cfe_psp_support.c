@@ -87,17 +87,7 @@ extern CFE_PSP_MemoryBlock_t PcRtems_ReservedMemBlock;
 void CFE_PSP_Restart(uint32 reset_type)
 {
 
-   if ( reset_type == CFE_PSP_RST_TYPE_POWERON )
-   {
-      CFE_PSP_FlushCaches(1, PcRtems_ReservedMemBlock.BlockPtr, PcRtems_ReservedMemBlock.BlockSize);
-      /* reboot(BOOT_CLEAR); Need RTEMS equiv. */
-   }
-   else
-   {
-      CFE_PSP_FlushCaches(1, PcRtems_ReservedMemBlock.BlockPtr, PcRtems_ReservedMemBlock.BlockSize);
-      /* reboot(BOOT_NORMAL); Need RTEMS Equiv */
-   }
-
+   CFE_PSP_FlushCaches(1, PcRtems_ReservedMemBlock.BlockPtr, PcRtems_ReservedMemBlock.BlockSize);
    OS_printf("CFE_PSP_Restart is not implemented on this platform ( yet ! )\n");
    exit(-1);
 

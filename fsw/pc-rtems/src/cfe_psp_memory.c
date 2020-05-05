@@ -420,6 +420,13 @@ void CFE_PSP_SetupReservedMemoryMap(void)
    CFE_PSP_ReservedMemoryMap.UserReservedMemory.BlockSize = CFE_PSP_USER_RESERVED_SIZE;
    ReservedMemoryAddr += UserReservedSize;
 
+   /*
+    * displaying the final address shows how much was actually used,
+    * and additionally avoids a warning about the result of the final increment not being used.
+    * (prefer this over removing the increment, as it is safer if another block is added)
+    */
+   OS_printf("CFE_PSP: PSP reserved memory ends at: 0x%08lX\n",
+           (unsigned long)ReservedMemoryAddr);
 }
 
 /******************************************************************************

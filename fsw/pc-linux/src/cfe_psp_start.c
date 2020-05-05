@@ -251,7 +251,8 @@ void OS_Application_Startup(void)
    */
    CFE_PSP_SpacecraftId = CommandData.SpacecraftId;
    CFE_PSP_CpuId = CommandData.CpuId;
-   strncpy(CFE_PSP_CpuName, CommandData.CpuName, CFE_PSP_CPU_NAME_LENGTH);
+   strncpy(CFE_PSP_CpuName, CommandData.CpuName, sizeof(CFE_PSP_CpuName)-1);
+   CFE_PSP_CpuName[sizeof(CFE_PSP_CpuName)-1] = 0;
 
    /*
    ** Set the reset subtype
