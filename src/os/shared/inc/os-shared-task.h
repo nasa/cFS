@@ -1,0 +1,162 @@
+/*
+ * 
+ *    Copyright (c) 2020, United States government as represented by the
+ *    administrator of the National Aeronautics Space Administration.
+ *    All rights reserved. This software was created at NASA Goddard
+ *    Space Flight Center pursuant to government contracts.
+ * 
+ *    This is governed by the NASA Open Source Agreement and may be used,
+ *    distributed and modified only according to the terms of that agreement.
+ * 
+ */
+
+
+/**
+ * \file     os-shared-task.h
+ * \ingroup  shared
+ * \author   joseph.p.hickey@nasa.gov
+ *
+ */
+
+#ifndef INCLUDE_OS_SHARED_TASK_H_
+#define INCLUDE_OS_SHARED_TASK_H_
+
+#include <os-shared-globaldefs.h>
+
+/*tasks */
+typedef struct
+{
+   char      task_name[OS_MAX_API_NAME];
+   uint32    stack_size;
+   uint32    priority;
+   osal_task_entry entry_function_pointer;
+   osal_task_entry delete_hook_pointer;
+   void      *entry_arg;
+   uint32    *stack_pointer;
+}OS_task_internal_record_t;
+
+/*
+ * These record types have extra information with each entry.  These tables are used
+ * to share extra data between the common layer and the OS-specific implementation.
+ */
+extern OS_task_internal_record_t           OS_task_table[OS_MAX_TASKS];
+
+
+
+/****************************************************************************************
+                          TASK API LOW-LEVEL IMPLEMENTATION FUNCTIONS
+  ***************************************************************************************/
+
+/*---------------------------------------------------------------------------------------
+   Name: OS_TaskAPI_Init
+
+   Purpose: Initialize the OS-independent layer for tasks
+
+   returns: OS_SUCCESS on success, or relevant error code
+---------------------------------------------------------------------------------------*/
+int32 OS_TaskAPI_Init                (void);
+
+
+/*----------------------------------------------------------------
+   Function: OS_TaskEntryPoint
+
+    Purpose: Entry point for all newly created tasks
+
+   The "OS_TaskEntryPoint" is a generic method implemented in the
+   shared layer that performs housekeeping and then calls the user-specified
+   entry point.  It should be the first thing called in any new task.
+
+    Returns: OS_SUCCESS on success, or relevant error code
+ ------------------------------------------------------------------*/
+void   OS_TaskEntryPoint              (uint32 global_task_id);
+
+/*----------------------------------------------------------------
+   Function: OS_TaskMatch_Impl
+
+    Purpose: Determines if the caller matches the given task_id
+
+    Returns: OS_SUCCESS on match, any other code on non-match
+ ------------------------------------------------------------------*/
+int32  OS_TaskMatch_Impl             (uint32 task_id);
+
+/*----------------------------------------------------------------
+
+   Function: OS_TaskCreate_Impl
+
+    Purpose: Prepare/Allocate OS resources for a new task and start
+             running it, based on configuration in the global object
+
+    Returns: OS_SUCCESS on success, or relevant error code
+ ------------------------------------------------------------------*/
+int32  OS_TaskCreate_Impl            (uint32 task_id, uint32 flags);
+
+/*----------------------------------------------------------------
+   Function: OS_TaskDelete_Impl
+
+    Purpose: Free the OS resources associated with the specified task
+
+    Returns: OS_SUCCESS on success, or relevant error code
+ ------------------------------------------------------------------*/
+int32  OS_TaskDelete_Impl            (uint32 task_id);
+
+/*----------------------------------------------------------------
+   Function: OS_TaskExit_Impl
+
+    Purpose: Exits the calling task
+
+    This function does not return
+ ------------------------------------------------------------------*/
+void   OS_TaskExit_Impl              (void);
+
+/*----------------------------------------------------------------
+   Function: OS_TaskDelay_Impl
+
+    Purpose: Blocks the calling task for the specified number of milliseconds
+
+    Returns: OS_SUCCESS on success, or relevant error code
+ ------------------------------------------------------------------*/
+int32  OS_TaskDelay_Impl             (uint32 millisecond);
+
+/*----------------------------------------------------------------
+   Function: OS_TaskSetPriority_Impl
+
+    Purpose: Set the scheduling priority of the specified task
+
+    Returns: OS_SUCCESS on success, or relevant error code
+ ------------------------------------------------------------------*/
+int32  OS_TaskSetPriority_Impl       (uint32 task_id, uint32 new_priority);
+
+/*----------------------------------------------------------------
+   Function: OS_TaskGetId_Impl
+
+    Purpose: Obtain the OSAL task ID of the caller
+
+    Returns: The OSAL ID of the calling task, or zero if not registered
+ ------------------------------------------------------------------*/
+uint32 OS_TaskGetId_Impl             (void);
+
+/*----------------------------------------------------------------
+   Function: OS_TaskGetInfo_Impl
+
+    Purpose: Obtain OS-specific information about a task
+
+    Returns: OS_SUCCESS on success, or relevant error code
+ ------------------------------------------------------------------*/
+int32  OS_TaskGetInfo_Impl           (uint32 task_id, OS_task_prop_t *task_prop);
+
+/*----------------------------------------------------------------
+
+   Function: OS_TaskRegister_Impl
+
+    Purpose: Perform registration actions after new task creation
+
+        NOTE: This is invoked via the OS_TaskEntryPoint() immediately
+              after new task creation, not through OS_TaskRegister() API
+
+    Returns: OS_SUCCESS on success, or relevant error code
+ ------------------------------------------------------------------*/
+int32  OS_TaskRegister_Impl          (uint32 global_task_id);
+
+
+#endif  /* INCLUDE_OS_SHARED_TASK_H_ */
+

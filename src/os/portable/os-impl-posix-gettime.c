@@ -3,7 +3,7 @@
  *      administrator of the National Aeronautics Space Administration.
  *      All rights reserved. This software was created at NASA Glenn
  *      Research Center pursuant to government contracts.
- *
+ * 
  *      This is governed by the NASA Open Source Agreement and may be used,
  *      distributed and modified only according to the terms of that agreement.
  */
@@ -12,35 +12,49 @@
  * \file   os-impl-posix-gettime.c
  * \author joseph.p.hickey@nasa.gov
  *
- * Purpose: This file contains implementation for OS_GetTime() and OS_SetTime()
- *      that map to the C library clock_gettime() and clock_settime() calls.
- *      This should be usable on any OS that supports those standard calls.
- *      The OS-specific code must #include the correct headers that define the
- *      prototypes for these functions before including this implementation file.
+ * This file contains implementation for OS_GetTime() and OS_SetTime()
+ * that map to the C library clock_gettime() and clock_settime() calls.
+ * This should be usable on any OS that supports those standard calls.
+ * The OS-specific code must #include the correct headers that define the
+ * prototypes for these functions before including this implementation file.
  *
- * NOTE: This is a "template" file and not a directly usable source file.
- *       It must be adapted/instantiated from within the OS-specific
- *       implementation on platforms that wish to use this template.
  */
 
 /****************************************************************************************
                                     INCLUDE FILES
  ***************************************************************************************/
 
-/* Handled by includer */
+/*
+ * Inclusions Defined by OSAL layer.
+ *
+ * This must provide the prototypes of these functions:
+ *
+ *   clock_gettime()
+ *   clock_settime()
+ *
+ * and the "struct timespec" definition
+ */
+#include <string.h>
+#include <errno.h>
+
+#include <osapi.h>
+#include "os-impl-gettime.h"
+#include "os-shared-clock.h"
+
+
 
 
 /****************************************************************************************
                                 FUNCTIONS
  ***************************************************************************************/
 
-                        
+
 /*----------------------------------------------------------------
  *
  * Function: OS_GetLocalTime_Impl
  *
  *  Purpose: Implemented per internal OSAL API
- *           See description in os-impl.h for argument/return detail
+ *           See prototype for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 OS_GetLocalTime_Impl(OS_time_t *time_struct)
@@ -49,7 +63,7 @@ int32 OS_GetLocalTime_Impl(OS_time_t *time_struct)
     int32           ReturnCode;
     struct timespec time;
 
-    Status = clock_gettime(CLOCK_REALTIME, &time);
+    Status = clock_gettime(OSAL_GETTIME_SOURCE_CLOCK, &time);
 
     if (Status == 0)
     {
@@ -66,13 +80,13 @@ int32 OS_GetLocalTime_Impl(OS_time_t *time_struct)
     return ReturnCode;
 } /* end OS_GetLocalTime_Impl */
 
-                        
+
 /*----------------------------------------------------------------
  *
  * Function: OS_SetLocalTime_Impl
  *
  *  Purpose: Implemented per internal OSAL API
- *           See description in os-impl.h for argument/return detail
+ *           See prototype for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 OS_SetLocalTime_Impl(const OS_time_t *time_struct)
@@ -84,7 +98,7 @@ int32 OS_SetLocalTime_Impl(const OS_time_t *time_struct)
     time.tv_sec = time_struct -> seconds;
     time.tv_nsec = (time_struct -> microsecs * 1000);
 
-    Status = clock_settime(CLOCK_REALTIME, &time);
+    Status = clock_settime(OSAL_GETTIME_SOURCE_CLOCK, &time);
 
     if (Status == 0)
     {

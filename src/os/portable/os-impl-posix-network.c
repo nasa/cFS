@@ -1,0 +1,89 @@
+/*
+ *      Copyright (c) 2018, United States government as represented by the
+ *      administrator of the National Aeronautics Space Administration.
+ *      All rights reserved. This software was created at NASA Glenn
+ *      Research Center pursuant to government contracts.
+ * 
+ *      This is governed by the NASA Open Source Agreement and may be used,
+ *      distributed and modified only according to the terms of that agreement.
+ */
+
+/**
+ * \file     os-impl-posix-network.c
+ * \author   joseph.p.hickey@nasa.gov
+ *
+ * This file contains the network functionality for
+ * systems which implement the POSIX-defined network hostname/id functions.
+ */
+
+/****************************************************************************************
+                                    INCLUDE FILES
+ ***************************************************************************************/
+
+/*
+ * Inclusions Defined by OSAL layer.
+ *
+ * This must include whatever is required to get the prototypes of these functions:
+ *
+ *  gethostname()
+ *  gethostid()
+ *
+ * Both of these routines should conform to X/Open 5 definition.
+ */
+#include <string.h>
+#include <errno.h>
+
+#include "os-impl-network.h"
+#include "os-shared-network.h"
+
+/****************************************************************************************
+                                    Network API
+ ***************************************************************************************/
+
+/*----------------------------------------------------------------
+ *
+ * Function: OS_NetworkGetHostName_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+int32 OS_NetworkGetHostName_Impl       (char *host_name, uint32 name_len)
+{
+    int32 return_code;
+
+    if ( gethostname(host_name, name_len) < 0 )
+    {
+        return_code = OS_ERROR;
+    }
+    else
+    {
+        /*
+         * posix does not say that the name is always
+         * null terminated, so its worthwhile to ensure it
+         */
+        host_name[name_len - 1] = 0;
+        return_code = OS_SUCCESS;
+    }
+
+    return(return_code);
+} /* end OS_NetworkGetHostName_Impl */
+
+
+
+/*----------------------------------------------------------------
+ *
+ * Function: OS_NetworkGetID_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+int32 OS_NetworkGetID_Impl             (int32 *IdBuf)
+{
+    /* gethostid() has no failure modes */
+    *IdBuf = gethostid();
+    return OS_SUCCESS;
+} /* end OS_NetworkGetID_Impl */
+
+
