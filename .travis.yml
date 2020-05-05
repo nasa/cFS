@@ -124,3 +124,7 @@ script:
             grep -i 'warn\|err\|fail' cFS_startup.txt
             exit -1
     fi
+
+# After script sleep avoids Job log truncation
+after_script:
+  - sleep 1
