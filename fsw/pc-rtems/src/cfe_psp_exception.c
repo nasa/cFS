@@ -46,45 +46,15 @@
 
 #include "cfe_psp.h" 
 #include "cfe_psp_config.h"
+#include "cfe_psp_memory.h"
+#include "cfe_psp_exceptionstorage.h"
 
-#include "cfe_psp_memory.h"           
-
-/*
-** Types and prototypes for this module
-*/
-
-
-/*
-** BSP Specific defines
-*/
-
-/*
-**  External Declarations
-*/
-                                                                                
-/*
-** Global variables
-*/
-
-CFE_PSP_ExceptionContext_t CFE_PSP_ExceptionContext;
-char                       CFE_PSP_ExceptionReasonString[256];
-
-/*
-**
-** IMPORTED FUNCTIONS
-**
-*/
-
-void CFE_ES_ProcessCoreException(uint32  HostTaskId,     uint8 *ReasonString, 
-                                 uint32 *ContextPointer, uint32 ContextSize);                                   
-                                   
 /*
 **
 ** LOCAL FUNCTION PROTOTYPES
 **
 */
 
-void CFE_PSP_ExceptionHook (int task_id, int vector, int32 *pEsf );
 
 /***************************************************************************
  **                        FUNCTIONS DEFINITIONS
@@ -92,68 +62,28 @@ void CFE_PSP_ExceptionHook (int task_id, int vector, int32 *pEsf );
 
 /*
 **
-**   Name: OS_BSPAttachExceptions
-**
-**   Purpose: This function Initializes the task execptions and adds a hook
-**              into the VxWorks exception handling.  The below hook is called
-**              for every exception that VxWorks catches.
-**
-**   Notes: if desired - to attach a custom handler put following code in
-**          this function:  excConnect ((VOIDFUNCPTR*)VECTOR, ExceptionHandler);
+**   Name: CFE_PSP_AttachExceptions
+** 
+**   Purpose: No-op on this platform, implemented for API compatibility.
 **
 */
-
 void CFE_PSP_AttachExceptions(void)
 {
-  OS_printf("CFE PSP: Attached cFE Exception Handler. Context Size = %d bytes.\n",(int)CFE_PSP_CPU_CONTEXT_SIZE);
+    OS_printf("CFE_PSP: CFE_PSP_AttachExceptions Called\n");
+    CFE_PSP_Exception_Reset();
 }
 
-
 /*
-** Name: CFE_PSP_ExceptionHook
-**
-** Purpose: Make the proper call to CFE_ES_ProcessCoreException 
-**
-** Notes:   pEsf - pointer to exception stack frame.
-**          fppSave - When it makes this call, it captures the last floating
-**                      point context - which may not be valid.  If a floating
-**                      point exception occurs you can be almost 100% sure
-**                      that this will reflect the proper context.  But if another
-**                      type of exception occurred then this has the possibility
-**                      of not being valid.  Specifically if a task that is not
-**                      enabled for floating point causes a non-floating point
-**                      exception, then the meaning of the floating point context
-**                      will not be valid.  If the task is enabled for floating point,
-**                      then it will be valid.
-**
-*/
-void CFE_PSP_ExceptionHook (int task_id, int vector, int32 *pEsf )
+ * Name: CFE_PSP_ExceptionGetSummary_Impl
+ *
+ * Purpose: Translate a stored exception log entry into a summary string
+ */
+int32 CFE_PSP_ExceptionGetSummary_Impl(const CFE_PSP_Exception_LogData_t* Buffer, char *ReasonBuf, uint32 ReasonSize)
 {
+    /* exceptions are not yet implemented on this platform */
+    return CFE_PSP_ERROR_NOT_IMPLEMENTED;
+}
 
-    sprintf(CFE_PSP_ExceptionReasonString, "Not Implemented");
-    
-    /* 
-    ** Save Exception Stack frame 
-    */
-    memcpy(&(CFE_PSP_ExceptionContext.registers), pEsf, sizeof(CFE_PSP_ExceptionContext_t));
-
-    /*
-    ** Save floating point registers
-    */
-   /* fppSave(&OS_ExceptionContext.fp); */
-
-    /*
-    ** Call the Generic cFE routine to finish processing the exception and 
-    ** restart the cFE
-    */
-    CFE_ES_ProcessCoreException((uint32)task_id, (uint8 *)CFE_PSP_ExceptionReasonString, 
-                                (uint32 *)&CFE_PSP_ExceptionContext, sizeof(CFE_PSP_ExceptionContext_t));
-
-    /*
-    ** No return to here 
-    */
-    
-} /* end function */
 
 
 /*

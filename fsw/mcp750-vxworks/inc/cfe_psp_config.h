@@ -44,21 +44,47 @@
 */
 #define CFE_PSP_MEM_TABLE_SIZE 10
 
-/*
-** Processor Context type. 
-** This is needed to determine the size of the context entry in the ER log.
-** Although this file is in a CPU directory, it really is OS dependant, so supporting
-** multiple OSs on the same CPU architecture ( i.e. x86/linux, x86/windows, x86/osx ) 
-** will require IFDEFS. 
-*/
-typedef struct 
-{
-    ESFPPC      esf;    /* Exception stack frame */
-    FP_CONTEXT  fp;     /* floating point registers */
-   
-} CFE_PSP_ExceptionContext_t;
+/**
+ * This define sets the maximum number of exceptions
+ * that can be stored.
+ *
+ * It must always be a power of two.
+ */
+#define CFE_PSP_MAX_EXCEPTION_ENTRIES       4
 
-#define CFE_PSP_CPU_CONTEXT_SIZE (sizeof(CFE_PSP_ExceptionContext_t))
+/*
+** Typedef for the layout of the vxWorks boot record structure
+**
+** This is statically placed at the beginning of system memory (sysMemTop)
+** which should be reserved in the kernel.
+*/
+typedef struct
+{
+   uint32 bsp_reset_type;
+   uint32 spare1;
+   uint32 spare2;
+   uint32 spare3;
+
+} CFE_PSP_ReservedMemoryBootRecord_t;
+
+
+/**
+ * \brief The data type used by the underlying OS to represent a thread ID.
+ */
+typedef TASK_ID CFE_PSP_Exception_SysTaskId_t;
+
+/*
+** Global variables
+*/
+typedef struct
+{
+    UINT32      timebase_upper; /* Upper 32 bits of timebase as sampled by hook */
+    UINT32      timebase_lower; /* Lower 32 bits of timebase as sampled by hook */
+    int         vector;         /* vector number */
+    ESFPPC      esf;            /* Exception stack frame */
+    FP_CONTEXT  fp;             /* floating point registers */
+
+} CFE_PSP_Exception_ContextDataEntry_t;
 
 /*
 ** Watchdog minimum and maximum values ( in milliseconds )
@@ -70,6 +96,16 @@ typedef struct
 ** Number of EEPROM banks on this platform
 */
 #define CFE_PSP_NUM_EEPROM_BANKS 1
+
+/*
+ * The alignment to use for each reserved memory block.
+ *
+ * This is a mask to be applied to each block base address
+ *
+ * Chosen as the cache line size of the MPC750 processor (32 bytes)
+ * such that the blocks will be cached more efficiently.
+ */
+#define CFE_PSP_MEMALIGN_MASK  ((cpuaddr)0x1F)
 
 
 #endif

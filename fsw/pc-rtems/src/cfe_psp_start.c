@@ -252,6 +252,11 @@ void CFE_PSP_Main(void)
    }
 
    /*
+    * Initialize the CFE reserved memory map
+    */
+   CFE_PSP_SetupReservedMemoryMap();
+
+   /*
    ** Initialize the statically linked modules (if any)
    */
    CFE_PSP_ModuleInit();

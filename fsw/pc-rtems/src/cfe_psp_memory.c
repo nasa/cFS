@@ -68,6 +68,15 @@
 #define CFE_PSP_RAM_DISK_SECTOR_SIZE   (GLOBAL_CONFIGDATA.CfeConfig->RamDiskSectorSize)
 #define CFE_PSP_RAM_DISK_NUM_SECTORS   (GLOBAL_CONFIGDATA.CfeConfig->RamDiskTotalSectors)
 
+
+typedef struct
+{
+    CFE_PSP_ReservedMemoryBootRecord_t BootRecord;
+    CFE_PSP_ExceptionStorage_t ExceptionStorage;
+} CFE_PSP_RtemsReservedAreaFixedLayout_t;
+
+
+
 /*
 **  External Declarations
 */
@@ -80,6 +89,10 @@
 ** Dynamic map of the reserved memory area
 */
 CFE_PSP_ReservedMemoryMap_t CFE_PSP_ReservedMemoryMap = { 0 }; 
+
+
+CFE_PSP_MemoryBlock_t PcRtems_ReservedMemBlock;
+
 
 /*
 *********************************************************************************
@@ -104,13 +117,13 @@ int32 CFE_PSP_GetCDSSize(uint32 *SizeOfCDS)
 {
    int32 return_code;
    
-   if ( SizeOfCDS == NULL || CFE_PSP_ReservedMemoryMap.TotalSize == 0 )
+   if ( SizeOfCDS == NULL )
    {
        return_code = OS_ERROR;
    }
    else
    {
-       *SizeOfCDS = CFE_PSP_ReservedMemoryMap.CDSSize;
+       *SizeOfCDS = CFE_PSP_ReservedMemoryMap.CDSMemory.BlockSize;
        return_code = OS_SUCCESS;
    }
    return(return_code);
@@ -133,18 +146,20 @@ int32 CFE_PSP_WriteToCDS(const void *PtrToDataToWrite, uint32 CDSOffset, uint32 
    uint8 *CopyPtr;
    int32  return_code;
          
-   if ( PtrToDataToWrite == NULL || CFE_PSP_ReservedMemoryMap.TotalSize == 0 )
+   if ( PtrToDataToWrite == NULL )
    {
        return_code = OS_ERROR;
    }
    else
    {
-       if ( (CDSOffset < CFE_PSP_ReservedMemoryMap.CDSSize ) && ( (CDSOffset + NumBytes) <= CFE_PSP_ReservedMemoryMap.CDSSize ))
+       if ( (CDSOffset < CFE_PSP_ReservedMemoryMap.CDSMemory.BlockSize ) &&
+               ( (CDSOffset + NumBytes) <= CFE_PSP_ReservedMemoryMap.CDSMemory.BlockSize ))
        {
-          CopyPtr = &(CFE_PSP_ReservedMemoryMap.CDSMemory[CDSOffset]);
-          memcpy((char *)CopyPtr, (char *)PtrToDataToWrite,NumBytes);
+           CopyPtr = CFE_PSP_ReservedMemoryMap.CDSMemory.BlockPtr;
+           CopyPtr += CDSOffset;
+           memcpy((char *)CopyPtr, (char *)PtrToDataToWrite,NumBytes);
           
-          return_code = OS_SUCCESS;
+           return_code = OS_SUCCESS;
        }
        else
        {
@@ -175,18 +190,20 @@ int32 CFE_PSP_ReadFromCDS(void *PtrToDataToRead, uint32 CDSOffset, uint32 NumByt
    uint8 *CopyPtr;
    int32  return_code;
       
-   if ( PtrToDataToRead == NULL || CFE_PSP_ReservedMemoryMap.TotalSize == 0 )
+   if ( PtrToDataToRead == NULL )
    {
        return_code = OS_ERROR;
    }
    else
    {
-       if ( (CDSOffset < CFE_PSP_ReservedMemoryMap.CDSSize ) && ( (CDSOffset + NumBytes) <= CFE_PSP_ReservedMemoryMap.CDSSize ))
+       if ( (CDSOffset < CFE_PSP_ReservedMemoryMap.CDSMemory.BlockSize ) &&
+               ( (CDSOffset + NumBytes) <= CFE_PSP_ReservedMemoryMap.CDSMemory.BlockSize ))
        {
-          CopyPtr = &(CFE_PSP_ReservedMemoryMap.CDSMemory[CDSOffset]);
-          memcpy((char *)PtrToDataToRead, (char *)CopyPtr, NumBytes);
+           CopyPtr = CFE_PSP_ReservedMemoryMap.CDSMemory.BlockPtr;
+           CopyPtr += CDSOffset;
+           memcpy((char *)PtrToDataToRead, (char *)CopyPtr, NumBytes);
           
-          return_code = OS_SUCCESS;
+           return_code = OS_SUCCESS;
        }
        else
        {
@@ -223,14 +240,14 @@ int32 CFE_PSP_GetResetArea (cpuaddr *PtrToResetArea, uint32 *SizeOfResetArea)
 {
    int32   return_code;
    
-   if ( SizeOfResetArea == NULL || PtrToResetArea == NULL || CFE_PSP_ReservedMemoryMap.TotalSize == 0 )
+   if ( SizeOfResetArea == NULL || PtrToResetArea == NULL )
    {
       return_code = OS_ERROR;
    }
    else
    {
-      *PtrToResetArea = (cpuaddr)(CFE_PSP_ReservedMemoryMap.ResetMemory);
-      *SizeOfResetArea = CFE_PSP_ReservedMemoryMap.ResetSize;
+      *PtrToResetArea = (cpuaddr)(CFE_PSP_ReservedMemoryMap.ResetMemory.BlockPtr);
+      *SizeOfResetArea = CFE_PSP_ReservedMemoryMap.ResetMemory.BlockSize;
       return_code = OS_SUCCESS;
    }
    
@@ -260,14 +277,14 @@ int32 CFE_PSP_GetUserReservedArea(cpuaddr *PtrToUserArea, uint32 *SizeOfUserArea
 {
    int32   return_code;
    
-   if ( SizeOfUserArea == NULL || PtrToUserArea == NULL || CFE_PSP_ReservedMemoryMap.TotalSize == 0 )
+   if ( SizeOfUserArea == NULL || PtrToUserArea == NULL )
    {
       return_code = OS_ERROR;
    }
    else
    {
-     *PtrToUserArea = (cpuaddr)(CFE_PSP_ReservedMemoryMap.UserReservedMemory);
-      *SizeOfUserArea = CFE_PSP_ReservedMemoryMap.UserReservedSize;
+      *PtrToUserArea = (cpuaddr)(CFE_PSP_ReservedMemoryMap.UserReservedMemory.BlockPtr);
+      *SizeOfUserArea = CFE_PSP_ReservedMemoryMap.UserReservedMemory.BlockSize;
       return_code = OS_SUCCESS;
    }
    
@@ -297,14 +314,14 @@ int32 CFE_PSP_GetVolatileDiskMem(cpuaddr *PtrToVolDisk, uint32 *SizeOfVolDisk )
 {
    int32   return_code;
    
-   if ( SizeOfVolDisk == NULL || PtrToVolDisk == NULL || CFE_PSP_ReservedMemoryMap.TotalSize == 0 )
+   if ( SizeOfVolDisk == NULL || PtrToVolDisk == NULL )
    {
       return_code = OS_ERROR;
    }
    else
    {
-      *PtrToVolDisk = (cpuaddr)(CFE_PSP_ReservedMemoryMap.VolatileDiskMemory);
-      *SizeOfVolDisk = CFE_PSP_ReservedMemoryMap.VolatileDiskSize;
+      *PtrToVolDisk = (cpuaddr)(CFE_PSP_ReservedMemoryMap.VolatileDiskMemory.BlockPtr);
+      *SizeOfVolDisk = CFE_PSP_ReservedMemoryMap.VolatileDiskMemory.BlockSize;
       return_code = OS_SUCCESS;
 
    }
@@ -320,6 +337,99 @@ int32 CFE_PSP_GetVolatileDiskMem(cpuaddr *PtrToVolDisk, uint32 *SizeOfVolDisk )
 */
 
 /******************************************************************************
+**  Function: CFE_PSP_SetupReservedMemoryMap
+**
+**  Purpose:
+**    This function performs the top level reserved memory initialization.
+**
+**  Arguments:
+**    (none)
+**
+**  Return:
+**    (none)
+*/
+void CFE_PSP_SetupReservedMemoryMap(void)
+{
+   CFE_PSP_RtemsReservedAreaFixedLayout_t *FixedPtr;
+   cpuaddr ReservedMemoryAddr;
+   size_t FixedSize;
+   size_t ResetSize;
+   size_t CDSSize;
+   size_t UserReservedSize;
+   size_t VolatileDiskSize;
+   size_t RequiredSize;
+
+   /*
+   ** Allocate memory for the cFE memory. Note that this is malloced on
+   ** the COTS board, but will be a static location in the ETU. 
+   */
+   FixedSize = sizeof(CFE_PSP_RtemsReservedAreaFixedLayout_t);
+   ResetSize = CFE_PSP_RESET_AREA_SIZE;
+   VolatileDiskSize = (CFE_PSP_RAM_DISK_SECTOR_SIZE * CFE_PSP_RAM_DISK_NUM_SECTORS);
+   CDSSize = CFE_PSP_CDS_SIZE;
+   UserReservedSize = CFE_PSP_USER_RESERVED_SIZE;
+
+   FixedSize = (FixedSize + CFE_PSP_MEMALIGN_MASK) & ~CFE_PSP_MEMALIGN_MASK;
+   ResetSize = (ResetSize + CFE_PSP_MEMALIGN_MASK) & ~CFE_PSP_MEMALIGN_MASK;
+   CDSSize = (CDSSize + CFE_PSP_MEMALIGN_MASK) & ~CFE_PSP_MEMALIGN_MASK;
+   VolatileDiskSize = (VolatileDiskSize + CFE_PSP_MEMALIGN_MASK) & ~CFE_PSP_MEMALIGN_MASK;
+   UserReservedSize = (UserReservedSize + CFE_PSP_MEMALIGN_MASK) & ~CFE_PSP_MEMALIGN_MASK;
+
+   /*  Calculate the required size, adding padding so that each element is aligned */
+   RequiredSize = FixedSize;
+   RequiredSize += ResetSize;
+   RequiredSize += VolatileDiskSize;
+   RequiredSize += CDSSize;
+   RequiredSize += UserReservedSize;
+
+   OS_printf("Sizeof BSP reserved memory = %u bytes\n",(unsigned int)RequiredSize);
+
+   PcRtems_ReservedMemBlock.BlockPtr = malloc(RequiredSize);
+
+   if ( PcRtems_ReservedMemBlock.BlockPtr == NULL )
+   {
+      OS_printf("CFE_PSP: Error: Cannot malloc BSP reserved memory!\n");
+      abort();
+   }
+
+   PcRtems_ReservedMemBlock.BlockSize = RequiredSize;
+   ReservedMemoryAddr = (cpuaddr)PcRtems_ReservedMemBlock.BlockPtr;
+
+   OS_printf("CFE_PSP: Allocated %u bytes for PSP reserved memory at: 0x%08lX\n",
+           (unsigned int)RequiredSize, (unsigned long)ReservedMemoryAddr);
+
+   FixedPtr = (CFE_PSP_RtemsReservedAreaFixedLayout_t*)ReservedMemoryAddr;
+
+   CFE_PSP_ReservedMemoryMap.BootPtr = &FixedPtr->BootRecord;
+   CFE_PSP_ReservedMemoryMap.ExceptionStoragePtr = &FixedPtr->ExceptionStorage;
+   ReservedMemoryAddr += FixedSize;
+
+   CFE_PSP_ReservedMemoryMap.ResetMemory.BlockPtr = (void*)ReservedMemoryAddr;
+   CFE_PSP_ReservedMemoryMap.ResetMemory.BlockSize = CFE_PSP_RESET_AREA_SIZE;
+   ReservedMemoryAddr += ResetSize;
+
+   CFE_PSP_ReservedMemoryMap.VolatileDiskMemory.BlockPtr = (void*)ReservedMemoryAddr;
+   CFE_PSP_ReservedMemoryMap.VolatileDiskMemory.BlockSize = (CFE_PSP_RAM_DISK_SECTOR_SIZE * CFE_PSP_RAM_DISK_NUM_SECTORS);
+   ReservedMemoryAddr += VolatileDiskSize;
+
+   CFE_PSP_ReservedMemoryMap.CDSMemory.BlockPtr = (void*)ReservedMemoryAddr;
+   CFE_PSP_ReservedMemoryMap.CDSMemory.BlockSize = CFE_PSP_CDS_SIZE;
+   ReservedMemoryAddr += CDSSize;
+
+   CFE_PSP_ReservedMemoryMap.UserReservedMemory.BlockPtr = (void*)ReservedMemoryAddr;
+   CFE_PSP_ReservedMemoryMap.UserReservedMemory.BlockSize = CFE_PSP_USER_RESERVED_SIZE;
+   ReservedMemoryAddr += UserReservedSize;
+
+   /*
+    * displaying the final address shows how much was actually used,
+    * and additionally avoids a warning about the result of the final increment not being used.
+    * (prefer this over removing the increment, as it is safer if another block is added)
+    */
+   OS_printf("CFE_PSP: PSP reserved memory ends at: 0x%08lX\n",
+           (unsigned long)ReservedMemoryAddr);
+}
+
+/******************************************************************************
 **  Function: CFE_PSP_InitProcessorReservedMemory
 **
 **  Purpose:
@@ -333,79 +443,9 @@ int32 CFE_PSP_GetVolatileDiskMem(cpuaddr *PtrToVolDisk, uint32 *SizeOfVolDisk )
 */
 int32 CFE_PSP_InitProcessorReservedMemory( uint32 RestartType )
 {
-   int32 return_code;
-   uint32 RequiredSize;
-   uint32 SizeAlignMask;
-   uint8 *ReservedMemoryPtr;
-
-   /*
-   ** Allocate memory for the cFE memory. Note that this is malloced on
-   ** the COTS board, but will be a static location in the ETU. 
-   */
-   SizeAlignMask = sizeof(uint32) - 1;
-
-   CFE_PSP_ReservedMemoryMap.ResetSize = CFE_PSP_RESET_AREA_SIZE;
-   CFE_PSP_ReservedMemoryMap.VolatileDiskSize = (CFE_PSP_RAM_DISK_SECTOR_SIZE * CFE_PSP_RAM_DISK_NUM_SECTORS);
-   CFE_PSP_ReservedMemoryMap.CDSSize = CFE_PSP_CDS_SIZE;
-   CFE_PSP_ReservedMemoryMap.UserReservedSize = CFE_PSP_USER_RESERVED_SIZE;
-
-   /*  Calculate the required size, adding padding so that each element is aligned */
-   RequiredSize = (sizeof(CFE_PSP_ReservedFixedInfo_t) + SizeAlignMask) & ~SizeAlignMask;
-   RequiredSize += (CFE_PSP_ReservedMemoryMap.ResetSize + SizeAlignMask) & ~SizeAlignMask;
-   RequiredSize += (CFE_PSP_ReservedMemoryMap.CDSSize + SizeAlignMask) & ~SizeAlignMask;
-   RequiredSize += (CFE_PSP_ReservedMemoryMap.VolatileDiskSize + SizeAlignMask) & ~SizeAlignMask;
-   RequiredSize += (CFE_PSP_ReservedMemoryMap.UserReservedSize + SizeAlignMask) & ~SizeAlignMask;
-
-   OS_printf("Sizeof BSP reserved memory = %u bytes\n",(unsigned int)RequiredSize);
-
-   ReservedMemoryPtr = (uint8 *)malloc(RequiredSize);
-
-   if ( ReservedMemoryPtr == NULL )
-   {
-      OS_printf("CFE_PSP: Error: Cannot malloc BSP reserved memory!\n");
-      return_code = OS_ERROR;
-   }
-   else
-   {
-      OS_printf("CFE_PSP: Allocated %u bytes for PSP reserved memory at: 0x%08X\n",
-                (unsigned int)RequiredSize, (unsigned int)ReservedMemoryPtr);
- 
-      /* FIXME: On real HW clearing would be only done if RestartType != CFE_PSP_PROCESSOR_RESET,
-         but in this impl we are using malloc'ed memory so it always must be done */
-      
-      OS_printf("CFE_PSP: Clearing Processor Reserved Memory.\n");
-      memset(ReservedMemoryPtr, 0, RequiredSize);
-      
-      CFE_PSP_ReservedMemoryMap.FixedInfo = (CFE_PSP_ReservedFixedInfo_t *)ReservedMemoryPtr;
-      ReservedMemoryPtr += (sizeof(CFE_PSP_ReservedFixedInfo_t) + SizeAlignMask) & ~SizeAlignMask;
-      
-      CFE_PSP_ReservedMemoryMap.ResetMemory = ReservedMemoryPtr;
-      ReservedMemoryPtr += (CFE_PSP_ReservedMemoryMap.ResetSize + SizeAlignMask) & ~SizeAlignMask;
-      
-      CFE_PSP_ReservedMemoryMap.VolatileDiskMemory = ReservedMemoryPtr;
-      ReservedMemoryPtr += (CFE_PSP_ReservedMemoryMap.VolatileDiskSize + SizeAlignMask) & ~SizeAlignMask;
-      
-      CFE_PSP_ReservedMemoryMap.CDSMemory = ReservedMemoryPtr;
-      ReservedMemoryPtr += (CFE_PSP_ReservedMemoryMap.CDSSize + SizeAlignMask) & ~SizeAlignMask;
-      
-      CFE_PSP_ReservedMemoryMap.UserReservedMemory = ReservedMemoryPtr;
-      ReservedMemoryPtr += (CFE_PSP_ReservedMemoryMap.UserReservedSize + SizeAlignMask) & ~SizeAlignMask;
-      
-      /*
-      ** Set the default reset type in case a watchdog reset occurs 
-      */
-      CFE_PSP_ReservedMemoryMap.FixedInfo->bsp_reset_type = CFE_PSP_RST_TYPE_PROCESSOR;
-      
-      /* Keep the actual size for future reference.
-         This is also something that can be checked to see if things were initialized successfully.
-         (i.e. If this reads zero then none of the other pointers are useful)
-      */
-      CFE_PSP_ReservedMemoryMap.TotalSize = RequiredSize;
-            
-      return_code = OS_SUCCESS;
-   }
-   return(return_code);
-
+    OS_printf("CFE_PSP: Clearing Processor Reserved Memory.\n");
+    memset(PcRtems_ReservedMemBlock.BlockPtr, 0, PcRtems_ReservedMemBlock.BlockSize);
+    return CFE_PSP_SUCCESS;
 }
 
 

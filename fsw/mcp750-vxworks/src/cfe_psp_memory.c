@@ -56,6 +56,8 @@
 #include "cfe_psp.h" 
 #include "cfe_psp_memory.h"           
 
+#include <target_config.h>
+
 /*
 ** Define the cFE Core loadable module name
 */
@@ -78,7 +80,11 @@ extern unsigned int GetWrsKernelTextEnd (void);
 ** Pointer to the vxWorks USER_RESERVED_MEMORY area
 ** The sizes of each memory area is defined in os_processor.h for this architecture.
 */
-CFE_PSP_ReservedMemory_t *CFE_PSP_ReservedMemoryPtr; 
+CFE_PSP_ReservedMemoryMap_t CFE_PSP_ReservedMemoryMap;
+
+
+CFE_PSP_MemoryBlock_t MCP750_ReservedMemBlock;
+
 
 /*
 *********************************************************************************
@@ -109,7 +115,7 @@ int32 CFE_PSP_GetCDSSize(uint32 *SizeOfCDS)
    }
    else
    {
-       *SizeOfCDS =  CFE_PSP_CDS_SIZE;
+       *SizeOfCDS =  CFE_PSP_ReservedMemoryMap.CDSMemory.BlockSize;
        return_code = CFE_PSP_SUCCESS;
    }
    return(return_code);
@@ -138,12 +144,14 @@ int32 CFE_PSP_WriteToCDS(const void *PtrToDataToWrite, uint32 CDSOffset, uint32 
    }
    else
    {
-       if ( (CDSOffset < CFE_PSP_CDS_SIZE ) && ( (CDSOffset + NumBytes) <= CFE_PSP_CDS_SIZE ))
+       if ( (CDSOffset < CFE_PSP_ReservedMemoryMap.CDSMemory.BlockSize ) &&
+               ( (CDSOffset + NumBytes) <= CFE_PSP_ReservedMemoryMap.CDSMemory.BlockSize ))
        {
-          CopyPtr = &(CFE_PSP_ReservedMemoryPtr->CDSMemory[CDSOffset]);
-          memcpy(CopyPtr, (char *)PtrToDataToWrite,NumBytes);
+           CopyPtr = CFE_PSP_ReservedMemoryMap.CDSMemory.BlockPtr;
+           CopyPtr += CDSOffset;
+           memcpy(CopyPtr, (char *)PtrToDataToWrite,NumBytes);
           
-          return_code = CFE_PSP_SUCCESS;
+           return_code = CFE_PSP_SUCCESS;
        }
        else
        {
@@ -180,12 +188,14 @@ int32 CFE_PSP_ReadFromCDS(void *PtrToDataToRead, uint32 CDSOffset, uint32 NumByt
    }
    else
    {
-       if ( (CDSOffset < CFE_PSP_CDS_SIZE ) && ( (CDSOffset + NumBytes) <= CFE_PSP_CDS_SIZE ))
+       if ( (CDSOffset < CFE_PSP_ReservedMemoryMap.CDSMemory.BlockSize ) &&
+               ( (CDSOffset + NumBytes) <= CFE_PSP_ReservedMemoryMap.CDSMemory.BlockSize ))
        {
-          CopyPtr = &(CFE_PSP_ReservedMemoryPtr->CDSMemory[CDSOffset]);
-          memcpy((char *)PtrToDataToRead,CopyPtr, NumBytes);
+           CopyPtr = CFE_PSP_ReservedMemoryMap.CDSMemory.BlockPtr;
+           CopyPtr += CDSOffset;
+           memcpy((char *)PtrToDataToRead,CopyPtr, NumBytes);
           
-          return_code = CFE_PSP_SUCCESS;
+           return_code = CFE_PSP_SUCCESS;
        }
        else
        {
@@ -228,8 +238,8 @@ int32 CFE_PSP_GetResetArea (cpuaddr *PtrToResetArea, uint32 *SizeOfResetArea)
    }
    else
    {
-      *PtrToResetArea = (cpuaddr)(CFE_PSP_ReservedMemoryPtr->ResetMemory);
-      *SizeOfResetArea = CFE_PSP_RESET_AREA_SIZE;
+      *PtrToResetArea = (cpuaddr)(CFE_PSP_ReservedMemoryMap.ResetMemory.BlockPtr);
+      *SizeOfResetArea = CFE_PSP_ReservedMemoryMap.ResetMemory.BlockSize;
       return_code = CFE_PSP_SUCCESS;
    }
    
@@ -265,8 +275,8 @@ int32 CFE_PSP_GetUserReservedArea(cpuaddr *PtrToUserArea, uint32 *SizeOfUserArea
    }
    else
    {
-      *PtrToUserArea = (cpuaddr)(CFE_PSP_ReservedMemoryPtr->UserReservedMemory);
-      *SizeOfUserArea = CFE_PSP_USER_RESERVED_SIZE;
+      *PtrToUserArea = (cpuaddr)(CFE_PSP_ReservedMemoryMap.UserReservedMemory.BlockPtr);
+      *SizeOfUserArea = CFE_PSP_ReservedMemoryMap.UserReservedMemory.BlockSize;
       return_code = CFE_PSP_SUCCESS;
    }
    
@@ -302,8 +312,8 @@ int32 CFE_PSP_GetVolatileDiskMem(cpuaddr *PtrToVolDisk, uint32 *SizeOfVolDisk )
    }
    else
    {
-      *PtrToVolDisk = (cpuaddr)(CFE_PSP_ReservedMemoryPtr->VolatileDiskMemory);
-      *SizeOfVolDisk = CFE_PSP_VOLATILE_DISK_SIZE;
+      *PtrToVolDisk = (cpuaddr)(CFE_PSP_ReservedMemoryMap.VolatileDiskMemory.BlockPtr);
+      *SizeOfVolDisk = CFE_PSP_ReservedMemoryMap.VolatileDiskMemory.BlockSize;
       return_code = CFE_PSP_SUCCESS;
 
    }
@@ -337,12 +347,12 @@ int32 CFE_PSP_InitProcessorReservedMemory( uint32 RestartType )
    if ( RestartType != CFE_PSP_RST_TYPE_PROCESSOR )
    {
       OS_printf("CFE_PSP: Clearing Processor Reserved Memory.\n");
-      memset((void *)CFE_PSP_ReservedMemoryPtr, 0, sizeof(CFE_PSP_ReservedMemory_t));
+      memset(MCP750_ReservedMemBlock.BlockPtr, 0, MCP750_ReservedMemBlock.BlockSize);
       
       /*
       ** Set the default reset type in case a watchdog reset occurs 
       */
-      CFE_PSP_ReservedMemoryPtr->bsp_reset_type = CFE_PSP_RST_TYPE_PROCESSOR;
+      CFE_PSP_ReservedMemoryMap.BootPtr->bsp_reset_type = CFE_PSP_RST_TYPE_PROCESSOR;
 
    }      
    return_code = CFE_PSP_SUCCESS;
@@ -350,6 +360,83 @@ int32 CFE_PSP_InitProcessorReservedMemory( uint32 RestartType )
 
 }
 
+/******************************************************************************
+**  Function: CFE_PSP_SetupReservedMemoryMap
+**
+**  Purpose:
+**    Set up the CFE_PSP_ReservedMemoryMap global data structure
+**    This only sets the pointers, it does not initialize the data.
+**
+**  Arguments:
+**    (none)
+**
+**  Return:
+**    (none)
+*/
+void CFE_PSP_SetupReservedMemoryMap(void)
+{
+    cpuaddr start_addr;
+    cpuaddr end_addr;
+
+    /*
+    ** Note: this uses a "cpuaddr" (integer address) as an intermediate
+    ** to avoid warnings about alignment.  The output of sysMemTop()
+    ** should be aligned to hold any data type, being the very start
+    ** of the memory space.
+    */
+    start_addr = (cpuaddr) sysMemTop();
+    end_addr = start_addr;
+
+    memset(&CFE_PSP_ReservedMemoryMap, 0, sizeof(CFE_PSP_ReservedMemoryMap));
+
+    CFE_PSP_ReservedMemoryMap.BootPtr = (CFE_PSP_ReservedMemoryBootRecord_t *)end_addr;
+    end_addr += sizeof(CFE_PSP_ReservedMemoryBootRecord_t);
+    end_addr = (end_addr + CFE_PSP_MEMALIGN_MASK) & ~CFE_PSP_MEMALIGN_MASK;
+
+    CFE_PSP_ReservedMemoryMap.ExceptionStoragePtr = (CFE_PSP_ExceptionStorage_t *)end_addr;
+    end_addr += sizeof(CFE_PSP_ExceptionStorage_t);
+    end_addr = (end_addr + CFE_PSP_MEMALIGN_MASK) & ~CFE_PSP_MEMALIGN_MASK;
+
+    CFE_PSP_ReservedMemoryMap.ResetMemory.BlockPtr = (void*)end_addr;
+    CFE_PSP_ReservedMemoryMap.ResetMemory.BlockSize = GLOBAL_CONFIGDATA.CfeConfig->ResetAreaSize;
+    end_addr += CFE_PSP_ReservedMemoryMap.ResetMemory.BlockSize;
+    end_addr = (end_addr + CFE_PSP_MEMALIGN_MASK) & ~CFE_PSP_MEMALIGN_MASK;
+
+    CFE_PSP_ReservedMemoryMap.VolatileDiskMemory.BlockPtr = (void*)end_addr;
+    CFE_PSP_ReservedMemoryMap.VolatileDiskMemory.BlockSize =
+        GLOBAL_CONFIGDATA.CfeConfig->RamDiskSectorSize * GLOBAL_CONFIGDATA.CfeConfig->RamDiskTotalSectors;
+    end_addr += CFE_PSP_ReservedMemoryMap.VolatileDiskMemory.BlockSize;
+    end_addr = (end_addr + CFE_PSP_MEMALIGN_MASK) & ~CFE_PSP_MEMALIGN_MASK;
+
+    CFE_PSP_ReservedMemoryMap.CDSMemory.BlockPtr = (void*)end_addr;
+    CFE_PSP_ReservedMemoryMap.CDSMemory.BlockSize = GLOBAL_CONFIGDATA.CfeConfig->CdsSize;
+    end_addr += CFE_PSP_ReservedMemoryMap.CDSMemory.BlockSize;
+    end_addr = (end_addr + CFE_PSP_MEMALIGN_MASK) & ~CFE_PSP_MEMALIGN_MASK;
+
+    CFE_PSP_ReservedMemoryMap.UserReservedMemory.BlockPtr = (void*)end_addr;
+    CFE_PSP_ReservedMemoryMap.UserReservedMemory.BlockSize = GLOBAL_CONFIGDATA.CfeConfig->UserReservedSize;
+    end_addr += CFE_PSP_ReservedMemoryMap.UserReservedMemory.BlockSize;
+    end_addr = (end_addr + CFE_PSP_MEMALIGN_MASK) & ~CFE_PSP_MEMALIGN_MASK;
+
+    /* The total size of the entire block is the difference in address */
+    MCP750_ReservedMemBlock.BlockPtr = (void*)start_addr;
+    MCP750_ReservedMemBlock.BlockSize =  end_addr - start_addr;
+
+
+    OS_printf("CFE_PSP: MCP750 Reserved Memory Block at 0x%08lx, Total Size = 0x%lx\n",
+            (unsigned long)MCP750_ReservedMemBlock.BlockPtr,
+            (unsigned long)MCP750_ReservedMemBlock.BlockSize);
+}
+
+/******************************************************************************
+ * Function: CFE_PSP_DeleteProcessorReservedMemory
+ *
+ * No action on MCP750 - reserved block is statically allocated at sysMemTop.
+ * Implemented for API consistency with other PSPs.
+ */
+void CFE_PSP_DeleteProcessorReservedMemory(void)
+{
+}
 
 /*
 *********************************************************************************

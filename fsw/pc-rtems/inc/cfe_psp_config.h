@@ -29,7 +29,7 @@
 
 
 #include "common_types.h"
-
+#include <rtems.h>
 
 /*
 ** This define sets the number of memory ranges that are defined in the memory range defintion
@@ -37,21 +37,43 @@
 */
 #define CFE_PSP_MEM_TABLE_SIZE 10
 
+/**
+ * This define sets the maximum number of exceptions
+ * that can be stored.
+ *
+ * It must always be a power of two.
+ */
+#define CFE_PSP_MAX_EXCEPTION_ENTRIES           1
+
 
 /*
-** Processor Context type. 
-** This is needed to determine the size of the context entry in the ER log.
-** Although this file is in a CPU directory, it really is OS dependant, so supporting
-** multiple OSs on the same CPU architecture ( i.e. x86/linux, x86/windows, x86/osx ) 
-** will require IFDEFS. 
+** Typedef for the layout of the header in the reserved memory block
 */
-typedef struct 
+typedef struct
 {
-   uint32   registers[32]; /* TBD for coldfire */
-  
-} CFE_PSP_ExceptionContext_t;
+    /* not currently used in PC-RTEMS */
+    uint32 reserved;
 
-#define CFE_PSP_CPU_CONTEXT_SIZE (sizeof(CFE_PSP_ExceptionContext_t))
+} CFE_PSP_ReservedMemoryBootRecord_t;
+
+
+/**
+ * \brief The data type used by the underlying OS to represent a thread ID.
+ */
+typedef rtems_id CFE_PSP_Exception_SysTaskId_t;
+
+/**
+ * \brief Exception context data which is relevant for offline/post-mortem diagnosis.
+ *
+ * This may be stored in a persistent exception log file for later analysis.
+ *
+ * On PC-RTEMS, this is reserved for future use.  Exception handling is not
+ * currently implemented.
+ */
+typedef struct
+{
+    uint32 reserved; /* prevent empty structure */
+} CFE_PSP_Exception_ContextDataEntry_t;
 
 
 /*
@@ -64,6 +86,17 @@ typedef struct
 ** Number of EEPROM banks on this platform
 */
 #define CFE_PSP_NUM_EEPROM_BANKS 1
+
+/*
+ * The alignment to use for each reserved memory block.
+ *
+ * This is a mask to be applied to each block base address
+ *
+ * Using 128 bytes as this is the cache line size of many
+ * modern processors.
+ */
+#define CFE_PSP_MEMALIGN_MASK  ((cpuaddr)0x7F)
+
 
 
 #endif

@@ -9,6 +9,7 @@ add_definitions(-D_CFE_PSP_)
 include_directories(fsw/shared)
 
 # Build the PSP implementation which lies in a system-specific subdirectory
+include_directories(fsw/shared)
 include_directories(fsw/${CFE_SYSTEM_PSPNAME}/inc)
 add_subdirectory(fsw/${CFE_SYSTEM_PSPNAME} ${CFE_SYSTEM_PSPNAME})
 
@@ -16,6 +17,7 @@ add_subdirectory(fsw/${CFE_SYSTEM_PSPNAME} ${CFE_SYSTEM_PSPNAME})
 add_library(psp-${CFE_SYSTEM_PSPNAME} STATIC
     fsw/shared/cfe_psp_configdata.c
     fsw/shared/cfe_psp_eeprom.c
+    fsw/shared/cfe_psp_exceptionstorage.c
     fsw/shared/cfe_psp_memrange.c
     fsw/shared/cfe_psp_memutils.c
     fsw/shared/cfe_psp_module.c
