@@ -158,5 +158,26 @@ int32  OS_TaskGetInfo_Impl           (uint32 task_id, OS_task_prop_t *task_prop)
 int32  OS_TaskRegister_Impl          (uint32 global_task_id);
 
 
+/*----------------------------------------------------------------
+
+   Function: OS_TaskIdMatchSystemData_Impl
+
+    Purpose: A helper "match" function to find an OSAL task ID based on system ID
+             Compatible with the "OS_ObjectIdFindBySearch" routine
+
+ ------------------------------------------------------------------*/
+bool OS_TaskIdMatchSystemData_Impl(void *ref, uint32 local_id, const OS_common_record_t *obj);
+
+/*----------------------------------------------------------------
+
+   Function: OS_TaskValidateSystemData_Impl
+
+    Purpose: Checks that the supplied sysdata pointer and sysdata_size are
+             compatible/reasonable for the underlying OS.
+
+ ------------------------------------------------------------------*/
+int32 OS_TaskValidateSystemData_Impl(const void *sysdata, uint32 sysdata_size);
+
+
 #endif  /* INCLUDE_OS_SHARED_TASK_H_ */
 

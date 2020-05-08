@@ -48,3 +48,10 @@ uint32 OS_TaskGetId_Impl            (void)
 UT_DEFAULT_STUB(OS_TaskGetInfo_Impl,(uint32 task_id, OS_task_prop_t *task_prop))
 UT_DEFAULT_STUB(OS_TaskRegister_Impl,(uint32 global_task_id))
 
+bool OS_TaskIdMatchSystemData_Impl(void *ref, uint32 local_id, const OS_common_record_t *obj)
+{
+    return UT_DEFAULT_IMPL(OS_TaskIdMatchSystemData_Impl);
+}
+
+UT_DEFAULT_STUB(OS_TaskValidateSystemData_Impl,(const void *sysdata, uint32 sysdata_size))
+

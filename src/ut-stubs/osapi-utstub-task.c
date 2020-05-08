@@ -264,7 +264,6 @@ int32 OS_TaskGetInfo(uint32 task_id, OS_task_prop_t *task_prop)
     {
         task_prop->creator = 1;
         UT_FIXUP_ID(task_prop->creator, UT_OBJTYPE_TASK);
-        task_prop->OStask_id = task_id & 0xFFFF;
         task_prop->stack_size = 100;
         task_prop->priority = 150;
         strncpy(task_prop->name, "UnitTest", OS_MAX_API_NAME - 1);

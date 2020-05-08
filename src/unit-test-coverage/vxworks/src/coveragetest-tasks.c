@@ -188,6 +188,38 @@ void Test_OS_TaskGetInfo_Impl(void)
     OSAPI_TEST_FUNCTION_RC(OS_TaskGetInfo_Impl(0,&task_prop), OS_SUCCESS);
 }
 
+void Test_OS_TaskValidateSystemData_Impl(void)
+{
+    /*
+     * Test Case For:
+     * int32 OS_TaskValidateSystemData_Impl(const void *sysdata, uint32 sysdata_size)
+     */
+    OCS_TASK_ID test_sys_id;
+
+    memset(&test_sys_id, 'x', sizeof(test_sys_id));
+
+    OSAPI_TEST_FUNCTION_RC(OS_TaskValidateSystemData_Impl(&test_sys_id, sizeof(test_sys_id)), OS_SUCCESS);
+    OSAPI_TEST_FUNCTION_RC(OS_TaskValidateSystemData_Impl(NULL, sizeof(test_sys_id)), OS_INVALID_POINTER);
+    OSAPI_TEST_FUNCTION_RC(OS_TaskValidateSystemData_Impl(&test_sys_id, sizeof(test_sys_id)-1), OS_INVALID_POINTER);
+}
+
+void Test_OS_TaskIdMatchSystemData_Impl(void)
+{
+    /*
+     * Test Case For:
+     * bool OS_TaskIdMatchSystemData_Impl(void *ref, uint32 local_id, const OS_common_record_t *obj)
+     */
+    OCS_TASK_ID test_sys_id;
+
+    memset(&test_sys_id, 'x', sizeof(test_sys_id));
+
+    UT_TaskTest_SetImplTaskId(0, test_sys_id);
+    OSAPI_TEST_FUNCTION_RC(OS_TaskIdMatchSystemData_Impl(&test_sys_id, 0, NULL), true);
+
+    memset(&test_sys_id, 'y', sizeof(test_sys_id));
+    OSAPI_TEST_FUNCTION_RC(OS_TaskIdMatchSystemData_Impl(&test_sys_id, 0, NULL), false);
+}
+
 
 /* ------------------- End of test cases --------------------------------------*/
 
@@ -234,6 +266,8 @@ void UtTest_Setup(void)
     ADD_TEST(OS_TaskRegister_Impl);
     ADD_TEST(OS_TaskGetId_Impl);
     ADD_TEST(OS_TaskGetInfo_Impl);
+    ADD_TEST(OS_TaskValidateSystemData_Impl);
+    ADD_TEST(OS_TaskIdMatchSystemData_Impl);
 }
 
 
