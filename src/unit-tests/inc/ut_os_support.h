@@ -79,7 +79,7 @@ static inline bool UtOsalImplemented(int32 Fn, const char *File, uint32 Line)
 /*--------------------------------------------------------------------------------*/
 
 #define UT_os_sprintf(buf,...)  \
-    do { int x = snprintf(buf,sizeof(buf),__VA_ARGS__); if (x > 0) buf[x] = 0; } while (0)
+    do { int x = snprintf(buf,sizeof(buf),__VA_ARGS__); if (x > 0 && x < sizeof(buf)) buf[x] = 0; } while (0)
 
 /*--------------------------------------------------------------------------------*/
 
