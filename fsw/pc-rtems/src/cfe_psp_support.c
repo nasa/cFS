@@ -63,6 +63,14 @@
 #define CFE_PSP_CPU_NAME                (GLOBAL_CONFIGDATA.Default_CpuName)
 #define CFE_PSP_SPACECRAFT_ID           (GLOBAL_CONFIGDATA.Default_SpacecraftId)
 
+
+/*
+ * Track the overall "reserved memory block" at the start of RAM.
+ * This single large block is then subdivided into separate areas for CFE use.
+ */
+extern CFE_PSP_MemoryBlock_t PcRtems_ReservedMemBlock;
+
+
 /******************************************************************************
 **  Function:  CFE_PSP_Restart()
 **
@@ -79,19 +87,7 @@
 void CFE_PSP_Restart(uint32 reset_type)
 {
 
-   if ( reset_type == CFE_PSP_RST_TYPE_POWERON )
-   {
-      CFE_PSP_ReservedMemoryMap.FixedInfo->bsp_reset_type = CFE_PSP_RST_TYPE_POWERON;
-      CFE_PSP_FlushCaches(1, (cpuaddr)CFE_PSP_ReservedMemoryMap.FixedInfo, CFE_PSP_ReservedMemoryMap.TotalSize);
-      /* reboot(BOOT_CLEAR); Need RTEMS equiv. */
-   }
-   else
-   {
-      CFE_PSP_ReservedMemoryMap.FixedInfo->bsp_reset_type = CFE_PSP_RST_TYPE_PROCESSOR;
-      CFE_PSP_FlushCaches(1, (cpuaddr)CFE_PSP_ReservedMemoryMap.FixedInfo, CFE_PSP_ReservedMemoryMap.TotalSize);
-      /* reboot(BOOT_NORMAL); Need RTEMS Equiv */
-   }
-
+   CFE_PSP_FlushCaches(1, PcRtems_ReservedMemBlock.BlockPtr, PcRtems_ReservedMemBlock.BlockSize);
    OS_printf("CFE_PSP_Restart is not implemented on this platform ( yet ! )\n");
    exit(-1);
 
@@ -131,7 +127,7 @@ void CFE_PSP_Panic(int32 ErrorCode)
 **    (none)
 */
 
-void CFE_PSP_FlushCaches(uint32 type, cpuaddr address, uint32 size)
+void CFE_PSP_FlushCaches(uint32 type, void* address, uint32 size)
 {
    if ( type == 1 )
    {

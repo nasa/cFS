@@ -659,3 +659,45 @@ int32 CFE_PSP_MemSet(void *dst, uint8 value , uint32 size)
     return status;
 }
 
+uint32 CFE_PSP_Exception_GetCount(void)
+{
+    int32 status;
+
+     status = UT_DEFAULT_IMPL(CFE_PSP_Exception_GetCount);
+
+     return status;
+}
+
+int32 CFE_PSP_Exception_GetSummary(uint32 *ContextLogId, uint32 *TaskId, char *ReasonBuf, uint32 ReasonSize)
+{
+    int32 status;
+
+    *ContextLogId = 0;
+    *TaskId = 0;
+    *ReasonBuf = 0;
+
+    /* allow the testcase to easily set the taskID output, anything more involved needs a hook */
+    status = UT_DEFAULT_IMPL_ARGS(CFE_PSP_Exception_GetSummary, ContextLogId, TaskId, ReasonBuf, ReasonSize);
+    if (status == 0 && *TaskId == 0)
+    {
+        UT_Stub_CopyToLocal(UT_KEY(CFE_PSP_Exception_GetSummary), TaskId, sizeof(*TaskId));
+    }
+
+
+    return status;
+}
+
+int32 CFE_PSP_Exception_CopyContext(uint32 ContextLogId, void *ContextBuf, uint32 ContextSize)
+{
+    int32 status;
+
+    status = UT_DEFAULT_IMPL(CFE_PSP_Exception_CopyContext);
+    if (status == 0)
+    {
+        status = UT_Stub_CopyToLocal(UT_KEY(CFE_PSP_Exception_CopyContext), ContextBuf, ContextSize);
+    }
+
+    return status;
+}
+
+

@@ -65,6 +65,7 @@
 #define CFE_PSP_ERROR_NOT_IMPLEMENTED       (-27)
 #define CFE_PSP_INVALID_MODULE_NAME         (-28)
 #define CFE_PSP_INVALID_MODULE_ID           (-29)
+#define CFE_PSP_NO_EXCEPTION_DATA           (-30)
 
 
 
@@ -196,7 +197,7 @@ extern uint32        CFE_PSP_GetRestartType(uint32 *restartSubType );
 */
 
 
-extern void          CFE_PSP_FlushCaches(uint32 type, cpuaddr address, uint32 size);
+extern void          CFE_PSP_FlushCaches(uint32 type, void* address, uint32 size);
 /*
 ** This is a BSP specific cache flush routine
 */
@@ -245,16 +246,6 @@ extern void CFE_PSP_Get_Timebase(uint32 *Tbu, uint32 *Tbl);
 extern uint32 CFE_PSP_Get_Dec(void);
 /*
 ** CFE_PSP_Get_Dec
-*/
-
-
-extern int32 CFE_PSP_InitProcessorReservedMemory(uint32 RestartType );
-/*
-** CFE_PSP_InitProcessorReservedMemory initializes all of the memory in the
-** BSP that is preserved on a processor reset. The memory includes the
-** Critical Data Store, the ES Reset Area, the Volatile Disk Memory, and
-** the User Reserved Memory. In general, the memory areas will be initialized
-** ( cleared ) on a Power On reset, and preserved during a processor reset.
 */
 
 extern int32 CFE_PSP_GetCDSSize(uint32 *SizeOfCDS);
@@ -367,6 +358,10 @@ extern void CFE_PSP_SetDefaultExceptionEnvironment(void);
 **          called for each task that that wants to do floating point and catch exceptions
 */
 
+
+extern uint32 CFE_PSP_Exception_GetCount(void);
+extern int32 CFE_PSP_Exception_GetSummary(uint32 *ContextLogId, uint32 *TaskId, char *ReasonBuf, uint32 ReasonSize);
+extern int32 CFE_PSP_Exception_CopyContext(uint32 ContextLogId, void *ContextBuf, uint32 ContextSize);
 
 /*
 ** I/O Port API

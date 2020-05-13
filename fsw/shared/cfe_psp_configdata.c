@@ -47,7 +47,6 @@ Target_PspConfigData GLOBAL_PSP_CONFIGDATA =
 
       .OS_VolumeTableSize = NUM_TABLE_ENTRIES,
       .OS_VolumeTable = OS_VolumeTable,
-      .OS_CpuContextSize = CFE_PSP_CPU_CONTEXT_SIZE,
 
       .HW_NumEepromBanks = CFE_PSP_NUM_EEPROM_BANKS,
 
