@@ -328,9 +328,42 @@ uint32 OS_TaskGetId_Impl (void)
  *-----------------------------------------------------------------*/
 int32 OS_TaskGetInfo_Impl (uint32 task_id, OS_task_prop_t *task_prop)
 {
+#ifndef OSAL_OMIT_DEPRECATED
     task_prop->OStask_id =  (uint32) OS_impl_task_table[task_id].id;
+#endif
     return OS_SUCCESS;
 
 } /* end OS_TaskGetInfo_Impl */
 
+/*----------------------------------------------------------------
+ *
+ * Function: OS_TaskValidateSystemData_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+int32 OS_TaskValidateSystemData_Impl(const void *sysdata, uint32 sysdata_size)
+{
+    if (sysdata == NULL || sysdata_size != sizeof(rtems_id))
+    {
+        return OS_INVALID_POINTER;
+    }
+    return OS_SUCCESS;
+}
+
+/*----------------------------------------------------------------
+ *
+ * Function: OS_TaskIdMatchSystemData_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+bool OS_TaskIdMatchSystemData_Impl(void *ref, uint32 local_id, const OS_common_record_t *obj)
+{
+    const rtems_id *target = (const rtems_id *)ref;
+
+    return (*target == OS_impl_task_table[local_id].id);
+}
 

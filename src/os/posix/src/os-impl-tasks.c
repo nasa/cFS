@@ -761,7 +761,8 @@ uint32 OS_TaskGetId_Impl (void)
  *-----------------------------------------------------------------*/
 int32 OS_TaskGetInfo_Impl (uint32 task_id, OS_task_prop_t *task_prop)
 {
-   size_t copy_sz;
+#ifndef OSAL_OMIT_DEPRECATED
+    size_t copy_sz;
 
    /*
     * NOTE - this is not really valid, as you can't officially
@@ -783,7 +784,43 @@ int32 OS_TaskGetInfo_Impl (uint32 task_id, OS_task_prop_t *task_prop)
    }
 
    memcpy(&task_prop->OStask_id, &OS_impl_task_table[task_id].id, copy_sz);
+#endif
 
    return OS_SUCCESS;
 } /* end OS_TaskGetInfo_Impl */
+
+
+/*----------------------------------------------------------------
+ *
+ * Function: OS_TaskIdMatchSystemData_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+bool OS_TaskIdMatchSystemData_Impl(void *ref, uint32 local_id, const OS_common_record_t *obj)
+{
+    const pthread_t *target = (const pthread_t *)ref;
+
+    return (pthread_equal(*target, OS_impl_task_table[local_id].id) != 0);
+}
+
+/*----------------------------------------------------------------
+ *
+ * Function: OS_TaskValidateSystemData_Impl
+ *
+ *  Purpose: Implemented per internal OSAL API
+ *           See prototype for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+int32 OS_TaskValidateSystemData_Impl(const void *sysdata, uint32 sysdata_size)
+{
+    if (sysdata == NULL || sysdata_size != sizeof(pthread_t))
+    {
+        return OS_INVALID_POINTER;
+    }
+    return OS_SUCCESS;
+}
+
+
 

@@ -116,18 +116,21 @@ int32 OS_FileSys_InitLocalFromVolTable(OS_filesys_internal_record_t *local, cons
             strcmp(Vol->DeviceName,"unused") != 0)
     {
         strncpy(local->volume_name, Vol->VolumeName, sizeof(local->volume_name)-1);
+        local->volume_name[sizeof(local->volume_name)-1] = 0;
     }
 
     if (isgraph((int)Vol->PhysDevName[0]) &&
             strcmp(Vol->PhysDevName,"unused") != 0)
     {
         strncpy(local->system_mountpt, Vol->PhysDevName, sizeof(local->system_mountpt)-1);
+        local->system_mountpt[sizeof(local->system_mountpt)-1] = 0;
     }
 
     if (isgraph((int)Vol->MountPoint[0]) &&
             strcmp(Vol->MountPoint,"unused") != 0)
     {
         strncpy(local->virtual_mountpt, Vol->MountPoint, sizeof(local->virtual_mountpt)-1);
+        local->virtual_mountpt[sizeof(local->virtual_mountpt)-1] = 0;
     }
 
     /*
@@ -471,10 +474,10 @@ int32 OS_FileSysAddFixedMap(uint32 *filesys_id, const char *phys_path, const cha
 
         memset(local, 0, sizeof(*local));
         global->name_entry = local->device_name;
-        strcpy(local->device_name, dev_name);
-        strcpy(local->volume_name, dev_name);
-        strcpy(local->system_mountpt, phys_path);
-        strcpy(local->virtual_mountpt, virt_path);
+        strncpy(local->device_name, dev_name, sizeof(local->device_name)-1);
+        strncpy(local->volume_name, dev_name, sizeof(local->volume_name)-1);
+        strncpy(local->system_mountpt, phys_path, sizeof(local->system_mountpt)-1);
+        strncpy(local->virtual_mountpt, virt_path, sizeof(local->virtual_mountpt)-1);
 
         /*
          * mark the entry that it is a fixed disk

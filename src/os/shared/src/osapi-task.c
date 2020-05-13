@@ -512,3 +512,41 @@ int32 OS_TaskInstallDeleteHandler(osal_task_entry function_pointer)
 
    return return_code;
 } /* end OS_TaskInstallDeleteHandler */
+
+/*----------------------------------------------------------------
+ *
+ * Function: OS_TaskFindIdBySystemData
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
+int32 OS_TaskFindIdBySystemData(uint32 *task_id, const void *sysdata, size_t sysdata_size)
+{
+    int32 return_code;
+    OS_common_record_t *record;
+
+    /* Check parameters */
+    if (task_id == NULL)
+    {
+       return OS_INVALID_POINTER;
+    }
+
+    /* The "sysdata" and "sysdata_size" must be passed to the underlying impl for validation */
+    return_code = OS_TaskValidateSystemData_Impl(sysdata, sysdata_size);
+    if (return_code != OS_SUCCESS)
+    {
+        return return_code;
+    }
+
+    return_code = OS_ObjectIdGetBySearch(OS_LOCK_MODE_GLOBAL, LOCAL_OBJID_TYPE, OS_TaskIdMatchSystemData_Impl, (void*)sysdata, &record);
+    if (return_code == OS_SUCCESS)
+    {
+        *task_id = record->active_id;
+        OS_Unlock_Global_Impl(LOCAL_OBJID_TYPE);
+    }
+
+    return return_code;
+} /* end OS_TaskFindIdBySystemData */
+
+
