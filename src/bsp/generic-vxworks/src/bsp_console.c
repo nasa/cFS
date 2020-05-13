@@ -19,7 +19,7 @@
 #include <unistd.h>
 #include <stdio.h>
 
-#include "mcp750_bsp_internal.h"
+#include "generic_vxworks_bsp_internal.h"
 #include "bsp-impl.h"
 
 /****************************************************************************************

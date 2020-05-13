@@ -32,7 +32,7 @@ _functional_test: &functional_test
     - cd build
 
     # Prep and build
-    - cmake -DENABLE_UNIT_TESTS=true -DOSAL_SYSTEM_BSPTYPE=pc-linux -DOSAL_CONFIG_DEBUG_PERMISSIVE_MODE=TRUE ..
+    - cmake -DENABLE_UNIT_TESTS=true -DOSAL_SYSTEM_BSPTYPE=generic-linux -DOSAL_CONFIG_DEBUG_PERMISSIVE_MODE=TRUE ..
     - make
 
     # lcov capture pre-execution

@@ -1,5 +1,5 @@
 /******************************************************************************
-** File:  pclinux_bsp_internal.h
+** File:  generic_vxworks_bsp_internal.h
 **
 **
 **      This is governed by the NASA Open Source Agreement and may be used,
@@ -11,27 +11,17 @@
 **
 **
 ** Purpose:
-**   Header file for internal data to the PC-LINUX BSP
+**   Header file for internal data to the VxWorks BSP
 **
 ******************************************************************************/
 
-#ifndef _PCLINUX_BSP_INTERNAL_H_
-#define _PCLINUX_BSP_INTERNAL_H_
+#ifndef GENERIC_VXWORKS_BSP_INTERNAL_H_
+#define GENERIC_VXWORKS_BSP_INTERNAL_H_
 
+/*
+** OSAL includes
+*/
 #include "osapi.h"
 #include "bsp-impl.h"
 
-/*
-** BSP types
-*/
-typedef struct
-{
-    bool    EnableTermControl;    /**< Will be set "true" when invoked from a TTY device, false otherwise */
-} OS_BSP_PcLinuxGlobalData_t;
-
-/*
- * Global Data object
- */
-extern OS_BSP_PcLinuxGlobalData_t OS_BSP_PcLinuxGlobal;
-
-#endif /* _PCLINUX_BSP_INTERNAL_H_ */
+#endif /* GENERIC_VXWORKS_BSP_INTERNAL_H_ */
