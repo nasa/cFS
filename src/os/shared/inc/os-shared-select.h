@@ -42,6 +42,7 @@
             Bits in "SelectFlags" will be unset according to activity
 
     Returns: OS_SUCCESS on success, or relevant error code
+             OS_ERR_OPERATION_NOT_SUPPORTED if the specified file handle does not support select
  ------------------------------------------------------------------*/
 int32 OS_SelectSingle_Impl(uint32 stream_id, uint32 *SelectFlags, int32 msecs);
 
@@ -66,6 +67,7 @@ int32 OS_SelectSingle_Impl(uint32 stream_id, uint32 *SelectFlags, int32 msecs);
           File descriptors in sets be modified according to activity
 
     Returns: OS_SUCCESS on success, or relevant error code
+             OS_ERR_OPERATION_NOT_SUPPORTED if the specified file handle(s) do not support select
  ------------------------------------------------------------------*/
 int32 OS_SelectMultiple_Impl(OS_FdSet *ReadSet, OS_FdSet *WriteSet, int32 msecs);
 
