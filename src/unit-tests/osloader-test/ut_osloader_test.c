@@ -40,9 +40,22 @@
 
 void UtTest_Setup(void)
 {
+    uint32 fs_id;
+
     if (OS_API_Init() != OS_SUCCESS)
     {
         UtAssert_Abort("OS_API_Init() failed");
+    }
+
+    /*
+     * This test needs to load the modules from the filesystem, so
+     * there must be a virtual path corresponding to the path where
+     * the module files reside.  This UT-specific mapping should be
+     * independent of the volume tables provided by the BSP.
+     */
+    if (OS_FileSysAddFixedMap(&fs_id, "./utmod", "/utmod") != OS_SUCCESS)
+    {
+        UtAssert_Abort("OS_FileSysAddFixedMap() failed");
     }
 
     UtTest_Add(UT_os_module_load_test, NULL, NULL, "OS_ModuleLoad");
