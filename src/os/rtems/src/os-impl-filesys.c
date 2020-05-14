@@ -46,7 +46,8 @@
 typedef struct
 {
     char blockdev_name[OS_MAX_PATH_LEN];
-    rtems_device_minor_number minor;
+
+    struct ramdisk *allocated_disk;
 
     /* other data to pass to "mount" when mounting this disk */
     const char                 *mount_fstype;
@@ -64,19 +65,6 @@ typedef struct
  * This keeps record of the RTEMS driver and mount options for each filesystem
  */
 OS_impl_filesys_internal_record_t OS_impl_filesys_table[OS_MAX_FILE_SYSTEMS];
-
-
-/*
- * These external references are for the RTEMS RAM disk device descriptor table
- * This is necessary for the RAM disk. These tables can either be here, or
- * in a RTEMS kernel startup file. In this case, the tables are in the
- * application startup
- *
- * Currently, it does not appear possible to create multiple arbitrary disks
- * The RAM disk driver appears to require these specific variables.
- */
-extern rtems_ramdisk_config                    rtems_ramdisk_configuration[];
-extern size_t                                  rtems_ramdisk_configuration_size;
 
 /****************************************************************************************
                                     Filesys API
@@ -110,7 +98,7 @@ int32 OS_FileSysStartVolume_Impl (uint32 filesys_id)
 {
     OS_filesys_internal_record_t  *local = &OS_filesys_table[filesys_id];
     OS_impl_filesys_internal_record_t *impl = &OS_impl_filesys_table[filesys_id];
-    uint32 os_idx;
+    rtems_status_code sc;
     int32  return_code;
 
     return_code = OS_ERR_NOT_IMPLEMENTED;
@@ -136,48 +124,41 @@ int32 OS_FileSysStartVolume_Impl (uint32 filesys_id)
     }
     case OS_FILESYS_TYPE_VOLATILE_DISK:
     {
-        /*
-         * This finds the correct driver "minor number"
-         * to use for the RAM disk (i.e. /dev/rd<X>)
-         */
+        OS_DEBUG("No RAMDISK available at address %p\n", local->address);
 
-        /* find a matching entry in the OS ramdisk table,
-         * (identified by the location address) */
-        for (os_idx = 0; os_idx < rtems_ramdisk_configuration_size; ++os_idx)
-        {
-            if (rtems_ramdisk_configuration[os_idx].location == local->address)
-            {
-                impl->minor = os_idx;
-                break;
-            }
-        }
+        impl->allocated_disk = ramdisk_allocate(
+                local->address,
+                local->blocksize,
+                local->numblocks,
+                false
+        );
 
-        if (os_idx >= rtems_ramdisk_configuration_size)
+        if (impl->allocated_disk == NULL)
         {
-            OS_DEBUG("No RAMDISK available at address %p\n", local->address);
+            OS_DEBUG("ramdisk_allocate() failed\n");
             return_code = OS_INVALID_POINTER;
             break;
         }
-        if ( local->numblocks > rtems_ramdisk_configuration[os_idx].block_num)
-        {
-           OS_DEBUG("OSAL: Error: RAM disk too large, %lu blocks requested, %lu available.\n",
-                   (unsigned long)local->numblocks,
-                   (unsigned long)rtems_ramdisk_configuration[os_idx].block_num);
-           return_code = OS_ERROR;
-           break;
-        }
-        if ( local->blocksize != rtems_ramdisk_configuration[os_idx].block_size )
-        {
-           OS_DEBUG("OSAL: Error: RAM Disk needs a block size of %lu.\n",
-                   (unsigned long)rtems_ramdisk_configuration[os_idx].block_size);
-           return_code = OS_ERROR;
-           break;
-        }
 
-        snprintf(impl->blockdev_name, sizeof(impl->blockdev_name), "%s%c", RAMDISK_DEVICE_BASE_NAME, (int)impl->minor + 'a');
         impl->mount_fstype = RTEMS_FILESYSTEM_TYPE_RFS;
+        impl->mount_options = RTEMS_FILESYSTEM_READ_WRITE;
+        snprintf(impl->blockdev_name, sizeof(impl->blockdev_name), "%s%c", RAMDISK_DEVICE_BASE_NAME, (int)filesys_id + 'a');
 
-        OS_DEBUG("OSAL: RAM disk initialized: volume=%s device=%s address=0x%08lX\n",
+        sc = rtems_blkdev_create(
+                impl->blockdev_name,
+                local->blocksize,
+                local->numblocks,
+                ramdisk_ioctl,
+                impl->allocated_disk
+        );
+        if (sc != RTEMS_SUCCESSFUL)
+        {
+            OS_DEBUG("rtems_blkdev_create() failed: %s.\n", rtems_status_text(sc));
+            return_code = OS_ERROR;
+        }
+
+
+        OS_DEBUG("RAM disk initialized: volume=%s device=%s address=0x%08lX\n",
                 local->volume_name, impl->blockdev_name, (unsigned long)local->address);
 
         return_code = OS_SUCCESS;
@@ -218,7 +199,16 @@ int32 OS_FileSysStartVolume_Impl (uint32 filesys_id)
  *-----------------------------------------------------------------*/
 int32 OS_FileSysStopVolume_Impl (uint32 filesys_id)
 {
-    /* Currently nothing to do here */
+    OS_impl_filesys_internal_record_t *impl = &OS_impl_filesys_table[filesys_id];
+
+    /*
+     * If this was a dynamically allocated disk, then unlink it.
+     */
+    if (impl->allocated_disk != NULL)
+    {
+        unlink(impl->blockdev_name);
+    }
+
     return OS_SUCCESS;
 
 } /* end OS_FileSysStopVolume_Impl */
@@ -265,6 +255,7 @@ int32 OS_FileSysFormatVolume_Impl (uint32 filesys_id)
         ** Format the RAM disk with the RFS file system
         */
         memset (&config, 0, sizeof(config));
+        config.inode_overhead = 30;
         sc = rtems_rfs_format(impl->blockdev_name, &config);
         if ( sc < 0 )
         {
