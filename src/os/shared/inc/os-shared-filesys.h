@@ -95,7 +95,7 @@ typedef struct
 
 typedef struct
 {
-    char device_name[OS_MAX_API_NAME];      /**< The name of the underlying block device, if applicable */
+    char device_name[OS_FS_DEV_NAME_LEN];      /**< The name of the underlying block device, if applicable */
     char volume_name[OS_FS_VOL_NAME_LEN];
     char system_mountpt[OS_MAX_LOCAL_PATH_LEN]; /**< The name/prefix where the contents are accessible in the host operating system */
     char virtual_mountpt[OS_MAX_PATH_LEN];  /**< The name/prefix in the OSAL Virtual File system exposed to applications */
