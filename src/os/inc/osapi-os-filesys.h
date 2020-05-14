@@ -38,20 +38,24 @@
 #define OS_CHK_ONLY         0  /**< Unused, API takes bool */
 #define OS_REPAIR           1  /**< Unused, API takes bool */
 
+#ifndef OSAL_OMIT_DEPRECATED
+
 /** @defgroup OSVolType OSAL Volume Type Defines
  * @{
  */
-#define FS_BASED            0  /**< Volume type FS based */
-#define RAM_DISK            1  /**< Volume type RAM disk */
-#define EEPROM_DISK         2  /**< Volume type EEPROM disk */
-#define ATA_DISK            3  /**< Volume type ATA disk */
+#define FS_BASED            0  /**< @deprecated Volume type FS based */
+#define RAM_DISK            1  /**< @deprecated Volume type RAM disk */
+#define EEPROM_DISK         2  /**< @deprecated Volume type EEPROM disk */
+#define ATA_DISK            3  /**< @deprecated Volume type ATA disk */
 /**@}*/
 
 /**
  * @brief Number of entries in the internal volume table
+ * @deprecated
  */
-#define NUM_TABLE_ENTRIES 14
+#define NUM_FILE_SYSTEMS    OS_MAX_FILE_SYSTEMS
 
+#endif
 /*
 ** Length of a Device and Volume name 
 */
@@ -113,11 +117,12 @@
  * os_err_name_t.
  */
 typedef os_err_name_t os_fs_err_name_t;
-#endif
 
 /**
  * @brief Internal structure of the OS volume table for 
  * mounted file systems and path translation
+ *
+ * @deprecated Use the OSAL file system API to register volumes
  */
 typedef struct
 {
@@ -132,6 +137,9 @@ typedef struct
     uint32 BlockSize;
 
 } OS_VolumeInfo_t;
+
+#endif
+
 
 /** @brief OSAL file system info */
 typedef struct

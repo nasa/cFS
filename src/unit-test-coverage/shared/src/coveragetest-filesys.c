@@ -551,51 +551,6 @@ void Test_OS_FileSys_FindVirtMountPoint(void)
     UtAssert_True(result, "OS_FileSys_FindVirtMountPoint(%s) (nominal) == true", refstr);
 }
 
-/*
- * Specific volume table entries to exercise translation cases in OS_FileSys_InitLocalFromVolTable()
- */
-static const OS_VolumeInfo_t UT_VOLTAB_TESTCASES[] =
-{
-        { .DeviceName = "/UT1", .VolumeType = ATA_DISK, .FreeFlag = false, .IsMounted = true },
-        { .DeviceName = "/UT2", .VolumeType = EEPROM_DISK, .FreeFlag = true, .IsMounted = false },
-        { .DeviceName = "/UT3", .VolumeType = RAM_DISK, .FreeFlag = true, .IsMounted = false }
-};
-
-void Test_OS_FileSys_InitLocalFromVolTable(void)
-{
-    /*
-     * Test Case For:
-     * static int32 OS_FileSys_InitLocalFromVolTable(OS_filesys_internal_record_t *local, const OS_VolumeInfo_t *Vol)
-     *
-     * This is a static internal function and must be invoked through a UT-specific wrapper in
-     * order to get coverage on it.
-     */
-    OS_filesys_internal_record_t temprec;
-    int32 actual;
-    int32 expected;
-
-
-    /* this should return OS_ERROR because the mount point was not valid */
-    memset(&temprec,0,sizeof(temprec));
-    expected = OS_ERROR;
-    actual = OS_FileSys_InitLocalFromVolTable(&temprec, &UT_VOLTAB_TESTCASES[0]);
-    UtAssert_True(actual == expected, "OS_FileSys_InitLocalFromVolTable(0) (%ld) == OS_ERROR", (long)actual);
-
-    memset(&temprec,0,sizeof(temprec));
-    expected = OS_SUCCESS;
-    actual = OS_FileSys_InitLocalFromVolTable(&temprec, &UT_VOLTAB_TESTCASES[1]);
-    UtAssert_True(actual == expected, "OS_FileSys_InitLocalFromVolTable(1) (%ld) == OS_SUCCESS", (long)actual);
-    UtAssert_True(temprec.fstype == OS_FILESYS_TYPE_MTD, "OS_FileSys_InitLocalFromVolTable(1) fstype(%u) == OS_FILESYS_TYPE_MTD",
-            (unsigned int)temprec.fstype);
-
-    memset(&temprec,0,sizeof(temprec));
-    expected = OS_SUCCESS;
-    actual = OS_FileSys_InitLocalFromVolTable(&temprec, &UT_VOLTAB_TESTCASES[2]);
-    UtAssert_True(actual == expected, "OS_FileSys_InitLocalFromVolTable(1) (%ld) == OS_SUCCESS", (long)actual);
-    UtAssert_True(temprec.fstype == OS_FILESYS_TYPE_VOLATILE_DISK, "OS_FileSys_InitLocalFromVolTable(2) fstype(%u) == OS_FILESYS_TYPE_MTD",
-            (unsigned int)temprec.fstype);
-}
-
 /* Osapi_Test_Setup
  *
  * Purpose:
@@ -637,7 +592,6 @@ void UtTest_Setup(void)
     ADD_TEST(OS_GetFsInfo);
     ADD_TEST(OS_TranslatePath);
     ADD_TEST(OS_FileSys_FindVirtMountPoint);
-    ADD_TEST(OS_FileSys_InitLocalFromVolTable);
 }
 
 

@@ -199,11 +199,13 @@ int32 OS_FileSysUnmountVolume_Impl (uint32 filesys_id);
  */
 
 bool OS_FileSys_FindVirtMountPoint(void *ref, uint32 local_id, const OS_common_record_t *obj);
-int32 OS_FileSys_InitLocalFromVolTable(OS_filesys_internal_record_t *local, const OS_VolumeInfo_t *Vol);
 int32 OS_FileSys_SetupInitialParamsForDevice(const char *devname, OS_filesys_internal_record_t *local);
 int32 OS_FileSys_Initialize(char *address, const char *fsdevname, const char * fsvolname, uint32 blocksize,
                uint32 numblocks, bool should_format);
 
+#ifndef OSAL_OMIT_DEPRECATED
+int32 OS_FileSys_InitLocalFromVolTable(OS_filesys_internal_record_t *local, const OS_VolumeInfo_t *Vol);
+#endif
 
 #endif  /* INCLUDE_OS_SHARED_FILESYS_H_ */
 

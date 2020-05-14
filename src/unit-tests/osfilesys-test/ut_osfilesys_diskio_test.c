@@ -88,7 +88,7 @@ extern char  g_mntNames[UT_OS_FILESYS_LIST_LEN][UT_OS_FILE_BUFF_SIZE];
 **        (a) OS_FS_ERR_DRIVE_NOT_CREATED
 ** -----------------------------------------------------
 ** Test #4: Disk-full condition
-**   1) Call this routine (NUM_TABLE_ENTRIES+1) of times
+**   1) Call this routine (OS_MAX_FILE_SYSTEMS+1) of times
 **   2) Expect the returned value to be (except the last call)
 **        (a) OS_SUCCESS
 **   3) Expect the returned value of the last call to be
@@ -148,7 +148,7 @@ void UT_os_initfs_test()
     /*-----------------------------------------------------*/
     testDesc = "#4 Disk-full";
 
-    for (i=0; i <= NUM_TABLE_ENTRIES; i++)
+    for (i=0; i <= OS_MAX_FILE_SYSTEMS; i++)
     {
         memset(g_devNames[i], '\0', sizeof(g_devNames[i]));
         UT_os_sprintf(g_devNames[i], "/ramdev%d", (int)i);
@@ -226,7 +226,7 @@ UT_os_initfs_test_exit_tag:
 **        (a) OS_FS_ERR_DRIVE_NOT_CREATED
 ** -----------------------------------------------------
 ** Test #4: Disk-full condition
-**   1) Call this routine (NUM_TABLE_ENTRIES+1) of times
+**   1) Call this routine (OS_MAX_FILE_SYSTEMS+1) of times
 **   2) Expect the returned value to be (except the last call)
 **        (a) OS_SUCCESS
 **   3) Expect the returned value of the last call to be
@@ -284,7 +284,7 @@ void UT_os_makefs_test()
     /*-----------------------------------------------------*/
     testDesc = "#4 Disk-full";
 
-    for (i=0; i <= NUM_TABLE_ENTRIES; i++)
+    for (i=0; i <= OS_MAX_FILE_SYSTEMS; i++)
     {
         memset(g_devNames[i], '\0', sizeof(g_devNames[i]));
         UT_os_sprintf(g_devNames[i], "/ramdev%d", (int)i);

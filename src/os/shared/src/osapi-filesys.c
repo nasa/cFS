@@ -48,24 +48,18 @@ enum
  */
 OS_filesys_internal_record_t OS_filesys_table[LOCAL_NUM_OBJECTS];
 
+#ifndef OSAL_OMIT_DEPRECATED
 
-#ifndef OS_DISABLE_VOLUME_TABLE
 /*
  * This is the volume table reference. It is defined in the BSP/startup code for the board
  * In this implementation it is treated as a "const" -- any dynamic updates such as runtime
  * mount points are handled with an internal table.
+ * 
+ * Use of the static volume table is deprecated.  New applications should register the file
+ * system mappings via runtime API calls instead (e.g. OS_FileSysAddFixedMap).
  */
 extern const OS_VolumeInfo_t OS_VolumeTable[];
-#define OS_COMPAT_VOLTAB            OS_VolumeTable
-#define OS_COMPAT_VOLTAB_SIZE       NUM_TABLE_ENTRIES
-#else
-/*
- * Alternatively, this module can work without an OS_VolumeTable at all.
- * In this mode, the PSP/BSP can explicitly instantiate any filesystem mappings
- * using the runtime API call(s) prior to starting the app.
- */
-#define OS_COMPAT_VOLTAB            NULL
-#define OS_COMPAT_VOLTAB_SIZE       0
+
 #endif
 
 
@@ -104,10 +98,14 @@ bool OS_FileSys_FindVirtMountPoint(void *ref, uint32 local_id, const OS_common_r
  *  Purpose: Local helper routine, not part of OSAL API.
  *           Pre-populates a local filesys table entry from the classic OS_VolumeTable
  *           This provides backward compatibility with existing PSP/BSP implementations.
+ * 
+ *  This helper is not necessary when not using the OS_VolumeTable and therefore
+ *  can be compiled-out when OSAL_OMIT_DEPRECATED is set.
  *
  *  Returns: OS_SUCCESS on success or appropriate error code.
  *
  *-----------------------------------------------------------------*/
+#ifndef OSAL_OMIT_DEPRECATED
 int32 OS_FileSys_InitLocalFromVolTable(OS_filesys_internal_record_t *local, const OS_VolumeInfo_t *Vol)
 {
     int32 return_code = OS_SUCCESS;
@@ -198,7 +196,7 @@ int32 OS_FileSys_InitLocalFromVolTable(OS_filesys_internal_record_t *local, cons
 
     return return_code;
 } /* end OS_FileSys_InitLocalFromVolTable */
-
+#endif /* OSAL_OMIT_DEPRECATED */
 
 /*----------------------------------------------------------------
  *
@@ -208,18 +206,21 @@ int32 OS_FileSys_InitLocalFromVolTable(OS_filesys_internal_record_t *local, cons
  *           Pre-populates a local filesys table entry from the classic OS_VolumeTable
  *           This provides backward compatibility with existing PSP/BSP implementations.
  *
+ *  This function is a no-op when OSAL_OMIT_DEPRECATED is set.
+ *
  *  Returns: OS_SUCCESS on success or appropriate error code.
  *
  *-----------------------------------------------------------------*/
 int32 OS_FileSys_SetupInitialParamsForDevice(const char *devname, OS_filesys_internal_record_t *local)
 {
+    int32 return_code = OS_ERR_NAME_NOT_FOUND;
+
+#ifndef OSAL_OMIT_DEPRECATED
     const OS_VolumeInfo_t *Vol;
-    int32 return_code;
     uint32 i;
 
-    return_code = OS_ERR_NAME_NOT_FOUND;
-    Vol = OS_COMPAT_VOLTAB;
-    for (i = 0; i < OS_COMPAT_VOLTAB_SIZE; i++)
+    Vol = OS_VolumeTable;
+    for (i = 0; i < OS_MAX_FILE_SYSTEMS; i++)
     {
         if (strcmp(Vol->DeviceName, devname) == 0)
         {
@@ -229,6 +230,7 @@ int32 OS_FileSys_SetupInitialParamsForDevice(const char *devname, OS_filesys_int
 
         ++Vol;
     }
+#endif /* OSAL_OMIT_DEPRECATED */
 
     return return_code;
 } /* end OS_FileSys_SetupInitialParamsForDevice */
@@ -360,14 +362,16 @@ int32 OS_FileSys_Initialize(char *address, const char *fsdevname, const char * f
  *-----------------------------------------------------------------*/
 int32 OS_FileSysAPI_Init(void)
 {
+    int32 return_code = OS_SUCCESS;
+
+    memset(OS_filesys_table, 0, sizeof(OS_filesys_table));
+
+#ifndef OSAL_OMIT_DEPRECATED
     uint32 i;
     uint32 local_id;
-    int32 return_code = OS_SUCCESS;
     OS_common_record_t *global;
     OS_filesys_internal_record_t *local;
     const OS_VolumeInfo_t *Vol;
-
-    memset(OS_filesys_table, 0, sizeof(OS_filesys_table));
 
     /*
      * For compatibility, migrate active entries of the BSP-provided OS_VolumeTable
@@ -392,8 +396,8 @@ int32 OS_FileSysAPI_Init(void)
      * Most existing PSP packages seem to set the device name in unused entries
      * to the special string "unused", whereas a valid entry starts with a slash (/).
      */
-    Vol = OS_COMPAT_VOLTAB;
-    for (i = 0; i < OS_COMPAT_VOLTAB_SIZE && return_code == OS_SUCCESS; i++)
+    Vol = OS_VolumeTable;
+    for (i = 0; i < OS_MAX_FILE_SYSTEMS && return_code == OS_SUCCESS; i++)
     {
         if (Vol->DeviceName[0] == '/' && Vol->FreeFlag == false)
         {
@@ -413,6 +417,7 @@ int32 OS_FileSysAPI_Init(void)
         }
         ++Vol;
     }
+#endif
 
     return return_code;
 } /* end OS_FileSysAPI_Init */
@@ -1026,7 +1031,7 @@ int32 OS_GetFsInfo(os_fsinfo_t  *filesys_info)
 
    OS_Lock_Global_Impl(OS_OBJECT_TYPE_OS_FILESYS);
 
-   for ( i = 0; i < NUM_TABLE_ENTRIES; i++ )
+   for ( i = 0; i < OS_MAX_FILE_SYSTEMS; i++ )
    {
        if ( OS_global_filesys_table[i].active_id == 0)
        {

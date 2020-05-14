@@ -32,6 +32,11 @@
 #define RTEMS_MAX_CMDLINE        256
 
 /*
+ * The location which the general purpose file system will be mounted
+ */
+#define RTEMS_USER_FS_MOUNTPOINT    "/mnt"
+
+/*
  * By default put the shell at the same priority
  * as the utility task which handles OS_printf()
  */
