@@ -14,3 +14,5 @@ set(INSTALL_SUBDIR "cf")
 # but no CFE/OSAL framework code depends on this symbol.
 add_definitions("-D_LINUX_OS_")
 
+set(CFE_PSP_EXPECTED_OSAL_BSPTYPE "generic-linux")
+
