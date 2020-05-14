@@ -81,6 +81,14 @@ int32 OS_FileSysStartVolume_Impl (uint32 filesys_id)
     return_code = OS_ERR_NOT_IMPLEMENTED;
     switch(local->fstype)
     {
+    case OS_FILESYS_TYPE_FS_BASED:
+    {
+        /* pass through for FS_BASED volumes, assume already mounted */
+        OS_DEBUG("OSAL: Mapping an FS_BASED disk at: %s\n",(unsigned long)local->system_mountpt );
+        return_code = OS_SUCCESS;
+        break;
+    }
+
     case OS_FILESYS_TYPE_VOLATILE_DISK:
     {
         OS_DEBUG("OSAL: Starting a RAM disk at: 0x%08lX\n",(unsigned long)local->address );
@@ -184,13 +192,24 @@ int32 OS_FileSysStartVolume_Impl (uint32 filesys_id)
  *-----------------------------------------------------------------*/
 int32 OS_FileSysStopVolume_Impl (uint32 filesys_id)
 {
+    OS_filesys_internal_record_t  *local = &OS_filesys_table[filesys_id];
     OS_impl_filesys_internal_record_t *impl = &OS_impl_filesys_table[filesys_id];
 
-    if (impl->xbdMaxPartitions > 0 && impl->xbd != NULLDEV)
+    switch(local->fstype)
     {
-        xbdBlkDevDelete(impl->xbd, NULL);
-        impl->xbd = NULLDEV;
-        impl->xbdMaxPartitions = 0;
+    case OS_FILESYS_TYPE_VOLATILE_DISK:
+    case OS_FILESYS_TYPE_NORMAL_DISK:
+    {
+        if (impl->xbdMaxPartitions > 0 && impl->xbd != NULLDEV)
+        {
+            xbdBlkDevDelete(impl->xbd, NULL);
+            impl->xbd = NULLDEV;
+            impl->xbdMaxPartitions = 0;
+        }
+        break;
+    }
+    default:
+        break;
     }
 
     /*
@@ -214,19 +233,43 @@ int32 OS_FileSysStopVolume_Impl (uint32 filesys_id)
 int32 OS_FileSysFormatVolume_Impl (uint32 filesys_id)
 {
     OS_filesys_internal_record_t  *local = &OS_filesys_table[filesys_id];
+    int32 return_code = OS_ERR_NOT_IMPLEMENTED;
     int status;
 
-    /*
-    ** Call the dos format routine
-    */
-    status = dosFsVolFormat(local->system_mountpt, DOS_OPT_BLANK, NULL);
-    if ( status == -1 )
+    switch(local->fstype)
     {
-        OS_DEBUG("OSAL: dosFsVolFormat failed. Errno = %d\n",errnoGet());
-        return OS_FS_ERR_DRIVE_NOT_CREATED;
+    case OS_FILESYS_TYPE_FS_BASED:
+    {
+        /*
+         * The "format" operation is a no-op on FS_BASED types.
+         * Return success to allow the operation to continue.
+         */
+        return_code = OS_SUCCESS;
+        break;
+    }
+    case OS_FILESYS_TYPE_VOLATILE_DISK:
+    case OS_FILESYS_TYPE_NORMAL_DISK:
+    {
+        /*
+        ** Call the dos format routine
+        */
+        status = dosFsVolFormat(local->system_mountpt, DOS_OPT_BLANK, NULL);
+        if ( status == -1 )
+        {
+            OS_DEBUG("OSAL: dosFsVolFormat failed. Errno = %d\n",errnoGet());
+            return_code = OS_FS_ERR_DRIVE_NOT_CREATED;
+        }
+        else
+        {
+            return_code = OS_SUCCESS;
+        }
+        break;
+    }
+    default:
+        break;
     }
 
-    return OS_SUCCESS;
+    return return_code;
 
 } /* end OS_FileSysFormatVolume_Impl */
 

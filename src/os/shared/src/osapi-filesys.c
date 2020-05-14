@@ -62,6 +62,14 @@ extern const OS_VolumeInfo_t OS_VolumeTable[];
 
 #endif
 
+/*
+ * A string that should be the prefix of RAM disk volume names, which
+ * provides a hint that the file system refers to a RAM disk.
+ *
+ * If multiple RAM disks are required then these can be numbered,
+ * e.g. RAM0, RAM1, etc.
+ */
+const char OS_FILESYS_RAMDISK_VOLNAME_PREFIX[] = "RAM";
 
 /*----------------------------------------------------------------
  *
@@ -146,6 +154,7 @@ int32 OS_FileSys_InitLocalFromVolTable(OS_filesys_internal_record_t *local, cons
      */
     if (Vol->VolumeType == FS_BASED)
     {
+        local->fstype = OS_FILESYS_TYPE_FS_BASED;
         local->flags |= OS_FILESYS_FLAG_IS_FIXED;
     }
     else if (Vol->VolumeType == RAM_DISK || Vol->VolatileFlag)
@@ -287,24 +296,7 @@ int32 OS_FileSys_Initialize(char *address, const char *fsdevname, const char * f
 
         /* Get the initial settings from the classic volume table.
          * If this fails, that is OK - because passed-in values get preference anyway */
-        if (OS_FileSys_SetupInitialParamsForDevice(fsdevname, local) != OS_SUCCESS)
-        {
-            /*
-             * No known parameters for the device.
-             *
-             * if address was supplied, assume it is a RAM disk, otherwise
-             * assume it is a regular disk.
-             */
-            if (address == NULL)
-            {
-                local->fstype = OS_FILESYS_TYPE_NORMAL_DISK;
-            }
-            else
-            {
-                local->fstype = OS_FILESYS_TYPE_VOLATILE_DISK;
-            }
-
-        }
+        OS_FileSys_SetupInitialParamsForDevice(fsdevname, local);
 
         /* populate the VolumeName and BlockSize ahead of the Impl call,
          * so the implementation can reference this info if necessary */
@@ -312,6 +304,21 @@ int32 OS_FileSys_Initialize(char *address, const char *fsdevname, const char * f
         local->numblocks = numblocks;
         local->address = address;
         strcpy(local->volume_name, fsvolname);
+
+        /*
+         * Determine basic type of filesystem, if not already known
+         *
+         * if either an address was supplied, or if the volume name 
+         * contains the string "RAM" then it is a RAM disk. Otherwise
+         * leave the type as UNKNOWN and let the implementation decide.
+         */
+        if (local->fstype == OS_FILESYS_TYPE_UNKNOWN &&
+                (local->address != NULL || 
+                    strncmp(local->volume_name, OS_FILESYS_RAMDISK_VOLNAME_PREFIX, 
+                            sizeof(OS_FILESYS_RAMDISK_VOLNAME_PREFIX)-1) == 0))
+        {
+            local->fstype = OS_FILESYS_TYPE_VOLATILE_DISK;
+        }
 
         return_code = OS_FileSysStartVolume_Impl(local_id);
 
@@ -487,11 +494,30 @@ int32 OS_FileSysAddFixedMap(uint32 *filesys_id, const char *phys_path, const cha
         /*
          * mark the entry that it is a fixed disk
          */
-        local->flags =
-                OS_FILESYS_FLAG_IS_FIXED            |
-                OS_FILESYS_FLAG_IS_READY            |
-                OS_FILESYS_FLAG_IS_MOUNTED_SYSTEM   |
-                OS_FILESYS_FLAG_IS_MOUNTED_VIRTUAL;
+        local->fstype = OS_FILESYS_TYPE_FS_BASED;
+        local->flags = OS_FILESYS_FLAG_IS_FIXED;
+
+        /*
+         * The "mount" implementation is required as it will
+         * create the mountpoint if it does not already exist
+         */
+        return_code = OS_FileSysStartVolume_Impl(local_id);
+
+        if (return_code == OS_SUCCESS)
+        {
+            local->flags |= OS_FILESYS_FLAG_IS_READY;
+            return_code = OS_FileSysMountVolume_Impl(local_id);
+        }
+
+        if (return_code == OS_SUCCESS)
+        {
+            /*
+             * mark the entry that it is a fixed disk
+             */
+            local->flags |=
+                    OS_FILESYS_FLAG_IS_MOUNTED_SYSTEM |
+                    OS_FILESYS_FLAG_IS_MOUNTED_VIRTUAL;
+        }
 
         /* Check result, finalize record, and unlock global table. */
         return_code = OS_ObjectIdFinalizeNew(return_code, global, filesys_id);
@@ -671,11 +697,12 @@ int32 OS_mount (const char *devname, const char* mountpoint)
             /* mount() cannot be used on this file system at this time */
             return_code = OS_ERR_INCORRECT_OBJ_STATE;
         }
-        else if ((local->flags & OS_FILESYS_FLAG_IS_FIXED) != 0)
+        else if (local->system_mountpt[0] == 0)
         {
-            /* Won't mount if FIXED, but return SUCCESS for compatibility
-             * with existing apps/PSP that attempt this operation. */
-            return_code = OS_SUCCESS;
+            /*
+             * The system mount point should be a non-empty string.
+             */
+            return_code = OS_FS_ERR_PATH_INVALID;
         }
         else
         {
@@ -750,12 +777,6 @@ int32 OS_unmount (const char *mountpoint)
         {
             /* unmount() cannot be used on this file system at this time */
             return_code = OS_ERR_INCORRECT_OBJ_STATE;
-        }
-        else if ((local->flags & OS_FILESYS_FLAG_IS_FIXED) != 0)
-        {
-            /* Won't unmount if FIXED, but return SUCCESS for compatibility
-             * with existing apps/PSP that attempt this operation. */
-            return_code = OS_SUCCESS;
         }
         else
         {

@@ -193,18 +193,16 @@ void Test_OS_mount(void)
     actual = OS_mount("/ramdev5","/ram5");
     UtAssert_True(actual == expected, "OS_mount() (%ld) == OS_ERR_NAME_NOT_FOUND", (long)actual);
 
-    /* mount on a fixed disk historically returns OS_SUCCESS and is a no-op.
-     * This is for backward compatibility (it should probably an error to do this) */
-    OS_filesys_table[1].flags = OS_FILESYS_FLAG_IS_READY |
-            OS_FILESYS_FLAG_IS_FIXED;
-    expected = OS_SUCCESS;
+    /* Test unknown/unset system mountpoint */
+    OS_filesys_table[1].flags = OS_FILESYS_FLAG_IS_READY;
+    OS_filesys_table[1].system_mountpt[0] = 0;
+    expected = OS_ERR_NAME_NOT_FOUND; /* should be OS_FS_ERR_PATH_INVALID, but compat return overwrites */
     actual = OS_mount("/ramdev5","/ram5");
-    UtAssert_True(actual == expected, "OS_mount(fixed) (%ld) == OS_SUCCESS", (long)actual);
-
+    UtAssert_True(actual == expected, "OS_mount(no mountpt) (%ld) == OS_FS_ERR_PATH_INVALID", (long)actual);
 
     /* set up so record is in the right state for mounting */
-    OS_filesys_table[1].flags = OS_FILESYS_FLAG_IS_READY;
     expected = OS_SUCCESS;
+    snprintf(OS_filesys_table[1].system_mountpt, sizeof(OS_filesys_table[1].system_mountpt), "/ut");
     actual = OS_mount("/ramdev5","/ram5");
     UtAssert_True(actual == expected, "OS_mount(nominal) (%ld) == OS_SUCCESS", (long)actual);
 
@@ -232,16 +230,6 @@ void Test_OS_unmount(void)
     expected = OS_ERR_NAME_NOT_FOUND;
     actual = OS_unmount("/ram0");
     UtAssert_True(actual == expected, "OS_mount() (%ld) == OS_ERR_NAME_NOT_FOUND", (long)actual);
-
-    /* unmount on a fixed disk historically returns OS_SUCCESS and is a no-op.
-     * This is for backward compatibility (it should probably an error to do this) */
-    OS_filesys_table[1].flags = OS_FILESYS_FLAG_IS_READY |
-            OS_FILESYS_FLAG_IS_FIXED |
-            OS_FILESYS_FLAG_IS_MOUNTED_SYSTEM |
-            OS_FILESYS_FLAG_IS_MOUNTED_VIRTUAL;
-    expected = OS_SUCCESS;
-    actual = OS_unmount("/ram0");
-    UtAssert_True(actual == expected, "OS_unmount(fixed) (%ld) == OS_SUCCESS", (long)actual);
 
     /* set up so record is in the right state for mounting */
     OS_filesys_table[1].flags = OS_FILESYS_FLAG_IS_READY |

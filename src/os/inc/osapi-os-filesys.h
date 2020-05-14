@@ -763,7 +763,7 @@ int32           OS_rmdir   (const char *path);
  * @brief Create a fixed mapping between an existing directory and a virtual OSAL mount point.
  *
  * This mimics the behavior of a "FS_BASED" entry in the VolumeTable but is registered
- * at runtime.  It is intended to be called by the PSP/BSP prior to starting the OSAL.
+ * at runtime.  It is intended to be called by the PSP/BSP prior to starting the application.
  *
  * @param[out]  filesys_id  An OSAL ID reflecting the file system
  * @param[in]   phys_path   The native system directory (an existing mount point)
@@ -781,10 +781,15 @@ int32           OS_FileSysAddFixedMap(uint32 *filesys_id, const char *phys_path,
  * Makes a file system on the target.  Highly dependent on underlying OS and
  * dependent on OS volume table definition.
  *
+ * @note The "volname" parameter of RAM disks should always begin with the string "RAM",
+ *   e.g. "RAMDISK" or "RAM0","RAM1", etc if multiple devices are created.  The underlying
+ *   implementation uses this to select the correct filesystem type/format, and this may
+ *   also be used to differentiate between RAM disks and real physical disks.
+ *
  * @param[in]   address   The address at which to start the new disk.  If address == 0
  *                        space will be allocated by the OS.
- * @param[in]   devname   The name of the "generic" drive
- * @param[in]   volname   The name of the volume (if needed, used on VxWorks)
+ * @param[in]   devname   The underlying kernel device to use, if applicable.
+ * @param[in]   volname   The name of the volume (see note)
  * @param[in]   blocksize The size of a single block on the drive
  * @param[in]   numblocks The number of blocks to allocate for the drive
  *
@@ -816,10 +821,15 @@ int32           OS_mount       (const char *devname, const char *mountpoint);
  *
  * Initializes a file system on the target.
  *
+ * @note The "volname" parameter of RAM disks should always begin with the string "RAM",
+ *   e.g. "RAMDISK" or "RAM0","RAM1", etc if multiple devices are created.  The underlying
+ *   implementation uses this to select the correct filesystem type/format, and this may
+ *   also be used to differentiate between RAM disks and real physical disks.
+ *
  * @param[in]   address   The address at which to start the new disk.  If address == 0,
  *                        then space will be allocated by the OS
- * @param[in]   devname   The name of the "generic" drive
- * @param[in]   volname   The name of the volume (if needed, used on VxWorks)
+ * @param[in]   devname   The underlying kernel device to use, if applicable.
+ * @param[in]   volname   The name of the volume (see note)
  * @param[in]   blocksize The size of a single block on the drive
  * @param[in]   numblocks The number of blocks to allocate for the drive
  *

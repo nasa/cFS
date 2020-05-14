@@ -69,7 +69,8 @@
  */
 enum
 {
-    OS_FILESYS_TYPE_DEFAULT = 0,    /**< Unspecified or unknown file system type */
+    OS_FILESYS_TYPE_UNKNOWN = 0,    /**< Unspecified or unknown file system type */
+    OS_FILESYS_TYPE_FS_BASED,       /**< A emulated virtual file system that maps to another file system location */
     OS_FILESYS_TYPE_NORMAL_DISK,    /**< A traditional disk drive or something that emulates one */
     OS_FILESYS_TYPE_VOLATILE_DISK,  /**< A temporary/volatile file system or RAM disk */
     OS_FILESYS_TYPE_MTD,            /**< A "memory technology device" such as FLASH or EEPROM */
