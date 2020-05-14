@@ -132,6 +132,17 @@ int OS_BSP_GetReturnStatus(void)
     return retcode;
 }
 
+/* ---------------------------------------------------------
+    OS_BSP_Shutdown_Impl()
+
+     Helper function to abort the running task
+   --------------------------------------------------------- */
+void OS_BSP_Shutdown_Impl(void)
+{
+    abort();
+}
+
+
 /******************************************************************************
 **  Function:  main()
 **

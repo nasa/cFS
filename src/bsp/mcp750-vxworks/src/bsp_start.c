@@ -24,6 +24,17 @@
 
 #include "mcp750_bsp_internal.h"
 
+/* ---------------------------------------------------------
+    OS_BSP_Shutdown_Impl()
+
+     Helper function to abort the running task
+   --------------------------------------------------------- */
+void OS_BSP_Shutdown_Impl(void)
+{
+    abort();
+}
+
+
 /******************************************************************************
 **  Function:  OS_BSPMain()
 **
