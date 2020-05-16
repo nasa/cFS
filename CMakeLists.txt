@@ -48,6 +48,15 @@
 cmake_minimum_required(VERSION 2.8.12)
 project(OSAL C)
 
+# The "OSAL_EXT_SOURCE_DIR" cache variable may be set to a path
+# on the host containing extra OS/BSP implementations which are not
+# part of the open source release.
+# CAUTION: The API between the OSAL and the low level implementation and/or BSP
+# is not stabilized, and may change with every OSAL release.  No attempt is made
+# to provide backward compatibility with to external sources. 
+set(OSAL_EXT_SOURCE_DIR "$ENV{OSAL_EXT_SOURCE_DIR}" 
+    CACHE PATH "External source directory to check for additional OS/BSP implementations")
+    
 # Read the default compile-time configuration, and update with
 # any mission/project specific options in the OSAL_CONFIGURATION_FILE
 include("${OSAL_SOURCE_DIR}/default_config.cmake")
@@ -104,15 +113,20 @@ add_subdirectory(ut_assert)
 # OSAL_SYSTEM_BSPTYPE indicate which of the BSP packages
 # to build.  These is required and must be defined. Confirm that this exists
 # and error out now if it does not.
-if (NOT DEFINED OSAL_SYSTEM_BSPTYPE OR
-    NOT IS_DIRECTORY "${OSAL_SOURCE_DIR}/src/bsp/${OSAL_SYSTEM_BSPTYPE}")
-  # It is an error if the indicated BSPTYPE does not correspond to a subdirectory
-  # If this is not caught here then a more obfuscated error will occur later.
-  message("Error: \"${OSAL_SYSTEM_BSPTYPE}\" is not a valid BSP type")
+if (NOT DEFINED OSAL_SYSTEM_BSPTYPE)
   message(FATAL_ERROR "OSAL_SYSTEM_BSPTYPE must be set to the appropriate BSP")
 endif ()
+if (OSAL_EXT_SOURCE_DIR AND IS_DIRECTORY "${OSAL_EXT_SOURCE_DIR}/${OSAL_SYSTEM_BSPTYPE}")
+    set(OSAL_BSP_SOURCE_DIR "${OSAL_EXT_SOURCE_DIR}/${OSAL_SYSTEM_BSPTYPE}")
+elseif(IS_DIRECTORY "${OSAL_SOURCE_DIR}/src/bsp/${OSAL_SYSTEM_BSPTYPE}")
+    set(OSAL_BSP_SOURCE_DIR "${OSAL_SOURCE_DIR}/src/bsp/${OSAL_SYSTEM_BSPTYPE}")
+else()
+  # It is an error if the indicated BSPTYPE does not correspond to a subdirectory
+  # If this is not caught here then a more obfuscated error will occur later.
+  message(FATAL_ERROR "Error: No source directory found for \"${OSAL_SYSTEM_BSPTYPE}\" BSP type")
+endif()
 
-message(STATUS "BSP Selection: ${OSAL_SYSTEM_BSPTYPE}")
+message(STATUS "BSP Selection: ${OSAL_SYSTEM_BSPTYPE} at ${OSAL_BSP_SOURCE_DIR}")
 
 
 # The BSP library is a separate target from OSAL and can be used
@@ -121,7 +135,7 @@ message(STATUS "BSP Selection: ${OSAL_SYSTEM_BSPTYPE}")
 #
 # The Implementation-Specific BSP subdirectory should define
 # an OBJECT target named "osal_${OSAL_SYSTEM_BSPTYPE}_impl"
-add_subdirectory(src/bsp/${OSAL_SYSTEM_BSPTYPE} ${OSAL_SYSTEM_BSPTYPE}_impl)
+add_subdirectory(${OSAL_BSP_SOURCE_DIR} ${OSAL_SYSTEM_BSPTYPE}_impl)
 target_include_directories(osal_${OSAL_SYSTEM_BSPTYPE}_impl PRIVATE
     ${OSAL_SOURCE_DIR}/src/bsp/shared/inc
 )
@@ -187,19 +201,25 @@ target_include_directories(osal_bsp PRIVATE
 
 # OSAL_SYSTEM_OSTYPE indicates which of the OS packages
 # to build.  If not defined, this may be inferred by the BSP type.
-if (NOT DEFINED OSAL_SYSTEM_OSTYPE OR
-    NOT IS_DIRECTORY "${OSAL_SOURCE_DIR}/src/os/${OSAL_SYSTEM_OSTYPE}")
-  # It is an error if the indicated OSTYPE does not correspond to a subdirectory
-  # If this is not caught here then a more obfuscated error will occur later.
-  message("Error: \"${OSAL_SYSTEM_OSTYPE}\" is not a valid OS type")
+if (NOT DEFINED OSAL_SYSTEM_OSTYPE)
   message(FATAL_ERROR "OSAL_SYSTEM_OSTYPE must be set to the appropriate OS")
 endif ()
+if (OSAL_EXT_SOURCE_DIR AND IS_DIRECTORY "${OSAL_EXT_SOURCE_DIR}/${OSAL_SYSTEM_OSTYPE}")
+    set(OSAL_OS_SOURCE_DIR "${OSAL_EXT_SOURCE_DIR}/${OSAL_SYSTEM_OSTYPE}")
+elseif(IS_DIRECTORY "${OSAL_SOURCE_DIR}/src/os/${OSAL_SYSTEM_OSTYPE}")
+    set(OSAL_OS_SOURCE_DIR "${OSAL_SOURCE_DIR}/src/os/${OSAL_SYSTEM_OSTYPE}")
+else()
+  # It is an error if the indicated OSTYPE does not correspond to a subdirectory
+  # If this is not caught here then a more obfuscated error will occur later.
+  message(FATAL_ERROR  "Error: No source directory found for \"${OSAL_SYSTEM_OSTYPE}\" OS type")
+endif()
 
-message(STATUS "OSAL Selection: ${OSAL_SYSTEM_OSTYPE}")
+
+message(STATUS "OSAL Selection: ${OSAL_SYSTEM_OSTYPE} at ${OSAL_OS_SOURCE_DIR}")
 
 # The implementation-specific OSAL subdirectory should define
 # an OBJECT target named "osal_${OSAL_SYSTEM_OSTYPE}_impl"
-add_subdirectory(src/os/${OSAL_SYSTEM_OSTYPE} ${OSAL_SYSTEM_OSTYPE}_impl)
+add_subdirectory(${OSAL_OS_SOURCE_DIR} ${OSAL_SYSTEM_OSTYPE}_impl)
 
 # The "shared" directory contains internal components which
 # are referenced in implementation OSAL modules, but should _NOT_
@@ -290,8 +310,8 @@ endif(OSAL_BSP_INCLUDE_DIRECTORIES)
 # fine-tune the library for this particular build.  This is included
 # AFTER The basic targets are defined, so it may set properties
 # on the defined targets and/or use target-specific commands.
-include("${OSAL_SOURCE_DIR}/src/bsp/${OSAL_SYSTEM_BSPTYPE}/build_options.cmake" OPTIONAL)
-include("${OSAL_SOURCE_DIR}/src/os/${OSAL_SYSTEM_OSTYPE}/build_options.cmake" OPTIONAL)
+include("${OSAL_BSP_SOURCE_DIR}/build_options.cmake" OPTIONAL)
+include("${OSAL_OS_SOURCE_DIR}/build_options.cmake" OPTIONAL)
 
 #
 # UNIT TEST SUPPORT
