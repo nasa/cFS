@@ -45,6 +45,7 @@ rtems_id            OS_count_sem_table_sem;
 rtems_id            OS_stream_table_mut;
 rtems_id            OS_dir_table_mut;
 rtems_id            OS_timebase_table_mut;
+rtems_id            OS_timecb_table_mut;
 rtems_id            OS_module_table_mut;
 rtems_id            OS_filesys_table_mut;
 rtems_id            OS_console_mut;
@@ -60,6 +61,7 @@ static rtems_id * const MUTEX_TABLE[] =
             [OS_OBJECT_TYPE_OS_STREAM] = &OS_stream_table_mut,
             [OS_OBJECT_TYPE_OS_DIR] = &OS_dir_table_mut,
             [OS_OBJECT_TYPE_OS_TIMEBASE] = &OS_timebase_table_mut,
+            [OS_OBJECT_TYPE_OS_TIMECB] = &OS_timecb_table_mut,
             [OS_OBJECT_TYPE_OS_MODULE] = &OS_module_table_mut,
             [OS_OBJECT_TYPE_OS_FILESYS] = &OS_filesys_table_mut,
             [OS_OBJECT_TYPE_OS_CONSOLE] = &OS_console_mut,

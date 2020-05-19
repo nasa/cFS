@@ -45,6 +45,7 @@ VX_MUTEX_SEMAPHORE(OS_count_sem_table_mut_mem);
 VX_MUTEX_SEMAPHORE(OS_stream_table_mut_mem);
 VX_MUTEX_SEMAPHORE(OS_dir_table_mut_mem);
 VX_MUTEX_SEMAPHORE(OS_timebase_table_mut_mem);
+VX_MUTEX_SEMAPHORE(OS_timecb_table_mut_mem);
 VX_MUTEX_SEMAPHORE(OS_module_table_mut_mem);
 VX_MUTEX_SEMAPHORE(OS_filesys_table_mut_mem);
 VX_MUTEX_SEMAPHORE(OS_console_mut_mem);
@@ -60,6 +61,7 @@ VxWorks_GlobalMutex_t VX_MUTEX_TABLE[] =
         [OS_OBJECT_TYPE_OS_STREAM] = { .mem = OS_stream_table_mut_mem },
         [OS_OBJECT_TYPE_OS_DIR] = { .mem = OS_dir_table_mut_mem },
         [OS_OBJECT_TYPE_OS_TIMEBASE] = { .mem = OS_timebase_table_mut_mem },
+        [OS_OBJECT_TYPE_OS_TIMECB] = { .mem = OS_timecb_table_mut_mem },
         [OS_OBJECT_TYPE_OS_MODULE] = { .mem = OS_module_table_mut_mem },
         [OS_OBJECT_TYPE_OS_FILESYS] = { .mem = OS_filesys_table_mut_mem },
         [OS_OBJECT_TYPE_OS_CONSOLE] = { .mem = OS_console_mut_mem },
