@@ -89,7 +89,7 @@ static int32 OS_TaskPrepare(uint32 task_id, osal_task_entry *entrypt)
        * This ensures that the parent thread's OS_TaskCreate() call is fully completed,
        * and that nobody can call OS_TaskDelete() and possibly overwrite this data.
        */
-      OS_Lock_Global_Impl(OS_OBJECT_TYPE_OS_TASK);
+      OS_Lock_Global(OS_OBJECT_TYPE_OS_TASK);
 
       /*
        * Verify that we still appear to own the table entry
@@ -104,7 +104,7 @@ static int32 OS_TaskPrepare(uint32 task_id, osal_task_entry *entrypt)
           *entrypt = OS_task_table[local_id].entry_function_pointer;
       }
 
-      OS_Unlock_Global_Impl(OS_OBJECT_TYPE_OS_TASK);
+      OS_Unlock_Global(OS_OBJECT_TYPE_OS_TASK);
    }
 
    if (return_code == OS_SUCCESS)
@@ -266,7 +266,7 @@ int32 OS_TaskDelete (uint32 task_id)
          delete_hook = NULL;
       }
 
-      OS_Unlock_Global_Impl(LOCAL_OBJID_TYPE);
+      OS_Unlock_Global(LOCAL_OBJID_TYPE);
    }
 
    /*
@@ -300,7 +300,7 @@ void OS_TaskExit()
    {
       /* Only need to clear the ID as zero is the "unused" flag */
       record->active_id = 0;
-      OS_Unlock_Global_Impl(LOCAL_OBJID_TYPE);
+      OS_Unlock_Global(LOCAL_OBJID_TYPE);
    }
 
    /* call the implementation */
@@ -358,7 +358,7 @@ int32 OS_TaskSetPriority (uint32 task_id, uint32 new_priority)
          }
 
          /* Unlock the global from OS_ObjectIdGetAndLock() */
-         OS_Unlock_Global_Impl(LOCAL_OBJID_TYPE);
+         OS_Unlock_Global(LOCAL_OBJID_TYPE);
       }
    }
 
@@ -475,7 +475,7 @@ int32 OS_TaskGetInfo (uint32 task_id, OS_task_prop_t *task_prop)
 
       return_code = OS_TaskGetInfo_Impl(local_id, task_prop);
 
-      OS_Unlock_Global_Impl(LOCAL_OBJID_TYPE);
+      OS_Unlock_Global(LOCAL_OBJID_TYPE);
    }
 
    return return_code;
@@ -507,7 +507,7 @@ int32 OS_TaskInstallDeleteHandler(osal_task_entry function_pointer)
       */
       OS_task_table[local_id].delete_hook_pointer = function_pointer;
 
-      OS_Unlock_Global_Impl(LOCAL_OBJID_TYPE);
+      OS_Unlock_Global(LOCAL_OBJID_TYPE);
    }
 
    return return_code;
@@ -543,7 +543,7 @@ int32 OS_TaskFindIdBySystemData(uint32 *task_id, const void *sysdata, size_t sys
     if (return_code == OS_SUCCESS)
     {
         *task_id = record->active_id;
-        OS_Unlock_Global_Impl(LOCAL_OBJID_TYPE);
+        OS_Unlock_Global(LOCAL_OBJID_TYPE);
     }
 
     return return_code;

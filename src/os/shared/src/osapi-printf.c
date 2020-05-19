@@ -236,7 +236,7 @@ int32 OS_ConsoleWrite(uint32 console_id, const char *Str)
          */
         OS_ConsoleWakeup_Impl(local_id);
 
-        OS_Unlock_Global_Impl(OS_OBJECT_TYPE_OS_CONSOLE);
+        OS_Unlock_Global(OS_OBJECT_TYPE_OS_CONSOLE);
     }
 
 

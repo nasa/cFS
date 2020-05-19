@@ -32,6 +32,16 @@
 
 UT_DEFAULT_STUB(OS_ObjectIdInit,(void))
 
+/* Lock/Unlock for global tables */
+void OS_Lock_Global(uint32 idtype)
+{
+    UT_DEFAULT_IMPL(OS_Lock_Global);
+}
+void OS_Unlock_Global(uint32 idtype)
+{
+    UT_DEFAULT_IMPL(OS_Unlock_Global);
+}
+
 /*****************************************************************************
  *
  * Stub function for OS_ObjectIdMap()

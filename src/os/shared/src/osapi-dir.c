@@ -187,7 +187,7 @@ int32 OS_DirectoryClose(uint32 dir_id)
            record->active_id = 0;
        }
 
-       OS_Unlock_Global_Impl(LOCAL_OBJID_TYPE);
+       OS_Unlock_Global(LOCAL_OBJID_TYPE);
    }
 
    return return_code;
@@ -229,7 +229,7 @@ int32 OS_DirectoryRead(uint32 dir_id, os_dirent_t *dirent)
        */
       return_code = OS_DirRead_Impl(local_id, dirent);
 
-      OS_Unlock_Global_Impl(LOCAL_OBJID_TYPE);
+      OS_Unlock_Global(LOCAL_OBJID_TYPE);
    }
 
    return return_code;
