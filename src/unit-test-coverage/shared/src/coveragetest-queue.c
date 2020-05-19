@@ -63,6 +63,10 @@ void Test_OS_QueueCreate(void)
     actual = OS_QueueCreate(&objid, "UT", 0, 0,0);
     UtAssert_True(actual == expected, "OS_QueueCreate() (%ld) == OS_ERR_NAME_TOO_LONG", (long)actual);
     UT_ClearForceFail(UT_KEY(OCS_strlen));
+
+    expected = OS_QUEUE_INVALID_SIZE;
+    actual = OS_QueueCreate(&objid, "UT", 1 + OS_QUEUE_MAX_DEPTH, 0,0);
+    UtAssert_True(actual == expected, "OS_QueueCreate() (%ld) == OS_QUEUE_INVALID_SIZE", (long)actual);
 }
 
 void Test_OS_QueueDelete(void)
