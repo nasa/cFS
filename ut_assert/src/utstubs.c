@@ -591,9 +591,73 @@ void UT_SetVaHookFunction(UT_EntryKey_t FuncKey, UT_VaHookFunc_t HookFunc, void 
     UT_DoSetHookFunction(FuncKey, Value, UserObj, true);
 }
 
-void UT_Stub_RegisterContext(UT_EntryKey_t FuncKey, const void *Parameter)
+const void* UT_Hook_GetArgPtr(const UT_StubContext_t *ContextPtr, const char *Name, size_t ExpectedTypeSize)
+{
+    uint32 i;
+    const void* Result;
+    const UT_StubArgMetaData_t *MetaPtr;
+
+    static const union
+    {
+        uintmax_t AsInt;
+        void *AsPtr;
+        double AsFloat;
+    } ARG_DEFAULT_ZERO_VALUE = { 0 };
+
+    Result = NULL;
+    for (i = 0; i < ContextPtr->ArgCount; ++i)
+    {
+        MetaPtr = &ContextPtr->Meta[i];
+        if (MetaPtr->Name != NULL)
+        {
+            if (strcmp(MetaPtr->Name, Name) == 0 &&
+                    (MetaPtr->Size == 0 || MetaPtr->Size == ExpectedTypeSize))
+            {
+                if (MetaPtr->Type == UT_STUBCONTEXT_ARG_TYPE_DIRECT)
+                {
+                    Result = &ContextPtr->ArgPtr[i];
+                }
+                else if (MetaPtr->Type == UT_STUBCONTEXT_ARG_TYPE_INDIRECT)
+                {
+                    Result = ContextPtr->ArgPtr[i];
+                }
+                break;
+            }
+        }
+    }
+
+    /*
+     * If no suitable result pointer was found, this means a mismatch
+     * between the stub and test case, such as a change in argument/parameter names.
+     * This is an error that should be corrected, so report it as a failure.
+     */
+    if (Result == NULL)
+    {
+        UtAssert_Failed("Requested parameter %s of size %lu which was not provided by the stub",
+                Name, (unsigned long)ExpectedTypeSize);
+
+        if (ExpectedTypeSize <= sizeof(ARG_DEFAULT_ZERO_VALUE))
+        {
+            Result = &ARG_DEFAULT_ZERO_VALUE;
+        }
+        else
+        {
+            /*
+             * As the caller will likely dereference the returned pointer, should
+             * never return NULL.  Just abort here.
+             */
+            UtAssert_Abort("No value for parameter");
+        }
+    }
+
+    return Result;
+}
+
+void UT_Stub_RegisterContextWithMetaData(UT_EntryKey_t FuncKey, const char *Name,
+        UT_StubContext_Arg_Type_t ParamType, const void *ParamPtr, size_t ParamSize)
 {
     UT_StubTableEntry_t *StubPtr;
+    UT_StubArgMetaData_t *MetaPtr;
 
     /*
      * First find an existing context entry for the function.
@@ -616,7 +680,48 @@ void UT_Stub_RegisterContext(UT_EntryKey_t FuncKey, const void *Parameter)
         StubPtr->EntryType = UT_ENTRYTYPE_CALLBACK_CONTEXT;
         if (StubPtr->Data.Context.ArgCount < UT_STUBCONTEXT_MAXSIZE)
         {
-            StubPtr->Data.Context.ArgPtr[StubPtr->Data.Context.ArgCount] = Parameter;
+            StubPtr->Data.Context.ArgPtr[StubPtr->Data.Context.ArgCount] = ParamPtr;
+
+            MetaPtr = &StubPtr->Data.Context.Meta[StubPtr->Data.Context.ArgCount];
+            MetaPtr->Size = ParamSize;
+            MetaPtr->Type = ParamType;
+
+            /*
+             * If name was specified, then trim any leading address operator (&)
+             * and/or whitespace, keeping only the actual name part.
+             */
+            if (Name != NULL)
+            {
+                /*
+                 * If the _address_ of the stack variable was actually passed in,
+                 * the mark this as indirect (i.e. hook must dereference ArgPtr
+                 * to get actual parameter value).  Otherwise assume it as direct.
+                 */
+                MetaPtr->Name = Name;
+                while (*MetaPtr->Name != 0)
+                {
+                    if (*MetaPtr->Name == '&')
+                    {
+                        /* this means its a pointer to the value, not the value itself */
+                        if (MetaPtr->Type == UT_STUBCONTEXT_ARG_TYPE_UNSPECIFIED)
+                        {
+                            MetaPtr->Type = UT_STUBCONTEXT_ARG_TYPE_INDIRECT;
+                        }
+                    }
+                    else if (*MetaPtr->Name != ' ')
+                    {
+                        /* stop at non-whitespace */
+                        break;
+                    }
+                    ++MetaPtr->Name;
+                }
+
+                if (MetaPtr->Type == UT_STUBCONTEXT_ARG_TYPE_UNSPECIFIED)
+                {
+                    MetaPtr->Type = UT_STUBCONTEXT_ARG_TYPE_DIRECT;
+                }
+
+            }
             ++StubPtr->Data.Context.ArgCount;
         }
     }
