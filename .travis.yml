@@ -45,6 +45,9 @@ deploy:
   edge: true
 
 script:
+  # git SHA report
+  - git submodule
+  - git rev-parse HEAD
   # Check versions
   - cppcheck --version
   # Setup standard permissive build
