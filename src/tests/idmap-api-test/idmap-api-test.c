@@ -79,6 +79,8 @@ void TestIdMapApi(void)
     uint32 mutex_id3;
     uint32 time_base_id;
     uint32 TestArrayIndex; 
+    uint32 TestMutex1Index; 
+    uint32 TestMutex2Index; 
     Test_OS_ObjTypeCount_t Count;
 
     /*
@@ -162,35 +164,32 @@ void TestIdMapApi(void)
      */
     actual   = OS_ConvertToArrayIndex(task_id, &TestArrayIndex);
     UtAssert_True(actual == expected , "OS_ConvertToArrayIndex() (%ld) == %ld ", (long)actual, (long)expected );
-    UtAssert_True(TestArrayIndex == 1 , "TestArrayIndex(%lu) == 1", (long)TestArrayIndex);
+    UtAssert_True(TestArrayIndex >= 0 && TestArrayIndex < OS_MAX_TASKS , "0 < TestArrayIndex(%lu)  <= OS_MAX_TASKS", (long)TestArrayIndex);
 
     actual   = OS_ConvertToArrayIndex(queue_id, &TestArrayIndex);
     UtAssert_True(actual == expected , "OS_ConvertToArrayIndex() (%ld) == %ld ", (long)actual, (long)expected );
-    UtAssert_True(TestArrayIndex == 1 , "TestArrayIndex(%lu) == 1", (long)TestArrayIndex);
+    UtAssert_True(TestArrayIndex >=0 && TestArrayIndex < OS_MAX_QUEUES , "0 < TestArrayIndex(%lu)  <= OS_MAX_QUEUES", (long)TestArrayIndex);
 
     actual   = OS_ConvertToArrayIndex(count_sem_id, &TestArrayIndex);
     UtAssert_True(actual == expected , "OS_ConvertToArrayIndex() (%ld) == %ld ", (long)actual, (long)expected );
-    UtAssert_True(TestArrayIndex == 1 , "TestArrayIndex(%lu) == 1", (long)TestArrayIndex);
+    UtAssert_True(TestArrayIndex >= 0 && TestArrayIndex < OS_MAX_COUNT_SEMAPHORES , "0 < TestArrayIndex(%lu)  <= OS_MAX_COUNT_SEMAPHORES", (long)TestArrayIndex);
 
     actual   = OS_ConvertToArrayIndex(bin_sem_id, &TestArrayIndex);
     UtAssert_True(actual == expected , "OS_ConvertToArrayIndex() (%ld) == %ld ", (long)actual, (long)expected );
-    UtAssert_True(TestArrayIndex == 2 , "TestArrayIndex(%lu) == 2", (long)TestArrayIndex);
+    UtAssert_True(TestArrayIndex >= 0 && TestArrayIndex < OS_MAX_BIN_SEMAPHORES , "0 < TestArrayIndex(%lu)  <= OS_MAX_BIN_SEMAPHORES", (long)TestArrayIndex);
 
-    actual   = OS_ConvertToArrayIndex(mutex_id1, &TestArrayIndex);
+    actual   = OS_ConvertToArrayIndex(mutex_id1, &TestMutex1Index);
     UtAssert_True(actual == expected , "OS_ConvertToArrayIndex() (%ld) == %ld ", (long)actual, (long)expected );
-    UtAssert_True(TestArrayIndex == 1 , "TestArrayIndex(%lu) == 1", (long)TestArrayIndex);
+    UtAssert_True(TestMutex1Index >= 0 && TestMutex1Index < OS_MAX_MUTEXES , "0 < TestMutex1Index(%lu)  <= OS_MAX_MUTEXES", (long)TestMutex1Index);
 
-    actual   = OS_ConvertToArrayIndex(mutex_id2, &TestArrayIndex);
+    actual   = OS_ConvertToArrayIndex(mutex_id2, &TestMutex2Index);
     UtAssert_True(actual == expected , "OS_ConvertToArrayIndex() (%ld) == %ld ", (long)actual, (long)expected );
-    UtAssert_True(TestArrayIndex == 2 , "TestArrayIndex(%lu) == 2", (long)TestArrayIndex);
-
-    actual   = OS_ConvertToArrayIndex(mutex_id3, &TestArrayIndex);
-    UtAssert_True(actual == expected , "OS_ConvertToArrayIndex() (%ld) == %ld ", (long)actual, (long)expected );
-    UtAssert_True(TestArrayIndex == 3 , "TestArrayIndex(%lu) == 3", (long)TestArrayIndex);
+    UtAssert_True(TestMutex2Index >= 0 && TestMutex2Index < OS_MAX_MUTEXES , "0 < TestMutex2Index(%lu)  <= OS_MAX_MUTEXES", (long)TestMutex2Index);
+    UtAssert_True(TestMutex1Index != TestMutex2Index , "TestMutex1Index(%lu) !=  TestMutex2Index(%lu)", (long)TestMutex1Index, (long)TestMutex2Index );
 
     actual   = OS_ConvertToArrayIndex(time_base_id, &TestArrayIndex);
     UtAssert_True(actual == expected , "OS_ConvertToArrayIndex() (%ld) == %ld ", (long)actual, (long)expected );
-    UtAssert_True(TestArrayIndex == 1 , "TestArrayIndex(%lu) == 1", (long)TestArrayIndex);
+    UtAssert_True(TestArrayIndex >= 0 && TestArrayIndex < OS_MAX_TIMEBASES , "0 < TestArrayIndex(%lu)  <= OS_MAX_TIMEBASES", (long)TestArrayIndex);
 
     /*
      * Test with extreme cases using invalid inputs and checking
