@@ -102,6 +102,11 @@ int32 OS_QueueCreate (uint32 *queue_id, const char *queue_name, uint32 queue_dep
       return OS_ERR_NAME_TOO_LONG;
    }
 
+   if ( queue_depth > OS_QUEUE_MAX_DEPTH )
+   {
+       return OS_QUEUE_INVALID_SIZE;
+   }
+
    /* Note - the common ObjectIdAllocate routine will lock the object type and leave it locked. */
    return_code = OS_ObjectIdAllocateNew(LOCAL_OBJID_TYPE, queue_name, &local_id, &record);
    if(return_code == OS_SUCCESS)

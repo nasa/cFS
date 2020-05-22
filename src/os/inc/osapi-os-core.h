@@ -532,6 +532,7 @@ int32 OS_TaskFindIdBySystemData(uint32 *task_id, const void *sysdata, size_t sys
  * @retval #OS_ERR_NAME_TOO_LONG name length including null terminator greater than #OS_MAX_API_NAME
  * @retval #OS_ERR_NO_FREE_IDS if there are already the max queues created
  * @retval #OS_ERR_NAME_TAKEN if the name is already being used on another queue
+ * @retval #OS_QUEUE_INVALID_SIZE if the queue depth exceeds the limit
  * @retval #OS_ERROR if the OS create call fails
  */
 int32 OS_QueueCreate           (uint32 *queue_id, const char *queue_name,

@@ -16,12 +16,15 @@ This distribution contains:
 
 ## Version History
 
+### Development Build: 5.0.17
+
+-  `OS_QueueCreate()` will return an error code if the depth parameter is larger than the configured `OS_MAX_QUEUE_DEPTH`. 
+- See <https://github.com/nasa/osal/pull/477>
+
 ### Development Build: 5.0.16
 
 - Resized buffers and added explicit termination to string copies. No warnings on GCC9 with strict settings and optimization enabled.
-
 - New API to reverse lookup an OS-provided thread/task identifier back to an OSAL ID. Any use of existing OStask_id field within the task property structure is now deprecated.
-
 - See <https://github.com/nasa/osal/pull/458>
 
 ### Development Build: 5.0.15
