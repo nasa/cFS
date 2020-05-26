@@ -436,7 +436,7 @@ int32 OS_TimerDelete(uint32 timer_id)
         {
             if (local->next_ref != local_id)
             {
-                OS_ObjectIdMap(OS_OBJECT_TYPE_OS_TIMEBASE, local->next_ref, &OS_timebase_table[local->timebase_ref].first_cb);
+                OS_ObjectIdCompose_Impl(OS_OBJECT_TYPE_OS_TIMEBASE, local->next_ref, &OS_timebase_table[local->timebase_ref].first_cb);
             }
             else
             {

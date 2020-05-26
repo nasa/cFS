@@ -114,47 +114,6 @@ int32 OS_ObjectIdInit(void)
 
 /*----------------------------------------------------------------
  *
- * Function: OS_ObjectIdMap
- *
- *  Purpose: Local helper routine, not part of OSAL API.
- *
- *-----------------------------------------------------------------*/
-int32 OS_ObjectIdMap(uint32 idtype, uint32 idvalue, uint32 *result)
-{
-   *result = (idtype << OS_OBJECT_TYPE_SHIFT) | idvalue;
-
-   if (idtype == OS_OBJECT_TYPE_UNDEFINED ||
-         (idvalue & ~OS_OBJECT_INDEX_MASK) != 0)
-   {
-       return OS_ERR_INVALID_ID;
-   }
-
-   return OS_SUCCESS;
-} /* end OS_ObjectIdMap */
-
-
-/*----------------------------------------------------------------
- *
- * Function: OS_ObjectIdUnMap
- *
- *  Purpose: Local helper routine, not part of OSAL API.
- *
- *-----------------------------------------------------------------*/
-int32 OS_ObjectIdUnMap(uint32 id, uint32 idtype, uint32 *idvalue)
-{
-   *idvalue = id & OS_OBJECT_INDEX_MASK;
-
-   if ((id >> OS_OBJECT_TYPE_SHIFT) != idtype)
-   {
-      return OS_ERR_INVALID_ID;
-   }
-
-   return OS_SUCCESS;
-} /* end OS_ObjectIdUnMap */
-
-
-/*----------------------------------------------------------------
- *
  * Function: OS_GetMaxForObjectType
  *
  *  Purpose: Local helper routine, not part of OSAL API.
@@ -530,7 +489,7 @@ int32 OS_ObjectIdFindNext(uint32 idtype, uint32 *array_index, OS_common_record_t
 
    if(return_code == OS_SUCCESS)
    {
-       return_code = OS_ObjectIdMap(idtype, idvalue, &obj->active_id);
+       OS_ObjectIdCompose_Impl(idtype, idvalue, &obj->active_id);
 
        /* Ensure any data in the record has been cleared */
        obj->name_entry = NULL;
@@ -575,6 +534,9 @@ int32 OS_ObjectIdFindNext(uint32 idtype, uint32 *array_index, OS_common_record_t
  *           for use as an array index.  The array index will be in the range of:
  *            0 <= ArrayIndex < OS_MAX_<OBJTYPE>
  *
+ *            If the passed-in ID type is OS_OBJECT_TYPE_UNDEFINED, then any type
+ *            is allowed.
+ *
  *  returns: If the passed-in ID is not of the proper type, OS_ERROR is returned
  *           Otherwise OS_SUCCESS is returned.
  *
@@ -582,17 +544,33 @@ int32 OS_ObjectIdFindNext(uint32 idtype, uint32 *array_index, OS_common_record_t
 int32 OS_ObjectIdToArrayIndex(uint32 idtype, uint32 id, uint32 *ArrayIndex)
 {
    uint32 max_id;
+   uint32 obj_index;
+   uint32 actual_type;
    int32 return_code;
 
-   max_id = OS_GetMaxForObjectType(idtype);
-   if (max_id == 0)
+   obj_index = OS_ObjectIdToSerialNumber_Impl(id);
+   actual_type = OS_ObjectIdToType_Impl(id);
+
+   /*
+    * If requested by the caller, enforce that the ID is of the correct type.
+    * If the caller passed OS_OBJECT_TYPE_UNDEFINED, then anything is allowed.
+    */
+   if (idtype != OS_OBJECT_TYPE_UNDEFINED && actual_type != idtype)
    {
-      return_code = OS_ERR_INVALID_ID;
+       return_code = OS_ERR_INVALID_ID;
    }
    else
    {
-      return_code = OS_ObjectIdUnMap(id, idtype, &id);
-      *ArrayIndex = id % max_id;
+       max_id = OS_GetMaxForObjectType(actual_type);
+       if (max_id == 0)
+       {
+           return_code = OS_ERR_INVALID_ID;
+       }
+       else
+       {
+           return_code = OS_SUCCESS;
+           *ArrayIndex = obj_index % max_id;
+       }
    }
 
    return return_code;
@@ -962,21 +940,8 @@ int32 OS_ObjectIdAllocateNew(uint32 idtype, const char *name, uint32 *array_inde
  *-----------------------------------------------------------------*/
 int32 OS_ConvertToArrayIndex(uint32 object_id, uint32 *ArrayIndex)
 {
-    uint32 max_id;
-    int32 return_code;
-
-    max_id = OS_GetMaxForObjectType(object_id >> OS_OBJECT_TYPE_SHIFT);
-    if (max_id == 0)
-    {
-        return_code = OS_ERR_INCORRECT_OBJ_TYPE;
-    }
-    else
-    {
-        *ArrayIndex = (object_id & OS_OBJECT_INDEX_MASK) % max_id;
-        return_code = OS_SUCCESS;
-    }
-
-    return return_code;
+    /* just pass to the generic internal conversion routine */
+    return OS_ObjectIdToArrayIndex(OS_OBJECT_TYPE_UNDEFINED, object_id, ArrayIndex);
 } /* end OS_ConvertToArrayIndex */
 
 
@@ -990,39 +955,72 @@ int32 OS_ConvertToArrayIndex(uint32 object_id, uint32 *ArrayIndex)
  *-----------------------------------------------------------------*/
 void OS_ForEachObject (uint32 creator_id, OS_ArgCallback_t callback_ptr, void *callback_arg)
 {
-    uint32 obj_index;
-    uint32 obj_max;
-    uint32 obj_id;
     uint32 idtype;
 
     for (idtype = 0; idtype < OS_OBJECT_TYPE_USER; ++idtype)
     {
-        obj_max = OS_GetMaxForObjectType(idtype);
-        if (obj_max > 0)
-        {
-            OS_Lock_Global_Impl(idtype);
-            obj_index = OS_GetBaseForObjectType(idtype);
-            while (obj_max > 0)
-            {
-                obj_id = OS_common_table[obj_index].active_id;
-                if (obj_id != 0 && (creator_id == 0 || OS_common_table[obj_index].creator == creator_id))
-                {
-                    /*
-                     * Handle the object - Note that we must UN-lock before callback.
-                     * The callback function might lock again in a different manner.
-                     */
-                    OS_Unlock_Global_Impl(idtype);
-                    (*callback_ptr)(obj_id, callback_arg);
-                    OS_Lock_Global_Impl(idtype);
-
-                }
-                ++obj_index;
-                --obj_max;
-            }
-            OS_Unlock_Global_Impl(idtype);
-        }
+        OS_ForEachObjectOfType(idtype, creator_id, callback_ptr, callback_arg);
     }
 } /* end OS_ForEachObject */
+
+/*-----------------------------------------------------------------
+ *
+ * Function: OS_ForEachObjectOfType
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
+void OS_ForEachObjectOfType     (uint32 idtype, uint32 creator_id, OS_ArgCallback_t callback_ptr, void *callback_arg)
+{
+    uint32 obj_index;
+    uint32 obj_max;
+    uint32 obj_id;
+
+    obj_max = OS_GetMaxForObjectType(idtype);
+    if (obj_max > 0)
+    {
+        obj_index = OS_GetBaseForObjectType(idtype);
+        OS_Lock_Global_Impl(idtype);
+        while (obj_max > 0)
+        {
+            /*
+             * Check if the obj_id is both valid and matches
+             * the specified creator_id
+             */
+            obj_id = OS_common_table[obj_index].active_id;
+            if (obj_id != 0 && creator_id != OS_OBJECT_CREATOR_ANY &&
+                    OS_common_table[obj_index].creator != creator_id)
+            {
+                /* valid object but not a creator match -
+                 * skip the callback for this object */
+                obj_id = 0;
+            }
+
+            if (obj_id != 0)
+            {
+                /*
+                 * Invoke Callback for the object, which must be done
+                 * while the global table is unlocked.
+                 *
+                 * Note this means by the time the callback is done,
+                 * the object could have been deleted by another task.
+                 *
+                 * But this must not invoke a callback with a locked table,
+                 * as the callback function might call other OSAL functions,
+                 * which could deadlock.
+                 */
+                OS_Unlock_Global_Impl(idtype);
+                (*callback_ptr)(obj_id, callback_arg);
+                OS_Lock_Global_Impl(idtype);
+            }
+
+            ++obj_index;
+            --obj_max;
+        }
+        OS_Unlock_Global_Impl(idtype);
+    }
+} /* end OS_ForEachObjectOfType */
 
 /*----------------------------------------------------------------
  *
@@ -1034,6 +1032,58 @@ void OS_ForEachObject (uint32 creator_id, OS_ArgCallback_t callback_ptr, void *c
  *-----------------------------------------------------------------*/
 uint32 OS_IdentifyObject       (uint32 object_id)
 {
-    return (object_id >> OS_OBJECT_TYPE_SHIFT);
+    return OS_ObjectIdToType_Impl(object_id);
 } /* end OS_IdentifyObject */
+
+/*----------------------------------------------------------------
+ *
+ * Function: OS_GetResourceName
+ *
+ *  Purpose: Implemented per public OSAL API
+ *           See description in API and header file for detail
+ *
+ *-----------------------------------------------------------------*/
+int32 OS_GetResourceName(uint32 id, char *buffer, uint32 buffer_size)
+{
+    uint32 idtype;
+    OS_common_record_t *record;
+    int32 return_code;
+    uint32 name_len;
+    uint32 local_id;
+
+    /* sanity check the passed-in buffer and size */
+    if (buffer == NULL || buffer_size == 0)
+    {
+        return OS_INVALID_POINTER;
+    }
+
+    /*
+     * Initially set the output string to empty.
+     * This avoids undefined behavior in case the function fails
+     * and the caller does not check the return code.
+     */
+    buffer[0] = 0;
+
+    idtype = OS_ObjectIdToType_Impl(id);
+    return_code = OS_ObjectIdGetById(OS_LOCK_MODE_GLOBAL, idtype, id, &local_id, &record);
+    if (return_code == OS_SUCCESS)
+    {
+        if (record->name_entry != NULL)
+        {
+            name_len = strlen(record->name_entry);
+            if (buffer_size <= name_len)
+            {
+                /* indicates the name does not fit into supplied buffer */
+                return_code = OS_ERR_NAME_TOO_LONG;
+                name_len = buffer_size - 1;
+            }
+            memcpy(buffer, record->name_entry, name_len);
+            buffer[name_len] = 0;
+        }
+        OS_Unlock_Global_Impl(idtype);
+    }
+
+    return return_code;
+} /* end OS_GetResourceName */
+
 

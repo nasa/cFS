@@ -13,6 +13,14 @@
 #define UT_EXIT_LOOP_MAX 100  /* Used to limit wait for self-exiting task to exit */
 
 /* OS Constructs */
+#define OSAL_UT_MAX_CALLBACKS   5
+typedef struct
+{
+    uint32 NumInvocations;
+    uint32 ObjList[OSAL_UT_MAX_CALLBACKS];
+} TestCallbackState_t;
+
+
 
 void TestTasks (void);
 void InitializeTaskIds (void);
@@ -23,6 +31,20 @@ void TestQueues(void);
 void TestBinaries(void);
 void TestMutexes(void);
 void TestGetInfos(void);
+void TestGenericQueries(void);
+
+/* helper function for "OS_ForEachObject" test cases */
+static void TestForEachCallback(uint32 object_id, void *arg)
+{
+    TestCallbackState_t *State = (TestCallbackState_t*)arg;
+    if (State->NumInvocations < OSAL_UT_MAX_CALLBACKS)
+    {
+        State->ObjList[State->NumInvocations] = object_id;
+    }
+    ++State->NumInvocations;
+}
+
+
 
 /* *************************************** MAIN ************************************** */
 void UtTest_Setup(void)
@@ -37,6 +59,7 @@ void UtTest_Setup(void)
     UtTest_Add(TestBinaries, NULL, NULL, "BSEM");
     UtTest_Add(TestMutexes, NULL, NULL, "MSEM");
     UtTest_Add(TestGetInfos, NULL, NULL, "INFO");
+    UtTest_Add(TestGenericQueries, NULL, NULL, "QUERIES");
     
 } /* end OS_Application Startup */
 
@@ -590,5 +613,76 @@ void TestGetInfos(void)
     status = OS_MutSemDelete(mut_0);
      /* UtDebug("Status after deleteing:%d\n",status); */
     UtAssert_True(status == OS_SUCCESS, "OS_MutSemDelete");
+}
+
+/*
+ * Validate generic query functions such as OS_ForEachObject, OS_GetResourceName,
+ * and any other function that operates on any generic/unspecified object type.
+ */
+void TestGenericQueries(void)
+{
+    int status;
+    TestCallbackState_t State;
+    char ResourceName[OS_MAX_API_NAME];
+
+    status = OS_TaskCreate( &task_0_id, "Task 0", task_0, task_0_stack,
+                            TASK_0_STACK_SIZE, TASK_0_PRIORITY, 0);
+    UtAssert_True(status == OS_SUCCESS, "OS_TaskCreate (%ld) == OS_SUCCESS", (long)status);
+
+    status = OS_QueueCreate( &msgq_0, "q 0", MSGQ_DEPTH, MSGQ_SIZE, 0);
+    UtAssert_True(status == OS_SUCCESS, "OS_QueueCreate (%ld) == OS_SUCCESS", (long)status);
+
+    status = OS_BinSemCreate( &bin_0,"Bin 0",1,0);
+    UtAssert_True(status == OS_SUCCESS, "OS_BinSemCreate (%ld) == OS_SUCCESS", (long)status);
+
+    status = OS_MutSemCreate( &mut_0,"Mut 0",0);
+    UtAssert_True(status == OS_SUCCESS, "OS_MutSemCreate (%ld) == OS_SUCCESS", (long)status);
+
+    /* The "OS_ForEachObjectOfType()" should callback for only a specific object type -
+     * spot check for Tasks and Bin Sem */
+    memset(&State, 0, sizeof(State));
+    OS_ForEachObjectOfType(OS_OBJECT_TYPE_OS_TASK, OS_OBJECT_CREATOR_ANY, TestForEachCallback, &State);
+    UtAssert_True(State.NumInvocations == 1, "Task NumInvocations (%lu) == 1", (unsigned long)State.NumInvocations);
+    UtAssert_True(State.ObjList[0] == task_0_id, "Task ObjList[0] (%lx) == %lx",
+            (unsigned long)State.ObjList[0], (unsigned long)task_0_id);
+
+    memset(&State, 0, sizeof(State));
+    OS_ForEachObjectOfType(OS_OBJECT_TYPE_OS_BINSEM, OS_OBJECT_CREATOR_ANY, TestForEachCallback, &State);
+    UtAssert_True(State.NumInvocations == 1, "BinSem NumInvocations (%lu) == 1", (unsigned long)State.NumInvocations);
+    UtAssert_True(State.ObjList[0] == bin_0, "BinSem ObjList[0] (%lx) == %lx",
+            (unsigned long)State.ObjList[0], (unsigned long)bin_0);
+
+    memset(&State, 0, sizeof(State));
+    OS_ForEachObjectOfType(OS_OBJECT_TYPE_OS_COUNTSEM, OS_OBJECT_CREATOR_ANY, TestForEachCallback, &State);
+    UtAssert_True(State.NumInvocations == 0, "CountSem NumInvocations (%lu) == 0", (unsigned long)State.NumInvocations);
+
+    /*
+     * The generic "OS_ForEachObject()" should callback for all object types.
+     *
+     * Note there are internally-generated object IDs that also may get returned here,
+     * in addition to the ones which are explicitly created within this test.  Therefore
+     * it is only verified that the callback was invoked for _at least_ the resources
+     * created here, but OK if it is more than that.
+     */
+    memset(&State, 0, sizeof(State));
+    OS_ForEachObject(OS_OBJECT_CREATOR_ANY, TestForEachCallback, &State);
+    UtAssert_True(State.NumInvocations >= 4, "State.NumInvocations (%lu) >= 4", (unsigned long)State.NumInvocations);
+
+    /* Test the OS_GetResourceName() API function */
+    status = OS_GetResourceName(mut_0, ResourceName, 0);
+    UtAssert_True(status == OS_INVALID_POINTER, "OS_GetResourceName (%lx,%ld) == OS_INVALID_POINTER", (unsigned long)mut_0, (long)status);
+
+    status = OS_GetResourceName(msgq_0, ResourceName, sizeof(ResourceName));
+    UtAssert_True(status == OS_SUCCESS, "OS_GetResourceName (%lx,%ld) == OS_SUCCESS", (unsigned long)msgq_0, (long)status);
+    UtAssert_StrCmp(ResourceName, "q 0", "Output value correct");
+
+    status = OS_GetResourceName(0, ResourceName, sizeof(ResourceName));
+    UtAssert_True(status == OS_ERR_INVALID_ID, "OS_GetResourceName (%lx,%ld) == OS_ERR_INVALID_ID", (unsigned long)msgq_0, (long)status);
+
+    status = OS_GetResourceName(bin_0, ResourceName, 1);
+    UtAssert_True(status == OS_ERR_NAME_TOO_LONG, "OS_GetResourceName (%lx,%ld) == OS_ERR_NAME_TOO_LONG", (unsigned long)bin_0, (long)status);
+
+    /* The OS_DeleteAllObjects() should clean up every object created here. */
+    OS_DeleteAllObjects();
 }
 
