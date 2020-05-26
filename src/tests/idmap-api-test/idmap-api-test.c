@@ -1,3 +1,20 @@
+/*
+ *      Copyright (c) 2020, United States government as represented by the
+ *      administrator of the National Aeronautics Space Administration.
+ *      All rights reserved. This software was created at NASA Goddard
+ *      Space Flight Center pursuant to government contracts.
+ *
+ *      This is governed by the NASA Open Source Agreement and may be used,
+ *      distributed and modified only according to the terms of that agreement.
+ */
+
+/*
+ * Filename: idmap-api-test.c
+ *
+ * Purpose: This file contains functional tests for "osapi-idmap"
+ *
+ */
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -196,11 +213,11 @@ void TestIdMapApi(void)
      * for an error return code 
      */
     actual   = OS_ConvertToArrayIndex(0x0000, &TestArrayIndex);
-    expected = OS_ERR_INCORRECT_OBJ_TYPE;
+    expected = OS_ERR_INVALID_ID;
     UtAssert_True(actual == expected , "OS_ConvertToArrayIndex() (%ld) == %ld ", (long)actual, (long)expected );
 
     actual   = OS_ConvertToArrayIndex(0xFFFFFFFF, &TestArrayIndex);
-    expected = OS_ERR_INCORRECT_OBJ_TYPE;
+    expected = OS_ERR_INVALID_ID;
     UtAssert_True(actual == expected , "OS_ConvertToArrayIndex() (%ld) == %ld ", (long)actual, (long)expected );
 
     /*
