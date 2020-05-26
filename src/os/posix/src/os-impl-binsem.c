@@ -28,8 +28,37 @@
 #include "os-shared-binsem.h"
 #include "os-impl-binsem.h"
 
+/*
+ * This controls the maximum time the that the calling thread will wait to
+ * acquire the condition mutex before returning an error.
+ *
+ * Under normal conditions, this lock is held by giving/taking threads very
+ * briefly, so the lock should be available with minimal delay.  However,
+ * if the "taking" thread is canceled or exits abnormally without releasing the
+ * lock, it means any other task accessing the sem can get blocked indefinitely.
+ *
+ * There should be no reason for a user to configure this, as it should
+ * not be relevant in a normally operating system.  This only prevents a
+ * deadlock condition in off-nominal circumstances.
+ */
+static const struct timespec OS_POSIX_BINSEM_MAX_WAIT =
+{
+        .tv_sec = 2,
+        .tv_nsec = 0
+};
+
+
 /* Tables where the OS object information is stored */
 OS_impl_binsem_internal_record_t    OS_impl_bin_sem_table       [OS_MAX_BIN_SEMAPHORES];
+
+/*---------------------------------------------------------------------------------------
+ * Helper function for releasing the mutex in case the thread
+ * executing pthread_condwait() is canceled.
+ ----------------------------------------------------------------------------------------*/
+void OS_Posix_BinSemReleaseMutex(void *mut)
+{
+    pthread_mutex_unlock(mut);
+}
 
 /****************************************************************************************
                                BINARY SEMAPHORE API
@@ -244,10 +273,13 @@ int32 OS_BinSemGive_Impl ( uint32 sem_id )
      * alternative of having a BinSemGive not wake up the other thread is a bigger issue.
      *
      * Counting sems do not suffer from this, as there is a native POSIX mechanism for those.
+     *
+     * Note: This lock should be readily available, with only minimal delay if any.
+     * If a long delay occurs here, it means something is fundamentally wrong.
      */
 
     /* Lock the mutex ( not the table! ) */
-    if ( pthread_mutex_lock(&(sem->id)) != 0 )
+    if ( pthread_mutex_timedlock(&sem->id, &OS_POSIX_BINSEM_MAX_WAIT) != 0 )
     {
        return(OS_SEM_FAILURE);
     }
@@ -279,7 +311,7 @@ int32 OS_BinSemFlush_Impl (uint32 sem_id)
     sem = &OS_impl_bin_sem_table[sem_id];
 
     /* Lock the mutex ( not the table! ) */
-    if ( pthread_mutex_lock(&(sem->id)) != 0 )
+    if ( pthread_mutex_timedlock(&sem->id, &OS_POSIX_BINSEM_MAX_WAIT) != 0 )
     {
        return(OS_SEM_FAILURE);
     }
@@ -311,11 +343,20 @@ static int32 OS_GenericBinSemTake_Impl (OS_impl_binsem_internal_record_t *sem, c
    sig_atomic_t flush_count;
    int32 return_code;
 
+   /*
+    * Note - this lock should be quickly available - should not delay here.
+    * The main delay is in the pthread_cond_wait() below.
+    */
    /* Lock the mutex ( not the table! ) */
-   if ( pthread_mutex_lock(&(sem->id)) != 0 )
+   if ( pthread_mutex_timedlock(&sem->id, &OS_POSIX_BINSEM_MAX_WAIT) != 0 )
    {
       return(OS_SEM_FAILURE);
    }
+
+   /* because pthread_cond_wait() is also a cancellation point,
+    * this uses a cleanup handler to ensure that if canceled during this call,
+    * the mutex is also released */
+   pthread_cleanup_push(OS_Posix_BinSemReleaseMutex, &sem->id);
 
    return_code = OS_SUCCESS;
 
@@ -362,7 +403,12 @@ static int32 OS_GenericBinSemTake_Impl (OS_impl_binsem_internal_record_t *sem, c
       sem->current_value = 0;
    }
 
-   pthread_mutex_unlock(&(sem->id));
+   /*
+    * Pop the cleanup handler.
+    * Passing "true" means it will be executed, which
+    * handles releasing the mutex.
+    */
+   pthread_cleanup_pop(true);
 
    return return_code;
 } /* end OS_GenericBinSemTake_Impl */
