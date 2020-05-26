@@ -1,12 +1,12 @@
 /*
 ** File: osapi-os-filesys.h
 **
-**      Copyright (c) 2004-2006, United States government as represented by the 
-**      administrator of the National Aeronautics Space Administration.  
-**      All rights reserved. This software was created at NASAs Goddard 
+**      Copyright (c) 2004-2006, United States government as represented by the
+**      administrator of the National Aeronautics Space Administration.
+**      All rights reserved. This software was created at NASAs Goddard
 **      Space Flight Center pursuant to government contracts.
 **
-**      This is governed by the NASA Open Source Agreement and may be used, 
+**      This is governed by the NASA Open Source Agreement and may be used,
 **      distributed and modified only pursuant to the terms of that agreement.
 **
 ** Author:  Alan Cudmore Code 582
@@ -53,7 +53,7 @@
 #define NUM_TABLE_ENTRIES 14
 
 /*
-** Length of a Device and Volume name 
+** Length of a Device and Volume name
 */
 #define OS_FS_DEV_NAME_LEN  32  /**< Device name length */
 #define OS_FS_PHYS_NAME_LEN 64  /**< Physical drive name length */
@@ -86,8 +86,8 @@
 #define OS_FS_ERR_PATH_INVALID         (-108)  /**< @brief FS path invalid */
 
 #ifndef OSAL_OMIT_DEPRECATED
-/* 
- * Map some codes used by the file API back to the generic counterparts 
+/*
+ * Map some codes used by the file API back to the generic counterparts
  * where there is overlap between them.  Do not duplicate error codes.
  */
 #define OS_FS_SUCCESS                  OS_SUCCESS               /**< @deprecated Successful execution */
@@ -105,7 +105,7 @@
  *
  * Implementation note for developers:
  *
- * os_fs_err_name_t is now equivalent to the OSAL "os_err_name_t" typedef, 
+ * os_fs_err_name_t is now equivalent to the OSAL "os_err_name_t" typedef,
  * to preserve source code compatibility with anything using the OS_FS_GetErrorName api
  *
  * The sizes of strings in OSAL functions are built with os_fs_err_name_t's
@@ -116,7 +116,7 @@ typedef os_err_name_t os_fs_err_name_t;
 #endif
 
 /**
- * @brief Internal structure of the OS volume table for 
+ * @brief Internal structure of the OS volume table for
  * mounted file systems and path translation
  */
 typedef struct
@@ -263,9 +263,9 @@ int32           OS_creat  (const char *path, int32  access);
  *
  * @param[in] path   File name to create
  * @param[in] access Intended access mode - see @ref OSFileAccess
- * @param[in] mode   The file permissions. This parameter is passed through to the 
+ * @param[in] mode   The file permissions. This parameter is passed through to the
  *		     native open call, but will be ignored. The file mode (or permissions)
- *                   are ignored by the POSIX open call when the O_CREAT access flag is not passed in. 
+ *                   are ignored by the POSIX open call when the O_CREAT access flag is not passed in.
  *
  * @note Valid handle IDs are never negative.  Failure of this
  * call can be checked by testing if the result is less than 0.
@@ -781,7 +781,6 @@ int32           OS_FileSysAddFixedMap(uint32 *filesys_id, const char *phys_path,
  * @param[in]   numblocks The number of blocks to allocate for the drive
  *
  * @return Execution status, see @ref OSReturnCodes
- * @retval #OS_SUCCESS @copybrief OS_SUCCESS
  * @retval #OS_INVALID_POINTER if devname is NULL
  * @retval #OS_FS_ERR_DRIVE_NOT_CREATED if the OS calls to create the the drive failed
  * @retval #OS_FS_ERR_DEVICE_NOT_FREE if the volume table is full
