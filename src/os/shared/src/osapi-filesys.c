@@ -443,7 +443,7 @@ int32 OS_FileSysAddFixedMap(uint32 *filesys_id, const char *phys_path, const cha
         return OS_INVALID_POINTER;
     }
 
-    if (strlen(phys_path) >= OS_MAX_PATH_LEN ||
+    if (strlen(phys_path) >= OS_MAX_LOCAL_PATH_LEN ||
             strlen(virt_path) >= OS_MAX_PATH_LEN)
     {
         return OS_ERR_NAME_TOO_LONG;
@@ -462,7 +462,7 @@ int32 OS_FileSysAddFixedMap(uint32 *filesys_id, const char *phys_path, const cha
         ++dev_name;
     }
 
-    if (strlen(dev_name) >= OS_MAX_API_NAME)
+    if (strlen(dev_name) >= OS_FS_DEV_NAME_LEN)
     {
         return OS_ERR_NAME_TOO_LONG;
     }

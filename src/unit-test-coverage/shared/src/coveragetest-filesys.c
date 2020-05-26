@@ -51,12 +51,14 @@ void Test_OS_FileSysAddFixedMap(void)
     OSAPI_TEST_FUNCTION_RC(OS_FileSysAddFixedMap(&id, "/phys", "/virt"), OS_SUCCESS);
     OSAPI_TEST_FUNCTION_RC(OS_FileSysAddFixedMap(&id, NULL, NULL), OS_INVALID_POINTER);
 
-    UT_SetForceFail(UT_KEY(OCS_strlen), 2 + OS_MAX_PATH_LEN);
+    UT_SetDeferredRetcode(UT_KEY(OCS_strlen), 1, 2 + OS_MAX_LOCAL_PATH_LEN);
     OSAPI_TEST_FUNCTION_RC(OS_FileSysAddFixedMap(&id, "/phys", "/virt"), OS_ERR_NAME_TOO_LONG);
-    UT_ClearForceFail(UT_KEY(OCS_strlen));
+    UT_SetDeferredRetcode(UT_KEY(OCS_strlen), 2, 2 + OS_MAX_PATH_LEN);
+    OSAPI_TEST_FUNCTION_RC(OS_FileSysAddFixedMap(&id, "/phys", "/virt"), OS_ERR_NAME_TOO_LONG);
+    UT_ResetState(UT_KEY(OCS_strlen));
 
     UT_SetForceFail(UT_KEY(OCS_strrchr), -1);
-    UT_SetDeferredRetcode(UT_KEY(OCS_strlen), 3, 2 + OS_MAX_API_NAME);
+    UT_SetDeferredRetcode(UT_KEY(OCS_strlen), 3, 2 + OS_FS_DEV_NAME_LEN);
     OSAPI_TEST_FUNCTION_RC(OS_FileSysAddFixedMap(&id, "/phys", "/virt"), OS_ERR_NAME_TOO_LONG);
     UT_ResetState(UT_KEY(OCS_strlen));
     UT_ResetState(UT_KEY(OCS_strrchr));
