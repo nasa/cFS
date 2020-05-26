@@ -367,17 +367,34 @@ int32 OS_FileSysStatVolume_Impl (uint32 filesys_id, OS_statvfs_t *result)
 {
    OS_filesys_internal_record_t  *local = &OS_filesys_table[filesys_id];
    struct statvfs stat_buf;
+   int32 return_code;
 
    if ( statvfs(local->system_mountpt, &stat_buf) != 0 )
    {
-       return OS_ERROR;
+       /*
+        * The ENOSYS error means it is not implemented at the system level.
+        * This should translate to the OS_ERR_NOT_IMPLEMENTED OSAL code.
+        */
+       if (errno == ENOSYS)
+       {
+           return_code = OS_ERR_NOT_IMPLEMENTED;
+       }
+       else
+       {
+           OS_DEBUG("%s: %s\n", local->system_mountpt, strerror(errno));
+           return_code = OS_ERROR;
+       }
+   }
+   else
+   {
+       result->block_size = stat_buf.f_bsize;
+       result->blocks_free = stat_buf.f_bfree;
+       result->total_blocks = stat_buf.f_blocks;
+
+       return_code = OS_SUCCESS;
    }
 
-   result->block_size = stat_buf.f_bsize;
-   result->blocks_free = stat_buf.f_bfree;
-   result->total_blocks = stat_buf.f_blocks;
-
-   return(OS_SUCCESS);
+   return (return_code);
 } /* end OS_FileSysStatVolume_Impl */
 
 
