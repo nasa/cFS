@@ -170,11 +170,11 @@ void UT_BSP_DoText(uint8 MessageType, const char *OutputMessage)
 
     /*
      * If any ABORT (major failure) message is thrown,
-     * then actually call abort() to stop the test and dump a core
+     * then call a BSP-provided routine to stop the test and possibly dump a core
      */
     if (MessageType == UTASSERT_CASETYPE_ABORT)
     {
-        abort();
+        OS_BSP_Shutdown_Impl();
     }
 }
 

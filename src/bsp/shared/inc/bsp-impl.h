@@ -133,6 +133,16 @@ void OS_BSP_ConsoleOutput_Impl(const char *Str, uint32 DataLen);
  ------------------------------------------------------------------*/
 void OS_BSP_ConsoleSetMode_Impl(uint32 ModeBits);
 
+/*----------------------------------------------------------------
+   Function: OS_BSP_Shutdown_Impl
+
+    Purpose: Causes the calling task to abort in a BSP-safe way.
+             This may map to the abort() system call, but on some systems
+             that causes a reboot or undesirable side effect.  The
+             BSP may implement this call in a different manner.
+ ------------------------------------------------------------------*/
+void OS_BSP_Shutdown_Impl(void);
+
 /*********************
    END bsp-impl.h
  *********************/

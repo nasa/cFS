@@ -301,6 +301,30 @@ rtems_status_code OS_BSP_GetReturnStatus(void)
     return retcode;
 }
 
+/* ---------------------------------------------------------
+    OS_BSP_Shutdown_Impl()
+
+     Helper function to abort the running task
+   --------------------------------------------------------- */
+void OS_BSP_Shutdown_Impl(void)
+{
+    /*
+     * Not calling exit() under RTEMS, this simply shuts down the executive,
+     * forcing the user to reboot the system.
+     *
+     * Calling suspend causes execution to get stuck here, but the RTEMS
+     * shell thread will still be active so the user can poke around, read results,
+     * then use a shell command to reboot when ready.
+     */
+    while (!OS_BSP_PcRtemsGlobal.BatchMode)
+    {
+        printf("\n\nInit thread idle.\nPress <enter> for shell or reset machine...\n\n");
+        rtems_task_suspend(rtems_task_self());
+    }
+
+    rtems_shutdown_executive(OS_BSP_GetReturnStatus());
+}
+
 /*
  ** A simple entry point to start from the loader
  */
@@ -332,20 +356,11 @@ rtems_task Init(rtems_task_argument ignored)
     OS_Application_Run();
 
     /*
-     * Not calling exit() under RTEMS, this simply shuts down the executive,
-     * forcing the user to reboot the system.
-     *
-     * Calling suspend causes execution to get stuck here, but the RTEMS
-     * shell thread will still be active so the user can poke around, read results,
-     * then use a shell command to reboot when ready.
+     * Enter the BSP default shutdown mode
+     * depending on config, this may reset/reboot or suspend
+     * so the operator can use the shell.
      */
-    while (!OS_BSP_PcRtemsGlobal.BatchMode)
-    {
-        printf("\n\nInit thread idle.\nPress <enter> for shell or reset machine...\n\n");
-        rtems_task_suspend(rtems_task_self());
-    }
-
-    rtems_shutdown_executive(OS_BSP_GetReturnStatus());
+    OS_BSP_Shutdown_Impl();
 }
 
 /* configuration information */
