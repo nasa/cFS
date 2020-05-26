@@ -28,7 +28,6 @@
  * BSP compile-time tuning
  */
 #define RTEMS_MAX_USER_OPTIONS   4
-#define RTEMS_NUMBER_OF_RAMDISKS 1
 #define RTEMS_MAX_CMDLINE        256
 
 /*

@@ -48,29 +48,6 @@ extern rtems_status_code rtems_ide_part_table_initialize(const char *);
 extern int rtems_rtl_shell_command (int argc, char* argv[]);
 
 /*
- * The RAM Disk configuration.
- */
-rtems_ramdisk_config rtems_ramdisk_configuration[RTEMS_NUMBER_OF_RAMDISKS];
-
-/*
- * The number of RAM Disk configurations.
- */
-size_t rtems_ramdisk_configuration_size = RTEMS_NUMBER_OF_RAMDISKS;
-
-/*
-** RAM Disk IO op table.
-*/
-rtems_driver_address_table rtems_ramdisk_io_ops =
-{
-        .initialization_entry = ramdisk_initialize,
-        .open_entry =           rtems_blkdev_generic_open,
-        .close_entry =          rtems_blkdev_generic_close,
-        .read_entry =           rtems_blkdev_generic_read,
-        .write_entry =          rtems_blkdev_generic_write,
-        .control_entry =        rtems_blkdev_generic_ioctl
-};
-
-/*
  * Additional shell commands for the RTL functionality
  */
 rtems_shell_cmd_t rtems_shell_RTL_Command = {
