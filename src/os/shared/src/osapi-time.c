@@ -358,7 +358,7 @@ int32 OS_TimerSet(uint32 timer_id, uint32 start_time, uint32 interval_time)
        OS_TimeBaseUnlock_Impl(local->timebase_ref);
 
        /* Unlock the global from OS_ObjectIdCheck() */
-       OS_Unlock_Global_Impl(OS_OBJECT_TYPE_OS_TIMECB);
+       OS_Unlock_Global(OS_OBJECT_TYPE_OS_TIMECB);
    }
 
    /*
@@ -457,7 +457,7 @@ int32 OS_TimerDelete(uint32 timer_id)
 
         OS_TimeBaseUnlock_Impl(local->timebase_ref);
 
-        OS_Unlock_Global_Impl(OS_OBJECT_TYPE_OS_TIMECB);
+        OS_Unlock_Global(OS_OBJECT_TYPE_OS_TIMECB);
     }
 
     /*
@@ -555,7 +555,7 @@ int32 OS_TimerGetInfo (uint32 timer_id, OS_timer_prop_t *timer_prop)
        timer_prop->interval_time =   (uint32)OS_timecb_table[local_id].interval_time;
        timer_prop->accuracy =   OS_timebase_table[OS_timecb_table[local_id].timebase_ref].accuracy_usec;
 
-       OS_Unlock_Global_Impl(OS_OBJECT_TYPE_OS_TIMECB);
+       OS_Unlock_Global(OS_OBJECT_TYPE_OS_TIMECB);
     }
 
     return return_code;

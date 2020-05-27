@@ -194,7 +194,7 @@ int32 OS_SocketBind(uint32 sock_id, const OS_SockAddr_t *Addr)
          }
       }
 
-      OS_Unlock_Global_Impl(LOCAL_OBJID_TYPE);
+      OS_Unlock_Global(LOCAL_OBJID_TYPE);
    }
 
    return return_code;
@@ -274,7 +274,7 @@ int32 OS_SocketAccept(uint32 sock_id, uint32 *connsock_id, OS_SockAddr_t *Addr, 
       /* The actual accept impl is done without global table lock, only refcount lock */
       return_code = OS_SocketAccept_Impl(local_id, conn_id, Addr, timeout);
 
-      OS_Lock_Global_Impl(LOCAL_OBJID_TYPE);
+      OS_Lock_Global(LOCAL_OBJID_TYPE);
       if (return_code == OS_SUCCESS)
       {
          /* Generate an entry name based on the remote address */
@@ -291,7 +291,7 @@ int32 OS_SocketAccept(uint32 sock_id, uint32 *connsock_id, OS_SockAddr_t *Addr, 
       /* Decrement both ref counters that were increased earlier */
       --record->refcount;
       --connrecord->refcount;
-      OS_Unlock_Global_Impl(LOCAL_OBJID_TYPE);
+      OS_Unlock_Global(LOCAL_OBJID_TYPE);
    }
 
    return return_code;
@@ -334,20 +334,20 @@ int32 OS_SocketConnect(uint32 sock_id, const OS_SockAddr_t *Addr, int32 Timeout)
       {
          ++record->refcount;
       }
-      OS_Unlock_Global_Impl(LOCAL_OBJID_TYPE);
+      OS_Unlock_Global(LOCAL_OBJID_TYPE);
    }
 
    if (return_code == OS_SUCCESS)
    {
       return_code = OS_SocketConnect_Impl (local_id, Addr, Timeout);
 
-      OS_Lock_Global_Impl(LOCAL_OBJID_TYPE);
+      OS_Lock_Global(LOCAL_OBJID_TYPE);
       if (return_code == OS_SUCCESS)
       {
          OS_stream_table[local_id].stream_state |= OS_STREAM_STATE_CONNECTED | OS_STREAM_STATE_READABLE | OS_STREAM_STATE_WRITABLE;
       }
       --record->refcount;
-      OS_Unlock_Global_Impl(LOCAL_OBJID_TYPE);
+      OS_Unlock_Global(LOCAL_OBJID_TYPE);
    }
 
 
@@ -488,7 +488,7 @@ int32 OS_SocketGetInfo (uint32 sock_id, OS_socket_prop_t *sock_prop)
       strncpy(sock_prop->name, record->name_entry, OS_MAX_API_NAME - 1);
       sock_prop->creator = record->creator;
       return_code = OS_SocketGetInfo_Impl (local_id, sock_prop);
-      OS_Unlock_Global_Impl(LOCAL_OBJID_TYPE);
+      OS_Unlock_Global(LOCAL_OBJID_TYPE);
    }
 
    return return_code;

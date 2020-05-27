@@ -72,6 +72,31 @@ void Test_OS_ObjectIdInit(void)
     UtAssert_True(actual == expected, "OS_ObjectIdInit() (%ld) == %ld", (long)actual, (long)expected);
 }
 
+
+void Test_OS_LockUnlockGlobal(void)
+{
+    /*
+     * Test Case For:
+     * void OS_Lock_Global(uint32 idtype)
+     * void OS_Unlock_Global(uint32 idtype)
+     */
+
+    /*
+     * As these have no return codes, these tests
+     * exist to get coverage of the paths.
+     */
+    OS_Lock_Global(OS_OBJECT_TYPE_OS_COUNTSEM);
+    OS_Unlock_Global(OS_OBJECT_TYPE_OS_COUNTSEM);
+    OS_Lock_Global(0);
+    OS_Unlock_Global(0);
+    OS_Lock_Global(55555);
+    OS_Unlock_Global(55555);
+
+    UT_SetForceFail(UT_KEY(OS_TaskGetId), 0);
+    OS_Lock_Global(OS_OBJECT_TYPE_OS_BINSEM);
+    OS_Unlock_Global(OS_OBJECT_TYPE_OS_BINSEM);
+}
+
 void Test_OS_ObjectIdConvertLock(void)
 {
     /*
@@ -675,6 +700,7 @@ void Osapi_Test_Teardown(void)
 void UtTest_Setup(void)
 {
     ADD_TEST(OS_ObjectIdInit);
+    ADD_TEST(OS_LockUnlockGlobal);
     ADD_TEST(OS_ObjectIdFindNext);
     ADD_TEST(OS_ObjectIdToArrayIndex);
     ADD_TEST(OS_ObjectIdFindByName);

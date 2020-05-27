@@ -145,7 +145,7 @@ int32 OS_MutSemDelete (uint32 sem_id)
          record->active_id = 0;
       }
 
-      OS_Unlock_Global_Impl(LOCAL_OBJID_TYPE);
+      OS_Unlock_Global(LOCAL_OBJID_TYPE);
    }
 
    return return_code;
@@ -258,7 +258,7 @@ int32 OS_MutSemGetInfo (uint32 sem_id, OS_mut_sem_prop_t *mut_prop)
 
       return_code = OS_MutSemGetInfo_Impl(local_id, mut_prop);
 
-      OS_Unlock_Global_Impl(LOCAL_OBJID_TYPE);
+      OS_Unlock_Global(LOCAL_OBJID_TYPE);
    }
 
    return return_code;

@@ -82,14 +82,7 @@ int32 OS_Lock_Global_Impl(uint32 idtype)
    POSIX_GlobalLock_t *mut;
    sigset_t previous;
 
-   if (idtype < MUTEX_TABLE_SIZE)
-   {
-      mut = MUTEX_TABLE[idtype];
-   }
-   else
-   {
-      mut = NULL;
-   }
+   mut = MUTEX_TABLE[idtype];
 
    if (mut == NULL)
    {

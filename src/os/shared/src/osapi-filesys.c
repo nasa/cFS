@@ -576,7 +576,7 @@ int32 OS_rmfs (const char *devname)
            global->active_id = 0;
         }
 
-        OS_Unlock_Global_Impl(LOCAL_OBJID_TYPE);
+        OS_Unlock_Global(LOCAL_OBJID_TYPE);
     }
     else
     {
@@ -685,7 +685,7 @@ int32 OS_mount (const char *devname, const char* mountpoint)
             strcpy(local->virtual_mountpt, mountpoint);
         }
 
-        OS_Unlock_Global_Impl(LOCAL_OBJID_TYPE);
+        OS_Unlock_Global(LOCAL_OBJID_TYPE);
     }
 
 
@@ -764,7 +764,7 @@ int32 OS_unmount (const char *mountpoint)
             local->flags &= ~(OS_FILESYS_FLAG_IS_MOUNTED_SYSTEM | OS_FILESYS_FLAG_IS_MOUNTED_VIRTUAL);
         }
 
-        OS_Unlock_Global_Impl(LOCAL_OBJID_TYPE);
+        OS_Unlock_Global(LOCAL_OBJID_TYPE);
     }
 
 
@@ -811,7 +811,7 @@ int32 OS_fsBlocksFree (const char *name)
 
         return_code = OS_FileSysStatVolume_Impl(local_id, &statfs);
 
-        OS_Unlock_Global_Impl(LOCAL_OBJID_TYPE);
+        OS_Unlock_Global(LOCAL_OBJID_TYPE);
 
         if (return_code == OS_SUCCESS)
         {
@@ -863,7 +863,7 @@ int32 OS_fsBytesFree (const char *name, uint64 *bytes_free)
 
         return_code = OS_FileSysStatVolume_Impl(local_id, &statfs);
 
-        OS_Unlock_Global_Impl(LOCAL_OBJID_TYPE);
+        OS_Unlock_Global(LOCAL_OBJID_TYPE);
 
         if (return_code == OS_SUCCESS)
         {
@@ -974,7 +974,7 @@ int32 OS_FS_GetPhysDriveName(char * PhysDriveName, const char * MountPoint)
             return_code = OS_ERR_INCORRECT_OBJ_STATE;
         }
 
-        OS_Unlock_Global_Impl(LOCAL_OBJID_TYPE);
+        OS_Unlock_Global(LOCAL_OBJID_TYPE);
     }
     else
     {
@@ -1012,7 +1012,7 @@ int32 OS_GetFsInfo(os_fsinfo_t  *filesys_info)
    filesys_info->MaxFds = OS_MAX_NUM_OPEN_FILES;
    filesys_info->MaxVolumes = OS_MAX_FILE_SYSTEMS;
 
-   OS_Lock_Global_Impl(OS_OBJECT_TYPE_OS_STREAM);
+   OS_Lock_Global(OS_OBJECT_TYPE_OS_STREAM);
 
    for ( i = 0; i < OS_MAX_NUM_OPEN_FILES; i++ )
    {
@@ -1022,9 +1022,9 @@ int32 OS_GetFsInfo(os_fsinfo_t  *filesys_info)
       }
    }
 
-   OS_Unlock_Global_Impl(OS_OBJECT_TYPE_OS_STREAM);
+   OS_Unlock_Global(OS_OBJECT_TYPE_OS_STREAM);
 
-   OS_Lock_Global_Impl(OS_OBJECT_TYPE_OS_FILESYS);
+   OS_Lock_Global(OS_OBJECT_TYPE_OS_FILESYS);
 
    for ( i = 0; i < NUM_TABLE_ENTRIES; i++ )
    {
@@ -1034,7 +1034,7 @@ int32 OS_GetFsInfo(os_fsinfo_t  *filesys_info)
        }
    }
 
-   OS_Unlock_Global_Impl(OS_OBJECT_TYPE_OS_FILESYS);
+   OS_Unlock_Global(OS_OBJECT_TYPE_OS_FILESYS);
 
    return(OS_SUCCESS);
 } /* end OS_GetFsInfo */
@@ -1128,7 +1128,7 @@ int32 OS_TranslatePath(const char *VirtualPath, char *LocalPath)
             return_code = OS_ERR_INCORRECT_OBJ_STATE;
         }
 
-        OS_Unlock_Global_Impl(LOCAL_OBJID_TYPE);
+        OS_Unlock_Global(LOCAL_OBJID_TYPE);
     }
 
     if (return_code == OS_SUCCESS)

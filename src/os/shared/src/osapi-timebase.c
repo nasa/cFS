@@ -217,7 +217,7 @@ int32 OS_TimeBaseSet(uint32 timer_id, uint32 start_time, uint32 interval_time)
 
         OS_TimeBaseUnlock_Impl(local_id);
 
-        OS_Unlock_Global_Impl(OS_OBJECT_TYPE_OS_TIMEBASE);
+        OS_Unlock_Global(OS_OBJECT_TYPE_OS_TIMEBASE);
     }
 
     return return_code;
@@ -260,7 +260,7 @@ int32 OS_TimeBaseDelete(uint32 timer_id)
             record->active_id = 0;
         }
 
-        OS_Unlock_Global_Impl(OS_OBJECT_TYPE_OS_TIMEBASE);
+        OS_Unlock_Global(OS_OBJECT_TYPE_OS_TIMEBASE);
     }
 
     return return_code;
@@ -345,7 +345,7 @@ int32 OS_TimeBaseGetInfo (uint32 timebase_id, OS_timebase_prop_t *timebase_prop)
 
        return_code = OS_TimeBaseGetInfo_Impl(local_id, timebase_prop);
 
-       OS_Unlock_Global_Impl(LOCAL_OBJID_TYPE);
+       OS_Unlock_Global(LOCAL_OBJID_TYPE);
     }
 
     return return_code;
@@ -428,7 +428,7 @@ void OS_TimeBase_CallbackThread(uint32 timebase_id)
     syncfunc = timebase->external_sync;
     spin_cycles = 0;
 
-    OS_Unlock_Global_Impl(OS_OBJECT_TYPE_OS_TIMEBASE);
+    OS_Unlock_Global(OS_OBJECT_TYPE_OS_TIMEBASE);
 
     while (1)
     {

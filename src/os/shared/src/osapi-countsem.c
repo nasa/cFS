@@ -150,7 +150,7 @@ int32 OS_CountSemDelete (uint32 sem_id)
          record->active_id = 0;
       }
 
-      OS_Unlock_Global_Impl(LOCAL_OBJID_TYPE);
+      OS_Unlock_Global(LOCAL_OBJID_TYPE);
    }
 
    return return_code;
@@ -288,7 +288,7 @@ int32 OS_CountSemGetInfo (uint32 sem_id, OS_count_sem_prop_t *count_prop)
       count_prop->creator = record->creator;
 
       return_code = OS_CountSemGetInfo_Impl (local_id, count_prop);
-      OS_Unlock_Global_Impl(LOCAL_OBJID_TYPE);
+      OS_Unlock_Global(LOCAL_OBJID_TYPE);
    }
 
    return return_code;

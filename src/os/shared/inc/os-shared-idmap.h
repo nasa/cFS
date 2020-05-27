@@ -102,7 +102,16 @@ int32 OS_ObjectIdInit                (void);
 
 
 /*----------------------------------------------------------------
-   Function: OS_Lock_Global_Impl
+   Function: OS_Lock_Global
+
+    Purpose: Locks the global table identified by "idtype"
+
+   Returns: OS_SUCCESS on success, or relevant error code
+ ------------------------------------------------------------------*/
+void OS_Lock_Global(uint32 idtype);
+
+/*----------------------------------------------------------------
+   Function: OS_Lock_Global
 
     Purpose: Locks the global table identified by "idtype"
 
@@ -111,7 +120,17 @@ int32 OS_ObjectIdInit                (void);
 int32 OS_Lock_Global_Impl(uint32 idtype);
 
 /*----------------------------------------------------------------
-   Function: OS_Unlock_Global_Impl
+   Function: OS_Unlock_Global
+
+    Purpose: Unlocks the global table identified by "idtype"
+
+    Returns: OS_SUCCESS on success, or relevant error code
+ ------------------------------------------------------------------*/
+void OS_Unlock_Global(uint32 idtype);
+
+
+/*----------------------------------------------------------------
+   Function: OS_Unlock_Global
 
     Purpose: Unlocks the global table identified by "idtype"
 

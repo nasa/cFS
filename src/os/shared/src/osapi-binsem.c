@@ -157,7 +157,7 @@ int32 OS_BinSemDelete (uint32 sem_id)
          record->active_id = 0;
       }
 
-      OS_Unlock_Global_Impl(LOCAL_OBJID_TYPE);
+      OS_Unlock_Global(LOCAL_OBJID_TYPE);
    }
 
    return return_code;
@@ -318,7 +318,7 @@ int32 OS_BinSemGetInfo (uint32 sem_id, OS_bin_sem_prop_t *bin_prop)
       strncpy(bin_prop->name, record->name_entry, OS_MAX_API_NAME - 1);
       bin_prop->creator = record->creator;
       return_code = OS_BinSemGetInfo_Impl (local_id, bin_prop);
-      OS_Unlock_Global_Impl(LOCAL_OBJID_TYPE);
+      OS_Unlock_Global(LOCAL_OBJID_TYPE);
    }
 
    return return_code;

@@ -74,8 +74,16 @@ typedef enum
 /* Tables where the OS object information is stored */
 static OS_common_record_t OS_common_table[OS_MAX_TOTAL_RECORDS];
 
-/* Keep track of the last successfully-issued object ID of each type */
-static uint32 OS_last_id_issued[OS_OBJECT_TYPE_USER];
+typedef struct
+{
+    /* Keep track of the last successfully-issued object ID of each type */
+    uint32 last_id_issued;
+
+    /* The last task to lock/own this global table */
+    uint32 table_owner;
+} OS_objtype_state_t;
+
+OS_objtype_state_t OS_objtype_state[OS_OBJECT_TYPE_USER];
 
 
 OS_common_record_t * const OS_global_task_table       = &OS_common_table[OS_TASK_BASE];
@@ -108,7 +116,7 @@ OS_common_record_t * const OS_global_console_table    = &OS_common_table[OS_CONS
 int32 OS_ObjectIdInit(void)
 {
     memset(OS_common_table, 0, sizeof(OS_common_table));
-    memset(OS_last_id_issued, 0, sizeof(OS_last_id_issued));
+    memset(OS_objtype_state, 0, sizeof(OS_objtype_state));
     return OS_SUCCESS;
 } /* end OS_ObjectIdInit */
 
@@ -214,7 +222,7 @@ void OS_ObjectIdInitiateLock(OS_lock_mode_t lock_mode, uint32 idtype)
 {
     if (lock_mode != OS_LOCK_MODE_NONE)
     {
-        OS_Lock_Global_Impl(idtype);
+        OS_Lock_Global(idtype);
     }
 } /* end OS_ObjectIdInitiateLock */
 
@@ -337,9 +345,9 @@ int32 OS_ObjectIdConvertLock(OS_lock_mode_t lock_mode, uint32 idtype, uint32 ref
             break;
         }
 
-        OS_Unlock_Global_Impl(idtype);
+        OS_Unlock_Global(idtype);
         OS_TaskDelay_Impl(attempts);
-        OS_Lock_Global_Impl(idtype);
+        OS_Lock_Global(idtype);
     }
 
     /*
@@ -366,7 +374,7 @@ int32 OS_ObjectIdConvertLock(OS_lock_mode_t lock_mode, uint32 idtype, uint32 ref
         if (return_code != OS_SUCCESS ||
                 lock_mode == OS_LOCK_MODE_REFCOUNT)
         {
-            OS_Unlock_Global_Impl(idtype);
+            OS_Unlock_Global(idtype);
         }
     }
 
@@ -468,7 +476,7 @@ int32 OS_ObjectIdFindNext(uint32 idtype, uint32 *array_index, OS_common_record_t
    else
    {
        return_code = OS_ERR_NO_FREE_IDS;
-       idvalue = OS_last_id_issued[idtype] & OS_OBJECT_INDEX_MASK;
+       idvalue = OS_objtype_state[idtype].last_id_issued & OS_OBJECT_INDEX_MASK;
    }
 
    for (i = 0; i < max_id; ++i)
@@ -524,6 +532,127 @@ int32 OS_ObjectIdFindNext(uint32 idtype, uint32 *array_index, OS_common_record_t
  *  but are NOT directly invoked by applications
  *********************************************************************************
  */
+
+/*----------------------------------------------------------------
+   Function: OS_Lock_Global
+
+    Purpose: Locks the global table identified by "idtype"
+ ------------------------------------------------------------------*/
+void OS_Lock_Global(uint32 idtype)
+{
+    int32 return_code;
+    uint32 self_task_id;
+    OS_objtype_state_t *objtype;
+
+    if (idtype < OS_OBJECT_TYPE_USER)
+    {
+        objtype = &OS_objtype_state[idtype];
+        self_task_id = OS_TaskGetId();
+
+        return_code = OS_Lock_Global_Impl(idtype);
+        if (return_code == OS_SUCCESS)
+        {
+            /*
+             * Track ownership of this table.  It should only be owned by one
+             * task at a time, and this aids in recovery if the owning task is
+             * deleted or experiences an exception causing it to not be freed.
+             *
+             * This is done after successfully locking, so this has exclusive access
+             * to the state object.
+             */
+            if (self_task_id == 0)
+            {
+                /*
+                 * This just means the calling context is not an OSAL-created task.
+                 * This is not necessarily an error, but it should be tracked.
+                 * Also note that the root/initial task also does not have an ID.
+                 */
+                self_task_id = 0xFFFFFFFF; /* nonzero, but also won't alias a known task */
+            }
+
+            if (objtype->table_owner != 0)
+            {
+                /* this is almost certainly a bug */
+                OS_DEBUG("ERROR: global %u acquired by task 0x%lx when already owned by task 0x%lx\n",
+                        (unsigned int)idtype, (unsigned long)self_task_id,
+                        (unsigned long)objtype->table_owner);
+            }
+            else
+            {
+                objtype->table_owner = self_task_id;
+            }
+        }
+    }
+    else
+    {
+        return_code = OS_ERR_INCORRECT_OBJ_TYPE;
+    }
+
+    if (return_code != OS_SUCCESS)
+    {
+        OS_DEBUG("ERROR: unable to lock global %u, error=%d\n", (unsigned int)idtype, (int)return_code);
+    }
+}
+
+/*----------------------------------------------------------------
+   Function: OS_Unlock_Global
+
+    Purpose: Unlocks the global table identified by "idtype"
+ ------------------------------------------------------------------*/
+void OS_Unlock_Global(uint32 idtype)
+{
+    int32 return_code;
+    uint32 self_task_id;
+    OS_objtype_state_t *objtype;
+
+    if (idtype < OS_OBJECT_TYPE_USER)
+    {
+        objtype = &OS_objtype_state[idtype];
+        self_task_id = OS_TaskGetId();
+
+        /*
+         * Un-track ownership of this table.  It should only be owned by one
+         * task at a time, and this aids in recovery if the owning task is
+         * deleted or experiences an exception causing it to not be freed.
+         *
+         * This is done before unlocking, while this has exclusive access
+         * to the state object.
+         */
+        if (self_task_id == 0)
+        {
+            /*
+             * This just means the calling context is not an OSAL-created task.
+             * This is not necessarily an error, but it should be tracked.
+             * Also note that the root/initial task also does not have an ID.
+             */
+            self_task_id = 0xFFFFFFFF; /* nonzero, but also won't alias a known task */
+        }
+
+        if (objtype->table_owner != self_task_id)
+        {
+            /* this is almost certainly a bug */
+            OS_DEBUG("ERROR: global %u released by task 0x%lx when owned by task 0x%lx\n",
+                    (unsigned int)idtype, (unsigned long)self_task_id,
+                    (unsigned long)objtype->table_owner);
+        }
+        else
+        {
+            objtype->table_owner = 0;
+        }
+
+        return_code = OS_Unlock_Global_Impl(idtype);
+    }
+    else
+    {
+        return_code = OS_ERR_INCORRECT_OBJ_TYPE;
+    }
+
+    if (return_code != OS_SUCCESS)
+    {
+        OS_DEBUG("ERROR: unable to unlock global %u, error=%d\n", (unsigned int)idtype, (int)return_code);
+    }
+}
+
 
 /*----------------------------------------------------------------
  *
@@ -618,7 +747,7 @@ int32 OS_ObjectIdFinalizeNew(int32 operation_status, OS_common_record_t *record,
     else
     {
         /* success */
-        OS_last_id_issued[idtype] = record->active_id;
+        OS_objtype_state[idtype].last_id_issued = record->active_id;
     }
 
     if (outid != NULL)
@@ -628,7 +757,7 @@ int32 OS_ObjectIdFinalizeNew(int32 operation_status, OS_common_record_t *record,
     }
 
     /* Either way we must unlock the object type */
-    OS_Unlock_Global_Impl(idtype);
+    OS_Unlock_Global(idtype);
 
     return operation_status;
 } /* end OS_ObjectIdFinalizeNew */
@@ -668,7 +797,7 @@ int32 OS_ObjectIdGetBySearch(OS_lock_mode_t lock_mode, uint32 idtype, OS_ObjectM
     }
     else if (lock_mode != OS_LOCK_MODE_NONE)
     {
-        OS_Unlock_Global_Impl(idtype);
+        OS_Unlock_Global(idtype);
     }
 
     if (record != NULL)
@@ -735,7 +864,7 @@ int32 OS_ObjectIdFindByName (uint32 idtype, const char *name, uint32 *object_id)
     if (return_code == OS_SUCCESS)
     {
         *object_id = global->active_id;
-        OS_Unlock_Global_Impl(idtype);
+        OS_Unlock_Global(idtype);
     }
 
     return return_code;
@@ -827,7 +956,7 @@ int32 OS_ObjectIdRefcountDecr(OS_common_record_t *record)
    }
    else
    {
-      OS_Lock_Global_Impl(idtype);
+      OS_Lock_Global(idtype);
 
       if (record->refcount > 0)
       {
@@ -839,7 +968,7 @@ int32 OS_ObjectIdRefcountDecr(OS_common_record_t *record)
          return_code = OS_ERR_INCORRECT_OBJ_STATE;
       }
 
-      OS_Unlock_Global_Impl(idtype);
+      OS_Unlock_Global(idtype);
    }
 
    return return_code;
@@ -890,7 +1019,7 @@ int32 OS_ObjectIdAllocateNew(uint32 idtype, const char *name, uint32 *array_inde
        return OS_ERR_INCORRECT_OBJ_TYPE;
    }
 
-   OS_Lock_Global_Impl(idtype);
+   OS_Lock_Global(idtype);
 
    /*
     * Check if an object of the same name already exits.
@@ -918,7 +1047,7 @@ int32 OS_ObjectIdAllocateNew(uint32 idtype, const char *name, uint32 *array_inde
     * otherwise the global should stay locked so remaining initialization can be done */
    if (return_code != OS_SUCCESS)
    {
-      OS_Unlock_Global_Impl(idtype);
+      OS_Unlock_Global(idtype);
    }
 
    return return_code;
@@ -981,7 +1110,7 @@ void OS_ForEachObjectOfType     (uint32 idtype, uint32 creator_id, OS_ArgCallbac
     if (obj_max > 0)
     {
         obj_index = OS_GetBaseForObjectType(idtype);
-        OS_Lock_Global_Impl(idtype);
+        OS_Lock_Global(idtype);
         while (obj_max > 0)
         {
             /*
@@ -1010,15 +1139,15 @@ void OS_ForEachObjectOfType     (uint32 idtype, uint32 creator_id, OS_ArgCallbac
                  * as the callback function might call other OSAL functions,
                  * which could deadlock.
                  */
-                OS_Unlock_Global_Impl(idtype);
+                OS_Unlock_Global(idtype);
                 (*callback_ptr)(obj_id, callback_arg);
-                OS_Lock_Global_Impl(idtype);
+                OS_Lock_Global(idtype);
             }
 
             ++obj_index;
             --obj_max;
         }
-        OS_Unlock_Global_Impl(idtype);
+        OS_Unlock_Global(idtype);
     }
 } /* end OS_ForEachObjectOfType */
 
