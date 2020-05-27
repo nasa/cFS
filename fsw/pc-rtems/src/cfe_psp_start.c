@@ -235,6 +235,7 @@ void CFE_PSP_Main(void)
 {
    uint32            reset_type;
    uint32            reset_subtype;
+   uint32            fs_id;
    int32 Status;
 
 
@@ -255,6 +256,17 @@ void CFE_PSP_Main(void)
     * Initialize the CFE reserved memory map
     */
    CFE_PSP_SetupReservedMemoryMap();
+
+   /*
+   ** Set up the virtual FS mapping for the "/cf" directory
+   */
+   Status = OS_FileSysAddFixedMap(&fs_id, "/mnt/eeprom", "/cf");
+   if (Status != OS_SUCCESS)
+   {
+       /* Print for informational purposes --
+        * startup can continue, but loads may fail later, depending on config. */
+       OS_printf("CFE_PSP: OS_FileSysAddFixedMap() failure: %d\n", (int)Status);
+   }
 
    /*
    ** Initialize the statically linked modules (if any)
