@@ -1,3 +1,20 @@
+/*
+ *      Copyright (c) 2020, United States government as represented by the
+ *      administrator of the National Aeronautics Space Administration.
+ *      All rights reserved. This software was created at NASA Goddard
+ *      Space Flight Center pursuant to government contracts.
+ *
+ *      This is governed by the NASA Open Source Agreement and may be used,
+ *      distributed and modified only according to the terms of that agreement.
+ */
+
+/*
+ * Filename: timer-add-api-test.c
+ *
+ * Purpose: This file contains functional tests for "osapi-timer"
+ *
+ */
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -19,18 +36,18 @@ uint32           TimerStart[NUMBER_OF_TIMERS] = {1000, 2000000, 3000000, 4000000
 uint32           TimerInterval[NUMBER_OF_TIMERS] = {500000, 400000, 800000, 600000 };
 
 uint32 TimerTestTaskStack[TASK_1_STACK_SIZE];
-int32 timer_counter[NUMBER_OF_TIMERS];
-uint32 timer_idlookup[OS_MAX_TIMERS];
+uint32 timer_counter[NUMBER_OF_TIMERS];
 
-/*
-** Test timer function.
-** Note: For some Host OSs, this is the equivalent of an ISR, so the calls available are limited.
-** For example, Linux and vxWorks can call functions like printf, but RTEMS cannot.
-*/
-void test_func(uint32 timer_id , void *arg)
+
+void counter_func(uint32 timer_id , void *arg)
 {
-   OS_ConvertToArrayIndex(timer_id, &timer_id);
-   timer_counter[timer_idlookup[timer_id]]++;
+   uint32 *counter = arg;
+   ++(*counter);
+}
+
+void null_func(uint32 timer_id , void *arg)
+{
+
 }
 
 /* *************************************** MAIN ************************************** */
@@ -44,26 +61,32 @@ void TestTimerAddApi(void)
 
     int32    actual;
     int32    expected;
+    int32    tbc_ret_val;
+    int32    tbs_ret_val;
     uint32   timer_id;
-    char     arg = 'a';
     uint32   time_base_id;
     int      i = 0;
     int32    TimerStatus[NUMBER_OF_TIMERS];
-    uint32   TableId;
     uint32   TimerID[NUMBER_OF_TIMERS];
     char     TimerName[NUMBER_OF_TIMERS][20] = {"TIMER1","TIMER2","TIMER3","TIMER4"};
     uint32   microsecs;
 
-    OS_TimeBaseCreate( &time_base_id, "TimeBase", 0);
-    OS_TimeBaseSet(time_base_id, 10000, 10000); //ms
+   /* Create and set the TimeBase obj and verify success */
+
+    tbc_ret_val = OS_TimeBaseCreate( &time_base_id, "TimeBase", 0);
+    expected = OS_SUCCESS; 
+    UtAssert_True(tbc_ret_val == expected, "OS_TimeBaseCreate() (%ld) == OS_SUCCESS", (long)tbc_ret_val);
+
+    tbs_ret_val = OS_TimeBaseSet(time_base_id, 10000, 10000); /* ms */
+    expected = OS_SUCCESS; 
+    UtAssert_True(tbs_ret_val == expected, "OS_TimeBaseSet() (%ld) == OS_SUCCESS", (long)tbs_ret_val);
+
 
    for ( i = 0; i < NUMBER_OF_TIMERS; i++ )
    {
-      TimerStatus[i] = OS_TimerAdd(&TimerID[i], TimerName[i], time_base_id, &test_func, &arg);
+      TimerStatus[i] = OS_TimerAdd(&TimerID[i], TimerName[i], time_base_id, &counter_func, &timer_counter[i]);
       UtAssert_True(TimerStatus[i] == OS_SUCCESS, "Timer %d Created RC=%d ID=%d", i, (int)TimerStatus[i], (int)TimerID[i]);
 
-      OS_ConvertToArrayIndex(TimerID[i], &TableId);
-      timer_idlookup[TableId] = i;
    }
 
    /* Sample the clock now, before starting any timer */
@@ -145,29 +168,29 @@ void TestTimerAddApi(void)
    }
 
     /* Test nominal inputs */
-    expected = OS_SUCCESS;
-    actual = OS_TimerAdd(&timer_id, "Timer", time_base_id, test_func, &arg);
+    expected = OS_SUCCESS; 
+    actual = OS_TimerAdd(&timer_id, "Timer", time_base_id, null_func, NULL);
     UtAssert_True(actual == expected, "OS_TimerAdd() (%ld) == OS_SUCCESS", (long)actual);
 
     /* Test invalid inputs */
     expected = OS_INVALID_POINTER;
-    actual = OS_TimerAdd(NULL, "Timer", time_base_id, test_func, &arg);
+    actual = OS_TimerAdd(NULL, "Timer", time_base_id, null_func, NULL);
     UtAssert_True(actual == expected, "OS_TimerAdd() (%ld) == OS_INVALID_POINTER", (long)actual);
 
     expected = OS_ERR_INVALID_ID;
-    actual = OS_TimerAdd(&timer_id, "Timer", 1, test_func, &arg);
+    actual = OS_TimerAdd(&timer_id, "Timer", 1, null_func, NULL);
     UtAssert_True(actual == expected, "OS_TimerAdd() (%ld) == OS_ERR_INVALID_ID", (long)actual);
 
     expected = OS_TIMER_ERR_INVALID_ARGS;
-    actual = OS_TimerAdd(&timer_id, "Timer",time_base_id , NULL, &arg);
+    actual = OS_TimerAdd(&timer_id, "Timer",time_base_id , NULL, NULL);
     UtAssert_True(actual == expected, "OS_TimerAdd() (%ld) == OS_TIMER_ERR_INVALID_ARGS", (long)actual);
 
     expected = OS_ERR_NAME_TAKEN;
-    actual = OS_TimerAdd(&timer_id, "Timer", time_base_id, test_func, &arg);
+    actual = OS_TimerAdd(&timer_id, "Timer", time_base_id, null_func, NULL);
     UtAssert_True(actual == expected, "OS_TimerAdd() (%ld) == OS_ERR_NAME_TAKEN", (long)actual);
 
     expected = OS_INVALID_POINTER;
-    actual = OS_TimerAdd(&timer_id, 0, time_base_id, test_func, &arg);
+    actual = OS_TimerAdd(&timer_id, 0, time_base_id, null_func, NULL);
     UtAssert_True(actual == expected, "OS_TimerAdd() (%ld) == OS_INVALID_POINTER", (long)actual);
 
 
