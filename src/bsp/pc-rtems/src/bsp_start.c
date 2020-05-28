@@ -78,9 +78,7 @@ OS_BSP_PcRtemsGlobalData_t OS_BSP_PcRtemsGlobal;
 void OS_BSP_Setup(void)
 {
     int          status;
-    unsigned int i;
     struct stat  statbuf;
-    const char * cfpart;
     const char * cmdlinestr;
     const char * cmdp;
     char *       cmdi, *cmdo;
@@ -184,6 +182,19 @@ void OS_BSP_Setup(void)
     }
 
     /*
+     * Create the mountpoint for the general purpose file system
+     */
+    if (stat(RTEMS_USER_FS_MOUNTPOINT, &statbuf) < 0)
+    {
+        status = mkdir(RTEMS_USER_FS_MOUNTPOINT,
+                       S_IFDIR | S_IRWXU | S_IRWXG | S_IRWXO); /* For nonvol filesystem mountpoint */
+        if (status < 0)
+        {
+            printf("mkdir failed: %s\n", strerror(errno));
+        }
+    }
+
+    /*
      * Register the IDE partition table.
      */
     status = rtems_ide_part_table_initialize("/dev/hda");
@@ -194,52 +205,25 @@ void OS_BSP_Setup(void)
          * is still available. */
         BSP_DEBUG("warning: /dev/hda partition table not found: %s / %s\n", rtems_status_text(status), strerror(errno));
         BSP_DEBUG("Persistent storage will NOT be mounted\n");
-        cfpart = NULL;
     }
     else
     {
-        cfpart = "/dev/hda1";
+        status = mount("/dev/hda1", RTEMS_USER_FS_MOUNTPOINT, RTEMS_FILESYSTEM_TYPE_DOSFS,
+                       RTEMS_FILESYSTEM_READ_WRITE, NULL);
+        if (status < 0)
+        {
+            BSP_DEBUG("mount failed: %s\n", strerror(errno));
+        }
     }
 
     /*
-    ** Create local directories for "disk" mount points
-    **  See bsp_voltab for the values
-    **
-    ** NOTE - the voltab table is poorly designed here; values of "0" are valid
-    ** and will translate into an entry that is actually used.  In particular the
-    ** "free" flag has to be actually initialized to TRUE to say its NOT valid.
-    ** So in the case of an entry that has been zeroed out (i.e. bss section) it
-    ** will be treated as a valid entry.
-    **
-    ** Checking that the DeviceName starts with a leading slash '/' is a workaround
-    ** for this, and may be the only way to detect an entry that is uninitialized.
-    */
-    for (i = 0; i < NUM_TABLE_ENTRIES; ++i)
-    {
-        if (OS_VolumeTable[i].VolumeType == FS_BASED && OS_VolumeTable[i].PhysDevName[0] != 0 &&
-            OS_VolumeTable[i].DeviceName[0] == '/')
+     * Change to the user storage mountpoint dir, which
+     * will be the basis of relative directory refs.
+     * If mounted, it will be persistent, otherwise
+     * it will be an IMFS dir, but should generally work.
+     */
+    chdir(RTEMS_USER_FS_MOUNTPOINT);
 
-        {
-            if (stat(OS_VolumeTable[i].PhysDevName, &statbuf) < 0)
-            {
-                status = mkdir(OS_VolumeTable[i].PhysDevName,
-                               S_IFDIR | S_IRWXU | S_IRWXG | S_IRWXO); /* For ramdisk mountpoint */
-                if (status < 0)
-                {
-                    printf("mkdir failed: %s\n", strerror(errno));
-                }
-            }
-            if (cfpart != NULL && strcmp(OS_VolumeTable[i].MountPoint, "/cf") == 0)
-            {
-                status = mount(cfpart, OS_VolumeTable[i].PhysDevName, RTEMS_FILESYSTEM_TYPE_DOSFS,
-                               RTEMS_FILESYSTEM_READ_WRITE, NULL);
-                if (status < 0)
-                {
-                    printf("mount failed: %s\n", strerror(errno));
-                }
-            }
-        }
-    }
 
     /*
      * Start the shell now, before any application starts.

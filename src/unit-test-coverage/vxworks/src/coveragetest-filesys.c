@@ -43,9 +43,13 @@ void Test_OS_FileSysStartVolume_Impl(void)
      */
     int32 expected;
 
-    /* Emulate an FS_BASED entry */
-    OS_filesys_table[0].fstype = OS_FILESYS_TYPE_DEFAULT;
+    /* Emulate an UNKNOWN entry */
+    OS_filesys_table[0].fstype = OS_FILESYS_TYPE_UNKNOWN;
     OSAPI_TEST_FUNCTION_RC(OS_FileSysStartVolume_Impl(0), OS_ERR_NOT_IMPLEMENTED);
+
+    /* Emulate an FS_BASED entry */
+    OS_filesys_table[0].fstype = OS_FILESYS_TYPE_FS_BASED;
+    OSAPI_TEST_FUNCTION_RC(OS_FileSysStartVolume_Impl(0), OS_SUCCESS);
 
     /* Emulate a VOLATILE_DISK entry (ramdisk) */
     OS_filesys_table[1].fstype = OS_FILESYS_TYPE_VOLATILE_DISK;
@@ -78,6 +82,7 @@ void Test_OS_FileSysStopVolume_Impl(void)
     OSAPI_TEST_FUNCTION_RC(OS_FileSysStopVolume_Impl(0), OS_SUCCESS);
 
     /* Failure to delete XBD layer */
+    OS_filesys_table[1].fstype = OS_FILESYS_TYPE_VOLATILE_DISK;
     UT_FileSysTest_SetupFileSysEntry(1, NULL, 1, 4);
     OSAPI_TEST_FUNCTION_RC(OS_FileSysStopVolume_Impl(1), OS_SUCCESS);
     UtAssert_True(UT_GetStubCount(UT_KEY(OCS_xbdBlkDevDelete)) == 1, "xbdBlkDevDelete() called");
@@ -88,6 +93,16 @@ void Test_OS_FileSysFormatVolume_Impl(void)
     /* Test Case For:
      * int32 OS_FileSysFormatVolume_Impl (uint32 filesys_id)
      */
+
+    /* test unimplemented fs type */
+    OS_filesys_table[0].fstype = OS_FILESYS_TYPE_UNKNOWN;
+    OSAPI_TEST_FUNCTION_RC(OS_FileSysFormatVolume_Impl(0), OS_ERR_NOT_IMPLEMENTED);
+
+    /* fs-based should be noop */
+    OS_filesys_table[0].fstype = OS_FILESYS_TYPE_FS_BASED;
+    OSAPI_TEST_FUNCTION_RC(OS_FileSysFormatVolume_Impl(0), OS_SUCCESS);
+
+    OS_filesys_table[0].fstype = OS_FILESYS_TYPE_VOLATILE_DISK;
     OSAPI_TEST_FUNCTION_RC(OS_FileSysFormatVolume_Impl(0), OS_SUCCESS);
 
     /* Failure of the dosFsVolFormat() call */

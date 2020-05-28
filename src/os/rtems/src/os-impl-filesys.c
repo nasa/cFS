@@ -61,6 +61,11 @@ typedef struct
  ***************************************************************************************/
 
 /*
+ * The prefix used for "real" device nodes on this platform
+ */
+const char OS_RTEMS_DEVICEFILE_PREFIX[] = "/dev/";
+
+/*
  * The implementation-specific file system state table.
  * This keeps record of the RTEMS driver and mount options for each filesystem
  */
@@ -105,11 +110,24 @@ int32 OS_FileSysStartVolume_Impl (uint32 filesys_id)
     memset(impl,0,sizeof(*impl));
 
     /*
+     * Determine basic type of filesystem, if not already known
+     */
+    if (local->fstype == OS_FILESYS_TYPE_UNKNOWN &&
+            strncmp(local->device_name, OS_RTEMS_DEVICEFILE_PREFIX, sizeof(OS_RTEMS_DEVICEFILE_PREFIX)-1) == 0)
+    {
+        /*
+         * If referring to a real device in the /dev filesystem,
+         * then assume it is a normal disk.
+         */
+        local->fstype = OS_FILESYS_TYPE_NORMAL_DISK;
+    }
+
+    /*
      * Take action based on the type of volume
      */
     switch (local->fstype)
     {
-    case OS_FILESYS_TYPE_DEFAULT:
+    case OS_FILESYS_TYPE_FS_BASED:
     {
         /*
          * This "mount" type is basically not a mount at all,
@@ -234,7 +252,7 @@ int32 OS_FileSysFormatVolume_Impl (uint32 filesys_id)
 
     switch(local->fstype)
     {
-    case OS_FILESYS_TYPE_DEFAULT:
+    case OS_FILESYS_TYPE_FS_BASED:
     {
         /*
          * In this mode a format is a no-op, as it is simply a directory
@@ -314,14 +332,22 @@ int32 OS_FileSysMountVolume_Impl (uint32 filesys_id)
     }
 
     /*
-    ** Mount the Disk
-    */
-    if ( mount(impl->blockdev_name, local->system_mountpt,
-            impl->mount_fstype, impl->mount_options, impl->mount_data) != 0 )
+     * Only do the mount() syscall for real devices.
+     * For other types of filesystem mounts (e.g. FS_BASED), this is a no-op
+     */
+    if (local->fstype == OS_FILESYS_TYPE_VOLATILE_DISK ||
+            local->fstype == OS_FILESYS_TYPE_NORMAL_DISK)
     {
-        OS_DEBUG("OSAL: Error: mount of %s to %s failed: %s\n",
-                impl->blockdev_name, local->system_mountpt, strerror(errno));
-        return OS_ERROR;
+        /*
+        ** Mount the Disk
+        */
+        if ( mount(impl->blockdev_name, local->system_mountpt,
+                impl->mount_fstype, impl->mount_options, impl->mount_data) != 0 )
+        {
+            OS_DEBUG("OSAL: Error: mount of %s to %s failed: %s\n",
+                    impl->blockdev_name, local->system_mountpt, strerror(errno));
+            return OS_ERROR;
+        }
     }
 
     return OS_SUCCESS;
@@ -341,13 +367,17 @@ int32 OS_FileSysUnmountVolume_Impl (uint32 filesys_id)
 {
     OS_filesys_internal_record_t  *local = &OS_filesys_table[filesys_id];
 
-    /*
-    ** Try to unmount the disk
-    */
-    if ( unmount(local->system_mountpt) < 0)
+    if (local->fstype == OS_FILESYS_TYPE_VOLATILE_DISK ||
+            local->fstype == OS_FILESYS_TYPE_NORMAL_DISK)
     {
-       OS_DEBUG("OSAL: RTEMS unmount of %s failed :%s\n",local->system_mountpt, strerror(errno));
-       return OS_ERROR;
+        /*
+        ** Try to unmount the disk
+        */
+        if ( unmount(local->system_mountpt) < 0)
+        {
+           OS_DEBUG("OSAL: RTEMS unmount of %s failed :%s\n",local->system_mountpt, strerror(errno));
+           return OS_ERROR;
+        }
     }
 
     return OS_SUCCESS;

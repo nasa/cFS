@@ -21,8 +21,3 @@ if (NOT CMAKE_CROSSCOMPILING)
   set(UT_COVERAGE_COMPILE_FLAGS -pg --coverage)
   set(UT_COVERAGE_LINK_FLAGS    -pg --coverage)
 endif()
-
-# This indicates where to stage target binaries created during the build
-# It should reflect the _real_ location of the persistent storage path used by
-# the BSP which is intended to be used for runtime modules or files.
-set(OSAL_BSP_STAGING_INSTALL_DIR "eeprom1")

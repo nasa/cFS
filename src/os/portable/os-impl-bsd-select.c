@@ -82,7 +82,7 @@ static int OS_FdSet_ConvertIn_Impl(fd_set *os_set, OS_FdSet *OSAL_set)
          {
             id = (offset * 8) + bit;
             osfd = OS_impl_filehandle_table[id].fd;
-            if (osfd >= 0)
+            if (osfd >= 0 && OS_impl_filehandle_table[id].selectable)
             {
                FD_SET(osfd, os_set);
                if (osfd > maxfd)
@@ -247,6 +247,15 @@ int32 OS_SelectSingle_Impl(uint32 stream_id, uint32 *SelectFlags, int32 msecs)
    fd_set wr_set;
    fd_set rd_set;
 
+   /* 
+    * If called on a stream_id which does not support this
+    * operation, return immediately and do not invoke the system call
+    */
+   if (!OS_impl_filehandle_table[stream_id].selectable)
+   {
+       return OS_ERR_OPERATION_NOT_SUPPORTED;
+   }
+
    if (*SelectFlags != 0)
    {
       FD_ZERO(&wr_set);
@@ -304,6 +313,13 @@ int32 OS_SelectMultiple_Impl(OS_FdSet *ReadSet, OS_FdSet *WriteSet, int32 msecs)
    int maxfd;
    int32 return_code;
 
+   /*
+    * This return code will be used if the set(s) do not
+    * contain any file handles capable of select().  It
+    * will be overwritten with the real result of the
+    * select call, if selectable file handles were specified.
+    */
+   return_code = OS_ERR_OPERATION_NOT_SUPPORTED;
    FD_ZERO(&rd_set);
    FD_ZERO(&wr_set);
    maxfd = -1;
@@ -324,7 +340,10 @@ int32 OS_SelectMultiple_Impl(OS_FdSet *ReadSet, OS_FdSet *WriteSet, int32 msecs)
       }
    }
 
-   return_code = OS_DoSelect(maxfd, &rd_set, &wr_set, msecs);
+   if (maxfd >= 0)
+   {
+       return_code = OS_DoSelect(maxfd, &rd_set, &wr_set, msecs);
+   }
 
    if (return_code == OS_SUCCESS)
    {

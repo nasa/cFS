@@ -17,6 +17,7 @@
  *
  */
 #include "os-portable-coveragetest.h"
+#include "ut-adaptor-portable-posix-io.h"
 #include "os-shared-select.h"
 
 #include <OCS_sys_select.h>
@@ -32,7 +33,10 @@ void Test_OS_SelectSingle_Impl(void)
     struct OCS_timespec latertime;
 
     StreamID = 0;
+    UT_PortablePosixIOTest_Set_Selectable(0, false);
     SelectFlags = OS_STREAM_STATE_READABLE | OS_STREAM_STATE_WRITABLE;
+    OSAPI_TEST_FUNCTION_RC(OS_SelectSingle_Impl, (StreamID, &SelectFlags, 0), OS_ERR_OPERATION_NOT_SUPPORTED);
+    UT_PortablePosixIOTest_Set_Selectable(0, true);
     OSAPI_TEST_FUNCTION_RC(OS_SelectSingle_Impl, (StreamID, &SelectFlags, 0), OS_SUCCESS);
     SelectFlags = OS_STREAM_STATE_READABLE | OS_STREAM_STATE_WRITABLE;
     OSAPI_TEST_FUNCTION_RC(OS_SelectSingle_Impl, (StreamID, &SelectFlags, -1), OS_SUCCESS);

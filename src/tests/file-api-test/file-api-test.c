@@ -27,11 +27,22 @@ os_err_name_t errname;
 
 void UtTest_Setup(void)
 {
+    uint32 fs_id;
+
     errname[0] = 0;
 
     if (OS_API_Init() != OS_SUCCESS)
     {
         UtAssert_Abort("OS_API_Init() failed");
+    }
+
+    /*
+     * This test case requires a fixed virtual dir for one test case.
+     * Just map /test to a dir of the same name, relative to current dir.
+     */
+    if (OS_FileSysAddFixedMap(&fs_id, "./test", "/test") != OS_SUCCESS)
+    {
+        UtAssert_Abort("OS_FileSysAddFixedMap() failed");
     }
 
     /*
@@ -667,13 +678,13 @@ void TestOpenReadCloseDir(void)
 
     /* Test case for bug #181 - make sure that a directory used as a mount point
      * is able to be opened.  This should not require a trailing
-     * slash (i.e. /cf rather than /cf/) */
-    status = OS_DirectoryOpen(&dirh, "/cf");
-    UtAssert_True(status >= OS_SUCCESS, "OS_DirectoryOpen /cf Id=%u Rc=%d",(unsigned int)dirh,(int)status);
+     * slash (i.e. /test rather than /test/) */
+    status = OS_DirectoryOpen(&dirh, "/test");
+    UtAssert_True(status >= OS_SUCCESS, "OS_DirectoryOpen /test Id=%u Rc=%d",(unsigned int)dirh,(int)status);
 
     /*Close the file */
     status = OS_DirectoryClose(dirh);
-    UtAssert_True(status >= OS_SUCCESS, "OS_DirectoryClose /cf Rc=%d",(int)status);
+    UtAssert_True(status >= OS_SUCCESS, "OS_DirectoryClose /test Rc=%d",(int)status);
 
 /* remove the files */
     status = OS_remove(filename1);

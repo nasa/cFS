@@ -99,10 +99,8 @@ void UT_os_module_load_test()
     /* Setup */
     for ( i = 0; i< OS_MAX_MODULES; i++ )
     {
-        memset(module_name, '\0', sizeof(module_name));
-        UT_os_sprintf(module_name, "MODULE%d",i);
-        memset(module_file_name, '\0', sizeof(module_file_name));
-        UT_os_sprintf(module_file_name, UT_OS_SPECIFIC_MODULE_NAME, i);
+        snprintf(module_name, sizeof(module_name), UT_OS_GENERIC_MODULE_NAME_TEMPLATE, i);
+        snprintf(module_file_name, sizeof(module_file_name), UT_OS_GENERIC_MODULE_FILE_TEMPLATE, i);
         res = OS_ModuleLoad(&module_id, module_name, module_file_name);
         if ( res != OS_SUCCESS )
         {

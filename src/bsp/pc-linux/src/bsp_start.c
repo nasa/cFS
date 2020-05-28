@@ -38,40 +38,8 @@ OS_BSP_PcLinuxGlobalData_t OS_BSP_PcLinuxGlobal;
    --------------------------------------------------------- */
 void OS_BSP_Initialize(void)
 {
-    mode_t      mode;
-    uint32      i;
-    struct stat statbuf;
     FILE *fp;
     char buffer[32];
-
-    /*
-    ** Create local directories for "disk" mount points
-    **  See bsp_voltab for the values
-    **
-    ** NOTE - the voltab table is poorly designed here; values of "0" are valid
-    ** and will translate into an entry that is actually used.  In particular the
-    ** "free" flag has to be actually initialized to TRUE to say its NOT valid.
-    ** So in the case of an entry that has been zeroed out (i.e. bss section) it
-    ** will be treated as a valid entry.
-    **
-    ** Checking that the DeviceName starts with a leading slash '/' is a workaround
-    ** for this, and may be the only way to detect an entry that is uninitialized.
-    */
-    mode = S_IFDIR | S_IRWXU | S_IRWXG | S_IRWXO;
-    for (i = 0; i < NUM_TABLE_ENTRIES; ++i)
-    {
-        if (OS_VolumeTable[i].VolumeType == FS_BASED &&
-                OS_VolumeTable[i].PhysDevName[0] != 0 &&
-                OS_VolumeTable[i].DeviceName[0] == '/')
-
-        {
-            if (stat(OS_VolumeTable[i].PhysDevName, &statbuf) < 0)
-            {
-                BSP_DEBUG("Creating mount point: %s\n", OS_VolumeTable[i].PhysDevName);
-                mkdir(OS_VolumeTable[i].PhysDevName, mode);
-            }
-        }
-    }
 
     /*
      * If not running as root, check /proc/sys/fs/mqueue/msg_max

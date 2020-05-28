@@ -30,11 +30,6 @@
 #
 # This also exports the following variables:
 #
-#   OSAL_BSP_STAGING_INSTALL_DIR : the location of the staging directory
-#				   for the selected OSAL BSP.  This can be used in
-#                  post-build rules or "install()" commands to stage
-#				   binary or data files for execution.
-#
 #  UT_COVERAGE_COMPILE_FLAGS : Compiler flags that must be used to
 #                  instrument code for coverage testing
 #  UT_COVERAGE_LINK_FLAGS : Linker flags that must be used to
@@ -175,13 +170,22 @@ if (OSAL_BSP_INCLUDE_DIRECTORIES)
     include_directories(${OSAL_BSP_INCLUDE_DIRECTORIES})
 endif (OSAL_BSP_INCLUDE_DIRECTORIES)
 
+set(BSP_SRCLIST 
+    src/bsp/shared/src/osapi-bsp.c
+    src/bsp/shared/src/bsp_default_app_run.c
+    src/bsp/shared/src/bsp_default_app_startup.c
+    src/bsp/shared/src/bsp_default_symtab.c
+)
+
+if (NOT OMIT_DEPRECATED)
+    list(APPEND BSP_SRCLIST
+        src/bsp/shared/src/bsp_default_voltab.c
+    )
+endif (NOT OMIT_DEPRECATED)
 
 # Define the external "osal_bsp" static library target
 add_library(osal_bsp STATIC
-	src/bsp/shared/src/osapi-bsp.c
-	src/bsp/shared/src/bsp_default_app_run.c
-	src/bsp/shared/src/bsp_default_app_startup.c
-	src/bsp/shared/src/bsp_default_symtab.c
+    ${BSP_SRCLIST}
     $<TARGET_OBJECTS:osal_${OSAL_SYSTEM_BSPTYPE}_impl>
 )
 
@@ -357,10 +361,6 @@ endif (ENABLE_UNIT_TESTS)
 # This is conditional to avoid warnings in a standalone build.
 get_directory_property(HAS_PARENT PARENT_DIRECTORY)
 if (HAS_PARENT)
-    # export the "OSAL_BSP_STAGING_INSTALL_DIR" to the parent build, so this can be
-    # used in "install" commands as necessary for the files needed at runtime
-    set(OSAL_BSP_STAGING_INSTALL_DIR "${OSAL_BSP_STAGING_INSTALL_DIR}" PARENT_SCOPE)
-
     # Export the UT coverage compiler/linker flags to the parent build.
     # These flags are based on the target system type and should be used
     # when building code intended for coverage analysis.

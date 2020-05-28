@@ -248,5 +248,12 @@
   */
 #define OS_MAX_CONSOLES                 1
 
+/**
+  * \brief The system-specific file extension used on loadable module files 
+  *
+  * Fixed value based on system selection, not user configurable.
+  */
+#define OS_MODULE_FILE_EXTENSION        "@CMAKE_SHARED_LIBRARY_SUFFIX@"
+
 
 #endif      /* INCLUDE_OSCONFIG_H_ */

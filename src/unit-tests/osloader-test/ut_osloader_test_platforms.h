@@ -15,40 +15,14 @@
 ** Macros
 **--------------------------------------------------------------------------------*/
 
-/*
- * The actual module files that the loader tests attempt to load need
- * to be consistent with the system type that is being compiled for.
- *
- * It can be assumed that the BSP will provide some sort of virtual
- * filesystem mapping for the /cf directory, but the file extension
- * for a loadable module still differs.
- */
+#define UT_OS_GENERIC_MODULE_DIR        "/utmod/"
+#define UT_OS_GENERIC_MODULE_BASENAME   "MODULE"
 
-/*--------------------------------------------*/
-#if defined(_VXWORKS_OS_) || defined(OSP_ARINC653)
-/*--------------------------------------------*/
+#define UT_OS_GENERIC_MODULE_NAME1      UT_OS_GENERIC_MODULE_DIR UT_OS_GENERIC_MODULE_BASENAME "0" OS_MODULE_FILE_EXTENSION
+#define UT_OS_GENERIC_MODULE_NAME2      UT_OS_GENERIC_MODULE_DIR UT_OS_GENERIC_MODULE_BASENAME "1" OS_MODULE_FILE_EXTENSION
 
-#define UT_OS_GENERIC_MODULE_NAME1   "/cf/apps/MODULE.o"
-#define UT_OS_GENERIC_MODULE_NAME2   "/cf/apps/MODULE1.o"
-#define UT_OS_SPECIFIC_MODULE_NAME   "/cf/apps/MODULE%d.o"
-
-/*--------------------------------------------*/
-#elif defined(_RTEMS_OS_)
-/*--------------------------------------------*/
-
-#define UT_OS_GENERIC_MODULE_NAME1   "/cf/MODULE.obj"
-#define UT_OS_GENERIC_MODULE_NAME2   "/cf/MODULE1.obj"
-#define UT_OS_SPECIFIC_MODULE_NAME   "/cf/MODULE%d.obj"
-
-/*--------------------------------------------*/
-#else /* For any other OS assume Linux/POSIX style .so files */
-/*--------------------------------------------*/
-
-#define UT_OS_GENERIC_MODULE_NAME1   "/cf/MODULE.so"
-#define UT_OS_GENERIC_MODULE_NAME2   "/cf/MODULE1.so"
-#define UT_OS_SPECIFIC_MODULE_NAME   "/cf/MODULE%d.so"
-
-#endif
+#define UT_OS_GENERIC_MODULE_NAME_TEMPLATE   UT_OS_GENERIC_MODULE_BASENAME "%d"
+#define UT_OS_GENERIC_MODULE_FILE_TEMPLATE   UT_OS_GENERIC_MODULE_DIR UT_OS_GENERIC_MODULE_NAME_TEMPLATE OS_MODULE_FILE_EXTENSION
 
 /*--------------------------------------------------------------------------------*
 ** Data types
