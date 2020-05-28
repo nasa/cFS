@@ -547,7 +547,7 @@ void OS_Lock_Global(uint32 idtype)
     if (idtype < OS_OBJECT_TYPE_USER)
     {
         objtype = &OS_objtype_state[idtype];
-        self_task_id = OS_TaskGetId();
+        self_task_id = OS_TaskGetId_Impl();
 
         return_code = OS_Lock_Global_Impl(idtype);
         if (return_code == OS_SUCCESS)
@@ -608,7 +608,7 @@ void OS_Unlock_Global(uint32 idtype)
     if (idtype < OS_OBJECT_TYPE_USER)
     {
         objtype = &OS_objtype_state[idtype];
-        self_task_id = OS_TaskGetId();
+        self_task_id = OS_TaskGetId_Impl();
 
         /*
          * Un-track ownership of this table.  It should only be owned by one
@@ -1209,7 +1209,7 @@ int32 OS_GetResourceName(uint32 object_id, char *buffer, uint32 buffer_size)
             memcpy(buffer, record->name_entry, name_len);
             buffer[name_len] = 0;
         }
-        OS_Unlock_Global_Impl(idtype);
+        OS_Unlock_Global(idtype);
     }
 
     return return_code;
