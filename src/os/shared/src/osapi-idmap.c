@@ -1172,7 +1172,7 @@ uint32 OS_IdentifyObject       (uint32 object_id)
  *           See description in API and header file for detail
  *
  *-----------------------------------------------------------------*/
-int32 OS_GetResourceName(uint32 id, char *buffer, uint32 buffer_size)
+int32 OS_GetResourceName(uint32 object_id, char *buffer, uint32 buffer_size)
 {
     uint32 idtype;
     OS_common_record_t *record;
@@ -1193,8 +1193,8 @@ int32 OS_GetResourceName(uint32 id, char *buffer, uint32 buffer_size)
      */
     buffer[0] = 0;
 
-    idtype = OS_ObjectIdToType_Impl(id);
-    return_code = OS_ObjectIdGetById(OS_LOCK_MODE_GLOBAL, idtype, id, &local_id, &record);
+    idtype = OS_ObjectIdToType_Impl(object_id);
+    return_code = OS_ObjectIdGetById(OS_LOCK_MODE_GLOBAL, idtype, object_id, &local_id, &record);
     if (return_code == OS_SUCCESS)
     {
         if (record->name_entry != NULL)

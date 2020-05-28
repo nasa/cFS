@@ -301,7 +301,7 @@ void OS_ApplicationExit(int32 Status);
  *          #OS_INVALID_POINTER if the passed-in buffer is invalid
  *          #OS_ERR_NAME_TOO_LONG if the name will not fit in the buffer provided
  */
-int32 OS_GetResourceName(uint32 id, char *buffer, uint32 buffer_size);
+int32 OS_GetResourceName(uint32 object_id, char *buffer, uint32 buffer_size);
 
 /*-------------------------------------------------------------------------------------*/
 /**
