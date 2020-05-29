@@ -10,6 +10,7 @@ extraction:
       version: "3"
     index:
       include: "tools/cFS-GroundSystem"
+      exclude: "tools/cFS-GroundSystem/**/Ui_*"
   cpp:
     index:
       build_command:
