@@ -223,7 +223,7 @@ int32 OS_close (uint32 filedes)
             record->active_id = 0;
         }
 
-        OS_Unlock_Global_Impl(LOCAL_OBJID_TYPE);
+        OS_Unlock_Global(LOCAL_OBJID_TYPE);
     }
 
     return return_code;
@@ -454,7 +454,7 @@ int32 OS_rename (const char *old, const char *new)
 
    if (return_code == OS_SUCCESS)
    {
-      OS_Lock_Global_Impl(LOCAL_OBJID_TYPE);
+      OS_Lock_Global(LOCAL_OBJID_TYPE);
       for ( i =0; i < OS_MAX_NUM_OPEN_FILES; i++)
       {
          if (OS_global_stream_table[i].active_id != 0 &&
@@ -464,7 +464,7 @@ int32 OS_rename (const char *old, const char *new)
             strcpy (OS_stream_table[i].stream_name, new);
          }
       }
-      OS_Unlock_Global_Impl(LOCAL_OBJID_TYPE);
+      OS_Unlock_Global(LOCAL_OBJID_TYPE);
     }
 
     return return_code;
@@ -609,7 +609,7 @@ int32 OS_FDGetInfo (uint32 filedes, OS_file_prop_t *fd_prop)
       strncpy(fd_prop->Path, record->name_entry, OS_MAX_PATH_LEN - 1);
       fd_prop->User = record->creator;
       fd_prop->IsValid = true;
-      OS_Unlock_Global_Impl(LOCAL_OBJID_TYPE);
+      OS_Unlock_Global(LOCAL_OBJID_TYPE);
    }
 
    return return_code;
@@ -637,7 +637,7 @@ int32 OS_FileOpenCheck(const char *Filename)
 
    return_code = OS_ERROR;
 
-   OS_Lock_Global_Impl(LOCAL_OBJID_TYPE);
+   OS_Lock_Global(LOCAL_OBJID_TYPE);
 
    for ( i = 0; i < OS_MAX_NUM_OPEN_FILES; i++)
    {
@@ -650,7 +650,7 @@ int32 OS_FileOpenCheck(const char *Filename)
       }
    }/* end for */
 
-   OS_Unlock_Global_Impl(LOCAL_OBJID_TYPE);
+   OS_Unlock_Global(LOCAL_OBJID_TYPE);
 
    return return_code;
 } /* end OS_FileOpenCheck */
@@ -678,7 +678,7 @@ int32 OS_CloseFileByName(const char *Filename)
 
    return_code = OS_FS_ERR_PATH_INVALID;
 
-   OS_Lock_Global_Impl(LOCAL_OBJID_TYPE);
+   OS_Lock_Global(LOCAL_OBJID_TYPE);
 
    for ( i = 0; i < OS_MAX_NUM_OPEN_FILES; i++)
    {
@@ -698,7 +698,7 @@ int32 OS_CloseFileByName(const char *Filename)
       }
    }/* end for */
 
-   OS_Unlock_Global_Impl(LOCAL_OBJID_TYPE);
+   OS_Unlock_Global(LOCAL_OBJID_TYPE);
 
    return (return_code);
 
@@ -721,7 +721,7 @@ int32 OS_CloseAllFiles(void)
 
    return_code = OS_SUCCESS;
 
-   OS_Lock_Global_Impl(LOCAL_OBJID_TYPE);
+   OS_Lock_Global(LOCAL_OBJID_TYPE);
 
    for ( i = 0; i < OS_MAX_NUM_OPEN_FILES; i++)
    {
@@ -739,7 +739,7 @@ int32 OS_CloseAllFiles(void)
       }
    }/* end for */
 
-   OS_Unlock_Global_Impl(LOCAL_OBJID_TYPE);
+   OS_Unlock_Global(LOCAL_OBJID_TYPE);
 
    return (return_code);
 

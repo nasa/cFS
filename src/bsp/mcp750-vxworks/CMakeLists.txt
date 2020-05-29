@@ -6,7 +6,6 @@
 
 add_library(osal_mcp750-vxworks_impl OBJECT
 	src/bsp_start.c
-	src/bsp_voltab.c
 	src/bsp_console.c
 )
 

@@ -32,6 +32,16 @@
 
 UT_DEFAULT_STUB(OS_ObjectIdInit,(void))
 
+/* Lock/Unlock for global tables */
+void OS_Lock_Global(uint32 idtype)
+{
+    UT_DEFAULT_IMPL(OS_Lock_Global);
+}
+void OS_Unlock_Global(uint32 idtype)
+{
+    UT_DEFAULT_IMPL(OS_Unlock_Global);
+}
+
 /*****************************************************************************
  *
  * Stub function for OS_ObjectIdMap()
@@ -392,6 +402,33 @@ int32 OS_ObjectIdAllocateNew(uint32 idtype, const char *name, uint32 *array_inde
 }
 
 /*--------------------------------------------------------------------------------------
+     Name: OS_GetResourceName
+
+    Purpose: Stub function for OS_GetResourceName, returns either the test-supplied string
+             or an empty string.
+
+    returns: status
+---------------------------------------------------------------------------------------*/
+int32 OS_GetResourceName(uint32 id, char *buffer, uint32 buffer_size)
+{
+    int32 return_code;
+
+    return_code = UT_DEFAULT_IMPL(OS_GetResourceName);
+
+    if (return_code == OS_SUCCESS)
+    {
+        if (buffer_size > 0 &&
+                UT_Stub_CopyToLocal(UT_KEY(OS_GetResourceName), buffer, buffer_size) == 0)
+        {
+            /* return an empty string by default */
+            buffer[0] = 0;
+        }
+    }
+
+    return return_code;
+}
+
+/*--------------------------------------------------------------------------------------
      Name: OS_ConvertToArrayIndex
 
     Purpose: Converts any abstract ID into a number suitable for use as an array index.
@@ -429,6 +466,36 @@ int32 OS_ConvertToArrayIndex(uint32 object_id, uint32 *ArrayIndex)
    return return_code;
 } /* end OS_ConvertToArrayIndex */
 
+/*--------------------------------------------------------------------------------------
+     Name: OS_ForEachObjectOfType
+
+    Purpose: Stub function for OS_ForEachObjectOfType
+
+    returns: None
+---------------------------------------------------------------------------------------*/
+void OS_ForEachObjectOfType     (uint32 objtype, uint32 creator_id, OS_ArgCallback_t callback_ptr, void *callback_arg)
+{
+    uint32 NextId;
+    uint32 IdSize;
+    OS_U32ValueWrapper_t wrapper;
+
+    wrapper.arg_callback_func = callback_ptr;
+
+    /* Although this is "void", Invoke the default impl to log it and invoke any hooks */
+    UT_Stub_RegisterContext(UT_KEY(OS_ForEachObjectOfType), wrapper.opaque_arg);
+    UT_Stub_RegisterContext(UT_KEY(OS_ForEachObjectOfType), callback_arg);
+    UT_DEFAULT_IMPL(OS_ForEachObjectOfType);
+
+    while (1)
+    {
+        IdSize = UT_Stub_CopyToLocal(UT_KEY(OS_ForEachObjectOfType), &NextId, sizeof(NextId));
+        if (IdSize < sizeof(NextId))
+        {
+            break;
+        }
+        (*callback_ptr)(NextId, callback_arg);
+    }
+}
 
 /*--------------------------------------------------------------------------------------
      Name: OS_ForEachOject

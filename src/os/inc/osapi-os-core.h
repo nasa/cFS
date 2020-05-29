@@ -47,6 +47,13 @@
 /** @brief Upper limit for OSAL task priorities */
 #define OS_MAX_TASK_PRIORITY        255
 
+/**
+ * @brief Constant that may be passed to OS_ForEachObject()/OS_ForEachObjectOfType() to match any
+ * creator (i.e. get all objects)
+ */
+#define OS_OBJECT_CREATOR_ANY       0
+
+
 /** @defgroup OSSemaphoreStates OSAL Semaphore State Defines
  * @{
  */
@@ -280,6 +287,24 @@ void OS_ApplicationExit(int32 Status);
 
 /*-------------------------------------------------------------------------------------*/
 /**
+ * @brief Obtain the name of an object given an arbitrary object ID
+ *
+ * All OSAL resources generally have a name associated with them.  This
+ * allows application code to retrieve the name of any valid OSAL object ID.
+ *
+ * @param[in]  object_id The object ID to operate on
+ * @param[out] buffer Buffer in which to store the name
+ * @param[in]  buffer_size Size of the output storage buffer
+ *
+ * @returns #OS_SUCCESS if successful
+ *          #OS_ERR_INVALID_ID if the passed-in ID is not a valid OSAL ID
+ *          #OS_INVALID_POINTER if the passed-in buffer is invalid
+ *          #OS_ERR_NAME_TOO_LONG if the name will not fit in the buffer provided
+ */
+int32 OS_GetResourceName(uint32 object_id, char *buffer, uint32 buffer_size);
+
+/*-------------------------------------------------------------------------------------*/
+/**
  * @brief Obtain the type of an object given an arbitrary object ID
  *
  * Given an arbitrary object ID, get the type of the object
@@ -315,11 +340,32 @@ int32 OS_ConvertToArrayIndex   (uint32 object_id, uint32 *ArrayIndex);
 /**
  * @brief call the supplied callback function for all valid object IDs
  *
- * Loops through all defined OSAL objects and calls callback_ptr on each one
+ * Loops through all defined OSAL objects of all types and calls callback_ptr on each one
  * If creator_id is nonzero then only objects with matching creator id are processed.
+ *
+ * @param[in]  creator_id   Filter objects to those created by a specific task
+ *                          This may be passed as OS_OBJECT_CREATOR_ANY to return all objects
+ * @param[in]  callback_ptr Function to invoke for each matching object ID
+ * @param[in]  callback_arg Opaque Argument to pass to callback function
  */
 void OS_ForEachObject           (uint32 creator_id, OS_ArgCallback_t callback_ptr, void *callback_arg);
 /**@}*/
+
+/*-------------------------------------------------------------------------------------*/
+/**
+ * @brief call the supplied callback function for valid object IDs of a specific type
+ *
+ * Loops through all defined OSAL objects of a specific type and calls callback_ptr on each one
+ * If creator_id is nonzero then only objects with matching creator id are processed.
+ *
+ * @param[in]  objtype      The type of objects to iterate
+ * @param[in]  creator_id   Filter objects to those created by a specific task
+ *                          This may be passed as OS_OBJECT_CREATOR_ANY to return all objects
+ * @param[in]  callback_ptr Function to invoke for each matching object ID
+ * @param[in]  callback_arg Opaque Argument to pass to callback function
+  */
+void OS_ForEachObjectOfType     (uint32 objtype, uint32 creator_id, OS_ArgCallback_t callback_ptr, void *callback_arg);
+
 
 /** @defgroup OSAPITask OSAL Task APIs
  * @{

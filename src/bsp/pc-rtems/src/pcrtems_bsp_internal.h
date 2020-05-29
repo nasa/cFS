@@ -28,8 +28,12 @@
  * BSP compile-time tuning
  */
 #define RTEMS_MAX_USER_OPTIONS   4
-#define RTEMS_NUMBER_OF_RAMDISKS 1
 #define RTEMS_MAX_CMDLINE        256
+
+/*
+ * The location which the general purpose file system will be mounted
+ */
+#define RTEMS_USER_FS_MOUNTPOINT    "/mnt"
 
 /*
  * By default put the shell at the same priority

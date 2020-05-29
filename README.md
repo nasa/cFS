@@ -16,6 +16,22 @@ This distribution contains:
 
 ## Version History
 
+### Development Build: 5.0.18
+
+- Add functional tests for `OS_IdentifyObject`, `OS_ConvertToArrayIndex` and `OS_ForEachObject` functions.
+- Fix doxygen warnings
+- Unit test cases which use `OS_statfs` and run on an `RTEMS IMFS` volume will be skipped and categorized as "NA" due to `OS_ERR_NOT_IMPLEMENTED` response, rather than a failure.
+- The device_name field was using the wrong length, it should be of `OS_FS_DEV_NAME_LEN` Also correct another length check on the local path name.
+- For RTEMS, will not shutdown the kernel if test abort occurs.
+- Unit tests work on RTEMS without BSP preallocating ramdisks
+- If `OSAL_EXT_SOURCE_DIR` cache variable is set, this location will be checked first for a BSP/OS implementation layer.
+- Implement `OS_GetResourceName()` and `OS_ForEachObjectOfType()`, which are new functions that allow for additional query capabilities. No impact to current behavior as the FSW does not currently use any of these new APIs.
+- A functional test enhancement to `bin-sem-test` which replicates the specific conditions for the observed bug to occur. Deletes the task calling `OS_BinSemTake()` and then attempts to use the semaphore after this. 
+- Employ a `pthread` "cleanup handler" to handle the situation where a task is canceled during the `pthread_cond_wait()` call. This ensures that the `mutex` is unlocked as part of the cleanup, so other tasks may continue using the semaphore.    
+- Change all initial `mutex` locking to be a finite "timed" wait rather than an infinite wait. In all cases, the condition variable is only held for brief periods of time and should be readily available. If a task blocks for a long time, this considers the mutex "broken" and aborts, thereby avoiding deadlock. This is a "contingency" fix in that if an exception or signal or other unknown/unhandled async event occurs that leaves the mutex permanently locked.
+- Adds the mutex to protect the timer callback `timecb` resource table.
+- See <https://github.com/nasa/osal/pull/482>
+
 ### Development Build: 5.0.17
 
 -  `OS_QueueCreate()` will return an error code if the depth parameter is larger than the configured `OS_MAX_QUEUE_DEPTH`. 

@@ -42,6 +42,7 @@ static POSIX_GlobalLock_t OS_count_sem_table_mut;
 static POSIX_GlobalLock_t OS_stream_table_mut;
 static POSIX_GlobalLock_t OS_dir_table_mut;
 static POSIX_GlobalLock_t OS_timebase_table_mut;
+static POSIX_GlobalLock_t OS_timecb_table_mut;
 static POSIX_GlobalLock_t OS_module_table_mut;
 static POSIX_GlobalLock_t OS_filesys_table_mut;
 static POSIX_GlobalLock_t OS_console_mut;
@@ -57,6 +58,7 @@ static POSIX_GlobalLock_t * const MUTEX_TABLE[] =
             [OS_OBJECT_TYPE_OS_STREAM] = &OS_stream_table_mut,
             [OS_OBJECT_TYPE_OS_DIR] = &OS_dir_table_mut,
             [OS_OBJECT_TYPE_OS_TIMEBASE] = &OS_timebase_table_mut,
+            [OS_OBJECT_TYPE_OS_TIMECB] = &OS_timecb_table_mut,
             [OS_OBJECT_TYPE_OS_MODULE] = &OS_module_table_mut,
             [OS_OBJECT_TYPE_OS_FILESYS] = &OS_filesys_table_mut,
             [OS_OBJECT_TYPE_OS_CONSOLE] = &OS_console_mut,
@@ -80,14 +82,7 @@ int32 OS_Lock_Global_Impl(uint32 idtype)
    POSIX_GlobalLock_t *mut;
    sigset_t previous;
 
-   if (idtype < MUTEX_TABLE_SIZE)
-   {
-      mut = MUTEX_TABLE[idtype];
-   }
-   else
-   {
-      mut = NULL;
-   }
+   mut = MUTEX_TABLE[idtype];
 
    if (mut == NULL)
    {

@@ -10,7 +10,6 @@
 
 add_library(osal_pc-linux_impl OBJECT
 	src/bsp_start.c
-	src/bsp_voltab.c
 	src/bsp_console.c
 )
 

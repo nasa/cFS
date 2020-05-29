@@ -69,7 +69,8 @@
  */
 enum
 {
-    OS_FILESYS_TYPE_DEFAULT = 0,    /**< Unspecified or unknown file system type */
+    OS_FILESYS_TYPE_UNKNOWN = 0,    /**< Unspecified or unknown file system type */
+    OS_FILESYS_TYPE_FS_BASED,       /**< A emulated virtual file system that maps to another file system location */
     OS_FILESYS_TYPE_NORMAL_DISK,    /**< A traditional disk drive or something that emulates one */
     OS_FILESYS_TYPE_VOLATILE_DISK,  /**< A temporary/volatile file system or RAM disk */
     OS_FILESYS_TYPE_MTD,            /**< A "memory technology device" such as FLASH or EEPROM */
@@ -95,7 +96,7 @@ typedef struct
 
 typedef struct
 {
-    char device_name[OS_MAX_API_NAME];      /**< The name of the underlying block device, if applicable */
+    char device_name[OS_FS_DEV_NAME_LEN];      /**< The name of the underlying block device, if applicable */
     char volume_name[OS_FS_VOL_NAME_LEN];
     char system_mountpt[OS_MAX_LOCAL_PATH_LEN]; /**< The name/prefix where the contents are accessible in the host operating system */
     char virtual_mountpt[OS_MAX_PATH_LEN];  /**< The name/prefix in the OSAL Virtual File system exposed to applications */
@@ -199,11 +200,13 @@ int32 OS_FileSysUnmountVolume_Impl (uint32 filesys_id);
  */
 
 bool OS_FileSys_FindVirtMountPoint(void *ref, uint32 local_id, const OS_common_record_t *obj);
-int32 OS_FileSys_InitLocalFromVolTable(OS_filesys_internal_record_t *local, const OS_VolumeInfo_t *Vol);
 int32 OS_FileSys_SetupInitialParamsForDevice(const char *devname, OS_filesys_internal_record_t *local);
 int32 OS_FileSys_Initialize(char *address, const char *fsdevname, const char * fsvolname, uint32 blocksize,
                uint32 numblocks, bool should_format);
 
+#ifndef OSAL_OMIT_DEPRECATED
+int32 OS_FileSys_InitLocalFromVolTable(OS_filesys_internal_record_t *local, const OS_VolumeInfo_t *Vol);
+#endif
 
 #endif  /* INCLUDE_OS_SHARED_FILESYS_H_ */
 

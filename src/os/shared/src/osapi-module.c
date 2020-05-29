@@ -289,7 +289,7 @@ int32 OS_ModuleUnload ( uint32 module_id )
         }
 
         /* Unlock the global from OS_ObjectIdGetAndLock() */
-        OS_Unlock_Global_Impl(LOCAL_OBJID_TYPE);
+        OS_Unlock_Global(LOCAL_OBJID_TYPE);
     }
 
     return return_code;
@@ -325,7 +325,7 @@ int32 OS_ModuleInfo ( uint32 module_id, OS_module_prop_t *module_prop )
 
         return_code = OS_ModuleGetInfo_Impl(local_id, module_prop);
 
-        OS_Unlock_Global_Impl(LOCAL_OBJID_TYPE);
+        OS_Unlock_Global(LOCAL_OBJID_TYPE);
     }
 
     return return_code;
@@ -428,11 +428,11 @@ int32 OS_SymbolTableDump ( const char *filename, uint32 SizeLimit )
      * underlying implementation may safely use globals for
      * state storage.
      */
-    OS_Lock_Global_Impl(LOCAL_OBJID_TYPE);
+    OS_Lock_Global(LOCAL_OBJID_TYPE);
 
     return_code = OS_SymbolTableDump_Impl(translated_path, SizeLimit);
 
-    OS_Unlock_Global_Impl(LOCAL_OBJID_TYPE);
+    OS_Unlock_Global(LOCAL_OBJID_TYPE);
 
     return(return_code);
 

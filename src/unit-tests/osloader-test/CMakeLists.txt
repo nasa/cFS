@@ -17,6 +17,6 @@ while(MOD GREATER 0)
   set_target_properties(MODULE${MOD} PROPERTIES 
     COMPILE_DEFINITIONS "MODULE_NAME=module${MOD}" 
     PREFIX ""
-    LIBRARY_OUTPUT_DIRECTORY eeprom1)
+    LIBRARY_OUTPUT_DIRECTORY utmod)
   add_dependencies(osal_loader_UT MODULE${MOD})
 endwhile(MOD GREATER 0)

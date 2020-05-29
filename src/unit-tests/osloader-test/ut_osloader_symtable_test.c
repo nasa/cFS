@@ -128,15 +128,11 @@ void UT_os_symbol_table_dump_test()
     int32 res = 0;
     const char* testDesc;
 
-    /*-----------------------------------------------------*/
-    testDesc = "API Not implemented";
-
-    res = OS_SymbolTableDump("/cf/apps/SymbolFile.dat", 32000);
-    if (res == OS_ERR_NOT_IMPLEMENTED)
-    {
-        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_NA);
-        goto UT_os_symbol_table_dump_test_exit_tag;
-    }
+    /*
+     * Note that even if the functionality is not implemented,
+     * the API still validates the input pointers (not null) and
+     * the validity of the file name.
+     */
 
     /*-----------------------------------------------------*/
     testDesc = "#1 Invalid-pointer-arg";
@@ -157,23 +153,22 @@ void UT_os_symbol_table_dump_test()
         UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
 
     /*-----------------------------------------------------*/
-    testDesc = "#3 OS-call-failure";
+    testDesc = "#3 Nominal";
 
-    UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_INFO);
-
-    /*-----------------------------------------------------*/
-    testDesc = "#4 Nominal";
-
-    /* Setup */
-    res = OS_SymbolTableDump("/cf/apps/SymbolFile.dat", 32000);
-    if ( res == OS_SUCCESS )
+    res = OS_SymbolTableDump(UT_OS_GENERIC_MODULE_DIR "SymbolFile.dat", 32000);
+    if (res == OS_ERR_NOT_IMPLEMENTED)
+    {
+        /* allowed, not applicable on this system */
+        UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_NA);
+    }
+    else if ( res == OS_SUCCESS )
+    {
         UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_PASS);
+    }
     else
+    {
         UT_OS_TEST_RESULT( testDesc, UTASSERT_CASETYPE_FAILURE);
-
-UT_os_symbol_table_dump_test_exit_tag:
-    return;
-    
+    }
 }
 
 /*================================================================================*
