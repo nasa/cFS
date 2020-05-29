@@ -8,6 +8,11 @@ This is a collection of APIs abstracting platform specific functionality to be l
 
 ## Version History
 
+### Development Build: 1.4.12
+
+- Replace 'OS_VolumeTable' with OS_FileSysAddFixedMap() in all PSPs.
+- See <https://github.com/nasa/PSP/pull/166> 
+
 ### Development Build: 1.4.11
 
 - Removes non-termination string warnings when building with GCC9.
