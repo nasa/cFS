@@ -61,9 +61,6 @@ typedef const struct
    uint32 PSP_ExceptionLogSize;           /**< Size of PSP exception log */
    CFE_PSP_MemTable_t *PSP_MemoryTable;   /**< Pointer to PSP memory table (forward reference) */
 
-   uint32 OS_VolumeTableSize;             /**< Size of OS volume table */
-   OS_VolumeInfo_t *OS_VolumeTable;       /**< Pointer to OS volume table (forward reference) */
-
    /**
     * Number of EEPROM banks on this platform
     */
@@ -84,12 +81,6 @@ extern Target_PspConfigData GLOBAL_PSP_CONFIGDATA;
  * Allows the actual instantiation to be done outside this module
  */
 extern CFE_PSP_MemTable_t CFE_PSP_MemoryTable[];
-
-/**
- * Extern reference to the psp volume table
- * Allows the actual instantiation to be done outside this module
- */
-extern OS_VolumeInfo_t OS_VolumeTable[];
 
 
 #endif /* CFE_PSP_CONFIG_H_ */

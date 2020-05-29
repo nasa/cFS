@@ -96,6 +96,7 @@ void OS_Application_Startup(void)
    int    TicksPerSecond;
    uint32 reset_type;
    uint32 reset_subtype;
+   uint32 fs_id;
    char   reset_register;
    int32  Status;
 
@@ -110,6 +111,18 @@ void OS_Application_Startup(void)
        /* note: use printf here, as OS_printf may not work */
        printf("CFE_PSP: OS_API_Init() failure\n");
        CFE_PSP_Panic(Status);
+   }
+
+   /*
+   ** Set up the virtual FS mapping for the "/cf" directory
+   ** On this platform it is will use the CF:0 physical device.
+   */
+   Status = OS_FileSysAddFixedMap(&fs_id, "CF:0", "/cf");
+   if (Status != OS_SUCCESS)
+   {
+       /* Print for informational purposes --
+        * startup can continue, but loads may fail later, depending on config. */
+       OS_printf("CFE_PSP: OS_FileSysAddFixedMap() failure: %d\n", (int)Status);
    }
 
    /* 

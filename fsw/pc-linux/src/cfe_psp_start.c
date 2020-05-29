@@ -160,6 +160,7 @@ void OS_Application_Startup(void)
    uint32             reset_subtype;
    int32              time_status;
    uint32             sys_timebase_id;
+   uint32             fs_id;
    int                opt = 0;
    int                longIndex = 0;
    int32              Status;
@@ -319,6 +320,18 @@ void OS_Application_Startup(void)
         * See below for workaround.
         */
        sys_timebase_id = 0;
+   }
+
+   /*
+   ** Set up the virtual FS mapping for the "/cf" directory
+   ** On this platform it is just a local/relative dir of the same name.
+   */
+   Status = OS_FileSysAddFixedMap(&fs_id, "./cf", "/cf");
+   if (Status != OS_SUCCESS)
+   {
+       /* Print for informational purposes --
+        * startup can continue, but loads may fail later, depending on config. */
+       OS_printf("CFE_PSP: OS_FileSysAddFixedMap() failure: %d\n", (int)Status);
    }
 
    /*

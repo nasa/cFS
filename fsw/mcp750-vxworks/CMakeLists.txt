@@ -8,6 +8,5 @@ add_library(psp-${CFE_SYSTEM_PSPNAME}-impl OBJECT
     src/cfe_psp_start.c
     src/cfe_psp_support.c
     src/cfe_psp_timer.c
-    src/cfe_psp_voltab.c
     src/cfe_psp_watchdog.c)
 
