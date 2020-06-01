@@ -25,13 +25,10 @@
 #include "uttest.h"
 #include "utbsp.h"
 
-static uint32 TimerSyncCount = 0;
-static uint32 TimerSyncRetVal = 0;
-
 static uint32 UT_TimerSync(uint32 timer_id)
 {
-    ++TimerSyncCount;
-    return TimerSyncRetVal;
+    OS_TaskDelay(1);
+    return 1;
 }
 
 
@@ -42,12 +39,14 @@ void TestTimeBaseApi(void)
     int32 expected;
     int32 actual; 
     int32 TimeBaseNum;
+    int32 tbc_results[OS_MAX_TIMEBASES];
     uint32 freerun;
     uint32 objid;
     uint32 time_base_id; 
     uint32 time_base_id2; 
-    char maxTimeBase[12];
+    uint32 tb_id[OS_MAX_TIMEBASES];
     char overMaxTimeBase[12];
+    char TimeBaseIter[OS_MAX_TIMEBASES][12];
     OS_timebase_prop_t timebase_prop;
 
     /*
@@ -58,29 +57,30 @@ void TestTimeBaseApi(void)
     /* Test for nominal inputs */
     expected = OS_SUCCESS;
 
-    actual= OS_TimeBaseCreate(&time_base_id, "TimeBase", 0);
+    actual= OS_TimeBaseCreate(&time_base_id, "TimeBaseA", 0);
     UtAssert_True(actual == expected, "OS_TimeBaseCreate() (%ld) == OS_SUCCESS", (long)actual);
 
-    actual = OS_TimeBaseCreate(&time_base_id2, "TimeBase2", NULL);
+    actual = OS_TimeBaseCreate(&time_base_id2, "TimeBaseB", NULL);
     UtAssert_True(actual == expected, "OS_TimeBaseCreate() (%ld) == OS_SUCCESS", (long)actual);
 
-    actual = OS_TimeBaseCreate(&time_base_id, "TimeBase3", UT_TimerSync);
+    actual = OS_TimeBaseCreate(&time_base_id, "TimeBaseC", UT_TimerSync);
     UtAssert_True(actual == expected, "OS_TimeBaseCreate() (%ld) == OS_SUCCESS", (long)actual);
 
     /* Test for nominal, max/min cases */
     objid = 0xFFFFFFFF;
-    actual = OS_TimeBaseCreate(&objid, "TimeBase4", 0);
+    actual = OS_TimeBaseCreate(&objid, "TimeBaseD", 0);
     UtAssert_True(actual == expected, "OS_TimeBaseCreate() (%ld) == OS_SUCCESS", (long)actual);
 
-    /* 
-     * Note: OS_MAX_TIMEBASES = 5, so no more than 5 TimeBase IDs are allowed 
-     * Checking for OS_MAX_TIMEBASES:
-     */
-    TimeBaseNum = OS_MAX_TIMEBASES;
-    snprintf(maxTimeBase, 12, "TimeBase%d", TimeBaseNum);
-    objid = 0x00000000;
-    actual = OS_TimeBaseCreate(&objid, "maxTimeBase", 0);
-    UtAssert_True(actual == expected, "OS_TimeBaseCreate() (%ld) == OS_SUCCESS", (long)actual);
+
+    /* Checking for OS_MAX_TIMEBASES */
+    for ( int i = 0; i < OS_MAX_TIMEBASES; i++ )
+    {
+        snprintf(TimeBaseIter[i], 12, "TimeBase%d", i);
+        tbc_results[i] = OS_TimeBaseCreate(&tb_id[i], TimeBaseIter[i], 0);
+        UtAssert_True(tbc_results[i] == expected, "OS_TimeBaseCreate() (%ld) == OS_SUCCESS", (long)actual);
+
+        OS_TimeBaseDelete(tb_id[i]);
+    }
 
 
     /* Test for invalid inputs */
@@ -97,15 +97,21 @@ void TestTimeBaseApi(void)
     UtAssert_True(actual == expected, "OS_TimeBaseCreate() (%ld) == OS_INVALID_POINTER", (long)actual);
 
     expected = OS_ERR_NAME_TAKEN;
-    actual= OS_TimeBaseCreate(&time_base_id, "TimeBase", 0);
+    actual= OS_TimeBaseCreate(&time_base_id, "TimeBaseA", 0);
     UtAssert_True(actual == expected, "OS_TimeBaseCreate() (%ld) == OS_ERR_NAME_TAKEN", (long)actual);
 
-    /* OS_MAX_TIMEBASES + 1 */
+    /* Checking OS_MAX_TIMEBASES + 1 */
+    for ( int i = 0; i < OS_MAX_TIMEBASES; i++ )
+    {
+        snprintf(TimeBaseIter[i], 12, "TimeBase%d", i);
+        tbc_results[i] = OS_TimeBaseCreate(&tb_id[i], TimeBaseIter[i], 0);
+    }
     TimeBaseNum = OS_MAX_TIMEBASES+1;
     snprintf(overMaxTimeBase, 12, "TimeBase%d", TimeBaseNum);
     expected = OS_ERR_NO_FREE_IDS;
     actual= OS_TimeBaseCreate(&time_base_id, "overMaxTimeBase", 0);
     UtAssert_True(actual == expected, "OS_TimeBaseCreate() (%ld) == OS_ERR_NO_FREE_IDS", (long)actual);
+
 
 
     /*
@@ -173,7 +179,7 @@ void TestTimeBaseApi(void)
     /* Note: TimeBase2 was created above using TimeBaseCreate and id was set to time_base_id2 */
     expected = OS_SUCCESS;
     objid = 0;
-    actual = OS_TimeBaseGetIdByName(&objid, "TimeBase2");
+    actual = OS_TimeBaseGetIdByName(&objid, "TimeBaseB");
     UtAssert_True(actual == expected, "OS_TimeBaseGetIdByName() (%ld) == OS_SUCCESS", (long)actual);
     UtAssert_True(objid == time_base_id2, "OS_TimeBaseGetIdByName() objid (%lu) Matches!", (unsigned long)objid);
 
@@ -213,7 +219,7 @@ timebase_prop.name));
 
     UtAssert_True(timebase_prop.creator == 0, "timebase_prop.creator (%lu) == 0",
             (unsigned long)timebase_prop.creator);
-    UtAssert_True(strcmp(timebase_prop.name, "TimeBase2") == 0, "timebase_prop.name (%s) == TimeBase2",
+    UtAssert_True(strcmp(timebase_prop.name, "TimeBaseB") == 0, "timebase_prop.name (%s) == TimeBase2",
             timebase_prop.name);
     UtAssert_True(timebase_prop.nominal_interval_time == 0,
             "timebase_prop.nominal_interval_time (%lu) == 0",
