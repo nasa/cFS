@@ -1,14 +1,12 @@
 ######################################################################
 #
-# CMAKE build recipe for PC-LINUX Board Support Package (BSP)
+# CMAKE build recipe for LINUX Board Support Package (BSP)
 #
 ######################################################################
 
-# NOTE: Although this is traditionally called "pc-linux", it is generic
-# enough to be applied to non-PC systems running embedded Linux, such
-# as Raspberry Pi, BeagleBoard, Zync, or custom hardware.
-
-add_library(osal_pc-linux_impl OBJECT
+# This basic implementation library should be generic enough to use
+# on any Linux-based processor board, as well as a standard development PC.
+add_library(osal_generic-linux_impl OBJECT
 	src/bsp_start.c
 	src/bsp_console.c
 )
@@ -23,7 +21,7 @@ add_library(osal_pc-linux_impl OBJECT
 #
 # See http://www.gnu.org/software/libc/manual/html_node/Feature-Test-Macros.html
 # for a more detailed description of the feature test macros and available values
-target_compile_definitions(osal_pc-linux_impl PUBLIC
+target_compile_definitions(osal_generic-linux_impl PUBLIC
     _XOPEN_SOURCE=600
 )
 

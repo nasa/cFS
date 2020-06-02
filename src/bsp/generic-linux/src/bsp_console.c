@@ -20,7 +20,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-#include "pclinux_bsp_internal.h"
+#include "generic_linux_bsp_internal.h"
 #include "bsp-impl.h"
 
 /*----------------------------------------------------------------
@@ -88,7 +88,7 @@ void OS_BSP_ConsoleSetMode_Impl(uint32 ModeBits)
 {
     char param[32];
 
-    if (OS_BSP_PcLinuxGlobal.EnableTermControl)
+    if (OS_BSP_GenericLinuxGlobal.EnableTermControl)
     {
         if (ModeBits == OS_BSP_CONSOLEMODE_NORMAL)
         {
