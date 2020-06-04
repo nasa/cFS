@@ -1,0 +1,29 @@
+version: '2'
+
+services:
+  cfs:
+    build:
+        context: ./
+        dockerfile: ./tools/e2eTests/platforms/Ubuntu/18.04/Dockerfile
+        args:
+          - ENABLE_UNIT_TESTS=false
+          - SIMULATION=native
+          - BUILDTYPE=debug
+          - OMIT_DEPRECATED=true
+    cap_add: 
+      - CAP_SYS_RESOURCE
+    networks:
+      - default
+    depends_on:
+      - gsw
+
+  gsw:
+    build:
+        context: ./
+        dockerfile: ./tools/e2eTests/gsw/Dockerfile
+    networks:
+      - default
+  
+networks:
+  default:
+    internal: true    
