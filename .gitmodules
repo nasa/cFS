@@ -30,6 +30,10 @@
 	path = apps/to_lab
 	url = https://github.com/nasa/to_lab.git
         branch = master
+[submodule "apps/sch"]
+	path = apps/sch
+	url = https://github.com/nasa/SCH.git
+        branch = master
 [submodule "tools/cFS-GroundSystem"]
 	path = tools/cFS-GroundSystem
 	url = https://github.com/nasa/cFS-GroundSystem.git
