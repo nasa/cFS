@@ -42,3 +42,6 @@
 	path = tools/tblCRCTool
 	url = https://github.com/nasa/tblCRCTool.git
         branch = master
+[submodule "apps/SCH"]
+	path = apps/SCH
+	url = https://github.com/McMasterNEUDOSE/SCH.git
