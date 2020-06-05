@@ -45,3 +45,6 @@
 [submodule "apps/SCH"]
 	path = apps/SCH
 	url = https://github.com/McMasterNEUDOSE/SCH.git
+[submodule "apps/HK"]
+	path = apps/HK
+	url = https://github.com/McMasterNEUDOSE/HK.git
