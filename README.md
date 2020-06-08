@@ -4,7 +4,8 @@ This repository is the most up-to-date version of the flight software that is be
 
 
 ## Release Notes
-cFS Version PB - Preliminary Base
+**cFS Version PB - Preliminary Base**
+
 This version includes the CFE, PSP, OSAL submodules from NASA, as well as all sample apps included in the cFS Bundle. It also includes cFS apps that the McMaster NEUDOSE team will use: the Housekeeping (HK) and Scheduler (SCH) apps. 
 
 
@@ -104,7 +105,13 @@ Now, everything should work smoothly! With that, you should have cFS setup and t
 3. Enter IP address of system executing cFS, 127.0.0.1 if running locally
 
 Should see telemetry, can send noops and see command counters increment
+
  
+ 
+***
+***
+ 
+  
   
 
 ## Other cFS related elements/tools/apps/distributions
