@@ -1,4 +1,4 @@
-McMaster NEUDOSE - Core Flight System 
+# McMaster NEUDOSE - Core Flight System 
 
 This repository is the most up-to-date version of the flight software that is being used on the McMaster NEUDOSE mission. It is forked from NASA's Core Flight System (cFS) github and will likely commit many of the changes NASA engineers contribute to that repo. 
 
@@ -104,7 +104,8 @@ Now, everything should work smoothly! With that, you should have cFS setup and t
 3. Enter IP address of system executing cFS, 127.0.0.1 if running locally
 
 Should see telemetry, can send noops and see command counters increment
-
+ 
+  
 
 ## Other cFS related elements/tools/apps/distributions
 
