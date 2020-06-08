@@ -15,6 +15,7 @@ include_directories(${MISSION_SOURCE_DIR}/apps/cf/fsw/platform_inc)
 include_directories(${MISSION_SOURCE_DIR}/apps/sch/fsw/platform_inc)
 include_directories(${MISSION_SOURCE_DIR}/apps/hs/fsw/platform_inc)
 include_directories(${MISSION_SOURCE_DIR}/apps/hk/fsw/platform_inc)
+include_directories(${MISSION_SOURCE_DIR}/apps/comms/fsw/platform_inc)
 
 aux_source_directory(fsw/src APP_SRC_FILES)
 
