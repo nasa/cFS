@@ -198,6 +198,27 @@ int32 OS_write(uint32 filedes, const void *buffer, uint32 nbytes)
 
 /*****************************************************************************
  *
+ * Stub function for OS_TimedRead()
+ *
+ *****************************************************************************/
+int32 OS_TimedRead(uint32  filedes, void *buffer, uint32 nbytes, int32 timeout)
+{
+    return UT_GenericReadStub(__func__,UT_KEY(OS_TimedRead),buffer,nbytes);
+}
+
+/*****************************************************************************
+ *
+ * Stub function for OS_TimedWrite()
+ *
+ *****************************************************************************/
+int32 OS_TimedWrite(uint32  filedes, const void *buffer, uint32 nbytes, int32 timeout)
+{
+    return UT_GenericWriteStub(__func__,UT_KEY(OS_TimedWrite),buffer,nbytes);
+}
+
+
+/*****************************************************************************
+ *
  * Stub function for OS_chmod()
  *
  *****************************************************************************/

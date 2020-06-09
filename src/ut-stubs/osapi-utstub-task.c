@@ -260,7 +260,7 @@ int32 OS_TaskGetInfo(uint32 task_id, OS_task_prop_t *task_prop)
     status = UT_DEFAULT_IMPL(OS_TaskGetInfo);
 
     if (status == OS_SUCCESS &&
-            UT_Stub_CopyToLocal(UT_KEY(OS_MutSemGetInfo), task_prop, sizeof(*task_prop)) < sizeof(*task_prop))
+            UT_Stub_CopyToLocal(UT_KEY(OS_TaskGetInfo), task_prop, sizeof(*task_prop)) < sizeof(*task_prop))
     {
         task_prop->creator = 1;
         UT_FIXUP_ID(task_prop->creator, UT_OBJTYPE_TASK);
@@ -273,6 +273,33 @@ int32 OS_TaskGetInfo(uint32 task_id, OS_task_prop_t *task_prop)
     return status;
 }
 
+/*****************************************************************************/
+/**
+** \brief OS_TaskGetInfo stub function
+**
+** \par Description
+**        This function is used to mimic the response of the OS API function
+**        OS_TaskFindIdBySystemData.
+**
+** \returns
+**        The return value instructed by the test case setup
+**
+******************************************************************************/
+int32 OS_TaskFindIdBySystemData(uint32 *task_id, const void *sysdata, size_t sysdata_size)
+{
+    int32 status;
+
+    status = UT_DEFAULT_IMPL(OS_TaskFindIdBySystemData);
+
+    if (status == OS_SUCCESS &&
+            UT_Stub_CopyToLocal(UT_KEY(OS_TaskFindIdBySystemData), (void**)&task_id, sizeof(task_id)) < sizeof(task_id))
+    {
+        *task_id = 1;
+        UT_FIXUP_ID(*task_id, UT_OBJTYPE_TASK);
+    }
+
+    return status;
+}
 
 /*****************************************************************************
  *

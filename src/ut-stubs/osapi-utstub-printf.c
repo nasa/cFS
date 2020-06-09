@@ -32,6 +32,17 @@ int32 OS_ConsoleAPI_Init(void)
 
 /*****************************************************************************
  *
+ * Stub function for OS_ConsoleWrite()
+ *
+ *****************************************************************************/
+int32 OS_ConsoleWrite(uint32 console_id, const char *Str)
+{
+    UT_Stub_RegisterContext(UT_KEY(OS_ConsoleWrite), Str);
+    return UT_DEFAULT_IMPL(OS_ConsoleWrite);
+}
+
+/*****************************************************************************
+ *
  * Stub function for OS_printf()
  *
  *****************************************************************************/
