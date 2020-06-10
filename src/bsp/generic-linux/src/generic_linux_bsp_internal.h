@@ -1,5 +1,5 @@
 /******************************************************************************
-** File:  mcp750_bsp_internal.h
+** File:  generic_linux_bsp_internal.h
 **
 **
 **      This is governed by the NASA Open Source Agreement and may be used,
@@ -11,17 +11,27 @@
 **
 **
 ** Purpose:
-**   Header file for internal data to the MCP750 BSP
+**   Header file for internal data to the LINUX BSP
 **
 ******************************************************************************/
 
-#ifndef _MCP750_BSP_INTERNAL_H_
-#define _MCP750_BSP_INTERNAL_H_
+#ifndef GENERIC_LINUX_BSP_INTERNAL_H_
+#define GENERIC_LINUX_BSP_INTERNAL_H_
 
-/*
-** OSAL includes
-*/
 #include "osapi.h"
 #include "bsp-impl.h"
 
-#endif /* _MCP750_BSP_INTERNAL_H_ */
+/*
+** BSP types
+*/
+typedef struct
+{
+    bool    EnableTermControl;    /**< Will be set "true" when invoked from a TTY device, false otherwise */
+} OS_BSP_GenericLinuxGlobalData_t;
+
+/*
+ * Global Data object
+ */
+extern OS_BSP_GenericLinuxGlobalData_t OS_BSP_GenericLinuxGlobal;
+
+#endif /* GENERIC_LINUX_BSP_INTERNAL_H_ */

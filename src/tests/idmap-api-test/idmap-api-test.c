@@ -26,6 +26,17 @@
 #include "utbsp.h"
 
 
+uint32 task_id;
+uint32 queue_id;
+uint32 count_sem_id;
+uint32 bin_sem_id;
+uint32 mutex_id1;
+uint32 mutex_id2;
+uint32 mutex_id3;
+uint32 time_base_id;
+
+#define UT_EXIT_LOOP_MAX    100
+
 /* *************************************** MAIN ************************************** */
 
 typedef struct
@@ -80,37 +91,51 @@ void Test_Void_Fn(void)
 
 } /* end Test_Void_Fn */
 
+void TestIdMapApi_Setup(void)
+{
+    uint32 loopcnt;
+    int32 status;
+    OS_task_prop_t taskprop;
 
+    /*
+     * Create all allowed objects
+     */
+    status = OS_TaskCreate( &task_id, "Task", Test_Void_Fn, 0, 0, 0, 0);
+    UtAssert_True(status == OS_SUCCESS, "OS_TaskCreate() (%ld) == OS_SUCCESS", (long)status);
+    status = OS_QueueCreate( &queue_id, "Queue", 5, 5, 0);
+    UtAssert_True(status == OS_SUCCESS, "OS_QueueCreate() (%ld) == OS_SUCCESS", (long)status);
+    status = OS_CountSemCreate( &count_sem_id, "CountSem", 1, 0);
+    UtAssert_True(status == OS_SUCCESS, "OS_CountSemCreate() (%ld) == OS_SUCCESS", (long)status);
+    status = OS_BinSemCreate( &bin_sem_id, "BinSem", 1, 0);
+    UtAssert_True(status == OS_SUCCESS, "OS_BinSemCreate() (%ld) == OS_SUCCESS", (long)status);
+    status = OS_MutSemCreate( &mutex_id1, "Mutex1", 0);
+    UtAssert_True(status == OS_SUCCESS, "OS_MutSemCreate() (%ld) == OS_SUCCESS", (long)status);
+    status = OS_MutSemCreate( &mutex_id2, "Mutex2", 0);
+    UtAssert_True(status == OS_SUCCESS, "OS_MutSemCreate() (%ld) == OS_SUCCESS", (long)status);
+    status = OS_MutSemCreate( &mutex_id3, "Mutex3", 0);
+    UtAssert_True(status == OS_SUCCESS, "OS_MutSemCreate() (%ld) == OS_SUCCESS", (long)status);
+    status = OS_TimeBaseCreate( &time_base_id, "TimeBase", 0);
+    UtAssert_True(status == OS_SUCCESS, "OS_TimeBaseCreate() (%ld) == OS_SUCCESS", (long)status);
+
+    /* Looping delay in parent task to wait for child task to exit */
+    loopcnt = 0;
+    while ((OS_TaskGetInfo(task_id, &taskprop) == OS_SUCCESS) && (loopcnt < UT_EXIT_LOOP_MAX))
+    {
+       OS_TaskDelay(10);
+       loopcnt++;
+    }
+    UtAssert_True(loopcnt < UT_EXIT_LOOP_MAX, "Task exited after %ld iterations", (long)loopcnt);
+}
 /* *************************************** MAIN ************************************** */
 
 void TestIdMapApi(void)
 {
     int32 expected;
     int32 actual;
-    uint32 task_id;
-    uint32 queue_id;
-    uint32 count_sem_id;
-    uint32 bin_sem_id;
-    uint32 mutex_id1;
-    uint32 mutex_id2;
-    uint32 mutex_id3;
-    uint32 time_base_id;
     uint32 TestArrayIndex; 
     uint32 TestMutex1Index; 
     uint32 TestMutex2Index; 
     Test_OS_ObjTypeCount_t Count;
-
-    /*
-     * Create all allowed objects
-     */
-    OS_TaskCreate( &task_id, "Task", Test_Void_Fn, 0, 0, 0, 0);
-    OS_QueueCreate( &queue_id, "Queue", 5, 5, 0);
-    OS_CountSemCreate( &count_sem_id, "CountSem", 1, 0);
-    OS_BinSemCreate( &bin_sem_id, "BinSem", 1, 0);
-    OS_MutSemCreate( &mutex_id1, "Mutex1", 0);
-    OS_MutSemCreate( &mutex_id2, "Mutex2", 0);
-    OS_MutSemCreate( &mutex_id3, "Mutex3", 0);
-    OS_TimeBaseCreate( &time_base_id, "TimeBase", 0);
 
     /*
      * NOTE: The following objects were not created and tested:
@@ -229,7 +254,7 @@ void TestIdMapApi(void)
     OS_ForEachObject (0, &ObjTypeCounter, &Count);
 
     /* Verify Outputs */
-    UtAssert_True(Count.TaskCount == 1, "OS_ForEachObject() TaskCount (%lu) == 1", (unsigned long)Count.TaskCount);
+    UtAssert_True(Count.TaskCount == 0, "OS_ForEachObject() TaskCount (%lu) == 0", (unsigned long)Count.TaskCount);
     UtAssert_True(Count.QueueCount == 1, "OS_ForEachObject() QueueCount (%lu) == 1", (unsigned long)Count.QueueCount);
     UtAssert_True(Count.CountSemCount == 1, "OS_ForEachObject() CountSemCount (%lu) == 1", (unsigned long)Count.CountSemCount);
     UtAssert_True(Count.BinSemCount == 2, "OS_ForEachObject() BinSemCount (%lu) == 2", (unsigned long)Count.BinSemCount);
@@ -289,6 +314,6 @@ void UtTest_Setup(void)
     /*
      * Register the test setup and check routines in UT assert
      */
-    UtTest_Add(TestIdMapApi, NULL, NULL, "TestIdMapApi");
+    UtTest_Add(TestIdMapApi, TestIdMapApi_Setup, NULL, "TestIdMapApi");
 }
 

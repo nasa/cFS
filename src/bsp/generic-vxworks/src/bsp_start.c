@@ -22,7 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "mcp750_bsp_internal.h"
+#include "generic_vxworks_bsp_internal.h"
 
 /* ---------------------------------------------------------
     OS_BSP_Shutdown_Impl()

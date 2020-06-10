@@ -25,9 +25,9 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include "pclinux_bsp_internal.h"
+#include "generic_linux_bsp_internal.h"
 
-OS_BSP_PcLinuxGlobalData_t OS_BSP_PcLinuxGlobal;
+OS_BSP_GenericLinuxGlobalData_t OS_BSP_GenericLinuxGlobal;
 
 /* ---------------------------------------------------------
     OS_BSP_Initialize()
@@ -130,7 +130,7 @@ int main(int argc, char *argv[])
      * Initially clear the global objects
      */
     memset(&OS_BSP_Global, 0, sizeof(OS_BSP_Global));
-    memset(&OS_BSP_PcLinuxGlobal, 0, sizeof(OS_BSP_PcLinuxGlobal));
+    memset(&OS_BSP_GenericLinuxGlobal, 0, sizeof(OS_BSP_GenericLinuxGlobal));
 
     /*
      * Save the argc/argv arguments for future use.
@@ -155,7 +155,7 @@ int main(int argc, char *argv[])
      */
     if (getenv("TERM") != NULL)
     {
-        OS_BSP_PcLinuxGlobal.EnableTermControl = isatty(STDOUT_FILENO);
+        OS_BSP_GenericLinuxGlobal.EnableTermControl = isatty(STDOUT_FILENO);
     }
 
     /*
