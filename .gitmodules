@@ -43,10 +43,10 @@
 	url = https://github.com/nasa/tblCRCTool.git
         branch = master
 [submodule "apps/SCH"]
-	path = apps/SCH
+	path = apps/sch
 	url = https://github.com/McMasterNEUDOSE/SCH.git
 [submodule "apps/HK"]
-	path = apps/HK
+	path = apps/hk
 	url = https://github.com/McMasterNEUDOSE/HK.git
 [submodule "apps/to"]
 	path = apps/to
