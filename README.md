@@ -16,6 +16,18 @@ This distribution contains:
 
 ## Version History
 
+### Development Build: 5.0.19
+
+- Rename BSPs that can be used on multiple platforms. 
+`mcp750-vxworks` becomes `generic-vxworks`
+`pc-linux` becomes `generic-linux`
+- New features only, does not change existing behavior.
+UT Hook functions now have the capability to get argument values by name, which is more future proof than assuming a numeric index.
+- Add functional test for `OS_TimerAdd`
+- Added functional tests for `OS_TimeBase Api` on `OS_TimeBaseCreate`, `OS_TimeBaseSet`, `OS_TimeBaseDelete`, `OS_TimeBaseGetIdByName`, `OS_TimeBaseGetInfo`, `OS_TimeBaseGetFreeRun`
+- See <https://github.com/nasa/osal/pull/487> for details
+
+
 ### Development Build: 5.0.18
 
 - Add functional tests for `OS_IdentifyObject`, `OS_ConvertToArrayIndex` and `OS_ForEachObject` functions.
