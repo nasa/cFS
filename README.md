@@ -8,6 +8,11 @@ This is a collection of APIs abstracting platform specific functionality to be l
 
 ## Version History
 
+### Development Build: 1.4.13
+
+- Changes the PSP reference to be compatible with the change in nasa/osal#449 making the BSP modules more generic and changes the name.
+- See <https://github.com/nasa/PSP/pull/167>
+
 ### Development Build: 1.4.12
 
 - Replace 'OS_VolumeTable' with OS_FileSysAddFixedMap() in all PSPs.
