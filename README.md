@@ -36,13 +36,19 @@ See related repositories for current open issues.
 
 ## Major future work
 
-  - Certification framework including PSP and OSAL white box testing
-  - Open source automated build verification framework
-  - Unit test modernization/standardization
-  - Deployment quality of life improvements (configuration)
+  - Certification framework with automated build verification tests of framework requirements
+    - Executable on real/emulated/simulated/ or dockerized targets
+    - Add PSP coverage testing framework
+    - Add PSP and cFE functional testing framework for APIs
+    - Scrub OSAL coverage and functional tests 
+  - Open source automated build verification execution framework for emulated targets (likely docker based)
+  - Provide capability for mission customization of core services
+  - Deployment quality of life improvements (configuration, transition to CMake source selection vs compiler directives)
+  - Update OS support (VxWorks 7, RTEMS 5)
+  - Time services refactor
   - Documentation (updated tracability, APIs/ICDs, general update)
   - Symmetric multi-processing APIs
-  - Electronic Data Sheet integration
+  - Electronic Data Sheet integration option and improvements to packet layouts for portability/consistancy
   - Toolchain updates
 
 ## Getting Help
