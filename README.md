@@ -150,3 +150,7 @@ The following list is user submitted, and not CCB controlled.  They are released
     - TBD
   - Other PSPs
     - TBD
+  - References to Auto-generated Documentation
+    - cFE User's Guide: https://github.com/nasa/cFS/blob/gh-pages/cFE_Users_Guide.pdf
+    - OSAL User's Guide: https://github.com/nasa/cFS/blob/gh-pages/OSAL_Users_Guide.pdf
+
