@@ -11,6 +11,10 @@ This bundle has not been fully verified as an operational system, and is provide
 
 The cFS Framework is a core subset of cFS.  There are additional OSALs, PSPs, and tools as listed below available from a variety of sources.
 
+## References to Auto-generated Documentation
+  - cFE User's Guide: https://github.com/nasa/cFS/blob/gh-pages/cFE_Users_Guide.pdf
+  - OSAL User's Guide: https://github.com/nasa/cFS/blob/gh-pages/OSAL_Users_Guide.pdf
+
 ## Release Notes
 
 cFS 6.7.0 Suite: NOT FULLY RELEASED
@@ -150,7 +154,4 @@ The following list is user submitted, and not CCB controlled.  They are released
     - TBD
   - Other PSPs
     - TBD
-  - References to Auto-generated Documentation
-    - cFE User's Guide: https://github.com/nasa/cFS/blob/gh-pages/cFE_Users_Guide.pdf
-    - OSAL User's Guide: https://github.com/nasa/cFS/blob/gh-pages/OSAL_Users_Guide.pdf
-
+  
