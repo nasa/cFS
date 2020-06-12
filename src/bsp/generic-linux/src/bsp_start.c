@@ -140,14 +140,12 @@ int main(int argc, char *argv[])
      * Note that the first argument (0) is the command name.  The
      * first "real" argument is at position 1.
      *
-     * The first arg is ignored to be more consistent with other platforms
-     * where this is not passed in.
+     * However this still needs to pass it through as the appliction
+     * might still want to use library "getopt" and this expects the
+     * first parameter to be this way.
      */
-    if (argc > 1)
-    {
-        OS_BSP_Global.ArgC = argc - 1;
-        OS_BSP_Global.ArgV = &argv[1];
-    }
+    OS_BSP_Global.ArgC = argc;
+    OS_BSP_Global.ArgV = argv;
 
     /*
      * Only attempt terminal control if the stdout is a TTY
