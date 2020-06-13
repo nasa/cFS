@@ -13,6 +13,11 @@
 ** Purpose:
 **   Unit test BSP interface functions.
 **
+**   This file provides the bindings between the OSAL BSP and UT assert
+**   when directly running a test program as a standalone OSAL application.
+**
+**   It is not used when loading UT assert into another application (e.g. CFE).
+**
 ******************************************************************************/
 
 #include <stdio.h>
@@ -178,48 +183,6 @@ void UT_BSP_DoText(uint8 MessageType, const char *OutputMessage)
     }
 }
 
-void UT_BSP_DoReport(const char *File, uint32 LineNum, uint32 SegmentNum, uint32 TestSeq, uint8 MessageType,
-                     const char *SubsysName, const char *ShortDesc)
-{
-    uint32      FileLen;
-    const char *BasePtr;
-    char        ReportBuffer[128];
-
-    FileLen = strlen(File);
-    BasePtr = File + FileLen;
-    while (FileLen > 0)
-    {
-        --BasePtr;
-        --FileLen;
-        if (*BasePtr == '/' || *BasePtr == '\\')
-        {
-            ++BasePtr;
-            break;
-        }
-    }
-
-    snprintf(ReportBuffer, sizeof(ReportBuffer), "%02u.%03u %s:%u - %s", (unsigned int)SegmentNum,
-             (unsigned int)TestSeq, BasePtr, (unsigned int)LineNum, ShortDesc);
-
-    UT_BSP_DoText(MessageType, ReportBuffer);
-}
-
-void UT_BSP_DoTestSegmentReport(const char *SegmentName, const UtAssert_TestCounter_t *TestCounters)
-{
-    char ReportBuffer[128];
-
-    snprintf(ReportBuffer, sizeof(ReportBuffer),
-             "%02u %-20s TOTAL::%-4u  PASS::%-4u  FAIL::%-4u   MIR::%-4u   TSF::%-4u   N/A::%-4u\n",
-             (unsigned int)TestCounters->TestSegmentCount, SegmentName, (unsigned int)TestCounters->TotalTestCases,
-             (unsigned int)TestCounters->CaseCount[UTASSERT_CASETYPE_PASS],
-             (unsigned int)TestCounters->CaseCount[UTASSERT_CASETYPE_FAILURE],
-             (unsigned int)TestCounters->CaseCount[UTASSERT_CASETYPE_MIR],
-             (unsigned int)TestCounters->CaseCount[UTASSERT_CASETYPE_TSF],
-             (unsigned int)TestCounters->CaseCount[UTASSERT_CASETYPE_NA]);
-
-    UT_BSP_DoText(UTASSERT_CASETYPE_END, ReportBuffer);
-}
-
 void UT_BSP_EndTest(const UtAssert_TestCounter_t *TestCounters)
 {
     char Message[128];
@@ -230,7 +193,7 @@ void UT_BSP_EndTest(const UtAssert_TestCounter_t *TestCounters)
      */
     if (TestCounters->TestSegmentCount > 1)
     {
-        UT_BSP_DoTestSegmentReport("SUMMARY", TestCounters);
+        UtAssert_DoTestSegmentReport("SUMMARY", TestCounters);
     }
 
     snprintf(Message, sizeof(Message), "COMPLETE: %u tests Segment(s) executed\n\n",
@@ -246,3 +209,38 @@ void UT_BSP_EndTest(const UtAssert_TestCounter_t *TestCounters)
         OS_BSP_SetExitCode(OS_SUCCESS);
     }
 }
+
+/*
+ * -------------------------------------------------------
+ * ENTRY POINTS from OSAL BSP
+ * -------------------------------------------------------
+ */
+
+void OS_Application_Run(void)
+{
+    UtTest_Run();
+}
+
+/*
+ * Entry point from the BSP.
+ * When linking with UT-Assert, the test framework (this library) serves
+ * the role of the "application" being executed.
+ *
+ * There is a separate entry point (UT_Test_Setup) to configure the test cases.
+ */
+void OS_Application_Startup(void)
+{
+
+    UT_BSP_Setup();
+
+    /*
+     * Wrap the UtTest_Setup() function in a UT segment called "SETUP"
+     * This allows any assert calls to be used and recorded during setup
+     */
+    UtAssert_BeginTest("SETUP");
+    UtTest_Setup();
+    UtAssert_EndTest();
+}
+
+
+

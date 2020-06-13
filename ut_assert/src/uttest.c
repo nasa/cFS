@@ -19,30 +19,12 @@
  * Includes
  */
 
-#include "osapi.h"
-#include "utassert.h"
-#include "utlist.h"
-#include "utbsp.h"
-#include "uttest.h"
-#include "utstubs.h"
+#include "utglobal.h"
 
 /*
- * Type Definitions
+ * Global state instance
  */
-
-typedef struct {
-    void    (*Test)(void);
-    void    (*Setup)(void);
-    void    (*Teardown)(void);
-    const char     *TestName;
-} UtTestDataBaseEntry_t;
-
-/*
- * Local Data
- */
-
-UtListHead_t    UtTestDataBase;
-uint32          UtTestsExecutedCount = 0;
+UtAssert_Global_t UtAssert_Global;
 
 /*
  * Function Definitions
@@ -52,23 +34,24 @@ void UtTest_Add(void (*Test)(void), void (*Setup)(void), void (*Teardown)(void),
 {
     UtTestDataBaseEntry_t   UtTestDataBaseEntry;
 
+    memset(&UtTestDataBaseEntry, 0, sizeof(UtTestDataBaseEntry));
     UtTestDataBaseEntry.Test = Test;
     UtTestDataBaseEntry.Setup = Setup;
     UtTestDataBaseEntry.Teardown = Teardown;
-    UtTestDataBaseEntry.TestName = TestName;
-    UtList_Add(&UtTestDataBase, &UtTestDataBaseEntry, sizeof(UtTestDataBaseEntry_t), 0);
+    strncpy(UtTestDataBaseEntry.TestName, TestName, sizeof(UtTestDataBaseEntry.TestName)-1);
+    UtList_Add(&UtAssert_Global.DataBase, &UtTestDataBaseEntry, sizeof(UtTestDataBaseEntry_t), 0);
 }
 
-void OS_Application_Run(void)
+void UtTest_Run(void)
 {
     uint32                   i;
     UtListNode_t            *UtListNode;
     UtTestDataBaseEntry_t   *UtTestDataBaseEntry;
     
-    if (UtTestDataBase.NumberOfEntries > 0) {
+    if (UtAssert_Global.DataBase.NumberOfEntries > 0) {
         
-        UtListNode = UtTestDataBase.First;
-        for (i=0; i < UtTestDataBase.NumberOfEntries; i++) {
+        UtListNode = UtAssert_Global.DataBase.First;
+        for (i=0; i < UtAssert_Global.DataBase.NumberOfEntries; i++) {
             
             UtTestDataBaseEntry = UtListNode->Data;
 
@@ -77,7 +60,7 @@ void OS_Application_Run(void)
             UtAssert_SetContext(UTASSERT_CASETYPE_TSF);
             if (UtTestDataBaseEntry->Setup)    { UtTestDataBaseEntry->Setup(); }
             UtAssert_SetContext(UTASSERT_CASETYPE_FAILURE);
-            if (UtTestDataBaseEntry->Test)     { UtTestDataBaseEntry->Test(); UtTestsExecutedCount++; }
+            if (UtTestDataBaseEntry->Test)     { UtTestDataBaseEntry->Test(); UtAssert_Global.ExecutedCount++; }
             UtAssert_SetContext(UTASSERT_CASETYPE_TTF);
             if (UtTestDataBaseEntry->Teardown) { UtTestDataBaseEntry->Teardown(); }
 
@@ -87,35 +70,17 @@ void OS_Application_Run(void)
         }
     }
 
-    UtList_Reset(&UtTestDataBase);
+    UtList_Reset(&UtAssert_Global.DataBase);
 
     UT_BSP_EndTest(UtAssert_GetCounters());
 }
 
-/*
- * Entry point from the BSP.
- * When linking with UT-Assert, the test framework (this library) serves
- * the role of the "application" being executed.
- *
- * There is a separate entry point (UT_Test_Setup) to configure the test cases.
- */
-void OS_Application_Startup(void)
+void UtTest_EarlyInit(void)
 {
     /*
      * Reset the test global variables, just in case.
      */
-    memset(&UtTestDataBase, 0, sizeof(UtTestDataBase));
-    UtTestsExecutedCount = 0;
-
-    UT_BSP_Setup();
-
-    /*
-     * Wrap the UtTest_Setup() function in a UT segment called "SETUP"
-     * This allows any assert calls to be used and recorded during setup
-     */
-    UtAssert_BeginTest("SETUP");
-    UtTest_Setup();
-    UtAssert_EndTest();
+    memset(&UtAssert_Global, 0, sizeof(UtAssert_Global));
 }
 
 

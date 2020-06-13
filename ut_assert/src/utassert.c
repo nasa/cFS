@@ -39,6 +39,49 @@ static char CurrentSegment[128];
  * Function Definitions
  */
 
+void UtAssert_DoReport(const char *File, uint32 LineNum, uint32 SegmentNum, uint32 TestSeq, uint8 MessageType,
+                     const char *SubsysName, const char *ShortDesc)
+{
+    uint32      FileLen;
+    const char *BasePtr;
+    char        ReportBuffer[320];
+
+    FileLen = strlen(File);
+    BasePtr = File + FileLen;
+    while (FileLen > 0)
+    {
+        --BasePtr;
+        --FileLen;
+        if (*BasePtr == '/' || *BasePtr == '\\')
+        {
+            ++BasePtr;
+            break;
+        }
+    }
+
+    snprintf(ReportBuffer, sizeof(ReportBuffer), "%02u.%03u %s:%u - %s", (unsigned int)SegmentNum,
+             (unsigned int)TestSeq, BasePtr, (unsigned int)LineNum, ShortDesc);
+
+    UT_BSP_DoText(MessageType, ReportBuffer);
+}
+
+void UtAssert_DoTestSegmentReport(const char *SegmentName, const UtAssert_TestCounter_t *TestCounters)
+{
+    char ReportBuffer[128];
+
+    snprintf(ReportBuffer, sizeof(ReportBuffer),
+             "%02u %-20s TOTAL::%-4u  PASS::%-4u  FAIL::%-4u   MIR::%-4u   TSF::%-4u   N/A::%-4u\n",
+             (unsigned int)TestCounters->TestSegmentCount, SegmentName, (unsigned int)TestCounters->TotalTestCases,
+             (unsigned int)TestCounters->CaseCount[UTASSERT_CASETYPE_PASS],
+             (unsigned int)TestCounters->CaseCount[UTASSERT_CASETYPE_FAILURE],
+             (unsigned int)TestCounters->CaseCount[UTASSERT_CASETYPE_MIR],
+             (unsigned int)TestCounters->CaseCount[UTASSERT_CASETYPE_TSF],
+             (unsigned int)TestCounters->CaseCount[UTASSERT_CASETYPE_NA]);
+
+    UT_BSP_DoText(UTASSERT_CASETYPE_END, ReportBuffer);
+}
+
+
 uint32 UtAssert_GetPassCount(void)
 {
     return(UT_TotalCounters.CaseCount[UTASSERT_CASETYPE_PASS]);
@@ -80,7 +123,7 @@ void UtAssert_EndTest(void)
         {
             UT_TotalCounters.CaseCount[Ct] += UT_SegmentCounters.CaseCount[Ct];
         }
-        UT_BSP_DoTestSegmentReport(CurrentSegment, &UT_SegmentCounters);
+        UtAssert_DoTestSegmentReport(CurrentSegment, &UT_SegmentCounters);
     }
     else
     {
@@ -126,7 +169,7 @@ bool UtAssertEx(bool Expression, UtAssert_CaseType_t CaseType, const char *File,
     vsnprintf(FinalMessage, sizeof(FinalMessage), MessageFormat, va);
     va_end(va);
 
-    UT_BSP_DoReport(File, Line, 1 + UT_TotalCounters.TestSegmentCount, UT_SegmentCounters.TotalTestCases, CaseType, CurrentSegment, FinalMessage);
+    UtAssert_DoReport(File, Line, 1 + UT_TotalCounters.TestSegmentCount, UT_SegmentCounters.TotalTestCases, CaseType, CurrentSegment, FinalMessage);
 
     return Expression;
 }

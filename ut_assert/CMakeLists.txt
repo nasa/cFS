@@ -42,4 +42,25 @@ target_compile_definitions(ut_assert PUBLIC
 target_link_libraries(ut_assert osal_bsp)
 
 
+# The "pic" variant of ut_assert is compiled as an
+# object library to be included in another object,
+# such as a loadable test app for CFE.
+# It is compiled as position independent code (PIC)
+# to support dynamic loading.
+add_library(ut_assert_pic OBJECT EXCLUDE_FROM_ALL
+    src/utassert.c
+    src/utlist.c
+    src/utstubs.c
+    src/uttest.c
+    src/uttools.c
+)
+
+set_target_properties(ut_assert_pic PROPERTIES
+    POSITION_INDEPENDENT_CODE TRUE
+)
+    
+target_include_directories(ut_assert_pic PUBLIC
+    "${CMAKE_CURRENT_SOURCE_DIR}/inc"
+)
+
 
