@@ -87,6 +87,8 @@ You can generate an SSH key on your machine which is essentially a unique identi
 
     ssh-keygen -t ed_25519
 
+Feel free to create a passphrase when prompted to do so. You can also leave it blank.
+
 The latter command will create an ed25519 public key and store it to ~/.ssh/ed_25519.pub by default
 
 Now you can copy the generated SSH key to your github profile, and you will be able to make changes without providing your username/password.
@@ -98,3 +100,7 @@ The following command can be used to copy the SSH key to your clipboard, assumin
 Use the following command to ensure the key was copied.
 
     xclip -o
+
+If git is still asking for your username and password, you may have to change the repo remote URL from https to ssh. This can be done with the following command.
+
+    git remote set-url origin git@github.com:McMasterNEUDOSE/cFS.git
