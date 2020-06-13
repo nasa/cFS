@@ -23,9 +23,10 @@ Creating a branch in git is easy, just use
     
     git branch <name of branch>
 
-If you forget what brancg you made, or want a list, use
+If you forget what branch you made, or want a list, use
     
     git branch
+
 Note! The asterisk shows you which branch you are currently working on. *It should never be the master branch.*
 If you are on the master branch, switch with
     
@@ -50,6 +51,10 @@ If you've made changes to files, you can add them to temporary "staging area" by
 
 You can add multiple files by separating them with a space
 
+If you would like to add all pending changes to the staging area, use the following command:
+
+    git add -A
+
 This staging area allows you to set up all the files you want to commit , before you actually commit them
 
 If you forget which files you've changed, git will tell you if you ask nicely:
@@ -63,6 +68,7 @@ Before actually commiting, see if any changes you've made are in direct conflict
 When you're ready to commit, use the commit command
     
     git commit
+
 It will prompt you for a message describing the change. **Always** add a message describing your changes.
 If you want to do it all in one line, that's cool too
     
@@ -71,4 +77,24 @@ If you want to do it all in one line, that's cool too
 To actually push the commit to the Github, use
     
     git push
+
 It will prompt you for a username and password (since our GitHub is organisation access only)
+
+Alternativly, rather than having git asking you for your username and password each time, you can setup an SSH key.
+
+## Adding an SSH Key
+You can generate an SSH key on your machine which is essentially a unique identifier for your machine.
+
+    ssh-keygen -t ed_25519
+
+The latter command will create an ed25519 public key and store it to ~/.ssh/ed_25519.pub by default
+
+Now you can copy the generated SSH key to your github profile, and you will be able to make changes without providing your username/password.
+
+The following command can be used to copy the SSH key to your clipboard, assuming xclip is installed on your machine.
+
+    cat ~/.ssh/ed_25519.pub | xclip -selection clipboard
+
+Use the following command to ensure the key was copied.
+
+    xclip -o
