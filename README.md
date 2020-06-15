@@ -136,6 +136,7 @@ The following list is user submitted, and not CCB controlled.  They are released
     - SCA: Stored Command Absolute application at https://github.com/nasa/SCA
     - SCH: Scheduler application at https://github.com/nasa/SCH
     - TO: Telemetry Output application at https://github.com/nasa/CFS_TO
+    - Skeleton App: A bare-bones application to which you can add your business logic at https://github.com/nasa/skeleton_app 
   - Other Interfaces
     - SIL: Simulink Interface Layer at https://github.com/nasa/SIL
     - ECI: External Code Interface at https://github.com/nasa/ECI
