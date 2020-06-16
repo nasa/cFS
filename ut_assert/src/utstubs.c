@@ -599,7 +599,7 @@ const void* UT_Hook_GetArgPtr(const UT_StubContext_t *ContextPtr, const char *Na
 
     static const union
     {
-        uintmax_t AsInt;
+        unsigned long AsInt;
         void *AsPtr;
         double AsFloat;
     } ARG_DEFAULT_ZERO_VALUE = { 0 };
