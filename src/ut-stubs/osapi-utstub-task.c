@@ -292,7 +292,7 @@ int32 OS_TaskFindIdBySystemData(uint32 *task_id, const void *sysdata, size_t sys
     status = UT_DEFAULT_IMPL(OS_TaskFindIdBySystemData);
 
     if (status == OS_SUCCESS &&
-            UT_Stub_CopyToLocal(UT_KEY(OS_TaskFindIdBySystemData), (void**)&task_id, sizeof(task_id)) < sizeof(task_id))
+            UT_Stub_CopyToLocal(UT_KEY(OS_TaskFindIdBySystemData), task_id, sizeof(*task_id)) < sizeof(*task_id))
     {
         *task_id = 1;
         UT_FIXUP_ID(*task_id, UT_OBJTYPE_TASK);
