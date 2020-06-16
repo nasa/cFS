@@ -106,12 +106,16 @@ Now, everything should work smoothly! With that, you should have cFS setup and t
 
 Should see telemetry, can send noops and see command counters increment
 
- 
- 
+<br/> 
+
 ***
 ***
- 
-From the NASA repo (kept for merging and upstream change monitoring) 
+***
+
+<sub>From the NASA repo (kept for merging and upstream change monitoring)</sub>
+
+<br/>
+
 
 # Core Flight System - BUNDLE
 
