@@ -31,13 +31,6 @@
 #include "os-shared-task.h"
 #include "os-shared-idmap.h"
 
-/*
- * Defines
- */
-#ifndef PTHREAD_STACK_MIN
-#define PTHREAD_STACK_MIN   (8*1024)
-#endif
-
 /* Tables where the OS object information is stored */
 OS_impl_task_internal_record_t      OS_impl_task_table          [OS_MAX_TASKS];
 
@@ -467,19 +460,11 @@ int32 OS_Posix_InternalTaskCreate_Impl(pthread_t *pthr, uint32 priority, size_t 
        /*
        ** Set the Stack Size
        */
-       if (stacksz > 0)
+       return_code = pthread_attr_setstacksize(&custom_attr, stacksz);
+       if (return_code != 0)
        {
-           if (stacksz < PTHREAD_STACK_MIN)
-           {
-              stacksz = PTHREAD_STACK_MIN;
-           }
-
-           return_code = pthread_attr_setstacksize(&custom_attr, stacksz);
-           if (return_code != 0)
-           {
-              OS_DEBUG("pthread_attr_setstacksize error in OS_TaskCreate: %s\n",strerror(return_code));
-              return(OS_ERROR);
-           }
+           OS_DEBUG("pthread_attr_setstacksize error in OS_TaskCreate: %s\n",strerror(return_code));
+           return(OS_ERROR);
        }
 
        /*
