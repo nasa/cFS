@@ -111,6 +111,13 @@ void OS_Application_Startup(void)
        /* note: use printf here, as OS_printf may not work */
        printf("CFE_PSP: OS_API_Init() failure\n");
        CFE_PSP_Panic(Status);
+
+       /*
+        * normally CFE_PSP_Panic() does not return, except
+        * during unit testing.  This return avoids executing
+        * the rest of this function in that case.
+        */
+       return;
    }
 
    /*

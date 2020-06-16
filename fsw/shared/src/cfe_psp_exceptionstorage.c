@@ -47,7 +47,8 @@
 
 #include "cfe_psp.h"
 #include "cfe_psp_config.h"
-#include "cfe_psp_exceptionstorage.h"
+#include "cfe_psp_exceptionstorage_types.h"
+#include "cfe_psp_exceptionstorage_api.h"
 #include "cfe_psp_memory.h"
 
 #include <target_config.h>
