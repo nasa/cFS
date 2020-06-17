@@ -16,6 +16,14 @@ This distribution contains:
 
 ## Version History
 
+
+### Development Build: 5.0.20
+-  Add "non-zero" to the out variable description for OS_Create (and related) API's.
+- Increases the buffer for context info from 128 to 256 bytes and the total report buffer to 320 bytes.
+- Add stub functions for `OS_TaskFindIdBySystemData()`, `OS_FileSysAddFixedMap()`,
+`OS_TimedRead()`, `OS_TimedWrite()`, and `OS_FileSysAddFixedMap()`
+- See <https://github.com/nasa/osal/pull/511>
+
 ### Development Build: 5.0.19
 
 - Rename BSPs that can be used on multiple platforms. 

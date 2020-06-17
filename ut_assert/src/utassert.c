@@ -108,7 +108,7 @@ bool UtAssert(bool Expression, const char *Description, const char *File, uint32
 bool UtAssertEx(bool Expression, UtAssert_CaseType_t CaseType, const char *File, uint32 Line, const char *MessageFormat, ...)
 {
     va_list va;
-    char FinalMessage[128];
+    char FinalMessage[256];
 
     ++UT_SegmentCounters.TotalTestCases;
 

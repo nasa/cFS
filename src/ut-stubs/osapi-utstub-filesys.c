@@ -30,6 +30,33 @@ UT_DEFAULT_STUB(OS_FileSysAPI_Init,(void))
 
 /*****************************************************************************
  *
+ * Stub function for OS_FileSysAddFixedMap()
+ *
+ *****************************************************************************/
+int32           OS_FileSysAddFixedMap(uint32 *filesys_id, const char *phys_path,
+                                const char *virt_path)
+{
+    int32 status;
+
+    status = UT_DEFAULT_IMPL(OS_FileSysAddFixedMap);
+
+    if (status == OS_SUCCESS)
+    {
+        *filesys_id = UT_AllocStubObjId(UT_OBJTYPE_FILESYS);
+    }
+    else
+    {
+        *filesys_id = 0xDEADBEEFU;
+    }
+
+
+
+    return status;
+}
+
+
+/*****************************************************************************
+ *
  * Stub function for OS_mkfs()
  *
  *****************************************************************************/

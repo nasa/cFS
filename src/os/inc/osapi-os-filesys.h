@@ -664,7 +664,7 @@ os_dirent_t *   OS_readdir (os_dirp_t directory);
  *
  * Prepares for reading the files within a directory
  *
- * @param[out] dir_id    The handle ID of the directory
+ * @param[out] dir_id    The non-zero handle ID of the directory
  * @param[in]  path      The directory to open
  *
  * @return Execution status, see @ref OSReturnCodes
@@ -765,7 +765,7 @@ int32           OS_rmdir   (const char *path);
  * This mimics the behavior of a "FS_BASED" entry in the VolumeTable but is registered
  * at runtime.  It is intended to be called by the PSP/BSP prior to starting the application.
  *
- * @param[out]  filesys_id  An OSAL ID reflecting the file system
+ * @param[out]  filesys_id  A non-zero OSAL ID reflecting the file system
  * @param[in]   phys_path   The native system directory (an existing mount point)
  * @param[in]   virt_path   The virtual mount point of this filesystem
  *

@@ -74,7 +74,7 @@ typedef struct
  * be configured to support at least (OS_MAX_TASKS + OS_MAX_TIMEBASES) threads,
  * to account for the helper threads associated with time base objects.
  *
- * @param[out]  timebase_id     An identifier corresponding to the timebase resource
+ * @param[out]  timebase_id     A non-zero ID corresponding to the timebase resource
  * @param[in]   timebase_name   The name of the time base
  * @param[in]   external_sync   A synchronization function for BSP hardware-based timer ticks
  *
@@ -204,7 +204,7 @@ int32 OS_TimeBaseGetFreeRun     (uint32 timebase_id, uint32 *freerun_val);
  *          interrupt service routine. Calls that cause the code to block or require
  *          an application context (like sending events) are generally not supported.
  *
- * @param[out]  timer_id        The resource ID of the timer object
+ * @param[out]  timer_id        The non-zero resource ID of the timer object
  * @param[in]   timer_name      Name of the timer object
  * @param[out]  clock_accuracy  Expected precision of the timer, in microseconds. This
  *                              is the underlying tick value rounded to the nearest
@@ -245,7 +245,7 @@ int32 OS_TimerCreate            (uint32 *timer_id, const char *timer_name, uint3
  *          interrupt service routine. Calls that cause the code to block or require
  *          an application context (like sending events) are generally not supported.
  *
- * @param[out]  timer_id        The resource ID of the timer object
+ * @param[out]  timer_id        The non-zero resource ID of the timer object
  * @param[in]   timer_name      Name of the timer object
  * @param[in]   timebase_id     The time base resource to use as a reference
  * @param[in]   callback_ptr    Application-provided function to invoke
