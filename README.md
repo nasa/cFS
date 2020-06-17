@@ -8,6 +8,11 @@ This is a collection of APIs abstracting platform specific functionality to be l
 
 ## Version History
 
+### Development Build: 1.4.14
+
+- Changes the PSP reference to be compatible with the change in nasa/osal#449 making the BSP modules more generic and changes the name.
+- See <https://github.com/nasa/PSP/pull/175>
+
 ### Development Build: 1.4.13
 
 - Changes the PSP reference to be compatible with the change in nasa/osal#449 making the BSP modules more generic and changes the name.
