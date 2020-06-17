@@ -141,6 +141,12 @@ void CFE_PSP_ExceptionHook (TASK_ID task_id, int vector, void* vpEsf )
          */
         fppSave(&Buffer->context_info.fp);
 
+        /*
+         * Save total size of context info.
+         * (This PSP always fills the entire structure)
+         */
+        Buffer->context_size = sizeof(Buffer->context_info);
+
         CFE_PSP_Exception_WriteComplete();
     }
 
