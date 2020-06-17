@@ -134,6 +134,84 @@ typedef struct
 #define     UtAssert_Type(Type,Expression,...)      \
                 UtAssertEx(Expression, UTASSERT_CASETYPE_##Type, __FILE__, __LINE__, __VA_ARGS__)
 
+/**
+ * \brief Compare two values for equality with an auto-generated description message
+ * Values will be compared in an "int32" type context.
+ */
+#define UtAssert_INT32_EQ(actual,expect)  do    \
+{                                               \
+    int32 rcexp = (int32)(expect);              \
+    int32 rcact = (int32)(actual);              \
+    UtAssert_True(rcact == rcexp, "%s (%ld) == %s (%ld)",   \
+        #actual, (long)rcact,                               \
+        #expect, (long)rcexp);                              \
+} while(0)
+
+/**
+ * \brief Compare two values for equality with an auto-generated description message
+ * Values will be compared in an "uint32" type context.
+ */
+#define UtAssert_UINT32_EQ(actual,expect) do    \
+{                                               \
+    uint32 rcexp = (uint32)(expect);            \
+    uint32 rcact = (uint32)(actual);            \
+    UtAssert_True(rcact == rcexp, "%s (%lu) == %s (%lu)",   \
+        #actual, (unsigned long)rcact,                      \
+        #expect, (unsigned long)rcexp);                     \
+} while(0)
+
+/**
+ * \brief Confirm a pointer value is not NULL
+ */
+#define UtAssert_NOT_NULL(actual) do            \
+{                                               \
+    void* ptr = (void*)(actual);                \
+    UtAssert_True(ptr != NULL, "%s (%p) != NULL",   \
+            #actual, ptr);                          \
+} while(0)
+
+/**
+ * \brief Confirm a pointer value is NULL
+ */
+#define UtAssert_NULL(actual) do                \
+{                                               \
+    void* ptr = (void*)(actual);                \
+    UtAssert_True(ptr == NULL, "%s (%p) == NULL",   \
+            #actual, ptr);                          \
+} while(0)
+
+/**
+ * \brief Confirm an integer value is nonzero
+ */
+#define UtAssert_NONZERO(actual) do             \
+{                                               \
+    long val = (long)(actual);                  \
+    UtAssert_True(val != 0, "%s (%ld) != 0",    \
+            #actual, val);                      \
+} while(0)
+
+/**
+ * \brief Confirm an integer value is nonzero
+ */
+#define UtAssert_ZERO(actual) do               \
+{                                              \
+   long val = (long)(actual);                  \
+   UtAssert_True(val == 0, "%s (%ld) == 0",    \
+           #actual, val);                      \
+} while(0)
+
+/**
+ * \brief Confirm that a stub function has been invoked the expected number of times
+ */
+#define UtAssert_STUB_COUNT(stub,expected) do  \
+{                                              \
+   uint32 expval = (uint32)(expected);         \
+   uint32 actval = UT_GetStubCount(UT_KEY(stub));                   \
+   UtAssert_True(actval == expval, "%s() count (%lu) == %s (%lu)",  \
+           #stub, (unsigned long)actval,                            \
+           #expected, (unsigned long)expval);                       \
+} while(0)
+
 /*
  * Exported Functions
  */
