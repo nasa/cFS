@@ -20,9 +20,18 @@ This distribution contains:
 ### Development Build: 5.0.20
 -  Add "non-zero" to the out variable description for OS_Create (and related) API's.
 - Increases the buffer for context info from 128 to 256 bytes and the total report buffer to 320 bytes.
-- Add stub functions for `OS_TaskFindIdBySystemData()`, `OS_FileSysAddFixedMap()`,
-`OS_TimedRead()`, `OS_TimedWrite()`, and `OS_FileSysAddFixedMap()`
-- See <https://github.com/nasa/osal/pull/511>
+- Add stub functions for `OS_TaskFindIdBySystemData()`, `OS_FileSysAddFixedMap()`, `OS_TimedRead()`, `OS_TimedWrite()`, and `OS_FileSysAddFixedMap()`
+- Added the following wrappers macros around `UtAssert_True` for commonly-used asserts:
+  - `UtAssert_INT32_EQ` - check equality as 32 bit signed int
+  - `UtAssert_UINT32_EQ` - check equality as 32 bit unsigned int
+  - `UtAssert_NOT_NULL` - check pointer not null
+  - `UtAssert_NULL` - check pointer is null
+  - `UtAssert_NONZERO` - check integer is nonzero
+  - `UtAssert_ZERO` - check integer is zero
+  - `UtAssert_STUB_COUNT` - check stub count
+-  Using `unsigned long` instead of `uintmax_t` to fix support for VxWorks
+
+- See <https://github.com/nasa/osal/pull/511> and <https://github.com/nasa/osal/pull/513>
 
 ### Development Build: 5.0.19
 
