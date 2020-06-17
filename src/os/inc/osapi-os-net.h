@@ -229,7 +229,7 @@ int32 OS_SocketAddrSetPort(OS_SockAddr_t *Addr, uint16 PortNum);
  *
  * A new, unconnected and unbound socket is allocated of the given domain and type.
  *
- * @param[out]  sock_id  Buffer to hold the OSAL ID
+ * @param[out]  sock_id  Buffer to hold the non-zero OSAL ID
  * @param[in]   Domain   The domain / address family of the socket (INET or INET6, etc)
  * @param[in]   Type     The type of the socket (STREAM or DATAGRAM)
  *

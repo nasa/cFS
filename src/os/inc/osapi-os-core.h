@@ -378,7 +378,7 @@ void OS_ForEachObjectOfType     (uint32 objtype, uint32 creator_id, OS_ArgCallba
  * Creates a task and passes back the id of the task created. Task names must be unique;
  * if the name already exists this function fails. Names cannot be NULL.
  *
- * @param[out]  task_id will be set to the ID of the newly-created resource
+ * @param[out]  task_id will be set to the non-zero ID of the newly-created resource
  * @param[in]   task_name the name of the new resource to create
  * @param[in]   function_pointer the entry point of the new task
  * @param[in]   stack_pointer pointer to the stack for the task, or NULL
@@ -566,7 +566,7 @@ int32 OS_TaskFindIdBySystemData(uint32 *task_id, const void *sysdata, size_t sys
  * function fails. Names cannot be NULL.
  *
  *
- * @param[out]  queue_id will be set to the ID of the newly-created resource
+ * @param[out]  queue_id will be set to the non-zero ID of the newly-created resource
  * @param[in]   queue_name the name of the new resource to create
  * @param[in]   queue_depth the maximum depth of the queue
  * @param[in]   data_size the size of each entry in the queue
@@ -694,7 +694,7 @@ int32 OS_QueueGetInfo          (uint32 queue_id, OS_queue_prop_t *queue_prop);
  * sem_initial_value and name specified by sem_name. sem_id will be
  * returned to the caller
  *
- * @param[out]  sem_id will be set to the ID of the newly-created resource
+ * @param[out]  sem_id will be set to the non-zero ID of the newly-created resource
  * @param[in]   sem_name the name of the new resource to create
  * @param[in]   sem_initial_value the initial value of the binary semaphore
  * @param[in]   options Reserved for future use, should be passed as 0.
@@ -846,7 +846,7 @@ int32 OS_BinSemGetInfo         (uint32 sem_id, OS_bin_sem_prop_t *bin_prop);
  * sem_initial_value and name specified by sem_name. sem_id will be
  * returned to the caller
  *
- * @param[out]  sem_id will be set to the ID of the newly-created resource
+ * @param[out]  sem_id will be set to the non-zero ID of the newly-created resource
  * @param[in]   sem_name the name of the new resource to create
  * @param[in]   sem_initial_value the initial value of the counting semaphore
  * @param[in]   options Reserved for future use, should be passed as 0.
@@ -978,7 +978,7 @@ int32 OS_CountSemGetInfo         (uint32 sem_id, OS_count_sem_prop_t *count_prop
  *
  * Mutex semaphores are always created in the unlocked (full) state.
  *
- * @param[out]  sem_id will be set to the ID of the newly-created resource
+ * @param[out]  sem_id will be set to the non-zero ID of the newly-created resource
  * @param[in]   sem_name the name of the new resource to create
  * @param[in]   options reserved for future use.  Should be passed as 0.
  *

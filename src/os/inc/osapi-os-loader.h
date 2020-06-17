@@ -132,7 +132,7 @@ int32 OS_SymbolTableDump ( const char *filename, uint32 size_limit );
  *
  * Loads an object file into the running operating system
  *
- * @param[out] module_id    OSAL ID corresponding to the loaded module
+ * @param[out] module_id    Non-zero OSAL ID corresponding to the loaded module
  * @param[in]  module_name  Name of module
  * @param[in]  filename     File containing the object code to load
  *
