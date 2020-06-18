@@ -53,14 +53,15 @@ extern "C" {
 #include "cfe_msgids.h"
 
 #include "to_msgids.h"
+/* not yet using these apps
 #include "ci_msgids.h"
 #include "cf_msgids.h"
 #include "sch_msgids.h"
 #include "hs_msgids.h"
+*/
 #include "hk_msgids.h"
 #include "sch_msgids.h"
 
-#include "comms_msgids.h"
 
 
 /*
@@ -86,18 +87,18 @@ TO_ConfigTable_t to_ConfigTable =
 {
    {
        /* 0 - 9 */
-       {CF_CONFIG_TLM_MID,            {0,0},  1,   0xffff,     TO_GROUP_CFE | TO_MGROUP_ONE, 0,1},
+/*       {CF_CONFIG_TLM_MID,            {0,0},  1,   0xffff,     TO_GROUP_CFE | TO_MGROUP_ONE, 0,1},
        {CF_HK_TLM_MID,                {0,0},  1,   0xffff,     TO_GROUP_CFE | TO_MGROUP_ONE, 0,1},
        {CF_SPACE_TO_GND_PDU_MID,      {0,0},  32,  0xffff,     TO_GROUP_CFE | TO_MGROUP_ONE, 0,1},
        {CF_TRANS_TLM_MID,             {0,0},  1,   0xffff,     TO_GROUP_CFE | TO_MGROUP_ONE, 0,1},
-       {CFE_ES_APP_TLM_MID,           {0,0},  1,   0xffff,     TO_GROUP_CFE | TO_MGROUP_ONE, 0,1},
+*/       {CFE_ES_APP_TLM_MID,           {0,0},  1,   0xffff,     TO_GROUP_CFE | TO_MGROUP_ONE, 0,1},
        {CFE_ES_HK_TLM_MID,            {0,0},  1,   0xffff,     TO_GROUP_CFE | TO_MGROUP_ONE, 0,1},
        {CFE_ES_MEMSTATS_TLM_MID,      {0,0},  1,   0xffff,     TO_GROUP_CFE | TO_MGROUP_ONE, 0,1},
        {CFE_ES_SHELL_TLM_MID,         {0,0},  32,  0xffff,     TO_GROUP_CFE | TO_MGROUP_ONE, 0,1},
        {CFE_EVS_EVENT_MSG_MID,        {0,0},  32,  0xffff,     TO_GROUP_CFE | TO_MGROUP_ONE, 0,1},
        {CFE_EVS_HK_TLM_MID,           {0,0},  1,   0xffff,     TO_GROUP_CFE | TO_MGROUP_ONE, 0,1},
-                                                         
-       /* 10 - 19 */                                     
+
+       /* 10 - 19 */
        {CFE_SB_ALLSUBS_TLM_MID,       {0,0},  1,   0xffff,     TO_GROUP_CFE | TO_MGROUP_ONE, 0,1},
        {CFE_SB_HK_TLM_MID,            {0,0},  1,   0xffff,     TO_GROUP_CFE | TO_MGROUP_ONE, 0,1},
        {CFE_SB_ONESUB_TLM_MID,        {0,0},  1,   0xffff,     TO_GROUP_CFE | TO_MGROUP_ONE, 0,1},
@@ -107,21 +108,21 @@ TO_ConfigTable_t to_ConfigTable =
        {CFE_TIME_DIAG_TLM_MID,        {0,0},  1,   0xffff,     TO_GROUP_CFE | TO_MGROUP_ONE, 0,1},
        {CFE_TIME_HK_TLM_MID,          {0,0},  1,   0xffff,     TO_GROUP_CFE | TO_MGROUP_ONE, 0,1},
        {TO_HK_TLM_MID,                {0,0},  1,   0xffff,     TO_GROUP_APP | TO_MGROUP_ONE, 0,1},
-       {HS_HK_TLM_MID,                {0,0},  1,   0xffff,     TO_GROUP_APP | TO_MGROUP_ONE, 0,1},
-                                                         
-       /* 20 - 29 */                                     
+//       {HS_HK_TLM_MID,                {0,0},  1,   0xffff,     TO_GROUP_APP | TO_MGROUP_ONE, 0,1},
+
+       /* 20 - 29 */
        {SCH_DIAG_TLM_MID,             {0,0},  1,   0xffff,     TO_GROUP_APP | TO_MGROUP_ONE, 0,1},
        {SCH_HK_TLM_MID,               {0,0},  1,   0xffff,     TO_GROUP_APP | TO_MGROUP_ONE, 0,1},
        {HK_HK_TLM_MID,                {0,0},  1,   0xffff,     TO_GROUP_APP | TO_MGROUP_ONE, 0,1},
-       {CI_HK_TLM_MID,                {0,0},  1,   0xffff,     TO_GROUP_APP | TO_MGROUP_ONE, 0,1},
+//       {CI_HK_TLM_MID,                {0,0},  1,   0xffff,     TO_GROUP_APP | TO_MGROUP_ONE, 0,1},
        {TO_DATA_TYPE_MID,             {0,0},  1,   0xffff,     TO_GROUP_APP | TO_MGROUP_ONE, 0,1},
-       {COMMS_HK_TLM_MID,             {0,0},  1,   0xffff,     TO_GROUP_APP | TO_MGROUP_ONE, 0,1},
+//       {COMMS_HK_TLM_MID,             {0,0},  1,   0xffff,     TO_GROUP_APP | TO_MGROUP_ONE, 0,1},
        {TO_UNUSED_ENTRY,              {0,0},  0,   0x0000,     TO_GROUP_NONE,            0,0},
        {TO_UNUSED_ENTRY,              {0,0},  0,   0x0000,     TO_GROUP_NONE,            0,0},
        {TO_UNUSED_ENTRY,              {0,0},  0,   0x0000,     TO_GROUP_NONE,            0,0},
        {TO_UNUSED_ENTRY,              {0,0},  0,   0x0000,     TO_GROUP_NONE,            0,0},
-       
-       
+
+
        /* 30 - 39 */
        {TO_UNUSED_ENTRY,              {0,0},  0,   0x0000,     TO_GROUP_NONE,            0,0},
        {TO_UNUSED_ENTRY,              {0,0},  0,   0x0000,     TO_GROUP_NONE,            0,0},

@@ -8,8 +8,10 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${ci_MISSION_DIR}/fsw/platform_inc)
 include_directories(${ci_MISSION_DIR}/fsw/mission_inc)
 include_directories(${ci_MISSION_DIR}/fsw/src)
-include_directories(${io_lib_MISSION_DIR}/fsw/public_inc/)
 
+include_directories(${MISSION_SOURCE_DIR}/tools/io_lib)
+
+include_directories(${MISSION_SOURCE_DIR}/sample_defs)
 include_directories(${MISSION_SOURCE_DIR}/apps/inc)
 include_directories(${MISSION_SOURCE_DIR}/apps/cf/fsw/platform_inc)
 include_directories(${MISSION_SOURCE_DIR}/apps/sch/fsw/platform_inc)

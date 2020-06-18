@@ -16,7 +16,7 @@
 *   \par Modification History:
 *     - 2015-01-09 | Guy de Carufel | Code Started
 *     - 2016-05-11 | Allen Brown | Updated headers
-*******************************************************************************/ 
+*******************************************************************************/
 #ifndef _TO_MISSION_CFG_H_
 #define _TO_MISSION_CFG_H_
 
@@ -43,7 +43,7 @@ extern "C" {
 
 /* Note, this header uses a mission name prefix convention.
    This include may need to be altered. */
-#include "CFS_TST_to_types.h"
+#include "NEUDOSE_to_types.h"
 
 /*
 ** Local Structure Declarations
@@ -74,4 +74,3 @@ extern "C" {
 /*==============================================================================
 ** End of file to_mission_cfg.h
 **============================================================================*/
-    
