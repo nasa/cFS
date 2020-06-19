@@ -1,0 +1,31 @@
+CFE_LIB, /cf/io_lib.so,      IO_LibInit,      IO_LIB,        0,   0,     0x0, 0;
+CFE_LIB, /cf/sample_lib.so,  SAMPLE_LibInit,  SAMPLE_LIB,    0,   0,     0x0, 0;
+CFE_APP, /cf/to.so,          TO_AppMain,      TO,           45,   16384, 0x0, 0;
+CFE_APP, /cf/sample_app.so,  SAMPLE_AppMain,  SAMPLE_APP,   50,   16384, 0x0, 0;
+CFE_APP, /cf/ci_lab.so,      CI_Lab_AppMain,  CI_LAB_APP,   60,   16384, 0x0, 0;
+CFE_APP, /cf/to_lab.so,      TO_Lab_AppMain,  TO_LAB_APP,   70,   16384, 0x0, 0;
+CFE_APP, /cf/sch_lab.so,     SCH_Lab_AppMain, SCH_LAB_APP,  80,   16384, 0x0, 0;
+!
+! Startup script fields:
+! 1. Object Type      -- CFE_APP for an Application, or CFE_LIB for a library.
+! 2. Path/Filename    -- This is a cFE Virtual filename, not a vxWorks device/pathname
+! 3. Entry Point      -- This is the "main" function for Apps.
+! 4. CFE Name         -- The cFE name for the the APP or Library
+! 5. Priority         -- This is the Priority of the App, not used for Library
+! 6. Stack Size       -- This is the Stack size for the App, not used for the Library
+! 7. Load Address     -- This is the Optional Load Address for the App or Library. Currently not implemented
+!                        so keep it at 0x0.
+! 8. Exception Action -- This is the Action the cFE should take if the App has an exception.
+!                        0        = Just restart the Application
+!                        Non-Zero = Do a cFE Processor Reset
+!
+! Other  Notes:
+! 1. The software will not try to parse anything after the first '!' character it sees. That
+!    is the End of File marker.
+! 2. Common Application file extensions:
+!    Linux = .so  ( ci.so )
+!    OS X  = .bundle  ( ci.bundle )
+!    Cygwin = .dll ( ci.dll )
+!    vxWorks = .o ( ci.o )
+!    RTEMS with S-record Loader = .s3r ( ci.s3r )
+!    RTEMS with CEXP Loader = .o ( ci.o )
