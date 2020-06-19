@@ -43,9 +43,9 @@ boolean UDP_UseReturnCode(uint32 Index)
 
 void UDP_SetFunctionHook(uint32 Index, void *FunPtr)
 {
-    if (Index == UDP_SOCKET_INDEX)      
-    { 
-        UDP_HookTable.socket = FunPtr; 
+    if (Index == UDP_SOCKET_INDEX)
+    {
+        UDP_HookTable.socket = FunPtr;
     }
     else
     {
@@ -69,7 +69,7 @@ int socket(int a, int b, int c)
     return 1;
 }
 
-int setsockopt(int socket, int level, int option_name, 
+int setsockopt(int socket, int level, int option_name,
                const void *option_value, int option_len)
 {
     if (UDP_UseReturnCode(UDP_SETSOCKOPT_INDEX))
@@ -79,17 +79,18 @@ int setsockopt(int socket, int level, int option_name,
     return 0;
 }
 
-//Use POSIX version instead
-//int inet_aton(const char *cp, struct in_addr *inp)
-//{
-//    if (UDP_UseReturnCode(UDP_INET_ATON_INDEX))
-//    {
-//        return UDP_ReturnCodeTable[UDP_INET_ATON_INDEX].Value;
-//    }
-//    *inp = INADDR_ANY;
-//
-//    return INADDR_ANY;
-//}
+
+Use POSIX version instead
+int inet_aton(const char *cp, struct in_addr *inp)
+{
+    if (UDP_UseReturnCode(UDP_INET_ATON_INDEX))
+    {
+        return UDP_ReturnCodeTable[UDP_INET_ATON_INDEX].Value;
+    }
+    *inp = INADDR_ANY;
+
+    return INADDR_ANY;
+}
 
 
 int bind(int sockfd, const struct sockaddr *addr, int addrlen)

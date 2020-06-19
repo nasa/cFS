@@ -7,26 +7,26 @@
 *   All Other Rights Reserved.
 *
 * Purpose:
-*   Provides the functionality to communicate over an RS-422 serial port. 
+*   Provides the functionality to communicate over an RS-422 serial port.
 *   Suports VXWorks and POSIX OS.
 *
 * Reference:
 *   http://www.tldp.org/HOWTO/text/Serial-Programming-HOWTO
 *   http://linux.die.net/man/3/tcsetattr
-*   http://fabiobaltieri.com/2011/08/24/using-serial-ports-linux/ 
+*   http://fabiobaltieri.com/2011/08/24/using-serial-ports-linux/
 *   http://stackoverflow.com/questions/25996171/
 *       linux-blocking-vs-non-blocking-serial-read
 *   http://www.vxdev.com/docs/vx55man/vxworks/guide/c-iosys.html
 *
 * Notes:
-*   1. The serial port is set to non-blocking to prevent lock-up if link is 
-*   interrupted and/or not all of the expected message is received. 
-*   2. The VTIME and VMIN take presendence over NON_BLOCKING. If VMIN and 
-*   VTIME > 0 (recommended), timer will only start if at least one byte is 
+*   1. The serial port is set to non-blocking to prevent lock-up if link is
+*   interrupted and/or not all of the expected message is received.
+*   2. The VTIME and VMIN take presendence over NON_BLOCKING. If VMIN and
+*   VTIME > 0 (recommended), timer will only start if at least one byte is
 *   received. Read will return after at least VMIN bytes are received,
-*   or VTIME timeout. VTIME is an intercharacter timout in this case. Use the 
-*   ReadTimeout function or use select with timeout at a higher level before 
-*   calling the TransRS422Read function to prevent indefinite blocking. 
+*   or VTIME timeout. VTIME is an intercharacter timout in this case. Use the
+*   ReadTimeout function or use select with timeout at a higher level before
+*   calling the TransRS422Read function to prevent indefinite blocking.
 *
 * History:
 *   Apr 07, 2015  Guy de Carufel
@@ -39,6 +39,7 @@
 
 #include "trans_rs422.h"
 
+#if 0 /*not useful and has build errors*/
 
 /* Local Prototype */
 #ifndef _VXWORKS_OS_
@@ -51,12 +52,12 @@ int32 IO_TransRS422Init(IO_TransRS422Config_t * configIn)
 {
     int fd;
     IO_TransRS422Config_t * config = (IO_TransRS422Config_t *) configIn;
-    
+
     if (config == NULL)
     {
         CFE_EVS_SendEvent(IO_LIB_TRANS_RS422_EID, CFE_EVS_ERROR,
                           "IO_TransRS422 Error: NULL Config input.");
-                          
+
         return IO_TRANS_RS422_BADINPUT_ERR;
     }
 
@@ -66,7 +67,7 @@ int32 IO_TransRS422Init(IO_TransRS422Config_t * configIn)
     {
         CFE_EVS_SendEvent(IO_LIB_TRANS_RS422_EID, CFE_EVS_ERROR,
                           "IO_TransRS422 Error: Bad input baud rate.");
-        
+
         return IO_TRANS_RS422_BAUDRATE_ERR;
     }
 #endif
@@ -75,12 +76,12 @@ int32 IO_TransRS422Init(IO_TransRS422Config_t * configIn)
     {
         CFE_EVS_SendEvent(IO_LIB_TRANS_RS422_EID, CFE_EVS_ERROR,
                           "IO_TransRS422 Error: Bad config device.");
-                          
+
         return IO_TRANS_RS422_BADDEVICE_ERR;
     }
 
-    /* Open the serial port as read / write non-blocking. */ 
-    fd = open(config->device, IO_TRANS_RS422_OPEN_FLAGS, 0); 
+    /* Open the serial port as read / write non-blocking. */
+    fd = open(config->device, IO_TRANS_RS422_OPEN_FLAGS, 0);
     if (fd < 0)
     {
         CFE_EVS_SendEvent(IO_LIB_TRANS_RS422_EID, CFE_EVS_ERROR,
@@ -95,13 +96,13 @@ int32 IO_TransRS422Init(IO_TransRS422Config_t * configIn)
     {
         CFE_EVS_SendEvent(IO_LIB_TRANS_RS422_EID, CFE_EVS_ERROR,
                           "IO_TransRS422 Error: Bad input baud rate.");
-    
+
         close(fd);
         return IO_TRANS_RS422_BAUDRATE_ERR;
     }
 
     /* Set to raw mode */
-    ioctl(fd, FIOSETOPTIONS, OPT_RAW); 
+    ioctl(fd, FIOSETOPTIONS, OPT_RAW);
 
     /* Clear the buffer */
     ioctl(fd, FIOFLUSH, 0);
@@ -115,15 +116,15 @@ int32 IO_TransRS422Init(IO_TransRS422Config_t * configIn)
         return IO_TRANS_RS422_SETATTR_ERR;
     }
 
-#else    
+#else
     {
         struct termios oldAttr;
         struct termios setAttr;
         struct termios newAttr;
-        
+
         /* Get attributes of device */
         tcgetattr(fd, &oldAttr);
-        
+
         /* Set new attr config */
         bzero(&setAttr, sizeof(setAttr));
         /* Set controls
@@ -137,17 +138,17 @@ int32 IO_TransRS422Init(IO_TransRS422Config_t * configIn)
         /* Output config: raw. */
         setAttr.c_oflag = 0;
 
-        /* Set to non-cononical 
-         * (Since we are expecting binary data, we cannot rely on 
+        /* Set to non-cononical
+         * (Since we are expecting binary data, we cannot rely on
          * New-Line ASCII characters) */
         setAttr.c_lflag &= ~(ICANON);
         setAttr.c_lflag &= ~(ECHO);
-            
+
         /* Set non-canonical Control limits. */
-        /* VTIME in 100ms. Timer starts after first byte is received. */   
-        setAttr.c_cc[VTIME] = config->timeout / 100;  
+        /* VTIME in 100ms. Timer starts after first byte is received. */
+        setAttr.c_cc[VTIME] = config->timeout / 100;
         /* Min number of bytes to return on read (or timeout) */
-        setAttr.c_cc[VMIN] = config->minBytes;            
+        setAttr.c_cc[VMIN] = config->minBytes;
 
         /* Set baudrate */
         cfsetspeed(&setAttr, baudRate);
@@ -168,7 +169,7 @@ int32 IO_TransRS422Init(IO_TransRS422Config_t * configIn)
             return IO_TRANS_RS422_SETATTR_ERR;
         }
     }
-#endif    
+#endif
 
     return (int32) fd;
 }
@@ -182,13 +183,13 @@ int32 IO_TransRS422Close(int32 fd)
 
 
 /** Read numBytes from serial port with timeout (in us) */
-int32 IO_TransRS422ReadTimeout(int32 fd, uint8 *buffer, int32 numBytes, 
+int32 IO_TransRS422ReadTimeout(int32 fd, uint8 *buffer, int32 numBytes,
                                int32 timeoutIn)
 {
     struct timeval timeout;
     fd_set fdSet;
     int32 size = 0;
-    
+
     FD_ZERO(&fdSet);
     FD_SET(fd, &fdSet);
 
@@ -201,7 +202,7 @@ int32 IO_TransRS422ReadTimeout(int32 fd, uint8 *buffer, int32 numBytes,
     else
     {
         timeout.tv_sec  = timeoutIn / 1000000;
-        timeout.tv_usec = timeoutIn % 1000000; 
+        timeout.tv_usec = timeoutIn % 1000000;
         size = select(fd + 1, &fdSet, NULL, NULL, &timeout);
     }
 
@@ -210,7 +211,7 @@ int32 IO_TransRS422ReadTimeout(int32 fd, uint8 *buffer, int32 numBytes,
     {
         size = IO_TransRS422Read(fd, buffer, numBytes);
     }
-    
+
     return size;
 }
 
@@ -227,22 +228,22 @@ int32 IO_TransRS422Read(int32 fd, uint8 *buffer, int32 numBytes)
     while (totalRead < numBytes)
     {
         remainSize = numBytes - totalRead;
-    
+
         /* NOTE: Will not return until at least 1 byte is received
          * if configured with minBytes > 0 and timeout > 0 */
         readSize = read(fd, cursor, remainSize);
-        
+
         /* End of Message or timeout */
         if (readSize <= 0)
         {
             break;
         }
-        
+
         totalRead += readSize;
         cursor += readSize;
     }
-    
-    return totalRead; 
+
+    return totalRead;
 }
 
 
@@ -266,7 +267,7 @@ int32 IO_TransRS422Write(int32 fd, uint8 *msg, int32 size)
         }
     }
 
-    return sizeOut; 
+    return sizeOut;
 }
 
 
@@ -275,7 +276,7 @@ int32 IO_TransRS422Write(int32 fd, uint8 *msg, int32 size)
 speed_t IO_TransRS422GetBaudRateMacro(int32 bps)
 {
     speed_t baudRate = B0;
-    
+
     switch(bps)
     {
         case 19200:
@@ -306,3 +307,5 @@ speed_t IO_TransRS422GetBaudRateMacro(int32 bps)
     return baudRate;
 }
 #endif
+
+#endif /* ends the if 0*/

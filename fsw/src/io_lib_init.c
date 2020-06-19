@@ -32,7 +32,7 @@ extern int32 TMTF_LibInit(void);
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /*                                                                 */
 /* CFS Library Initialization Routine                              */
-/* cFE requires that a library have an initialization routine      */ 
+/* cFE requires that a library have an initialization routine      */
 /*                                                                 */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 int32 IO_LibInit(void)
@@ -42,25 +42,25 @@ int32 IO_LibInit(void)
 
     /* Perform any library initializations */
     iStatus = TMTF_LibInit();
-    iStatus |= TM_SYNC_LibInit(); 
-    iStatus |= TC_SYNC_LibInit(); 
+    iStatus |= TM_SYNC_LibInit();
+    iStatus |= TC_SYNC_LibInit();
 
     if (iStatus != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("IO_Lib Init failed.\n", iStatus);
+        CFE_ES_WriteToSysLog("IO_Lib Init failed.\n" "Status: %i \n", iStatus);
     }
 
 
-    CFE_PSP_MemSet((void*)g_IO_LIB_LibData.EventTbl, 0x00, 
+    CFE_PSP_MemSet((void*)g_IO_LIB_LibData.EventTbl, 0x00,
                    sizeof(g_IO_LIB_LibData.EventTbl));
 
     for(ii = 0; ii < IO_LIB_EVT_CNT; ++ii)
     {
         g_IO_LIB_LibData.EventTbl[ii].EventID = ii;
     }
-    
+
     /* Register the table with CFE */
-    iStatus = CFE_EVS_Register(g_IO_LIB_LibData.EventTbl, IO_LIB_EVT_CNT, 
+    iStatus = CFE_EVS_Register(g_IO_LIB_LibData.EventTbl, IO_LIB_EVT_CNT,
                                CFE_EVS_BINARY_FILTER);
     if (iStatus != CFE_SUCCESS)
     {
@@ -70,11 +70,11 @@ int32 IO_LibInit(void)
     {
         CFE_ES_WriteToSysLog("IO Lib Initialized.  Version %d.%d.%d.%d\n",
                            IO_LIB_MAJOR_VERSION,
-                           IO_LIB_MINOR_VERSION, 
-                           IO_LIB_REVISION, 
+                           IO_LIB_MINOR_VERSION,
+                           IO_LIB_REVISION,
                            IO_LIB_MISSION_REV);
     }
-               
+
     return iStatus;
- 
+
 }/* End CFS_LibInit */

@@ -7,7 +7,7 @@
 *   All Other Rights Reserved.
 *
 * Purpose:
-*   Provides the functionality to communicate over a UDP socket. 
+*   Provides the functionality to communicate over a UDP socket.
 *   Supports POSIX.
 *
 * Reference:
@@ -28,6 +28,10 @@
 #include <string.h>
 
 #include "trans_udp.h"
+
+/** Function declarations**/
+int inet_aton(const char *cp, struct in_addr *inp);
+
 
 /** Initialize (create, configure and bind) a UDP Socket */
 int32 IO_TransUdpInit(IO_TransUdpConfig_t * config, IO_TransUdp_t * udp)
@@ -63,17 +67,17 @@ int32 IO_TransUdpCreateSocket(IO_TransUdp_t *udp)
                           "IO_TransUDP Error: Null input argument. ");
         return IO_TRANS_UDP_BAD_INPUT_ERROR;
     }
-    
+
     /* Create socket */
     /* AF_INET: IPv4 */
     /* SOCK_DGRAM: Datagram socket */
     /* IPPROTO_UDP:  UDP socket */
     udp->sockId = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-        
+
     if (udp->sockId < 0)
     {
         CFE_EVS_SendEvent(IO_LIB_TRANS_UDP_EID,CFE_EVS_ERROR,
-                          "IO_TransUDP Error: create socket failed. " 
+                          "IO_TransUDP Error: create socket failed. "
                           "errno:%d", errno);
     }
 
@@ -85,9 +89,9 @@ int32 IO_TransUdpCreateSocket(IO_TransUdp_t *udp)
 int32 IO_TransUdpConfigSocket(IO_TransUdpConfig_t *config, IO_TransUdp_t *udp)
 {
     int32  status = IO_TRANS_UDP_NO_ERROR;
-    uint32 uiAddr = INADDR_ANY; 
+    uint32 uiAddr = INADDR_ANY;
     struct timeval timeout;
-    
+
     if (udp == NULL || config == NULL)
     {
         CFE_EVS_SendEvent(IO_LIB_TRANS_UDP_EID,CFE_EVS_ERROR,
@@ -110,7 +114,7 @@ int32 IO_TransUdpConfigSocket(IO_TransUdpConfig_t *config, IO_TransUdp_t *udp)
                           "IO_TransUDP Error: Bad config timeout input.");
         return IO_TRANS_UDP_BAD_INPUT_ERROR;
     }
-    
+
     /* Get IP address from cAddr */
     /* NOTE: inet_aton errors out if cAddr = "0.0.0.0", the value of
      * IO_TRANS_UDP_INADDR_ANY.  So if this is the case, set uiAddr to
@@ -147,14 +151,14 @@ int32 IO_TransUdpConfigSocket(IO_TransUdpConfig_t *config, IO_TransUdp_t *udp)
     {
         timeout.tv_sec = (long)(config->timeoutRcv / 1000);
         timeout.tv_usec = (long)((config->timeoutRcv % 1000) * 1000);
-        
-        if (setsockopt(udp->sockId, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, 
+
+        if (setsockopt(udp->sockId, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout,
             sizeof(timeout)) < 0)
         {
             CFE_EVS_SendEvent(IO_LIB_TRANS_UDP_EID, CFE_EVS_ERROR,
                               "IO_TransUDP Error: Set option SO_RCVTIMEO failed. "
                               "Timeout input:%d", config->timeoutRcv);
-            
+
             return IO_TRANS_UDP_SOCKETOPT_ERROR;
         }
     }
@@ -164,14 +168,14 @@ int32 IO_TransUdpConfigSocket(IO_TransUdpConfig_t *config, IO_TransUdp_t *udp)
     {
         timeout.tv_sec = (long)(config->timeoutSnd / 1000);
         timeout.tv_usec = (long)((config->timeoutSnd % 1000) * 1000);
-        
-        if (setsockopt(udp->sockId, SOL_SOCKET, SO_SNDTIMEO, (char *)&timeout, 
+
+        if (setsockopt(udp->sockId, SOL_SOCKET, SO_SNDTIMEO, (char *)&timeout,
             sizeof(timeout)) < 0)
         {
             CFE_EVS_SendEvent(IO_LIB_TRANS_UDP_EID, CFE_EVS_ERROR,
                               "IO_TransUDP Error: Set option SO_SNDTIMEO failed. "
                               "Timeout input:%d", config->timeoutSnd);
-            
+
             return IO_TRANS_UDP_SOCKETOPT_ERROR;
         }
     }
@@ -189,15 +193,15 @@ int32 IO_TransUdpBindSocket(IO_TransUdp_t * udp)
                           "IO_TransUDP Error: Null input argument. ");
         return IO_TRANS_UDP_BAD_INPUT_ERROR;
     }
-    
+
     /* Bind socket to port */
-    if ((bind(udp->sockId, (struct sockaddr*)&udp->sockAddr, 
+    if ((bind(udp->sockId, (struct sockaddr*)&udp->sockAddr,
               sizeof(struct sockaddr)) < 0))
     {
         CFE_EVS_SendEvent(IO_LIB_TRANS_UDP_EID, CFE_EVS_ERROR,
-                          "IO_TransUDP Error: bind socket failed. errno:%d", 
+                          "IO_TransUDP Error: bind socket failed. errno:%d",
                           errno);
-        return IO_TRANS_UDP_SOCKETBIND_ERROR; 
+        return IO_TRANS_UDP_SOCKETBIND_ERROR;
     }
 
     return IO_TRANS_UDP_NO_ERROR;
@@ -215,7 +219,7 @@ int32 IO_TransUdpCloseSocket(IO_TransUdp_t *udp)
                           "IO_TransUDP Error: Null input argument. ");
         return IO_TRANS_UDP_BAD_INPUT_ERROR;
     }
-    
+
     status = close(udp->sockId);
 
     if (status < 0)
@@ -224,25 +228,25 @@ int32 IO_TransUdpCloseSocket(IO_TransUdp_t *udp)
                           "IO_TransUDP Error: Failed to close socket ID:%d, "
                           "errno:%d", udp->sockId, errno);
     }
-    
+
     return status;
 }
 
 
 /** Set the destination address structure */
-int32 IO_TransUdpSetDestAddr(IO_TransUdp_t *udp, char * destAddr, 
+int32 IO_TransUdpSetDestAddr(IO_TransUdp_t *udp, char * destAddr,
                              uint16 usPort)
 {
     int32 status;
-    uint32 uiAddr = INADDR_ANY; 
-    
+    uint32 uiAddr = INADDR_ANY;
+
     if (udp == NULL || destAddr == NULL)
     {
         CFE_EVS_SendEvent(IO_LIB_TRANS_UDP_EID,CFE_EVS_ERROR,
                           "IO_TransUDP Error: Null input argument. ");
         return IO_TRANS_UDP_BAD_INPUT_ERROR;
     }
-    
+
     /* Get IP address from cAddr */
     status = inet_aton(destAddr, (struct in_addr *) &uiAddr);
     if (status == INET_ATON_ERROR)
@@ -262,7 +266,7 @@ int32 IO_TransUdpSetDestAddr(IO_TransUdp_t *udp, char * destAddr,
     udp->destAddr.sin_port          = htons(usPort);
 
     CFE_EVS_SendEvent(IO_LIB_TRANS_UDP_EID, CFE_EVS_INFORMATION,
-                      "IO_TransUDP: Destination IP set to %s:%u", 
+                      "IO_TransUDP: Destination IP set to %s:%u",
                       destAddr, usPort);
 
 
@@ -271,8 +275,8 @@ int32 IO_TransUdpSetDestAddr(IO_TransUdp_t *udp, char * destAddr,
 
 
 
-/** Receive message on blocking socket with select. 
- *  Will timeout after selectTimout based on input argument. 
+/** Receive message on blocking socket with select.
+ *  Will timeout after selectTimout based on input argument.
  *  Do not use this function if you are using the IO_Trans_Select library. */
 int32 IO_TransUdpRcvTimeout(IO_TransUdp_t * udp, uint8 * buffer, int32 bufSize,
                             int32 selectTimeout)
@@ -280,14 +284,14 @@ int32 IO_TransUdpRcvTimeout(IO_TransUdp_t * udp, uint8 * buffer, int32 bufSize,
     struct timeval timeout;
     fd_set fdSet;
     int32 size = 0;
-    
+
     if (udp == NULL || buffer == NULL)
     {
         CFE_EVS_SendEvent(IO_LIB_TRANS_UDP_EID,CFE_EVS_ERROR,
                           "IO_TransUDP Error: Null input argument. ");
         return IO_TRANS_UDP_BAD_INPUT_ERROR;
     }
-    
+
     FD_ZERO(&fdSet);
     FD_SET(udp->sockId, &fdSet);
 
@@ -300,7 +304,7 @@ int32 IO_TransUdpRcvTimeout(IO_TransUdp_t * udp, uint8 * buffer, int32 bufSize,
     else
     {
         timeout.tv_sec  = selectTimeout / 1000000;
-        timeout.tv_usec = selectTimeout % 1000000; 
+        timeout.tv_usec = selectTimeout % 1000000;
         size = select(udp->sockId + 1, &fdSet, NULL, NULL, &timeout);
     }
 
@@ -309,34 +313,34 @@ int32 IO_TransUdpRcvTimeout(IO_TransUdp_t * udp, uint8 * buffer, int32 bufSize,
     {
         size = IO_TransUdpRcv(udp, buffer, bufSize);
     }
-    
+
     return size;
 }
 
 
-/** Receive message on blocking socket. 
+/** Receive message on blocking socket.
  *  Will block for timoutRcv msec based on udp configuration. */
 int32 IO_TransUdpRcv(IO_TransUdp_t *udp, uint8 *buffer, int32 bufSize)
 {
     socklen_t addrLen = sizeof(struct sockaddr_in);
     int32 msgSize;
-    
+
     if (udp == NULL || buffer == NULL)
     {
         CFE_EVS_SendEvent(IO_LIB_TRANS_UDP_EID,CFE_EVS_ERROR,
                           "IO_TransUDP Error: Null input argument. ");
         return IO_TRANS_UDP_BAD_INPUT_ERROR;
     }
-    
-    msgSize = recvfrom(udp->sockId, (void *) buffer, (size_t) bufSize, 0, 
+
+    msgSize = recvfrom(udp->sockId, (void *) buffer, (size_t) bufSize, 0,
                        (struct sockaddr *)&udp->srcAddr, &addrLen);
-    
+
     /* Return size of zero if timed out. */
     if(msgSize == -1 && errno == EWOULDBLOCK)
     {
         msgSize = 0;
     }
-    
+
     return msgSize;
 }
 
@@ -352,9 +356,9 @@ int32 IO_TransUdpSnd(IO_TransUdp_t *udp, uint8 * msgPtr, int32 size)
                           "IO_TransUDP Error: Null input argument. ");
         return IO_TRANS_UDP_BAD_INPUT_ERROR;
     }
-    
-    sizeOut = sendto(udp->sockId, (void *) msgPtr, (size_t) size, 0, 
-                       (struct sockaddr *) &udp->destAddr, 
+
+    sizeOut = sendto(udp->sockId, (void *) msgPtr, (size_t) size, 0,
+                       (struct sockaddr *) &udp->destAddr,
                        sizeof(struct sockaddr_in));
 
     if (sizeOut < 0)
