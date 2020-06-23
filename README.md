@@ -35,6 +35,9 @@ To setup the McMaster cFS release directly from the latest set of interoperable 
  or, if you're using ssh (see the GitGuide.md for help) 
  
     git clone git@github.com:McMasterNEUDOSE/cFS.git
+    
+Then to initialise and download all the submodules (apps, cfe, osal, etc)
+
     cd cFS
     git submodule init
     git submodule update
