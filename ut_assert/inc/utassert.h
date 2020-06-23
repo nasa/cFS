@@ -266,5 +266,37 @@ void UtAssert_Abort(const char *Message);
  */
 void UtAssert_Message(uint8 MessageType, const char *File, uint32 Line, const char *Spec, ...) OS_PRINTF(4,5);
 
+/**
+ * The BSP single test case reporting function.
+ *
+ * Invokes the BSP-specific pass/fail reporting mechanism based on the MessageType.
+ *
+ * This is typically output as a message to the test log but may be fancier if the BSP requires it.
+ * One example might be to toggle a GPIO bit or LED if the test is running on a separate processor board.
+ *
+ * \param File         File containing the test case
+ * \param LineNum      Line number containing the test case
+ * \param MessageType  Should be set to either UT_MESSAGE_PASS or UT_MESSAGE_FAILURE.
+ * \param SubsysName   The subsystem under test (abbreviated name)
+ * \param ShortDesc    Short description of the test case
+ * \param SegmentNum   Sequence among the overall/global test Segments
+ * \param TestDescr    Sequence within the current test Segment
+ */
+void UtAssert_DoReport(const char *File, uint32 LineNum, uint32 SegmentNum, uint32 SegmentSeq, uint8 MessageType,
+                     const char *SubsysName, const char *ShortDesc);
+
+/**
+ * The BSP overall test reporting function.
+ *
+ * Invokes the BSP-specific overall pass/fail reporting mechanism based the subsystem pass/fail counters.
+ *
+ * Like the UtAssert_DoReport() function, this is typically done as a message on the console/log however
+ * it might be different for embedded targets.
+ *
+ * \param Appname       The application under test
+ * \param TestCounters  Counter object for the completed test
+ */
+void UtAssert_DoTestSegmentReport(const char *SegmentName, const UtAssert_TestCounter_t *TestCounters);
+
 
 #endif
