@@ -11,15 +11,15 @@
 *   \brief Sample config file for TO Application with UDP device
 *
 *   \par Limitations, Assumptions, External Events, and Notes:
-*       - Make use of the setup.sh script to move / link this file to the 
+*       - Make use of the setup.sh script to move / link this file to the
 *       {MISSION_HOME}/apps/to/fsw/platform_inc folder.
 *       - Overwrite any default settings by defining them here.
-*       - Define any implementation specific settings. 
+*       - Define any implementation specific settings.
 *
 *   \par Modification History:
 *     - 2015-01-09 | Guy de Carufel | Code Started
 *******************************************************************************/
-    
+
 #ifndef _TO_PLATFORM_CFG_H_
 #define _TO_PLATFORM_CFG_H_
 
@@ -32,10 +32,10 @@ extern "C" {
 */
 
 /*
-** Local Defines  
+** Local Defines
 */
 #define TO_NUM_CRITICAL_MIDS     3
-#define TO_DEFAULT_DEST_PORT     5011 
+#define TO_DEFAULT_DEST_PORT     5011
 
 
 /*
@@ -62,6 +62,24 @@ extern "C" {
 ** Local Function Prototypes
 */
 
+/**
+**  \tocfg Default TO Schedule Definition Table Filename
+**
+**  \par Description:
+**       The value of this constant defines the default filename of
+**       the TO COnfiguration Definition Table
+**
+**  \par Limits
+**       The length of each string, including the NULL terminator cannot exceed
+**       the #OS_MAX_PATH_LEN value.
+*/
+
+#define TO_CONFIG_FILENAME  "/cf/to_config.tbl"
+
+#define TO_CONFIG_2_FILENAME  "/cf/to_config_2.tbl"
+
+
+
 #ifdef __cplusplus
 }
 #endif
@@ -71,4 +89,3 @@ extern "C" {
 /*==============================================================================
 ** End of file to_platform_cfg.h
 **============================================================================*/
-    
