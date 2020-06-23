@@ -103,11 +103,11 @@ void TestTimeBaseApi(void)
     /* Checking OS_MAX_TIMEBASES + 1 */
     for ( int i = 0; i < OS_MAX_TIMEBASES; i++ )
     {
-        snprintf(TimeBaseIter[i], 12, "TimeBase%d", i);
+        snprintf(TimeBaseIter[i], sizeof(TimeBaseIter[i]), "TimeBase%d", i);
         tbc_results[i] = OS_TimeBaseCreate(&tb_id[i], TimeBaseIter[i], 0);
     }
     TimeBaseNum = OS_MAX_TIMEBASES+1;
-    snprintf(overMaxTimeBase, 12, "TimeBase%d", TimeBaseNum);
+    snprintf(overMaxTimeBase, sizeof(overMaxTimeBase), "TimeBase%d", (int)TimeBaseNum);
     expected = OS_ERR_NO_FREE_IDS;
     actual= OS_TimeBaseCreate(&time_base_id, "overMaxTimeBase", 0);
     UtAssert_True(actual == expected, "OS_TimeBaseCreate() (%ld) == OS_ERR_NO_FREE_IDS", (long)actual);
