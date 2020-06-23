@@ -2,16 +2,16 @@
 ** File:
 **   $Id: sch_platform_cfg.h 1.4 2017/06/21 15:28:58EDT mdeschu Exp  $
 **
-**  Copyright (c) 2007-2014 United States Government as represented by the 
-**  Administrator of the National Aeronautics and Space Administration. 
-**  All Other Rights Reserved.  
+**  Copyright (c) 2007-2014 United States Government as represented by the
+**  Administrator of the National Aeronautics and Space Administration.
+**  All Other Rights Reserved.
 **
 **  This software was created at NASA's Goddard Space Flight Center.
-**  This software is governed by the NASA Open Source Agreement and may be 
-**  used, distributed and modified only pursuant to the terms of that 
+**  This software is governed by the NASA Open Source Agreement and may be
+**  used, distributed and modified only pursuant to the terms of that
 **  agreement.
 **
-** Purpose: 
+** Purpose:
 **  The CFS Scheduler (SCH) Application platform configuration header file
 **
 ** Notes:
@@ -27,7 +27,7 @@
 **************************************************************************/
 
 /**
-**  \schcfg Software Bus Command Pipe Depth 
+**  \schcfg Software Bus Command Pipe Depth
 **
 **  \par Description:
 **       Dictates the number of messages to SCH that can be queued while awaiting
@@ -42,7 +42,7 @@
 ** Schedule table definitions...
 */
 /**
-**  \schcfg Minor Frame Frequency (in Hz) 
+**  \schcfg Minor Frame Frequency (in Hz)
 **
 **  \par Description:
 **       Dictates the number of minor frame slots within each Major Frame.
@@ -54,7 +54,7 @@
 
 
 /**
-**  \schcfg Maximum number of Activities per Minor Frame 
+**  \schcfg Maximum number of Activities per Minor Frame
 **
 **  \par Description:
 **       Dictates the number of activities that can be defined for each Minor Frame.
@@ -66,7 +66,7 @@
 
 
 /**
-**  \schcfg Maximum Number of Message Definitions in Message Definition Table 
+**  \schcfg Maximum Number of Message Definitions in Message Definition Table
 **
 **  \par Description:
 **       Dictates the number of messages that can be defined in Message Definition Table.
@@ -77,7 +77,7 @@
 #define SCH_MAX_MESSAGES      128
 
 /**
-**  \schcfg Minimum Message ID allowed in Message Definition Table 
+**  \schcfg Minimum Message ID allowed in Message Definition Table
 **
 **  \par Description:
 **       Dictates the minimum message ID that can be used in the Message Definition Table.
@@ -88,7 +88,7 @@
 #define SCH_MDT_MIN_MSG_ID    0
 
 /**
-**  \schcfg Maximum Message ID allowed in Message Definition Table 
+**  \schcfg Maximum Message ID allowed in Message Definition Table
 **
 **  \par Description:
 **       Dictates the maximum message ID that can be used in the Message Definition Table.
@@ -100,14 +100,14 @@
 
 
 /**
-**  \schcfg Maximum Length, in Words, of a Message 
+**  \schcfg Maximum Length, in Words, of a Message
 **
 **  \par Description:
 **       Dictates the maximum number of words that can be assigned to a particular message
 **       in the Message Definition Table.
 **
 **  \par Limits
-**       Must be at least large enough to hold the smallest possible message header 
+**       Must be at least large enough to hold the smallest possible message header
 * **     (see #CFE_SB_TLM_HDR_SIZE and #CFE_SB_CMD_HDR_SIZE)
 */
 #define SCH_MAX_MSG_WORDS      64   /* max message length (in words) */
@@ -117,20 +117,20 @@
 ** Limits for how far we can get behind and how much we can do at once...
 */
 /**
-**  \schcfg Maximum Number of slots allowed for catch-up before skipping 
+**  \schcfg Maximum Number of slots allowed for catch-up before skipping
 **
 **  \par Description:
 **       Dictates the number of Minor Frames that will be processed in "Catch Up"
 **       mode before giving up and skipping ahead.
 **
 **  \par Limits
-**       
+**
 */
 #define SCH_MAX_LAG_COUNT             (SCH_TOTAL_SLOTS / 2)
 
 
 /**
-**  \schcfg Maximum Number of Slots to be processed when in "Catch Up" mode 
+**  \schcfg Maximum Number of Slots to be processed when in "Catch Up" mode
 **
 **  \par Description:
 **       Dictates the maximum number of slots SCH will process when trying to
@@ -145,7 +145,7 @@
 ** Conversion factor for how many microseconds in a wake-up period...
 */
 /**
-**  \schcfg Major Frame Period (in microseconds) 
+**  \schcfg Major Frame Period (in microseconds)
 **
 **  \par Description:
 **       Dictates the number microseconds in a Major Frame.
@@ -157,7 +157,7 @@
 
 
 /**
-**  \schcfg Additional time allowed in Sync Slot to wait for Major Frame Sync (in microseconds) 
+**  \schcfg Additional time allowed in Sync Slot to wait for Major Frame Sync (in microseconds)
 **
 **  \par Description:
 **       Dictates the additional time allowed in the Syncronization Slot
@@ -167,11 +167,11 @@
 **  \par Limits
 **       Must be less than the normal slot period
 */
-#define SCH_SYNC_SLOT_DRIFT_WINDOW   5000 
+#define SCH_SYNC_SLOT_DRIFT_WINDOW   5000
 
 
 /**
-**  \schcfg Time, in milliseconds, to wait for all applications to be started and ready to run 
+**  \schcfg Time, in milliseconds, to wait for all applications to be started and ready to run
 **
 **  \par Description:
 **       Dictates the timeout for the #CFE_ES_WaitForStartupSync call that SCH uses to wait
@@ -182,11 +182,11 @@
 **  \par Limits
 **       None
 */
-#define SCH_STARTUP_SYNC_TIMEOUT   50000 
+#define SCH_STARTUP_SYNC_TIMEOUT   50000
 
 
 /**
-**  \schcfg Time, in microseconds, to wait for first Major Frame Sync to arrive 
+**  \schcfg Time, in microseconds, to wait for first Major Frame Sync to arrive
 **
 **  \par Description:
 **       Dictates the time allowed for the first Major Frame sync signal to arrive
@@ -196,7 +196,7 @@
 **  \par Limits
 **       Must be greater than or equal to the Major Frame Period
 */
-#define SCH_STARTUP_PERIOD   (5*SCH_MICROS_PER_MAJOR_FRAME) 
+#define SCH_STARTUP_PERIOD   (5*SCH_MICROS_PER_MAJOR_FRAME)
 
 
 /*
@@ -204,10 +204,10 @@
 ** before we begin to ignore them.
 */
 /**
-**  \schcfg Maximum Number of consecutive Noisy Major Frame signals before they are ignored 
+**  \schcfg Maximum Number of consecutive Noisy Major Frame signals before they are ignored
 **
 **  \par Description:
-**       Dictates the number of consecutive "Noisy" Major Frame Signals (i.e. - signals that 
+**       Dictates the number of consecutive "Noisy" Major Frame Signals (i.e. - signals that
 **       occur outside the expected window of their occurence) until the Major Frame signal
 **       is automatically ignored and the Minor Frame Timer is used instead.
 **
@@ -219,7 +219,7 @@
 
 
 /**
-**  \schcfg Scheduler API Library Usage Status 
+**  \schcfg Scheduler API Library Usage Status
 **
 **  \par Description:
 **       Determines whether or not the Scheduler application is using the API library allowing
@@ -235,7 +235,7 @@
 
 
 /**
-**  \schcfg Scheduler API Library Initial Inhibition Count 
+**  \schcfg Scheduler API Library Initial Inhibition Count
 **
 **  \par Description:
 **       Sets the number of times the scheduler must be enabled following library initialization.
@@ -252,34 +252,34 @@
 **  \schcfg Default SCH Schedule Definition Table Filename
 **
 **  \par Description:
-**       The value of this constant defines the default filename of 
+**       The value of this constant defines the default filename of
 **       the SCH Schedule Definition Table
 **
 **  \par Limits
-**       The length of each string, including the NULL terminator cannot exceed 
+**       The length of each string, including the NULL terminator cannot exceed
 **       the #OS_MAX_PATH_LEN value.
 */
 
-#define SCH_SCHEDULE_FILENAME  "/cf/apps/sch_def_schtbl.tbl"
+#define SCH_SCHEDULE_FILENAME  "/cf/sch_def_schtbl.tbl"
 
 
 /**
 **  \schcfg Default SCH Message Definition Table Filename
 **
 **  \par Description:
-**       The value of this constant defines the default filename of the 
+**       The value of this constant defines the default filename of the
 **       SCH Message Definition Table
 **
 **  \par Limits
-**       The length of each string, including the NULL terminator cannot exceed 
+**       The length of each string, including the NULL terminator cannot exceed
 **       the #OS_MAX_PATH_LEN value.
 */
 
-#define SCH_MESSAGE_FILENAME   "/cf/apps/sch_def_msgtbl.tbl"
+#define SCH_MESSAGE_FILENAME   "/cf/sch_def_msgtbl.tbl"
 
 
 /** \schcfg Mission specific version number for SCH application
-**  
+**
 **  \par Description:
 **       An application version number consists of four parts:
 **       major version number, minor version number, revision
