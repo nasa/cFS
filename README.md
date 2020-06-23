@@ -31,14 +31,14 @@ Also git
 To setup the McMaster cFS release directly from the latest set of interoperable repositories:
 
     git clone https://github.com/McMasterNEUDOSE/cFS.git
+ 
+ or, if you're using ssh (see the GitGuide.md for help) 
+ 
+    git clone git@github.com:McMasterNEUDOSE/cFS.git
     cd cFS
     git submodule init
     git submodule update
 
-Copy in the default makefile and definitions:
-
-    cp cfe/cmake/Makefile.sample Makefile
-    cp -r cfe/cmake/sample_defs sample_defs
 
 ## Build and Run
 
@@ -46,7 +46,7 @@ The cFS Framework including sample applications will build and run on the pc-lin
 
 To prep, compile, and run on the host (from cFS directory above) as a normal user (best effort message queue depth and task priorities):
 
-    make BUILDTYPE=release OMIT_DEPRECATED=true prep
+    make prep
     make
     make install
     cd build/exe/cpu1/
