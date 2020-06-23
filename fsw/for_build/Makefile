@@ -1,5 +1,5 @@
 ###############################################################################
-# File: CFS Application Makefile 
+# File: CFS Application Makefile
 #
 # $Id: Makefile 1.2 2017/06/21 15:28:59EDT mdeschu Exp  $
 #
@@ -9,10 +9,10 @@
 #
 export APPTARGET = sch
 
-# 
+#
 # Entry Point for task
-# 
-ENTRY_PT = SCH_AppMain 
+#
+ENTRY_PT = SCH_AppMain
 
 #
 # Object files required to build subsystem.
@@ -29,7 +29,7 @@ SOURCES = $(OBJS:.o=.c)
 ##
 ## Specify extra C Flags needed to build this subsystem
 ##
-LOCAL_COPTS = 
+LOCAL_COPTS =
 
 
 ##
@@ -45,22 +45,22 @@ EXEDIR=../exe
 ## entry like the following:
 ##  -R../tst_lib/tst_lib.elf
 ##
-SHARED_LIB_LINK = 
+SHARED_LIB_LINK =
 
 ########################################################################
-# Should not have to change below this line, except for customized 
+# Should not have to change below this line, except for customized
 # Mission and cFE directory structures
 ########################################################################
 
 #
-# Set build type to CFE_APP. This allows us to 
+# Set build type to CFE_APP. This allows us to
 # define different compiler flags for the cFE Core and Apps.
-# 
+#
 BUILD_TYPE = CFE_APP
 
-## 
+##
 ## Include all necessary cFE make rules
-## Any of these can be copied to a local file and 
+## Any of these can be copied to a local file and
 ## changed if needed.
 ##
 ##
@@ -89,18 +89,20 @@ INCLUDE_PATH = \
 -I$(CFE_PSP_SRC)/$(PSP)/inc \
 -I$(CFS_APP_SRC)/inc \
 -I$(CFS_APP_SRC)/$(APPTARGET)/fsw/src \
+-I$(CFS_APP_SRC)/$(APPTARGET)/fsw/tables \
 -I$(CFS_MISSION_INC) \
 -I../cfe/inc \
 -I../inc
 
 ##
-## Define the VPATH make variable. 
+## Define the VPATH make variable.
 ## This can be modified to include source from another directory.
 ## If there is no corresponding app in the cfs-apps directory, then this can be discarded, or
-## if the mission chooses to put the src in another directory such as "src", then that can be 
+## if the mission chooses to put the src in another directory such as "src", then that can be
 ## added here as well.
 ##
-VPATH = $(CFS_APP_SRC)/$(APPTARGET)/fsw/src 
+VPATH = $(CFS_APP_SRC)/$(APPTARGET)/fsw/src \
+				$(CFS_APP_SRC)/$(APPTARGET)/fsw/tables
 
 ##
 ## Include the common make rules for building a cFE Application
