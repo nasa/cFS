@@ -37,7 +37,7 @@ int32 OS_SocketOpen(uint32 *sock_id, OS_SocketDomain_t Domain, OS_SocketType_t T
 
     if (status == OS_SUCCESS)
     {
-        status = UT_AllocStubObjId(UT_OBJTYPE_SOCKET);
+        *sock_id = UT_AllocStubObjId(UT_OBJTYPE_SOCKET);
     }
 
     return status;
