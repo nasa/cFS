@@ -100,7 +100,7 @@ void TestIdMapApi_Setup(void)
     /*
      * Create all allowed objects
      */
-    status = OS_TaskCreate( &task_id, "Task", Test_Void_Fn, 0, 0, 0, 0);
+    status = OS_TaskCreate( &task_id, "Task", Test_Void_Fn, NULL, 4096, 50, 0);
     UtAssert_True(status == OS_SUCCESS, "OS_TaskCreate() (%ld) == OS_SUCCESS", (long)status);
     status = OS_QueueCreate( &queue_id, "Queue", 5, 5, 0);
     UtAssert_True(status == OS_SUCCESS, "OS_QueueCreate() (%ld) == OS_SUCCESS", (long)status);

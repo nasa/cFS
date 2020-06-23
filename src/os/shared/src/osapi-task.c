@@ -196,6 +196,13 @@ int32 OS_TaskCreate (uint32 *task_id, const char *task_name, osal_task_entry fun
       return OS_INVALID_POINTER;
    }
 
+   /* Check for bad stack size.  Note that NULL stack_pointer is
+    * OK (impl will allocate) but size must be nonzero. */
+   if (stack_size == 0)
+   {
+       return OS_ERROR;
+   }
+
    /* we don't want to allow names too long*/
    /* if truncated, two names might be the same */
    if (strlen(task_name) >= OS_MAX_API_NAME)

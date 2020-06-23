@@ -106,15 +106,16 @@ void Test_OS_TaskCreate(void)
      */
     int32 expected = OS_SUCCESS;
     uint32 objid = 0xFFFFFFFF;
-    int32 actual = OS_TaskCreate(&objid, "UT", UT_TestHook, NULL, 0, 0,0);
+    int32 actual = OS_TaskCreate(&objid, "UT", UT_TestHook, NULL, 128, 0, 0);
 
     UtAssert_True(actual == expected, "OS_TaskCreate() (%ld) == OS_SUCCESS", (long)actual);
     UtAssert_True(objid != 0, "objid (%lu) != 0", (unsigned long)objid);
 
     OSAPI_TEST_FUNCTION_RC(OS_TaskCreate(NULL, NULL, NULL, NULL, 0, 0,0), OS_INVALID_POINTER);
-    OSAPI_TEST_FUNCTION_RC(OS_TaskCreate(&objid, "UT", UT_TestHook, NULL, 0, 10 + OS_MAX_TASK_PRIORITY,0), OS_ERR_INVALID_PRIORITY);
+    OSAPI_TEST_FUNCTION_RC(OS_TaskCreate(&objid, "UT", UT_TestHook, NULL, 0, 0, 0), OS_ERROR);
+    OSAPI_TEST_FUNCTION_RC(OS_TaskCreate(&objid, "UT", UT_TestHook, NULL, 128, 10 + OS_MAX_TASK_PRIORITY,0), OS_ERR_INVALID_PRIORITY);
     UT_SetForceFail(UT_KEY(OCS_strlen), 10 + OS_MAX_API_NAME);
-    OSAPI_TEST_FUNCTION_RC(OS_TaskCreate(&objid, "UT", UT_TestHook, NULL, 0, 0,0), OS_ERR_NAME_TOO_LONG);
+    OSAPI_TEST_FUNCTION_RC(OS_TaskCreate(&objid, "UT", UT_TestHook, NULL, 128, 0,0), OS_ERR_NAME_TOO_LONG);
 }
 
 void Test_OS_TaskDelete(void)
