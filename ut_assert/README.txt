@@ -1,10 +1,4 @@
 core Flgith System (cFS) Unit Test (UT) Assert Library
-Open Source Release Readme
-
-UT Assert Release 1.0.0
-
-Date:
-June 16, 2015
 
 Introduction
 
@@ -77,8 +71,5 @@ maintenance of unit tests. Unit test maintenance has proven to be a difficult ta
 
 Allow unit tests to be aggregated into unit test suites so CFS unit test suites can be 
 created to allow automated unit level regression testing.
-
-This software is licensed under the NASA Open Source Agreement. 
-http://ti.arc.nasa.gov/opensource/nosa
 
 EOF

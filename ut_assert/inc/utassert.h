@@ -1,26 +1,35 @@
 /*
-**
-** File: utassert.h
-**
-** Copyright 2012-2013 United States Government as represented by the 
-** Administrator of the National Aeronautics and Space Administration. 
-** All Other Rights Reserved.  
-**
-** This software was created at NASA's Goddard Space Flight Center.
-** This software is governed by the NASA Open Source Agreement and may be 
-** used, distributed and modified only pursuant to the terms of that 
-** agreement.
-**
-** Purpose: This code implements a standard set of asserts for use in unit tests.
-**
-** Design Notes:
-**    - All asserts evaluate a expression as true or false to determine if a unit test has
-**      passed or failed.  true means the test passed, false means the test failed.
-**    - All asserts return a boolen result to indicate the pass fail status.
-**    - All asserts are implemented as macros to hide the __LINE__ and __FILE__ macros.
-**    - All asserts must call the function UtAssert.
-**
-*/
+ *  NASA Docket No. GSC-18,370-1, and identified as "Operating System Abstraction Layer"
+ *
+ *  Copyright (c) 2019 United States Government as represented by
+ *  the Administrator of the National Aeronautics and Space Administration.
+ *  All Rights Reserved.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
+/*
+ * File: utassert.h
+ *
+ * Purpose: This code implements a standard set of asserts for use in unit tests.
+ *
+ * Design Notes:
+ *    - All asserts evaluate a expression as true or false to determine if a unit test has
+ *      passed or failed.  true means the test passed, false means the test failed.
+ *    - All asserts return a boolen result to indicate the pass fail status.
+ *    - All asserts are implemented as macros to hide the __LINE__ and __FILE__ macros.
+ *    - All asserts must call the function UtAssert.
+ */
 
 #ifndef _utassert_
 #define	_utassert_
