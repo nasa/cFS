@@ -95,9 +95,9 @@ Note: The steps above are for a debug, permissive mode build and includes deprec
 
 ## Send commands, receive telemetry
 
-The cFS-GroundSystem tool can be used to send commands and receive telemetry (see https://github.com/nasa/cFS-GroundSystem/tree/master/Guide-GroundSystem.txt, the Guide-GroundSystem.txt).  Note it depends on PyQt4 and PyZMQ:
+The cFS-GroundSystem tool can be used to send commands and receive telemetry (see https://github.com/nasa/cFS-GroundSystem/tree/master/Guide-GroundSystem.txt, the Guide-GroundSystem.txt).  Note it depends on PyQt5 and PyZMQ:
 
-1. Install PyQt4 and PyZMQ on your system
+1. Install PyQt5 and PyZMQ on your system
 2. Compile cmdUtil and start the ground system executable
 
        cd tools/cFS-GroundSystem/Subsystems/cmdUtil
