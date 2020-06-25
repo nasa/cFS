@@ -7,7 +7,7 @@
 ** $Revision: 1.1 $
 ** $Date:      2020-06-24
 **
-** Purpose:  This header file contains declartions and definitions of all PAYLOAD's 
+** Purpose:  This header file contains declartions and definitions of all PAYLOAD's
 **           Message IDs.
 **
 ** Modification History:
@@ -16,19 +16,18 @@
 **   2020-06-24 | Paula Bosca | Build #: Code Started
 **
 **=====================================================================================*/
-    
+
 #ifndef _PAYLOAD_MSGIDS_H_
 #define _PAYLOAD_MSGIDS_H_
 
-/***** TODO:  These Message ID values are default and may need to be changed by the developer  *****/
-#define PAYLOAD_CMD_MID            	0x18C0
-#define PAYLOAD_SEND_HK_MID        	0x18C1
-#define PAYLOAD_WAKEUP_MID        	0x18D0
-#define PAYLOAD_OUT_DATA_MID        	0x18D1
+#define PAYLOAD_CMD_MID            	0x1920
+#define PAYLOAD_SEND_HK_MID        	0x1921
+#define PAYLOAD_WAKEUP_MID        	0x1922
+#define PAYLOAD_OUT_DATA_MID        0x1923
 
-#define PAYLOAD_HK_TLM_MID		0x08BB
+#define PAYLOAD_HK_TLM_MID		0x0920
 
-    
+
 
 
 #endif /* _PAYLOAD_MSGIDS_H_ */
@@ -36,4 +35,3 @@
 /*=======================================================================================
 ** End of file payload_msgids.h
 **=====================================================================================*/
-    
