@@ -11,6 +11,10 @@ This bundle has not been fully verified as an operational system, and is provide
 
 The cFS Framework is a core subset of cFS.  There are additional OSALs, PSPs, and tools as listed below available from a variety of sources.
 
+## References to Auto-generated Documentation
+  - cFE User's Guide: https://github.com/nasa/cFS/blob/gh-pages/cFE_Users_Guide.pdf
+  - OSAL User's Guide: https://github.com/nasa/cFS/blob/gh-pages/OSAL_Users_Guide.pdf
+
 ## Release Notes
 
 cFS 6.7.0 Suite: NOT FULLY RELEASED
@@ -91,9 +95,9 @@ Note: The steps above are for a debug, permissive mode build and includes deprec
 
 ## Send commands, receive telemetry
 
-The cFS-GroundSystem tool can be used to send commands and receive telemetry (see https://github.com/nasa/cFS-GroundSystem/tree/master/Guide-GroundSystem.txt, the Guide-GroundSystem.txt).  Note it depends on PyQt4 and PyZMQ:
+The cFS-GroundSystem tool can be used to send commands and receive telemetry (see https://github.com/nasa/cFS-GroundSystem/tree/master/Guide-GroundSystem.txt, the Guide-GroundSystem.txt).  Note it depends on PyQt5 and PyZMQ:
 
-1. Install PyQt4 and PyZMQ on your system
+1. Install PyQt5 and PyZMQ on your system
 2. Compile cmdUtil and start the ground system executable
 
        cd tools/cFS-GroundSystem/Subsystems/cmdUtil
@@ -151,3 +155,4 @@ The following list is user submitted, and not CCB controlled.  They are released
     - TBD
   - Other PSPs
     - TBD
+  
