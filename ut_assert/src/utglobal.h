@@ -18,34 +18,51 @@
  *  limitations under the License.
  */
 
-/**
- * \file     os-impl-dirs.h
- * \ingroup  rtems
- * \author   joseph.p.hickey@nasa.gov
+/*
+ * File: uttest.c
  *
+ * Purpose: This file contains functions to implement a standard way to execute unit tests.
  */
 
-#ifndef INCLUDE_OS_IMPL_DIRS_H_
-#define INCLUDE_OS_IMPL_DIRS_H_
+/*
+ * Includes
+ */
 
-#include <osconfig.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <dirent.h>
-#include <sys/stat.h>
-#include <sys/types.h>
+#ifndef INCLUDE_UTASSERT_GLOBAL_H_
+#define INCLUDE_UTASSERT_GLOBAL_H_
+
+#include "osapi.h"
+#include "utassert.h"
+#include "utlist.h"
+#include "utbsp.h"
+#include "uttest.h"
+#include "utstubs.h"
+
+/*
+ * Type Definitions
+ */
 
 typedef struct
 {
-    DIR *dp;
-} OS_impl_dir_internal_record_t;
+    void    (*Test)(void);
+    void    (*Setup)(void);
+    void    (*Teardown)(void);
 
+    /* Note - the name entry should be long enough to support a GroupName.TestName pattern,
+     * hence why it uses double the OS_MAX_API_NAME length */
+    char    TestName[OS_MAX_API_NAME*2];
+} UtTestDataBaseEntry_t;
+
+typedef struct
+{
+    UtListHead_t    DataBase;
+    uint32          ExecutedCount;
+} UtAssert_Global_t;
 
 /*
- * The directory handle table.
+ * Global Test Data
  */
-extern OS_impl_dir_internal_record_t OS_impl_dir_table[OS_MAX_NUM_OPEN_DIRS];
+extern UtAssert_Global_t UtAssert_Global;
 
-
-#endif  /* INCLUDE_OS_IMPL_DIRS_H_ */
+#endif /* INCLUDE_UTASSERT_GLOBAL_H_ */
 

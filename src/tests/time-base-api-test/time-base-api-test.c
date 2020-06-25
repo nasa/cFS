@@ -1,11 +1,21 @@
 /*
- *      Copyright (c) 2020, United States government as represented by the
- *      administrator of the National Aeronautics Space Administration.
- *      All rights reserved. This software was created at NASA Goddard
- *      Space Flight Center pursuant to government contracts.
+ *  NASA Docket No. GSC-18,370-1, and identified as "Operating System Abstraction Layer"
  *
- *      This is governed by the NASA Open Source Agreement and may be used,
- *      distributed and modified only according to the terms of that agreement.
+ *  Copyright (c) 2019 United States Government as represented by
+ *  the Administrator of the National Aeronautics and Space Administration.
+ *  All Rights Reserved.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 
 /*
@@ -103,11 +113,11 @@ void TestTimeBaseApi(void)
     /* Checking OS_MAX_TIMEBASES + 1 */
     for ( int i = 0; i < OS_MAX_TIMEBASES; i++ )
     {
-        snprintf(TimeBaseIter[i], 12, "TimeBase%d", i);
+        snprintf(TimeBaseIter[i], sizeof(TimeBaseIter[i]), "TimeBase%d", i);
         tbc_results[i] = OS_TimeBaseCreate(&tb_id[i], TimeBaseIter[i], 0);
     }
     TimeBaseNum = OS_MAX_TIMEBASES+1;
-    snprintf(overMaxTimeBase, 12, "TimeBase%d", TimeBaseNum);
+    snprintf(overMaxTimeBase, sizeof(overMaxTimeBase), "TimeBase%d", (int)TimeBaseNum);
     expected = OS_ERR_NO_FREE_IDS;
     actual= OS_TimeBaseCreate(&time_base_id, "overMaxTimeBase", 0);
     UtAssert_True(actual == expected, "OS_TimeBaseCreate() (%ld) == OS_ERR_NO_FREE_IDS", (long)actual);

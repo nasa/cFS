@@ -1,15 +1,22 @@
 /*
- * 
- *    Copyright (c) 2020, United States government as represented by the
- *    administrator of the National Aeronautics Space Administration.
- *    All rights reserved. This software was created at NASA Goddard
- *    Space Flight Center pursuant to government contracts.
- * 
- *    This is governed by the NASA Open Source Agreement and may be used,
- *    distributed and modified only according to the terms of that agreement.
- * 
+ *  NASA Docket No. GSC-18,370-1, and identified as "Operating System Abstraction Layer"
+ *
+ *  Copyright (c) 2019 United States Government as represented by
+ *  the Administrator of the National Aeronautics and Space Administration.
+ *  All Rights Reserved.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
-
 
 /**
  * \file     os-impl-tasks.c
@@ -30,13 +37,6 @@
 
 #include "os-shared-task.h"
 #include "os-shared-idmap.h"
-
-/*
- * Defines
- */
-#ifndef PTHREAD_STACK_MIN
-#define PTHREAD_STACK_MIN   (8*1024)
-#endif
 
 /* Tables where the OS object information is stored */
 OS_impl_task_internal_record_t      OS_impl_task_table          [OS_MAX_TASKS];
@@ -467,19 +467,11 @@ int32 OS_Posix_InternalTaskCreate_Impl(pthread_t *pthr, uint32 priority, size_t 
        /*
        ** Set the Stack Size
        */
-       if (stacksz > 0)
+       return_code = pthread_attr_setstacksize(&custom_attr, stacksz);
+       if (return_code != 0)
        {
-           if (stacksz < PTHREAD_STACK_MIN)
-           {
-              stacksz = PTHREAD_STACK_MIN;
-           }
-
-           return_code = pthread_attr_setstacksize(&custom_attr, stacksz);
-           if (return_code != 0)
-           {
-              OS_DEBUG("pthread_attr_setstacksize error in OS_TaskCreate: %s\n",strerror(return_code));
-              return(OS_ERROR);
-           }
+           OS_DEBUG("pthread_attr_setstacksize error in OS_TaskCreate: %s\n",strerror(return_code));
+           return(OS_ERROR);
        }
 
        /*

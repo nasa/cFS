@@ -1,22 +1,32 @@
-/******************************************************************************
-** File:  bsp_start.c
-**
-**
-**      This is governed by the NASA Open Source Agreement and may be used,
-**      distributed and modified only pursuant to the terms of that agreement.
-**
-**      Copyright (c) 2004-2006, United States government as represented by the
-**      administrator of the National Aeronautics Space Administration.
-**      All rights reserved.
-**
-**
-** Purpose:
-**   OSAL BSP main entry point.
-**
-** History:
-**   2005/07/26  A. Cudmore      | Initial version for linux
-**
-******************************************************************************/
+/*
+ *  NASA Docket No. GSC-18,370-1, and identified as "Operating System Abstraction Layer"
+ *
+ *  Copyright (c) 2019 United States Government as represented by
+ *  the Administrator of the National Aeronautics and Space Administration.
+ *  All Rights Reserved.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
+/*
+ * File:  bsp_start.c
+ *
+ * Purpose:
+ *   OSAL BSP main entry point.
+ *
+ * History:
+ *   2005/07/26  A. Cudmore      | Initial version for linux
+ */
 
 #include <string.h>
 #include <unistd.h>
@@ -140,14 +150,12 @@ int main(int argc, char *argv[])
      * Note that the first argument (0) is the command name.  The
      * first "real" argument is at position 1.
      *
-     * The first arg is ignored to be more consistent with other platforms
-     * where this is not passed in.
+     * However this still needs to pass it through as the appliction
+     * might still want to use library "getopt" and this expects the
+     * first parameter to be this way.
      */
-    if (argc > 1)
-    {
-        OS_BSP_Global.ArgC = argc - 1;
-        OS_BSP_Global.ArgV = &argv[1];
-    }
+    OS_BSP_Global.ArgC = argc;
+    OS_BSP_Global.ArgV = argv;
 
     /*
      * Only attempt terminal control if the stdout is a TTY

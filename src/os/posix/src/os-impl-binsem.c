@@ -1,15 +1,22 @@
 /*
- * 
- *    Copyright (c) 2020, United States government as represented by the
- *    administrator of the National Aeronautics Space Administration.
- *    All rights reserved. This software was created at NASA Goddard
- *    Space Flight Center pursuant to government contracts.
- * 
- *    This is governed by the NASA Open Source Agreement and may be used,
- *    distributed and modified only according to the terms of that agreement.
- * 
+ *  NASA Docket No. GSC-18,370-1, and identified as "Operating System Abstraction Layer"
+ *
+ *  Copyright (c) 2019 United States Government as represented by
+ *  the Administrator of the National Aeronautics and Space Administration.
+ *  All Rights Reserved.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
-
 
 /**
  * \file     os-impl-binsem.c
@@ -41,15 +48,35 @@
  * not be relevant in a normally operating system.  This only prevents a
  * deadlock condition in off-nominal circumstances.
  */
-static const struct timespec OS_POSIX_BINSEM_MAX_WAIT =
-{
-        .tv_sec = 2,
-        .tv_nsec = 0
-};
+#define  OS_POSIX_BINSEM_MAX_WAIT_SECONDS       2
 
 
 /* Tables where the OS object information is stored */
 OS_impl_binsem_internal_record_t    OS_impl_bin_sem_table       [OS_MAX_BIN_SEMAPHORES];
+
+/*---------------------------------------------------------------------------------------
+ * Helper function for acquiring the mutex when beginning a binary sem operation
+ * This uses timedlock to avoid waiting forever, and is put into a wrapper function
+ * to avoid pending forever.  The code should never pend on these for a long time.
+ ----------------------------------------------------------------------------------------*/
+int32 OS_Posix_BinSemAcquireMutex(pthread_mutex_t *mut)
+{
+    struct timespec timeout;
+
+    if (clock_gettime(CLOCK_REALTIME, &timeout) != 0)
+    {
+        return OS_SEM_FAILURE;
+    }
+
+    timeout.tv_sec += OS_POSIX_BINSEM_MAX_WAIT_SECONDS;
+
+    if (pthread_mutex_timedlock(mut, &timeout) != 0)
+    {
+        return OS_SEM_FAILURE;
+    }
+
+    return OS_SUCCESS;
+}
 
 /*---------------------------------------------------------------------------------------
  * Helper function for releasing the mutex in case the thread
@@ -279,7 +306,7 @@ int32 OS_BinSemGive_Impl ( uint32 sem_id )
      */
 
     /* Lock the mutex ( not the table! ) */
-    if ( pthread_mutex_timedlock(&sem->id, &OS_POSIX_BINSEM_MAX_WAIT) != 0 )
+    if ( OS_Posix_BinSemAcquireMutex(&sem->id) != OS_SUCCESS )
     {
        return(OS_SEM_FAILURE);
     }
@@ -311,7 +338,7 @@ int32 OS_BinSemFlush_Impl (uint32 sem_id)
     sem = &OS_impl_bin_sem_table[sem_id];
 
     /* Lock the mutex ( not the table! ) */
-    if ( pthread_mutex_timedlock(&sem->id, &OS_POSIX_BINSEM_MAX_WAIT) != 0 )
+    if ( OS_Posix_BinSemAcquireMutex(&sem->id) != OS_SUCCESS )
     {
        return(OS_SEM_FAILURE);
     }
@@ -348,7 +375,7 @@ static int32 OS_GenericBinSemTake_Impl (OS_impl_binsem_internal_record_t *sem, c
     * The main delay is in the pthread_cond_wait() below.
     */
    /* Lock the mutex ( not the table! ) */
-   if ( pthread_mutex_timedlock(&sem->id, &OS_POSIX_BINSEM_MAX_WAIT) != 0 )
+   if ( OS_Posix_BinSemAcquireMutex(&sem->id) != OS_SUCCESS )
    {
       return(OS_SEM_FAILURE);
    }

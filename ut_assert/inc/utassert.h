@@ -1,26 +1,35 @@
 /*
-**
-** File: utassert.h
-**
-** Copyright 2012-2013 United States Government as represented by the 
-** Administrator of the National Aeronautics and Space Administration. 
-** All Other Rights Reserved.  
-**
-** This software was created at NASA's Goddard Space Flight Center.
-** This software is governed by the NASA Open Source Agreement and may be 
-** used, distributed and modified only pursuant to the terms of that 
-** agreement.
-**
-** Purpose: This code implements a standard set of asserts for use in unit tests.
-**
-** Design Notes:
-**    - All asserts evaluate a expression as true or false to determine if a unit test has
-**      passed or failed.  true means the test passed, false means the test failed.
-**    - All asserts return a boolen result to indicate the pass fail status.
-**    - All asserts are implemented as macros to hide the __LINE__ and __FILE__ macros.
-**    - All asserts must call the function UtAssert.
-**
-*/
+ *  NASA Docket No. GSC-18,370-1, and identified as "Operating System Abstraction Layer"
+ *
+ *  Copyright (c) 2019 United States Government as represented by
+ *  the Administrator of the National Aeronautics and Space Administration.
+ *  All Rights Reserved.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
+/*
+ * File: utassert.h
+ *
+ * Purpose: This code implements a standard set of asserts for use in unit tests.
+ *
+ * Design Notes:
+ *    - All asserts evaluate a expression as true or false to determine if a unit test has
+ *      passed or failed.  true means the test passed, false means the test failed.
+ *    - All asserts return a boolen result to indicate the pass fail status.
+ *    - All asserts are implemented as macros to hide the __LINE__ and __FILE__ macros.
+ *    - All asserts must call the function UtAssert.
+ */
 
 #ifndef _utassert_
 #define	_utassert_
@@ -265,6 +274,38 @@ void UtAssert_Abort(const char *Message);
  * or something else depending on what BSP is in use.
  */
 void UtAssert_Message(uint8 MessageType, const char *File, uint32 Line, const char *Spec, ...) OS_PRINTF(4,5);
+
+/**
+ * The BSP single test case reporting function.
+ *
+ * Invokes the BSP-specific pass/fail reporting mechanism based on the MessageType.
+ *
+ * This is typically output as a message to the test log but may be fancier if the BSP requires it.
+ * One example might be to toggle a GPIO bit or LED if the test is running on a separate processor board.
+ *
+ * \param File         File containing the test case
+ * \param LineNum      Line number containing the test case
+ * \param MessageType  Should be set to either UT_MESSAGE_PASS or UT_MESSAGE_FAILURE.
+ * \param SubsysName   The subsystem under test (abbreviated name)
+ * \param ShortDesc    Short description of the test case
+ * \param SegmentNum   Sequence among the overall/global test Segments
+ * \param TestDescr    Sequence within the current test Segment
+ */
+void UtAssert_DoReport(const char *File, uint32 LineNum, uint32 SegmentNum, uint32 SegmentSeq, uint8 MessageType,
+                     const char *SubsysName, const char *ShortDesc);
+
+/**
+ * The BSP overall test reporting function.
+ *
+ * Invokes the BSP-specific overall pass/fail reporting mechanism based the subsystem pass/fail counters.
+ *
+ * Like the UtAssert_DoReport() function, this is typically done as a message on the console/log however
+ * it might be different for embedded targets.
+ *
+ * \param Appname       The application under test
+ * \param TestCounters  Counter object for the completed test
+ */
+void UtAssert_DoTestSegmentReport(const char *SegmentName, const UtAssert_TestCounter_t *TestCounters);
 
 
 #endif
