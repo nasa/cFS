@@ -42,6 +42,8 @@
  *****************************************************************************/
 int32 OS_HeapGetInfo(OS_heap_prop_t *heap_prop)
 {
+    UT_Stub_RegisterContext(UT_KEY(OS_HeapGetInfo), heap_prop);
+
     int32 status;
 
     status = UT_DEFAULT_IMPL(OS_HeapGetInfo);

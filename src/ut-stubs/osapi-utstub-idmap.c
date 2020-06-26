@@ -158,7 +158,6 @@ int32 OS_ObjectIdToArrayIndex(uint32 idtype, uint32 id, uint32 *ArrayIndex)
     return Status;
 }
 
-
 /*****************************************************************************
  *
  * Stub function for OS_ObjectIdFinalize()
@@ -208,7 +207,6 @@ int32 OS_ObjectIdGetBySearch(OS_lock_mode_t lock_mode, uint32 idtype, OS_ObjectM
 
     return Status;
 }
-
 
 /*****************************************************************************
  *
@@ -419,8 +417,12 @@ int32 OS_ObjectIdAllocateNew(uint32 idtype, const char *name, uint32 *array_inde
 
     returns: status
 ---------------------------------------------------------------------------------------*/
-int32 OS_GetResourceName(uint32 id, char *buffer, uint32 buffer_size)
+int32 OS_GetResourceName(uint32 object_id, char *buffer, uint32 buffer_size)
 {
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_GetResourceName), object_id);
+    UT_Stub_RegisterContext(UT_KEY(OS_GetResourceName), buffer);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_GetResourceName), buffer_size);
+
     int32 return_code;
 
     return_code = UT_DEFAULT_IMPL(OS_GetResourceName);
@@ -450,6 +452,9 @@ int32 OS_GetResourceName(uint32 id, char *buffer, uint32 buffer_size)
 ---------------------------------------------------------------------------------------*/
 int32 OS_ConvertToArrayIndex(uint32 object_id, uint32 *ArrayIndex)
 {
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_ConvertToArrayIndex), object_id);
+    UT_Stub_RegisterContext(UT_KEY(OS_ConvertToArrayIndex), ArrayIndex);
+
    int32 return_code;
 
    return_code = UT_DEFAULT_IMPL(OS_ConvertToArrayIndex);
@@ -485,15 +490,15 @@ int32 OS_ConvertToArrayIndex(uint32 object_id, uint32 *ArrayIndex)
 ---------------------------------------------------------------------------------------*/
 void OS_ForEachObjectOfType     (uint32 objtype, uint32 creator_id, OS_ArgCallback_t callback_ptr, void *callback_arg)
 {
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_ForEachObjectOfType), objtype);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_ForEachObjectOfType), creator_id);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_ForEachObjectOfType), callback_ptr);
+    UT_Stub_RegisterContext(UT_KEY(OS_ForEachObjectOfType), callback_arg);
+
     uint32 NextId;
     uint32 IdSize;
-    OS_U32ValueWrapper_t wrapper;
-
-    wrapper.arg_callback_func = callback_ptr;
 
     /* Although this is "void", Invoke the default impl to log it and invoke any hooks */
-    UT_Stub_RegisterContext(UT_KEY(OS_ForEachObjectOfType), wrapper.opaque_arg);
-    UT_Stub_RegisterContext(UT_KEY(OS_ForEachObjectOfType), callback_arg);
     UT_DEFAULT_IMPL(OS_ForEachObjectOfType);
 
     while (1)
@@ -517,15 +522,14 @@ void OS_ForEachObjectOfType     (uint32 objtype, uint32 creator_id, OS_ArgCallba
 ---------------------------------------------------------------------------------------*/
 void OS_ForEachObject (uint32 creator_id, OS_ArgCallback_t callback_ptr, void *callback_arg)
 {
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_ForEachObject), creator_id);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_ForEachObject), callback_ptr);
+    UT_Stub_RegisterContext(UT_KEY(OS_ForEachObject), callback_arg);
+
     uint32 NextId;
     uint32 IdSize;
-    OS_U32ValueWrapper_t wrapper;
-
-    wrapper.arg_callback_func = callback_ptr;
 
     /* Although this is "void", Invoke the default impl to log it and invoke any hooks */
-    UT_Stub_RegisterContext(UT_KEY(OS_ForEachObject), wrapper.opaque_arg);
-    UT_Stub_RegisterContext(UT_KEY(OS_ForEachObject), callback_arg);
     UT_DEFAULT_IMPL(OS_ForEachObject);
 
     while (1)
@@ -548,6 +552,8 @@ void OS_ForEachObject (uint32 creator_id, OS_ArgCallback_t callback_ptr, void *c
 ---------------------------------------------------------------------------------------*/
 uint32 OS_IdentifyObject       (uint32 object_id)
 {
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_IdentifyObject), object_id);
+
     int32 DefaultType;
 
     switch ((object_id >> 16) ^ 0x4000U)

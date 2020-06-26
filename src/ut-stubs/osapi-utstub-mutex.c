@@ -61,6 +61,10 @@ UT_DEFAULT_STUB(OS_MutexAPI_Init,(void))
 ******************************************************************************/
 int32 OS_MutSemCreate(uint32 *sem_id, const char *sem_name, uint32 options)
 {
+    UT_Stub_RegisterContext(UT_KEY(OS_MutSemCreate), sem_id);
+    UT_Stub_RegisterContext(UT_KEY(OS_MutSemCreate), sem_name);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_MutSemCreate), options);
+
     int32 status;
 
     status = UT_DEFAULT_IMPL(OS_MutSemCreate);
@@ -99,6 +103,8 @@ int32 OS_MutSemCreate(uint32 *sem_id, const char *sem_name, uint32 options)
 ******************************************************************************/
 int32 OS_MutSemDelete(uint32 sem_id)
 {
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_MutSemDelete), sem_id);
+
     int32 status;
 
     status = UT_DEFAULT_IMPL(OS_MutSemDelete);
@@ -133,6 +139,8 @@ int32 OS_MutSemDelete(uint32 sem_id)
 ******************************************************************************/
 int32 OS_MutSemGive(uint32 sem_id)
 {
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_MutSemGive), sem_id);
+
     int32 status;
 
     status = UT_DEFAULT_IMPL(OS_MutSemGive);
@@ -162,6 +170,8 @@ int32 OS_MutSemGive(uint32 sem_id)
 ******************************************************************************/
 int32 OS_MutSemTake(uint32 sem_id)
 {
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_MutSemTake), sem_id);
+
     int32 status;
 
     status = UT_DEFAULT_IMPL(OS_MutSemTake);
@@ -176,6 +186,9 @@ int32 OS_MutSemTake(uint32 sem_id)
  *****************************************************************************/
 int32 OS_MutSemGetIdByName (uint32 *sem_id, const char *sem_name)
 {
+    UT_Stub_RegisterContext(UT_KEY(OS_MutSemGetIdByName), sem_id);
+    UT_Stub_RegisterContext(UT_KEY(OS_MutSemGetIdByName), sem_name);
+
     int32 status;
 
     status = UT_DEFAULT_IMPL(OS_MutSemGetIdByName);
@@ -209,6 +222,9 @@ int32 OS_MutSemGetIdByName (uint32 *sem_id, const char *sem_name)
 ******************************************************************************/
 int32 OS_MutSemGetInfo(uint32 sem_id, OS_mut_sem_prop_t *mut_prop)
 {
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_MutSemGetInfo), sem_id);
+    UT_Stub_RegisterContext(UT_KEY(OS_MutSemGetInfo), mut_prop);
+
     int32 status;
 
     status = UT_DEFAULT_IMPL(OS_MutSemGetInfo);

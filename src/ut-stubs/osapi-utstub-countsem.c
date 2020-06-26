@@ -45,6 +45,11 @@ UT_DEFAULT_STUB(OS_CountSemAPI_Init,(void))
 int32 OS_CountSemCreate(uint32 *sem_id, const char *sem_name,
                       uint32 sem_initial_value, uint32 options)
 {
+    UT_Stub_RegisterContext(UT_KEY(OS_CountSemCreate), sem_id);
+    UT_Stub_RegisterContext(UT_KEY(OS_CountSemCreate), sem_name);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_CountSemCreate), sem_initial_value);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_CountSemCreate), options);
+
     int32 status;
 
     status = UT_DEFAULT_IMPL(OS_CountSemCreate);
@@ -83,6 +88,8 @@ int32 OS_CountSemCreate(uint32 *sem_id, const char *sem_name,
 ******************************************************************************/
 int32 OS_CountSemDelete(uint32 sem_id)
 {
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_CountSemDelete), sem_id);
+
     int32 status;
 
     status = UT_DEFAULT_IMPL(OS_CountSemDelete);
@@ -103,6 +110,8 @@ int32 OS_CountSemDelete(uint32 sem_id)
  *****************************************************************************/
 int32 OS_CountSemGive ( uint32 sem_id )
 {
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_CountSemGive), sem_id);
+
     int32 status;
 
     status = UT_DEFAULT_IMPL(OS_CountSemGive);
@@ -117,6 +126,8 @@ int32 OS_CountSemGive ( uint32 sem_id )
  *****************************************************************************/
 int32 OS_CountSemTake ( uint32 sem_id )
 {
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_CountSemTake), sem_id);
+
     int32 status;
 
     status = UT_DEFAULT_IMPL(OS_CountSemTake);
@@ -131,6 +142,9 @@ int32 OS_CountSemTake ( uint32 sem_id )
  *****************************************************************************/
 int32 OS_CountSemTimedWait ( uint32 sem_id, uint32 msecs )
 {
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_CountSemTimedWait), sem_id);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_CountSemTimedWait), msecs);
+
     int32 status;
 
     status = UT_DEFAULT_IMPL(OS_CountSemTimedWait);
@@ -145,6 +159,9 @@ int32 OS_CountSemTimedWait ( uint32 sem_id, uint32 msecs )
  *****************************************************************************/
 int32 OS_CountSemGetIdByName (uint32 *sem_id, const char *sem_name)
 {
+    UT_Stub_RegisterContext(UT_KEY(OS_CountSemGetIdByName), sem_id);
+    UT_Stub_RegisterContext(UT_KEY(OS_CountSemGetIdByName), sem_name);
+
     int32 status;
 
     status = UT_DEFAULT_IMPL(OS_CountSemGetIdByName);
@@ -177,6 +194,9 @@ int32 OS_CountSemGetIdByName (uint32 *sem_id, const char *sem_name)
 ******************************************************************************/
 int32 OS_CountSemGetInfo(uint32 sem_id, OS_count_sem_prop_t *count_prop)
 {
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_CountSemGetInfo), sem_id);
+    UT_Stub_RegisterContext(UT_KEY(OS_CountSemGetInfo), count_prop);
+
     int32 status;
 
     status = UT_DEFAULT_IMPL(OS_CountSemGetInfo);

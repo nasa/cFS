@@ -42,8 +42,10 @@
  *****************************************************************************/
 int32 OS_IntAttachHandler  (uint32 InterruptNumber, osal_task_entry InterruptHandler, int32 parameter)
 {
-    UT_Stub_RegisterContext(UT_KEY(OS_IntAttachHandler), &InterruptHandler);
-    UT_Stub_RegisterContext(UT_KEY(OS_IntAttachHandler), &parameter);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_IntAttachHandler), InterruptNumber);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_IntAttachHandler), InterruptHandler);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_IntAttachHandler), parameter);
+
     return UT_DEFAULT_IMPL(OS_IntAttachHandler);
 }
 
@@ -83,8 +85,10 @@ int32 OS_IntLock(void)
 **        Returns OS_SUCCESS.
 **
 ******************************************************************************/
-int32 OS_IntUnlock(int32 IntFlags)
+int32 OS_IntUnlock(int32 IntLevel)
 {
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_IntUnlock), IntLevel);
+
     return UT_DEFAULT_IMPL(OS_IntUnlock);
 }
 
@@ -95,6 +99,8 @@ int32 OS_IntUnlock(int32 IntFlags)
  *****************************************************************************/
 int32 OS_IntEnable(int32 Level)
 {
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_IntEnable), Level);
+
     return UT_DEFAULT_IMPL(OS_IntEnable);
 }
 
@@ -105,6 +111,8 @@ int32 OS_IntEnable(int32 Level)
  *****************************************************************************/
 int32 OS_IntDisable(int32 Level)
 {
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_IntDisable), Level);
+
     return UT_DEFAULT_IMPL(OS_IntDisable);
 }
 
@@ -113,9 +121,10 @@ int32 OS_IntDisable(int32 Level)
  * Stub function for OS_IntSetMask()
  *
  *****************************************************************************/
-int32 OS_IntSetMask ( uint32 MaskSetting )
+int32 OS_IntSetMask ( uint32 mask )
 {
-    UT_Stub_RegisterContext(UT_KEY(OS_IntSetMask), &MaskSetting);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_IntSetMask), mask);
+
     return UT_DEFAULT_IMPL(OS_IntSetMask);
 }
 
@@ -124,9 +133,10 @@ int32 OS_IntSetMask ( uint32 MaskSetting )
  * Stub function for OS_IntGetMask()
  *
  *****************************************************************************/
-int32 OS_IntGetMask ( uint32 * MaskSettingPtr )
+int32 OS_IntGetMask ( uint32 * mask )
 {
-    UT_Stub_RegisterContext(UT_KEY(OS_IntGetMask), MaskSettingPtr);
+    UT_Stub_RegisterContext(UT_KEY(OS_IntGetMask), mask);
+
     return UT_DEFAULT_IMPL(OS_IntGetMask);
 }
 
