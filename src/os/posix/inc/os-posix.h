@@ -80,6 +80,7 @@ typedef struct
    pthread_key_t ThreadKey;
    sigset_t      MaximumSigMask;
    sigset_t      NormalSigMask;
+   size_t        PageSize;
    POSIX_PriorityLimits_t PriLimits;
    int           SelectedRtScheduler;
 } POSIX_GlobalVars_t;
