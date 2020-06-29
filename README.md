@@ -74,7 +74,7 @@ This is a collection of APIs abstracting platform specific functionality to be l
 
 - Minor updates (see <https://github.com/nasa/PSP/pull/115>)
 
-### **_1.4.0 OFFICIAL RELEASE_**
+### **_1.4.0 OFFICIAL RELEASE - Aquila_**
 
 - This is a point release from an internal repository
 - Changes are detailed in [cFS repo](https://github.com/nasa/cFS) release documentation
