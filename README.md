@@ -2,29 +2,21 @@
 
 This repository is a bundle of submodules that make up the Core Flight System (cFS) framework.  Note the "lab" apps are intended as examples only, and enable this bundle to build, execute, receive commands, and send telemetry.  This is not a flight distribution, which is typically made up of the cFE, OSAL, PSP, and a selection of flight apps that coorespond to specific mission requirements.
 
-This bundle has not been fully verified as an operational system, and is provided as a starting point vs an end product.  Testing of this bundle consists of building, executing, sending setup commands and verifying receipt of telemetry.  Unit testing is also run, but extensive analysis is not performed.  All verification and validation per mission requirements is the responsibility of the mission (although attempts are made in the cFS Framework to provide a testing framework to facilitate the process).
+This bundle is not fully verified as an operational system, and is provided as a starting point vs an end product.  Testing of this bundle consists of building, executing, sending setup commands and verifying receipt of telemetry.  Unit testing is also run, but extensive analysis is not performed.  All verification and validation per mission requirements is the responsibility of the mission (although attempts are made in the cFS Framework to provide a testing framework to facilitate the process).
 
 The cFS Framework is a core subset of cFS.  There are additional OSALs, PSPs, and tools as listed below available from a variety of sources.
 
 ## Release Notes
 
-cFE 6.6.0a is released under the Apache 2.0 license, see [LICENSE](https://github.com/nasa/cFE/tree/master/LICENSE-18128-Apache-2_0.pdf).
- - The license covers cFE, PSP, framework apps, and framework tools as marked
+See [releases](https://github.com/nasa/cFS/releases) for release history and associated artifacts related to the cFS BUNDLE.
 
-OSAL 1.4.2a is released under the NOSA license, see [LICENSE](https://github.com/nasa/osal/blob/master/LICENSE)
+As of release Aquila (aka cFS 6.7.0, which includes cFE 6.7.0 and OSAL 5.0.0) the entire bundle is released under the Apache 2.0 license.
 
 Other elements listed below are released under a varitey of licenses as detailed in their respective repositories.
 
-Additional release notes for the cFS Framework are found in [release notes](https://github.com/nasa/cFE/tree/master/docs/cFE_release_notes.md).  See the [version description document](https://github.com/nasa/cFE/tree/master/docs/cFE_6_6_0_version_description.md) for the full version description document.  Test results can be found in [test results](https://github.com/nasa/cFE/tree/master/test-and-ground/test-review-packages/Results).  This is a point release from major development work currently being performed on an internal repository.
-
 ## Known issues
 
-Version description document contains references to internal repositories and sourceforge, which is no longer in use.  Markdown document formats have not been updated for GitHub.
-
-The version description document details two build warnings in linux that will be resolved in the future.
-
-Major known issues (not noted in version description document):
-Unit test - the nominal os timer test occasionally fails on standard Linux systems (non-RTOS)
+Major known issues are documented in the version description documents included with releases, and issue history in each of the submodules contain all the details.
 
 ## Major future work
 
