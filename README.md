@@ -17,11 +17,11 @@ The cFS Framework is a core subset of cFS.  There are additional OSALs, PSPs, an
 
 ## Release Notes
 
-cFS 6.7.0 Suite: NOT FULLY RELEASED
-  - cFE 6.7.0 is released under the Apache 2.0 license, see [LICENSE](https://github.com/nasa/cFE/blob/v6.7.0/LICENSE).
-    - The license covers cFE, PSP, framework apps, and framework tools as marked
-  - OSAL 5.0.0 is pending release
-  - Release documentation pending
+See [releases](https://github.com/nasa/cFS/releases) for release history and associated artifacts related to the cFS BUNDLE.
+
+**Aquila: OFFICIAL RELEASE**:
+  - Released under Apache 2.0
+  - Inclueds cFE 6.7.0 (cFE, PSP, framework apps, and framework tools as marked) and OSAL 5.0.0
 
 **cFS 6.6.0a Suite: OFFICIAL RELEASE**:
   - cFE 6.6.0a is released under Apache 2.0 license, see [LICENSE](https://github.com/nasa/cFE/blob/v6.6.0a/LICENSE-18128-Apache-2_0.pdf)
