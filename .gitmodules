@@ -32,7 +32,7 @@
         branch = master
 [submodule "tools/cFS-GroundSystem"]
 	path = tools/cFS-GroundSystem
-	url = https://github.com/nasa/cFS-GroundSystem.git
+	url = https://github.com/McMasterNEUDOSE/cFS-GroundSystem.git
         branch = master
 [submodule "tools/elf2cfetbl"]
 	path = tools/elf2cfetbl
