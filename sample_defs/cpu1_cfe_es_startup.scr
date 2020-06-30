@@ -3,10 +3,13 @@ CFE_LIB, /cf/sample_lib.so,  SAMPLE_LibInit,  SAMPLE_LIB,    0,   0,     0x0, 0;
 CFE_APP, /cf/to.so,          TO_AppMain,      TO,           45,   16384, 0x0, 0;
 CFE_APP, /cf/hk.so,          HK_AppMain,      HK,           46,   16384, 0x0, 0;
 CFE_APP, /cf/sch.so,         SCH_AppMain,     SCH,          47,   16384, 0x0, 0;
-CFE_APP, /cf/sample_app.so,  SAMPLE_AppMain,  SAMPLE_APP,   50,   16384, 0x0, 0;
-CFE_APP, /cf/ci_lab.so,      CI_Lab_AppMain,  CI_LAB_APP,   60,   16384, 0x0, 0;
-CFE_APP, /cf/to_lab.so,      TO_Lab_AppMain,  TO_LAB_APP,   70,   16384, 0x0, 0;
-CFE_APP, /cf/sch_lab.so,     SCH_Lab_AppMain, SCH_LAB_APP,  80,   16384, 0x0, 0;
+CFE_APP, /cf/eps.so,         EPS_AppMain,     EPS,          50,   16384, 0x0, 0;
+CFE_APP, /cf/comms.so,       COMMS_AppMain,   COMMS,        51,   16384, 0x0, 0;
+CFE_APP, /cf/payload.so,     PAYLOAD_AppMain, PAYLOAD,      54,   16384, 0x0, 0;
+CFE_APP, /cf/sample_app.so,  SAMPLE_AppMain,  SAMPLE_APP,   60,   16384, 0x0, 0;
+CFE_APP, /cf/ci_lab.so,      CI_Lab_AppMain,  CI_LAB_APP,   62,   16384, 0x0, 0;
+CFE_APP, /cf/to_lab.so,      TO_Lab_AppMain,  TO_LAB_APP,   64,   16384, 0x0, 0;
+CFE_APP, /cf/sch_lab.so,     SCH_Lab_AppMain, SCH_LAB_APP,  66,   16384, 0x0, 0;
 !
 ! Startup script fields:
 ! 1. Object Type      -- CFE_APP for an Application, or CFE_LIB for a library.
