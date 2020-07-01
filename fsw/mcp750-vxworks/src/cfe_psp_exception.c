@@ -54,7 +54,8 @@
 
 #include "cfe_psp.h"
 #include "cfe_psp_config.h"
-#include "cfe_psp_exceptionstorage.h"
+#include "cfe_psp_exceptionstorage_types.h"
+#include "cfe_psp_exceptionstorage_api.h"
 #include "cfe_psp_memory.h"
 
 #include <target_config.h>
@@ -88,7 +89,7 @@ void CFE_PSP_ExceptionHook ( TASK_ID task_id, int vector, void* vpEsf );
 void CFE_PSP_AttachExceptions(void)
 {
     excHookAdd( CFE_PSP_ExceptionHook );
-    OS_printf("CFE_PSP: Attached cFE Exception Handler. Context Size = %u bytes.\n",sizeof(CFE_PSP_Exception_ContextDataEntry_t));
+    OS_printf("CFE_PSP: Attached cFE Exception Handler. Context Size = %lu bytes.\n",(unsigned long)sizeof(CFE_PSP_Exception_ContextDataEntry_t));
     CFE_PSP_Exception_Reset();
 }
 

@@ -19,46 +19,39 @@
 */
 
 /**
- * \file cfe_psp_exceptionstorage.h
+ * \file cfe_psp_exceptionstorage_api.h
  *
  * Provides a generic storage buffer ring for exceptions
  */
 
-#ifndef CFE_PSP_EXCEPTIONSTORAGE_H_
-#define CFE_PSP_EXCEPTIONSTORAGE_H_
+#ifndef CFE_PSP_EXCEPTIONSTORAGE_API_H_
+#define CFE_PSP_EXCEPTIONSTORAGE_API_H_
 
 #include <cfe_psp.h>
-#include <cfe_psp_config.h>
 
 /*
- * The "MetaData" stores ephemeral exception information
- * which only has meaning within the currently-running process.
- *
- * This data is important for diagnosing the exception, but it
- * is NOT saved to any persistent log because it will not be
- * relevant once the process ends.
+ * Abstract types for exception storage.
+ * These are made concrete depending on PSP-specific config information.
  */
-typedef struct
-{
-    uint32 context_id;                          /**< a unique ID assigned to this exception entry */
-    uint32 context_size;                        /**< actual size of the "context_info" data */
-    CFE_PSP_Exception_SysTaskId_t sys_task_id;  /**< the BSP-specific task info (not osal abstracted id) */
-    CFE_PSP_Exception_ContextDataEntry_t context_info;
-} CFE_PSP_Exception_LogData_t;
-
-
-typedef struct
-{
-    volatile uint32 NumWritten;
-    volatile uint32 NumRead;
-    CFE_PSP_Exception_LogData_t Entries[CFE_PSP_MAX_EXCEPTION_ENTRIES];
-} CFE_PSP_ExceptionStorage_t;
+struct CFE_PSP_Exception_LogData;
 
 
 
 /* -------------------------------------------------------------
  * Functions implemented in shared layer, invoked by impl layer.
  * ------------------------------------------------------------- */
+
+/**
+ * \brief Get the next buffer for exception buffer corresponding to sequence
+ *
+ * This function obtains a storage buffer corresponding to the given sequence number.
+ * The pointer to storage memory is directly returned. It is not cleared or modified,
+ * and no checks are performed to determine if the sequence number is valid.
+ *
+ * \param   seq     Sequence number
+ * \returns pointer to buffer.
+ */
+extern struct CFE_PSP_Exception_LogData* CFE_PSP_Exception_GetBuffer(uint32 seq);
 
 /**
  * \brief Get the next buffer for exception context storage
@@ -69,7 +62,7 @@ typedef struct
  *
  * \returns pointer to buffer, or NULL if storage is full.
  */
-extern CFE_PSP_Exception_LogData_t* CFE_PSP_Exception_GetNextContextBuffer(void);
+extern struct CFE_PSP_Exception_LogData* CFE_PSP_Exception_GetNextContextBuffer(void);
 
 /**
  * \brief Finish storage of exception data
@@ -102,6 +95,6 @@ extern void CFE_PSP_Exception_Reset(void);
  *
  * \returns CFE_PSP_SUCCESS on success
  */
-extern int32 CFE_PSP_ExceptionGetSummary_Impl(const CFE_PSP_Exception_LogData_t* Buffer, char *ReasonBuf, uint32 ReasonSize);
+extern int32 CFE_PSP_ExceptionGetSummary_Impl(const struct CFE_PSP_Exception_LogData* Buffer, char *ReasonBuf, uint32 ReasonSize);
 
-#endif /* CFE_PSP_EXCEPTIONSTORAGE_H_ */
+#endif /* CFE_PSP_EXCEPTIONSTORAGE_API_H_ */
