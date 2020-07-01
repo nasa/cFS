@@ -40,6 +40,7 @@
 #define TASK_1_STACK_SIZE 4096
 #define TASK_1_PRIORITY   101
 
+
 void TimerTestSetup(void);
 void TimerTestTask(void);
 void TimerTestCheck(void);
@@ -53,11 +54,12 @@ uint32 TimerTestTaskStack[TASK_1_STACK_SIZE];
 int32 timer_counter[NUMBER_OF_TIMERS];
 uint32 timer_idlookup[OS_MAX_TIMERS];
 
+
 /*
-** Test timer function.
-** Note: For some Host OSs, this is the equivalent of an ISR, so the calls available are limited.
-** For example, Linux and vxWorks can call functions like printf, but RTEMS cannot.
-*/
+ * Test timer function.
+ * Note: For some Host OSs, this is the equivalent of an ISR, so the calls available are limited.
+ * For example, Linux and vxWorks can call functions like printf, but RTEMS cannot.
+ */
 void test_func(uint32 timer_id)
 {
    OS_ConvertToArrayIndex(timer_id, &timer_id);
@@ -119,7 +121,7 @@ void TimerTestTask(void)
    uint32           ClockAccuracy;
 
 
-   for ( i = 0; i < NUMBER_OF_TIMERS; i++ )
+   for ( i = 0; i < NUMBER_OF_TIMERS && i < OS_MAX_TIMERS; i++ )
    {
       TimerStatus[i] = OS_TimerCreate(&TimerID[i], TimerName[i], &ClockAccuracy, &(test_func));
       UtAssert_True(TimerStatus[i] == OS_SUCCESS, "Timer %d Created RC=%d ID=%d", i, (int)TimerStatus[i], (int)TimerID[i]);
@@ -132,7 +134,7 @@ void TimerTestTask(void)
 
    /* Sample the clock now, before starting any timer */
    OS_GetLocalTime(&StartTime);
-   for ( i = 0; i < NUMBER_OF_TIMERS; i++ )
+   for ( i = 0; i < NUMBER_OF_TIMERS && i < OS_MAX_TIMERS; i++ )
    {
       /*
        * to ensure that all timers are started as closely as possible,
@@ -144,7 +146,7 @@ void TimerTestTask(void)
    /*
     * Now the actual OS_TimerSet() return code can be checked.
     */
-   for ( i = 0; i < NUMBER_OF_TIMERS; i++ )
+   for ( i = 0; i < NUMBER_OF_TIMERS && i < OS_MAX_TIMERS; i++ )
    {
        UtAssert_True(TimerStatus[i] == OS_SUCCESS, "Timer %d programmed RC=%d", i, (int)TimerStatus[i]);
    }
@@ -165,12 +167,12 @@ void TimerTestTask(void)
    }
    OS_GetLocalTime(&EndTime);
 
-   for ( i = 0; i < NUMBER_OF_TIMERS; i++ )
+   for ( i = 0; i < NUMBER_OF_TIMERS && i < OS_MAX_TIMERS; i++ )
    {
        TimerStatus[i] =  OS_TimerDelete(TimerID[i]);
    }
 
-   for ( i = 0; i < NUMBER_OF_TIMERS; i++ )
+   for ( i = 0; i < NUMBER_OF_TIMERS && i < OS_MAX_TIMERS; i++ )
    {
        UtAssert_True(TimerStatus[i] == OS_SUCCESS, "Timer %d delete RC=%d. Count total = %d",
                i, (int)TimerStatus[i], (int)timer_counter[i]);
@@ -200,7 +202,7 @@ void TimerTestCheck(void)
    }
 
    /* Make sure the ratio of the timers are OK */
-   for ( i = 0; i < NUMBER_OF_TIMERS; i++ )
+   for ( i = 0; i < NUMBER_OF_TIMERS && i < OS_MAX_TIMERS; i++ )
    {
       /*
        * Expect one tick after the start time (i.e. first tick)
