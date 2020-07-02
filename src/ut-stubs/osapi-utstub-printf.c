@@ -58,13 +58,14 @@ int32 OS_ConsoleWrite(uint32 console_id, const char *Str)
  *****************************************************************************/
 void OS_printf(const char *string, ...)
 {
+    UT_Stub_RegisterContext(UT_KEY(OS_printf), string);
+
     int32   status;
     int32   length = strlen(string);
     va_list va;
 
     va_start(va,string);
 
-    UT_Stub_RegisterContext(UT_KEY(OS_printf), string);
     status = UT_DefaultStubImplWithArgs(__func__, UT_KEY(OS_printf), 0, va);
 
     if (status >= 0)

@@ -59,10 +59,15 @@ int32 OS_TaskCreate(uint32 *task_id, const char *task_name,
                     uint32 stack_size, uint32 priority,
                     uint32 flags)
 {
-    int32 status;
-
-    UT_Stub_RegisterContext(UT_KEY(OS_TaskCreate), &function_pointer);
+    UT_Stub_RegisterContext(UT_KEY(OS_TaskCreate), task_id);
+    UT_Stub_RegisterContext(UT_KEY(OS_TaskCreate), task_name);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_TaskCreate), function_pointer);
     UT_Stub_RegisterContext(UT_KEY(OS_TaskCreate), stack_pointer);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_TaskCreate), stack_size);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_TaskCreate), priority);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_TaskCreate), flags);
+
+    int32 status;
 
     status = UT_DEFAULT_IMPL(OS_TaskCreate);
 
@@ -97,6 +102,8 @@ int32 OS_TaskCreate(uint32 *task_id, const char *task_name,
 ******************************************************************************/
 int32 OS_TaskDelete(uint32 task_id)
 {
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_TaskDelete), task_id);
+
     int32 status;
 
     status = UT_DEFAULT_IMPL(OS_TaskDelete);
@@ -150,6 +157,8 @@ void OS_TaskExit()
 ******************************************************************************/
 int32 OS_TaskDelay(uint32 millisecond)
 {
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_TaskDelay), millisecond);
+
     int32 status;
 
     status = UT_DEFAULT_IMPL(OS_TaskDelay);
@@ -164,6 +173,9 @@ int32 OS_TaskDelay(uint32 millisecond)
  *****************************************************************************/
 int32 OS_TaskSetPriority (uint32 task_id, uint32 new_priority)
 {
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_TaskSetPriority), task_id);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_TaskSetPriority), new_priority);
+
     int32 status;
 
     status = UT_DEFAULT_IMPL(OS_TaskSetPriority);
@@ -231,6 +243,9 @@ uint32 OS_TaskGetId(void)
  *****************************************************************************/
 int32 OS_TaskGetIdByName (uint32 *task_id, const char *task_name)
 {
+    UT_Stub_RegisterContext(UT_KEY(OS_TaskGetIdByName), task_id);
+    UT_Stub_RegisterContext(UT_KEY(OS_TaskGetIdByName), task_name);
+
     int32 status;
 
     status = UT_DEFAULT_IMPL(OS_TaskGetIdByName);
@@ -265,6 +280,9 @@ int32 OS_TaskGetIdByName (uint32 *task_id, const char *task_name)
 ******************************************************************************/
 int32 OS_TaskGetInfo(uint32 task_id, OS_task_prop_t *task_prop)
 {
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_TaskGetInfo), task_id);
+    UT_Stub_RegisterContext(UT_KEY(OS_TaskGetInfo), task_prop);
+
     int32 status;
 
     status = UT_DEFAULT_IMPL(OS_TaskGetInfo);
@@ -297,6 +315,10 @@ int32 OS_TaskGetInfo(uint32 task_id, OS_task_prop_t *task_prop)
 ******************************************************************************/
 int32 OS_TaskFindIdBySystemData(uint32 *task_id, const void *sysdata, size_t sysdata_size)
 {
+    UT_Stub_RegisterContext(UT_KEY(OS_TaskFindIdBySystemData), task_id);
+    UT_Stub_RegisterContext(UT_KEY(OS_TaskFindIdBySystemData), sysdata);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_TaskFindIdBySystemData), sysdata_size);
+
     int32 status;
 
     status = UT_DEFAULT_IMPL(OS_TaskFindIdBySystemData);
@@ -318,9 +340,9 @@ int32 OS_TaskFindIdBySystemData(uint32 *task_id, const void *sysdata, size_t sys
  *****************************************************************************/
 int32 OS_TaskInstallDeleteHandler(osal_task_entry function_pointer)
 {
-    int32 status;
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_TaskInstallDeleteHandler), function_pointer);
 
-    UT_Stub_RegisterContext(UT_KEY(OS_TaskInstallDeleteHandler), &function_pointer);
+    int32 status;
 
     status = UT_DEFAULT_IMPL(OS_TaskInstallDeleteHandler);
 

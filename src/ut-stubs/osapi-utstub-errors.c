@@ -36,6 +36,9 @@
 
 int32 OS_GetErrorName(int32 error_num, os_err_name_t* err_name)
 {
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_GetErrorName), error_num);
+    UT_Stub_RegisterContext(UT_KEY(OS_GetErrorName), err_name);
+
     int32 status;
 
     status = UT_DEFAULT_IMPL(OS_GetErrorName);

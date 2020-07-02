@@ -40,9 +40,12 @@
  *****************************************************************************/
 int32 OS_SelectSingle(uint32 objid, uint32 *StateFlags, int32 msecs)
 {
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_SelectSingle), objid);
+    UT_Stub_RegisterContext(UT_KEY(OS_SelectSingle), StateFlags);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_SelectSingle), msecs);
+
     int32 return_code;
 
-    UT_Stub_RegisterContext(UT_KEY(OS_SelectSingle), StateFlags);
     return_code = UT_DEFAULT_IMPL(OS_SelectSingle);
 
     return return_code;
@@ -55,10 +58,12 @@ int32 OS_SelectSingle(uint32 objid, uint32 *StateFlags, int32 msecs)
  *****************************************************************************/
 int32 OS_SelectMultiple(OS_FdSet *ReadSet, OS_FdSet *WriteSet, int32 msecs)
 {
-    int32 return_code;
-
     UT_Stub_RegisterContext(UT_KEY(OS_SelectMultiple), ReadSet);
     UT_Stub_RegisterContext(UT_KEY(OS_SelectMultiple), WriteSet);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_SelectMultiple), msecs);
+
+    int32 return_code;
+
     return_code = UT_DEFAULT_IMPL(OS_SelectMultiple);
 
     return return_code;
@@ -71,6 +76,8 @@ int32 OS_SelectMultiple(OS_FdSet *ReadSet, OS_FdSet *WriteSet, int32 msecs)
  *****************************************************************************/
 int32 OS_SelectFdZero(OS_FdSet *Set)
 {
+    UT_Stub_RegisterContext(UT_KEY(OS_SelectFdZero), Set);
+
     int32 return_code;
 
     return_code = UT_DEFAULT_IMPL(OS_SelectFdZero);
@@ -85,6 +92,9 @@ int32 OS_SelectFdZero(OS_FdSet *Set)
  *****************************************************************************/
 int32 OS_SelectFdAdd(OS_FdSet *Set, uint32 objid)
 {
+    UT_Stub_RegisterContext(UT_KEY(OS_SelectFdAdd), Set);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_SelectFdAdd), objid);
+
     int32 return_code;
 
     return_code = UT_DEFAULT_IMPL(OS_SelectFdAdd);
@@ -99,6 +109,9 @@ int32 OS_SelectFdAdd(OS_FdSet *Set, uint32 objid)
  *****************************************************************************/
 int32 OS_SelectFdClear(OS_FdSet *Set, uint32 objid)
 {
+    UT_Stub_RegisterContext(UT_KEY(OS_SelectFdClear), Set);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_SelectFdClear), objid);
+
    int32 return_code;
 
    return_code = UT_DEFAULT_IMPL(OS_SelectFdClear);
@@ -113,6 +126,9 @@ int32 OS_SelectFdClear(OS_FdSet *Set, uint32 objid)
  *****************************************************************************/
 bool OS_SelectFdIsSet(OS_FdSet *Set, uint32 objid)
 {
+    UT_Stub_RegisterContext(UT_KEY(OS_SelectFdIsSet), Set);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_SelectFdIsSet), objid);
+
    int32 return_code;
 
    return_code = UT_DEFAULT_IMPL(OS_SelectFdIsSet);

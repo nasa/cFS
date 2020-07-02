@@ -55,6 +55,8 @@ UT_DEFAULT_STUB(OS_BinSemAPI_Init,(void))
 ******************************************************************************/
 int32 OS_BinSemTake(uint32 sem_id)
 {
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_BinSemTake), sem_id);
+
     int32 status = OS_SUCCESS;
 
     status = UT_DEFAULT_IMPL(OS_BinSemTake);
@@ -83,6 +85,8 @@ int32 OS_BinSemTake(uint32 sem_id)
 ******************************************************************************/
 int32 OS_BinSemFlush(uint32 sem_id)
 {
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_BinSemFlush), sem_id);
+
     int32   status;
 
     status = UT_DEFAULT_IMPL(OS_BinSemFlush);
@@ -116,6 +120,11 @@ int32 OS_BinSemFlush(uint32 sem_id)
 int32 OS_BinSemCreate(uint32 *sem_id, const char *sem_name,
                       uint32 sem_initial_value, uint32 options)
 {
+    UT_Stub_RegisterContext(UT_KEY(OS_BinSemCreate), sem_id);
+    UT_Stub_RegisterContext(UT_KEY(OS_BinSemCreate), sem_name);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_BinSemCreate), sem_initial_value);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_BinSemCreate), options);
+
     int32 status;
 
     status = UT_DEFAULT_IMPL(OS_BinSemCreate);
@@ -150,6 +159,8 @@ int32 OS_BinSemCreate(uint32 *sem_id, const char *sem_name,
 ******************************************************************************/
 int32 OS_BinSemGive(uint32 sem_id)
 {
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_BinSemGive), sem_id);
+
     int32 status;
 
     status = UT_DEFAULT_IMPL(OS_BinSemGive);
@@ -175,6 +186,9 @@ int32 OS_BinSemGive(uint32 sem_id)
 ******************************************************************************/
 int32 OS_BinSemGetInfo(uint32 sem_id, OS_bin_sem_prop_t *bin_prop)
 {
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_BinSemGetInfo), sem_id);
+    UT_Stub_RegisterContext(UT_KEY(OS_BinSemGetInfo), bin_prop);
+
     int32 status;
 
     status = UT_DEFAULT_IMPL(OS_BinSemGetInfo);
@@ -214,6 +228,8 @@ int32 OS_BinSemGetInfo(uint32 sem_id, OS_bin_sem_prop_t *bin_prop)
 ******************************************************************************/
 int32 OS_BinSemDelete(uint32 sem_id)
 {
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_BinSemDelete), sem_id);
+
     int32 status;
 
     status = UT_DEFAULT_IMPL(OS_BinSemDelete);
@@ -247,6 +263,9 @@ int32 OS_BinSemDelete(uint32 sem_id)
 ******************************************************************************/
 int32 OS_BinSemTimedWait(uint32 sem_id, uint32 msecs)
 {
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_BinSemTimedWait), sem_id);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_BinSemTimedWait), msecs);
+
     int32 status;
 
     status = UT_DEFAULT_IMPL(OS_BinSemTimedWait);
@@ -261,6 +280,9 @@ int32 OS_BinSemTimedWait(uint32 sem_id, uint32 msecs)
  *****************************************************************************/
 int32 OS_BinSemGetIdByName (uint32 *sem_id, const char *sem_name)
 {
+    UT_Stub_RegisterContext(UT_KEY(OS_BinSemGetIdByName), sem_id);
+    UT_Stub_RegisterContext(UT_KEY(OS_BinSemGetIdByName), sem_name);
+
     int32 status;
 
     status = UT_DEFAULT_IMPL(OS_BinSemGetIdByName);
