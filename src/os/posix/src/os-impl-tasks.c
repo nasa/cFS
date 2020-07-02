@@ -38,6 +38,13 @@
 #include "os-shared-task.h"
 #include "os-shared-idmap.h"
 
+/*
+ * Defines
+ */
+#ifndef PTHREAD_STACK_MIN
+#define PTHREAD_STACK_MIN   (8*1024)
+#endif
+
 /* Tables where the OS object information is stored */
 OS_impl_task_internal_record_t      OS_impl_task_table          [OS_MAX_TASKS];
 
@@ -416,6 +423,8 @@ int32 OS_Posix_TaskAPI_Impl_Init(void)
    }
 #endif
 
+   POSIX_GlobalVars.PageSize = sysconf(_SC_PAGESIZE);
+
    return OS_SUCCESS;
 } /* end OS_Posix_TaskAPI_Impl_Init */
 
@@ -446,14 +455,42 @@ int32 OS_Posix_InternalTaskCreate_Impl(pthread_t *pthr, uint32 priority, size_t 
        return(OS_ERROR);
     }
 
-
-     /*
-     ** Test to see if the original main task scheduling priority worked.
-     ** If so, then also set the attributes for this task.  Otherwise attributes
-     ** are left at default.
+    /*
+     * Adjust the stack size parameter.
+     *
+     * POSIX has additional restrictions/limitations on the stack size of tasks that
+     * other RTOS environments may not have.  Specifically POSIX says that the stack
+     * size must be at least PTHREAD_STACK_MIN and may also need to be a multiple of the
+     * system page size.
+     *
+     * Rounding up means the user might get a bigger stack than they requested, but
+     * that should not break anything aside from consuming extra memory.
      */
-     if (POSIX_GlobalVars.EnableTaskPriorities)
-     {
+    if (stacksz < PTHREAD_STACK_MIN)
+    {
+        stacksz = PTHREAD_STACK_MIN;
+    }
+
+    stacksz += POSIX_GlobalVars.PageSize - 1;
+    stacksz -= stacksz % POSIX_GlobalVars.PageSize;
+
+    /*
+    ** Set the Stack Size
+    */
+    return_code = pthread_attr_setstacksize(&custom_attr, stacksz);
+    if (return_code != 0)
+    {
+        OS_DEBUG("pthread_attr_setstacksize error in OS_TaskCreate: %s\n",strerror(return_code));
+        return(OS_ERROR);
+    }
+
+    /*
+    ** Test to see if the original main task scheduling priority worked.
+    ** If so, then also set the attributes for this task.  Otherwise attributes
+    ** are left at default.
+    */
+    if (POSIX_GlobalVars.EnableTaskPriorities)
+    {
         /*
         ** Set the scheduling inherit attribute to EXPLICIT
         */
@@ -464,15 +501,6 @@ int32 OS_Posix_InternalTaskCreate_Impl(pthread_t *pthr, uint32 priority, size_t 
             return(OS_ERROR);
         }
 
-       /*
-       ** Set the Stack Size
-       */
-       return_code = pthread_attr_setstacksize(&custom_attr, stacksz);
-       if (return_code != 0)
-       {
-           OS_DEBUG("pthread_attr_setstacksize error in OS_TaskCreate: %s\n",strerror(return_code));
-           return(OS_ERROR);
-       }
 
        /*
        ** Set the scheduling policy
@@ -503,7 +531,7 @@ int32 OS_Posix_InternalTaskCreate_Impl(pthread_t *pthr, uint32 priority, size_t 
           return(OS_ERROR);
        }
 
-     } /* End if user is root */
+    } /* End if user is root */
 
     /*
      ** Create thread
