@@ -42,7 +42,7 @@
 UtAssert_CaseType_t DefaultContext = UTASSERT_CASETYPE_FAILURE;
 UtAssert_TestCounter_t UT_SegmentCounters = { 0 };
 UtAssert_TestCounter_t UT_TotalCounters = { 0 };
-static char CurrentSegment[128];
+static char CurrentSegment[64];
 
 /*
  * Function Definitions
@@ -76,7 +76,7 @@ void UtAssert_DoReport(const char *File, uint32 LineNum, uint32 SegmentNum, uint
 
 void UtAssert_DoTestSegmentReport(const char *SegmentName, const UtAssert_TestCounter_t *TestCounters)
 {
-    char ReportBuffer[128];
+    char ReportBuffer[144];
 
     snprintf(ReportBuffer, sizeof(ReportBuffer),
              "%02u %-20s TOTAL::%-4u  PASS::%-4u  FAIL::%-4u   MIR::%-4u   TSF::%-4u   N/A::%-4u\n",
