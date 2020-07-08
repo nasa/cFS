@@ -155,7 +155,7 @@ UT Hook functions now have the capability to get argument values by name, which 
 
 - Minor updates (see <https://github.com/nasa/osal/pull/264>)
 
-### **_OFFICIAL RELEASE: 5.0.0_**
+### **_OFFICIAL RELEASE: 5.0.0 - Aquila_**
 
 - Changes are detailed in [cFS repo](https://github.com/nasa/cFS) release 6.7.0 documentation
 - Released under the Apache 2.0 license
