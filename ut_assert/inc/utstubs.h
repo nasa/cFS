@@ -109,14 +109,13 @@ typedef int32 (*UT_VaHookFunc_t)(void *UserObj, int32 StubRetcode, uint32 CallCo
  **************************************************************/
 
 /**
- * Reset the Unit test framework for only the given function
+ * Reset the Unit test framework for a given function, or all functions
  *
  * Any return code or data buffer records for the given function key
- * are cleared.  The special FuncKey value of "0" matches all entries.
+ * are cleared.
  *
  * \param FuncKey The stub function to reset.  If zero, all functions
- *      are reset.  This is basically equivalent to UT_Init() without
- *      changing the Subsys string.
+ *      are reset.
  */
 void UT_ResetState(UT_EntryKey_t FuncKey);
 
@@ -126,7 +125,7 @@ void UT_ResetState(UT_EntryKey_t FuncKey);
  * A deferred ("count down") return code for the stub function will be
  * installed.  The specific implementation depends on the stub function,
  * but typically it will return its default code until it is called "Count"
- * times, after which it will return the given Retcode, then return to
+ * times, where it will return the given Retcode, then return to
  * its default return code again.
  *
  * Multiple deferred entries for a single function are allowed.  These
@@ -152,7 +151,7 @@ void UT_SetDeferredRetcode(UT_EntryKey_t FuncKey, int32 Count, int32 Retcode);
  * Multiple buffer entries for a single function are allowed.  These
  * will be used in the order they were added.
  *
- * It is recommended to call UT_ResetState() at the beginning of the test case
+ * It is recommended to call UT_ResetState(0) at the beginning of the test case
  * to ensure that any old entries for the stub functions are cleared out.
  *
  * \param FuncKey The stub function to add the data buffer to.
