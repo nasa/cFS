@@ -52,6 +52,7 @@ Target_PspConfigData GLOBAL_PSP_CONFIGDATA =
             .MajorVersion = CFE_PSP_IMPL_MAJOR_VERSION,
             .MinorVersion = CFE_PSP_IMPL_MINOR_VERSION,
             .Revision = CFE_PSP_IMPL_REVISION,
-            .MissionRev = CFE_PSP_IMPL_MISSION_REV
+            .MissionRev = CFE_PSP_IMPL_MISSION_REV,
+            .Version = CFE_PSP_IMPL_VERSION
       }
 };
