@@ -6,6 +6,7 @@ CFE_APP, /cf/sch.so,         SCH_AppMain,     SCH,          47,   16384, 0x0, 0;
 CFE_APP, /cf/eps.so,         EPS_AppMain,     EPS,          50,   16384, 0x0, 0;
 CFE_APP, /cf/comms.so,       COMMS_AppMain,   COMMS,        51,   16384, 0x0, 0;
 CFE_APP, /cf/payload.so,     PAYLOAD_AppMain, PAYLOAD,      54,   16384, 0x0, 0;
+CFE_APP, /cf/ds.so,			 DS_AppMain,	  DS,			56,	  16384, 0x0, 0;
 CFE_APP, /cf/sample_app.so,  SAMPLE_AppMain,  SAMPLE_APP,   60,   16384, 0x0, 0;
 CFE_APP, /cf/ci_lab.so,      CI_Lab_AppMain,  CI_LAB_APP,   62,   16384, 0x0, 0;
 CFE_APP, /cf/to_lab.so,      TO_Lab_AppMain,  TO_LAB_APP,   64,   16384, 0x0, 0;
