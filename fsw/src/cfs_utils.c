@@ -97,7 +97,7 @@ int32 CFS_LibInit(void);
 int32 CFS_LibInit(void)
 {
     
-    OS_printf ("CFS Lib Initialized.  Version %d.%d.%d.%d",
+    OS_printf ("CFS Lib Initialized.  Version %d.%d.%d.%d\n",
                 CFS_LIB_MAJOR_VERSION,
                 CFS_LIB_MINOR_VERSION, 
                 CFS_LIB_REVISION, 
