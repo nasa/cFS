@@ -275,9 +275,9 @@ int32 DS_AppInitialize(void)
     if (Result == CFE_SUCCESS)
     {
         CFE_EVS_SendEvent(DS_INIT_EID, CFE_EVS_INFORMATION,
-                         "Application initialized, version %d.%d.%d.%d, data at 0x%08X",
+                         "Application initialized, version %d.%d.%d.%d, data at %p",
                           DS_MAJOR_VERSION, DS_MINOR_VERSION,
-                          DS_REVISION, DS_MISSION_REV, (unsigned int) &DS_AppData);
+                          DS_REVISION, DS_MISSION_REV, (void *)&DS_AppData);
     }
 
     return(Result);
