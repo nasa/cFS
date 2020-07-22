@@ -356,7 +356,7 @@
 **		 The value must be greater than zero and cannot exceed the
 **       definition of #CFE_SB_MAX_PIPE_DEPTH.
 */
-#define DS_APP_PIPE_DEPTH               256
+#define DS_APP_PIPE_DEPTH               10
 
 
 /**
@@ -488,7 +488,7 @@
 **		 The value must be greater than zero and cannot exceed the
 **       definition of #DS_APP_PIPE_DEPTH.
 */
-#define DS_PER_PACKET_PIPE_LIMIT        50
+#define DS_PER_PACKET_PIPE_LIMIT        9
 
 
 #endif /* _ds_platform_cfg_h_ */
