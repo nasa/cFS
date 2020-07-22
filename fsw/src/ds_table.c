@@ -423,7 +423,8 @@ void DS_TableManageFilter(void)
 int32 DS_TableVerifyDestFile(void *TableData)
 {
     DS_DestFileTable_t *DestFileTable = (DS_DestFileTable_t *) TableData;
-    char *DescResult = "OK";
+    const char *GoodResult = "OK";
+    const char *BadResult = "bad";
     int32 Result = CFE_SUCCESS;
     int32 i;
 
@@ -441,8 +442,6 @@ int32 DS_TableVerifyDestFile(void *TableData)
     {
         CFE_EVS_SendEvent(DS_FIL_TBL_ERR_EID, CFE_EVS_ERROR,
                          "Destination file table verify err: invalid descriptor text");
-
-        DescResult = "bad";
         Result = DS_TABLE_VERIFY_ERR;
     }
 
@@ -469,9 +468,19 @@ int32 DS_TableVerifyDestFile(void *TableData)
     /*
     ** Note that totals include each table entry plus the descriptor
     */
-    CFE_EVS_SendEvent(DS_FIL_TBL_EID, CFE_EVS_INFORMATION,
-       "Destination file table verify results: desc text = %s, good entries = %d, bad = %d, unused = %d",
-                      DescResult, (int)CountGood, (int)CountBad, (int)CountUnused);
+    if (Result != CFE_SUCCESS)
+    {
+        CFE_EVS_SendEvent(DS_FIL_TBL_EID, CFE_EVS_INFORMATION,
+           "Destination file table verify results: desc text = %s, good entries = %d, bad = %d, unused = %d",
+                          BadResult, (int)CountGood, (int)CountBad, (int)CountUnused);       
+    }
+    else
+    {
+        CFE_EVS_SendEvent(DS_FIL_TBL_EID, CFE_EVS_INFORMATION,
+           "Destination file table verify results: desc text = %s, good entries = %d, bad = %d, unused = %d",
+                          GoodResult, (int)CountGood, (int)CountBad, (int)CountUnused);
+    }
+    
 
     return(Result);
 
@@ -487,7 +496,7 @@ int32 DS_TableVerifyDestFile(void *TableData)
 boolean DS_TableVerifyDestFileEntry(DS_DestFileEntry_t *DestFileEntry,
                                     uint8 TableIndex, int32 ErrorCount)
 {
-    char *CommonErrorText = "Destination file table verify err:";
+    const char *CommonErrorText = "Destination file table verify err:";
     boolean Result = TRUE;
 
     /*
@@ -602,7 +611,8 @@ boolean DS_TableVerifyDestFileEntry(DS_DestFileEntry_t *DestFileEntry,
 int32 DS_TableVerifyFilter(void *TableData)
 {
     DS_FilterTable_t *FilterTable = (DS_FilterTable_t *) TableData;
-    char *DescResult = "OK";
+    const char *GoodResult = "OK";
+    const char *BadResult = "bad";
     int32 Result = CFE_SUCCESS;
     int32 i;
 
@@ -622,8 +632,6 @@ int32 DS_TableVerifyFilter(void *TableData)
     {
         CFE_EVS_SendEvent(DS_FLT_TBL_ERR_EID, CFE_EVS_ERROR,
                          "Filter table verify err: invalid descriptor text");
-
-        DescResult = "bad";
         Result = DS_TABLE_VERIFY_ERR;
     }
 
@@ -650,9 +658,18 @@ int32 DS_TableVerifyFilter(void *TableData)
     /*
     ** Note that totals include each table entry plus the descriptor
     */
-    CFE_EVS_SendEvent(DS_FLT_TBL_EID, CFE_EVS_INFORMATION,
-       "Filter table verify results: desc text = %s, good entries = %d, bad = %d, unused = %d",
-                      DescResult, (int)CountGood, (int)CountBad, (int)CountUnused);
+    if (Result != CFE_SUCCESS)
+    {
+        CFE_EVS_SendEvent(DS_FLT_TBL_EID, CFE_EVS_INFORMATION,
+        "Filter table verify results: desc text = %s, good entries = %d, bad = %d, unused = %d",
+                          BadResult, (int)CountGood, (int)CountBad, (int)CountUnused);       
+    }
+    else
+    {
+        CFE_EVS_SendEvent(DS_FLT_TBL_EID, CFE_EVS_INFORMATION,
+            "Filter table verify results: desc text = %s, good entries = %d, bad = %d, unused = %d",
+                          GoodResult, (int)CountGood, (int)CountBad, (int)CountUnused);
+    }
 
     return(Result);
 
@@ -668,7 +685,7 @@ int32 DS_TableVerifyFilter(void *TableData)
 boolean DS_TableVerifyFilterEntry(DS_PacketEntry_t *PacketEntry,
                                   int32 TableIndex, int32 ErrorCount)
 {
-    char *CommonErrorText = "Filter table verify err:";
+    const char *CommonErrorText = "Filter table verify err:";
     DS_FilterParms_t *FilterParms;
     boolean Result = TRUE;
     int32 i;
