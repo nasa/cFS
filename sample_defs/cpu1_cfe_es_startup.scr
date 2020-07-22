@@ -1,4 +1,5 @@
 CFE_LIB, /cf/io_lib.so,      IO_LibInit,      IO_LIB,        0,   0,     0x0, 0;
+CFE_LIB, /cf/cfs_lib.so,	 CFS_LibInit,	  CFS_LIB,       0,   0,     0x0, 0;
 CFE_LIB, /cf/sample_lib.so,  SAMPLE_LibInit,  SAMPLE_LIB,    0,   0,     0x0, 0;
 CFE_APP, /cf/to.so,          TO_AppMain,      TO,           45,   16384, 0x0, 0;
 CFE_APP, /cf/hk.so,          HK_AppMain,      HK,           46,   16384, 0x0, 0;
