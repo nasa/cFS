@@ -1439,7 +1439,7 @@ void DS_CmdAddMID(CFE_SB_MsgPtr_t MessagePtr)
     DS_PacketEntry_t *pPacketEntry;
     DS_FilterParms_t *pFilterParms;
     int32 FilterTableIndex;
-    int32 HashTableIndex;
+    //int32 HashTableIndex;
     int32 i;
 
     if (ExpectedLength != ActualLength)
@@ -1505,7 +1505,7 @@ void DS_CmdAddMID(CFE_SB_MsgPtr_t MessagePtr)
         pPacketEntry->MessageID = DS_AddMidCmd->MessageID;
         
         /* Add the message ID to the hash table as well */
-        HashTableIndex = DS_TableAddMsgID(DS_AddMidCmd->MessageID, FilterTableIndex);
+        //HashTableIndex = DS_TableAddMsgID(DS_AddMidCmd->MessageID, FilterTableIndex);
 
         for (i = 0; i < DS_FILTERS_PER_PACKET; i++)
         {
