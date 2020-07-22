@@ -66,7 +66,9 @@ typedef struct
 */
 typedef struct
 {
-    CFE_SB_PipeId_t         InputPipe;          /**< \brief Pipe Id for DS command pipe */    
+    CFE_SB_PipeId_t     cmdPipeId;                      /**< \brief Pipe Id for DS command pipe */ 
+    uint16              usCmdPipeDepth;                 /**< \brief Pipe Depth for DS command pipe */
+    char                cCmdPipeName[OS_MAX_API_NAME];  /**< \brief Pipe Name for DS command pipe */
    
     CFE_ES_CDSHandle_t      DataStoreHandle;    /**< \brief Critical Data Store (CDS) handle */
    

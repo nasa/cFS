@@ -968,7 +968,7 @@ void DS_TableSubscribe(void)
             (MessageID != DS_CMD_MID) &&
             (MessageID != DS_SEND_HK_MID))
         {
-            CFE_SB_SubscribeEx(MessageID, DS_AppData.InputPipe,
+            CFE_SB_SubscribeEx(MessageID, DS_AppData.cmdPipeId,
                 CFE_SB_Default_Qos, DS_PER_PACKET_PIPE_LIMIT);
         }
     }
@@ -1006,7 +1006,7 @@ void DS_TableUnsubscribe(void)
             (MessageID != DS_CMD_MID) &&
             (MessageID != DS_SEND_HK_MID))
         {
-            CFE_SB_Unsubscribe(MessageID, DS_AppData.InputPipe);
+            CFE_SB_Unsubscribe(MessageID, DS_AppData.cmdPipeId);
         }
     }
 

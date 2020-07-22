@@ -1519,7 +1519,7 @@ void DS_CmdAddMID(CFE_SB_MsgPtr_t MessagePtr)
             pFilterParms->Algorithm_O = 0;
         }
 
-        CFE_SB_SubscribeEx(DS_AddMidCmd->MessageID, DS_AppData.InputPipe,
+        CFE_SB_SubscribeEx(DS_AddMidCmd->MessageID, DS_AppData.cmdPipeId,
                            CFE_SB_Default_Qos, DS_PER_PACKET_PIPE_LIMIT);
         /*
         ** Notify cFE that we have modified the table data...
