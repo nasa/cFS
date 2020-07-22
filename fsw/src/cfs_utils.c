@@ -253,7 +253,7 @@ boolean CFS_ResolveSymAddr(CFS_SymAddr_t *SymAddr,
        ** If symbol name is not an empty string look it up 
        ** using the OSAL API and add the offset if it succeeds
        */
-       OS_Status = OS_SymbolLookup(ResolvedAddr, SymAddr->SymName);
+       OS_Status = OS_SymbolLookup((long unsigned int *)ResolvedAddr, SymAddr->SymName);
        if (OS_Status == OS_SUCCESS)
         {
           *ResolvedAddr += SymAddr->Offset;
