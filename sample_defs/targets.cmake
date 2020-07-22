@@ -85,5 +85,5 @@ SET(FT_INSTALL_SUBDIR "host/functional-test")
 
 # Each target board can have its own HW arch selection and set of included apps
 SET(TGT1_NAME cpu1)
-SET(TGT1_APPLIST sample_app sample_lib io_lib ci_lab to_lab sch_lab to hk sch eps comms payload)
+SET(TGT1_APPLIST sample_app sample_lib io_lib cfs_lib ci_lab to_lab sch_lab to hk sch eps comms payload ds)
 SET(TGT1_FILELIST cfe_es_startup.scr)

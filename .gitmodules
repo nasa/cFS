@@ -54,3 +54,9 @@
 [submodule "apps/io_lib"]
 	path = apps/io_lib
 	url = https://github.com/McMasterNEUDOSE/CFS_IO_LIB.git
+[submodule "apps/ds"]
+	path = apps/ds
+	url = https://github.com/McMasterNEUDOSE/ds.git
+[submodule "apps/cfs_lib"]
+	path = apps/cfs_lib
+	url = https://github.com/McMasterNEUDOSE/cfs_lib.git
