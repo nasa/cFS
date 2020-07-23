@@ -71,6 +71,14 @@ script:
   - make install
   # Run unit tests and generate coverage results
   - make test
+  - |
+    if [[ -s build/native/Testing/Temporary/LastTestsFailed.log ]]; then
+      echo "You must fix unit test errors before submitting a pull request"
+      echo ""
+      cat build/native/Testing/Temporary/LastTestsFailed.log
+      grep "\[ FAIL\]" build/native/Testing/Temporary/LastTest.log
+      exit -1
+    fi
   - make lcov
   # Eventually check/enforce minimum coverage
   # Make documentation
