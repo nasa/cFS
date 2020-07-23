@@ -57,7 +57,7 @@
 **       The string length (including string terminator) cannot exceed
 **       #OS_MAX_PATH_LEN.  (limit is not verified)
 */
-#define DS_DEF_DEST_FILENAME            "/cf/apps/ds_file_tbl.tbl"
+#define DS_DEF_DEST_FILENAME            "/cf/ds_file_tbl.tbl"
 
 
 /**
@@ -160,7 +160,7 @@
 **       The string length (including string terminator) cannot exceed
 **       #OS_MAX_PATH_LEN.  (limit is not verified)
 */
-#define DS_DEF_FILTER_FILENAME          "/cf/apps/ds_filter_tbl.tbl"
+#define DS_DEF_FILTER_FILENAME          "/cf/ds_filter_tbl.tbl"
 
 
 /**
