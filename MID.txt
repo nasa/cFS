@@ -1,0 +1,136 @@
+/************************************************************
+* Telemetry Message Ids
+************************************************************/
+
+/***TO_LAB***/
+#define TO_LAB_HK_TLM_MID             0x0880 !!!!!double
+#define TO_LAB_DATA_TYPES_MID         0x0881 !!!!!double
+
+/***Reg TO***/
+#define TO_HK_TLM_MID                 0x0880
+#define TO_OUT_DATA_MID               0x0881
+#define TO_DATA_TYPE_MID              0x0882
+
+/***SAMPLE_APP***/
+#define SAMPLE_APP_HK_TLM_MID	        0x0883
+
+/***CI_LAB***/
+#define CI_LAB_HK_TLM_MID             0x0884
+
+/**
+**Space reserved for MIDs of apps we might want to include later
+**w/ MIDS b/w current MIDS listeed
+**potential apps include mm, file storage
+***/
+
+/***SCH***/
+#define SCH_HK_TLM_MID                0x0897 /**< \brief SCH Housekeeping Telemetry Message ID */
+#define SCH_DIAG_TLM_MID              0x0898 /**< \brief SCH Diagnostic Telemetry Message ID */
+#define SCH_TLM_SPARE1                0x0899
+#define SCH_TLM_SPARE2                0x089A
+
+/***HK***/
+#define HK_HK_TLM_MID                 0x089B /**< \brief HK Housekeeping Telemetry Message ID */
+#define HK_COMBINED_PKT1_MID          0x089C /**< \brief HK Combined Packet 1 Message ID */
+#define HK_COMBINED_PKT2_MID          0x089D /**< \brief HK Combined Packet 2 Message ID */
+#define HK_COMBINED_PKT3_MID          0x089E /**< \brief HK Combined Packet 3 Message ID */
+#define HK_COMBINED_PKT4_MID          0x089F /**< \brief HK Combined Packet 4 Message ID */
+
+
+/**************************************
+**Space reserved for MIDs of apps we might want
+**to include later w/ MIDS b/w like
+**08aa used by stored command app sc
+**08a4 used by cs
+**08A7 to 08A9 used by limit checker
+**08AD used by health and safety
+**08B0, 08B7 used by cf
+**08BB used by sca
+****************************************//
+
+/***DS***/
+#define DS_HK_TLM_MID      0x08B8 /**< \brief DS Hk Telemetry Message ID ****/
+#define DS_DIAG_TLM_MID    0x08B9 /**< \brief DS File Info Telemetry Message ID ****/
+
+/***EPS***/
+#define EPS_HK_TLM_MID		0x0900 /**< \brief EPS Hk Telemetry Message ID **/
+
+/***COMMS***/
+#define COMMS_HK_TLM_MID		0x0910 /**< \brief COMMS hk Telemetry Message ID **/
+
+/***PAYLOAD***/
+#define PAYLOAD_HK_TLM_MID		0x0920 /**< \brief EPS Hk Telemetry Message ID **/
+
+
+/************************************************************
+* Command Message Ids
+************************************************************/
+
+/***TO_LAB***/
+#define TO_LAB_CMD_MID                0x1880 !double
+#define TO_LAB_SEND_HK_MID            0x1881 !!double
+
+/***Reg TO***/
+#define TO_APP_CMD_MID                0x1880
+#define TO_SEND_HK_MID                0x1881
+#define TO_WAKEUP_MID                 0x1882
+
+/***SAMPLE_APP***/
+#define SAMPLE_APP_CMD_MID            0x1882 !DOUBLE
+#define SAMPLE_APP_SEND_HK_MID        0x1883
+
+/***CI_LAB***/
+#deifne CI_LAB_CMD_MID                0x1884
+#define CI_LAB_SEND_HK_MID            0x1885
+
+/**
+**Space reserved for MIDs of apps we might want to include later
+**w/ MIDS b/w current MIDS listeed
+**potential apps include mm, file storage
+***/
+
+/***SCH***/
+#define SCH_CMD_MID                   0x1895 /**< \brief SCH Ground Commands Message ID */
+#define SCH_SEND_HK_MID               0x1896 /**< \brief SCH Send Housekeeping Message ID */
+#define SCH_UNUSED_MID                0x1897 /**< \brief SCH MDT Unused Message Message ID */
+#define SCH_SPARE1                    0x1898
+#define SCH_SPARE2                    0x1899
+
+/***HK***/
+#define HK_CMD_MID                    0x189A /**< \brief HK Ground Commands Message ID */
+#define HK_SEND_HK_MID                0x189B /**< \brief HK Send Housekeeping Data Cmd Message ID */
+#define HK_SEND_COMBINED_PKT_MID      0x189C /**< \brief HK Send Combined Pkt Cmd Message ID */
+
+/***DS***/
+#define DS_CMD_MID         0x18BB /**< \brief DS Ground Commands Message ID */
+#define DS_SEND_HK_MID     0x18BC /**< \brief DS Send Hk Data Cmd Message ID*/
+
+
+/************************************
+**Space reserved for MIDs of apps we might want to include later w/ MIDS b/w like
+**0x189F, 18A1 used by CS
+**0x18A4, 18A8 used by limit checker
+**0x18A9 to 0x18AB is used by md
+**0x18AE to 18B0 used by hs
+**0x18B3 to 18BA USED BY cf
+**0x18C0, 18C1 used by stored command absolute
+**0x1FFD also used by cf
+****************************************//
+
+/***EPS***/
+#define EPS_CMD_MID            	0x1900 /**< \brief EPS Ground Command Message ID **/
+#define EPS_SEND_HK_MID        	0x1901 /**< \brief EPS Send HK Data cmd Message ID **/
+#define EPS_WAKEUP_MID        	0x1902 /**< \brief EPS Wakeup cmd Message ID **/
+#define EPS_OUT_DATA_MID        0x1903 /**< \brief EPS Output data cmd Message ID **/
+
+/***COMMS***/
+#define COMMS_CMD_MID            	0x1910 /**< \brief COMMS Ground Command Message ID **/
+#define COMMS_SEND_HK_MID        	0x1911 /**< \brief COMMS Send HK Data cmd Message ID **/
+#define COMMS_WAKEUP_MID        	0x1912 /**< \brief COMMS Wakeup cmd Message ID **/
+#define COMMS_OUT_DATA_MID        0x1913 /**< \brief COMMS Output data cmd Message ID **/
+
+/***PAYLOAD***/
+#define PAYLOAD_CMD_MID            	0x1920 /**< \brief Payload Ground Command Message ID **/
+#define PAYLOAD_SEND_HK_MID        	0x1921 /**< \brief Payload Send HK Data cmd Message ID **/
+#define PAYLOAD_WAKEUP_MID        	0x1922 /**< \brief Payload Wakeup cmd Message ID **/
+#define PAYLOAD_OUT_DATA_MID        0x1923 /**< \brief Payload Output data cmd Message ID **/

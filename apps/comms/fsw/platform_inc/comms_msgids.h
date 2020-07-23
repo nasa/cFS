@@ -20,15 +20,19 @@
 #ifndef _COMMS_MSGIDS_H_
 #define _COMMS_MSGIDS_H_
 
-#define COMMS_CMD_MID            	0x1910
-#define COMMS_SEND_HK_MID        	0x1911
-#define COMMS_WAKEUP_MID        	0x1912
-#define COMMS_OUT_DATA_MID        0x1913
+/**************************
+** Comms Command Message IDs
+***********************/
 
-#define COMMS_HK_TLM_MID		0x0910
+#define COMMS_CMD_MID            	0x1910 /**< \brief COMMS Ground Command Message ID **/
+#define COMMS_SEND_HK_MID        	0x1911 /**< \brief COMMS Send HK Data cmd Message ID **/
+#define COMMS_WAKEUP_MID        	0x1912 /**< \brief COMMS Wakeup cmd Message ID **/
+#define COMMS_OUT_DATA_MID        0x1913 /**< \brief COMMS Output data cmd Message ID **/
 
-
-
+/**************************
+** Comms Telemetry Message IDs
+***********************/
+#define COMMS_HK_TLM_MID		0x0910 /**< \brief COMMS Hk Telemetry Message ID **/
 
 #endif /* _COMMS_MSGIDS_H_ */
 

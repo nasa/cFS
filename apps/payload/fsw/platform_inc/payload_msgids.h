@@ -20,15 +20,20 @@
 #ifndef _PAYLOAD_MSGIDS_H_
 #define _PAYLOAD_MSGIDS_H_
 
-#define PAYLOAD_CMD_MID            	0x1920
-#define PAYLOAD_SEND_HK_MID        	0x1921
-#define PAYLOAD_WAKEUP_MID        	0x1922
-#define PAYLOAD_OUT_DATA_MID        0x1923
+/**************************
+** Payload Command Message IDs
+***********************/
 
-#define PAYLOAD_HK_TLM_MID		0x0920
+#define PAYLOAD_CMD_MID            	0x1920 /**< \brief Payload Ground Command Message ID **/
+#define PAYLOAD_SEND_HK_MID        	0x1921 /**< \brief Payload Send HK Data cmd Message ID **/
+#define PAYLOAD_WAKEUP_MID        	0x1922 /**< \brief Payload Wakeup cmd Message ID **/
+#define PAYLOAD_OUT_DATA_MID        0x1923 /**< \brief Payload Output data cmd Message ID **/
 
+/**************************
+** Payload Telemtry Message IDs
+***********************/
 
-
+#define PAYLOAD_HK_TLM_MID		0x0920 /**< \brief EPS Hk Telemetry Message ID **/
 
 #endif /* _PAYLOAD_MSGIDS_H_ */
 
