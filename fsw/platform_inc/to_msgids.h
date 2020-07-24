@@ -2,16 +2,16 @@
  ** File:
  **  to_msgids.h
  **
- **  Copyright © 2016 United States Government as represented by the 
- **  Administrator of the National Aeronautics and Space Administration. 
- **  All Other Rights Reserved.  
+ **  Copyright ï¿½ 2016 United States Government as represented by the
+ **  Administrator of the National Aeronautics and Space Administration.
+ **  All Other Rights Reserved.
  **
  **  This software was created at NASA's Johnson Space Center.
- **  This software is governed by the NASA Open Source Agreement and may be 
- **  used, distributed and modified only pursuant to the terms of that 
+ **  This software is governed by the NASA Open Source Agreement and may be
+ **  used, distributed and modified only pursuant to the terms of that
  **  agreement.
  **
- ** Purpose: 
+ ** Purpose:
  **   This file contains the message ID's used by Telemetry Output
  **
  ** References:
@@ -32,19 +32,19 @@
  *************************************************************************/
 
 /**
- ** \name TO Command Message Numbers */ 
+ ** \name TO Command Message Numbers */
 /** \{ */
-#define TO_APP_CMD_MID      (0x1880)
-#define TO_SEND_HK_MID      (0x1881)
-#define TO_WAKEUP_MID       (0x1882)
+#define TO_APP_CMD_MID      (0x1870)
+#define TO_SEND_HK_MID      (0x1871)
+#define TO_WAKEUP_MID       (0x1872)
 /** \} */
 
 /**
- ** \name TO Telemetery Message Number */ 
+ ** \name TO Telemetery Message Number */
 /** \{ */
-#define TO_HK_TLM_MID       (0x0880)
-#define TO_OUT_DATA_MID     (0x0881)
-#define TO_DATA_TYPE_MID    (0x0882)
+#define TO_HK_TLM_MID       (0x0870)
+#define TO_OUT_DATA_MID     (0x0871)
+#define TO_DATA_TYPE_MID    (0x0872)
 /** \} */
 
 #endif /*_to_msgids_*/
