@@ -1,15 +1,14 @@
 /************************************************************
 * Telemetry Message Ids
 ************************************************************/
+/***Reg TO***/
+#define TO_HK_TLM_MID                 0x0870 //Previously 0x0880
+#define TO_OUT_DATA_MID               0x0871 //Previously 0x0881
+#define TO_DATA_TYPE_MID              0x0872 //Previously 0x0882
 
 /***TO_LAB***/
-#define TO_LAB_HK_TLM_MID             0x0880 !!!!!double
-#define TO_LAB_DATA_TYPES_MID         0x0881 !!!!!double
-
-/***Reg TO***/
-#define TO_HK_TLM_MID                 0x0880
-#define TO_OUT_DATA_MID               0x0881
-#define TO_DATA_TYPE_MID              0x0882
+#define TO_LAB_HK_TLM_MID             0x0880
+#define TO_LAB_DATA_TYPES_MID         0x0881
 
 /***SAMPLE_APP***/
 #define SAMPLE_APP_HK_TLM_MID	        0x0883
@@ -65,18 +64,18 @@
 /************************************************************
 * Command Message Ids
 ************************************************************/
+/***Reg TO***/
+#define TO_APP_CMD_MID                0x1870 //Previously 0x1880
+#define TO_SEND_HK_MID                0x1871 //Previously 0x1881
+#define TO_WAKEUP_MID                 0x1872 //Previously 0x1882
+
 
 /***TO_LAB***/
-#define TO_LAB_CMD_MID                0x1880 !double
-#define TO_LAB_SEND_HK_MID            0x1881 !!double
-
-/***Reg TO***/
-#define TO_APP_CMD_MID                0x1880
-#define TO_SEND_HK_MID                0x1881
-#define TO_WAKEUP_MID                 0x1882
+#define TO_LAB_CMD_MID                0x1880
+#define TO_LAB_SEND_HK_MID            0x1881
 
 /***SAMPLE_APP***/
-#define SAMPLE_APP_CMD_MID            0x1882 !DOUBLE
+#define SAMPLE_APP_CMD_MID            0x1882
 #define SAMPLE_APP_SEND_HK_MID        0x1883
 
 /***CI_LAB***/
