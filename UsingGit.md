@@ -9,6 +9,8 @@ You can set local variables so your machine knows who you are
     git config --global user.name <YOUR USERNAME HERE>
     git config --gloval user.email <YOUR EMAIL HERE>
 
+I would also highly recommend setting up an SSH key for easier access to the remote server (not having to type in your username/password each time). See the **Adding an SSH Key** section at the end of this file.
+
 Assuming you have the most recent version of cFS (if not, see the README.md), if the master version you're working off of has been updated with commits, you can load those by using
     
     git pull
@@ -63,7 +65,13 @@ If you forget which files you've changed, git will tell you if you ask nicely:
 
 Before actually commiting, see if any changes you've made are in direct conflict with
     
-    git diff
+    git diff 
+
+When you're ready to add your changes to GitHub (for everyone to see and access), you first want to make sure that nobody else has made any weird changes. 
+So you first need to fetch all the changes from the remote server and incorporate them into your own (a process called pulling)
+    
+    git pull --rebase 
+The --rebase option just makes reading commit histories much easier to read and makes everything linear
 
 When you're ready to commit, use the commit command
     
@@ -74,12 +82,9 @@ If you want to do it all in one line, that's cool too
     
     git commit -m "Your change message here"
 
-To actually push the commit to the Github, use
-    
     git push
 
 It will prompt you for a username and password (since our GitHub is organisation access only)
-
 Alternativly, rather than having git asking you for your username and password each time, you can setup an SSH key.
 
 ## Adding an SSH Key
