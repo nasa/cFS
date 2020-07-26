@@ -8,6 +8,12 @@ This is a collection of APIs abstracting platform specific functionality to be l
 
 ## Version History
 
+### Development Build: 1.4.0+dev71
+
+- Restructure code to make more amicable for rebuilding in a unit test environment. No major changes, primarily just shifting code between locations/headers to support unit testing.
+-  Adds a char element `Version` to `CFE_PSP_VersionInfo_t` containing the version number expressed as a string. Defines new macros for the Build Number and the Build Baseline.
+- See <https://github.com/nasa/PSP/pull/176>
+
 ### Development Build: 1.4.14
 
 - Changes the PSP reference to be compatible with the change in nasa/osal#449 making the BSP modules more generic and changes the name.

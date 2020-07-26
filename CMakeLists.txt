@@ -1,30 +1,32 @@
+######################################################################
+#
+# CMAKE build recipe for CFE Platform Support Package (PSP)
+#
+######################################################################
+
 project(CFEPSP C)
 
 if (NOT CFE_SYSTEM_PSPNAME)
   message(FATAL_ERROR "CFE_SYSTEM_PSPNAME is not defined - do not know which to build")
 endif()
 
+set(CFE_PSP_TARGETNAME "${CFE_SYSTEM_PSPNAME}")
 add_definitions(-D_CFE_PSP_)
 
-include_directories(fsw/shared)
+# The PSP is currently built in two parts, consisting of a fully platform-specific
+# module combined with a shared component which is built for multiple targets.
+# The "shared" component is compiled using headers from the platform-specific module
+# so it is still ultimately a platform-specific binary, and it all gets wrapped into
+# a single PSP static library target.
+include_directories(fsw/shared/inc)
+add_subdirectory(fsw/${CFE_PSP_TARGETNAME} ${CFE_PSP_TARGETNAME}-impl)
+add_subdirectory(fsw/shared ${CFE_PSP_TARGETNAME}-shared)
 
-# Build the PSP implementation which lies in a system-specific subdirectory
-include_directories(fsw/shared)
-include_directories(fsw/${CFE_SYSTEM_PSPNAME}/inc)
-add_subdirectory(fsw/${CFE_SYSTEM_PSPNAME} ${CFE_SYSTEM_PSPNAME})
-
-# Build the "common" parts as a library
-add_library(psp-${CFE_SYSTEM_PSPNAME} STATIC
-    fsw/shared/cfe_psp_configdata.c
-    fsw/shared/cfe_psp_eeprom.c
-    fsw/shared/cfe_psp_exceptionstorage.c
-    fsw/shared/cfe_psp_memrange.c
-    fsw/shared/cfe_psp_memutils.c
-    fsw/shared/cfe_psp_module.c
-    fsw/shared/cfe_psp_port.c
-    fsw/shared/cfe_psp_ram.c
-    $<TARGET_OBJECTS:psp-${CFE_SYSTEM_PSPNAME}-impl>)
-
+add_library(psp-${CFE_PSP_TARGETNAME} STATIC
+    $<TARGET_OBJECTS:psp-${CFE_PSP_TARGETNAME}-shared>
+    $<TARGET_OBJECTS:psp-${CFE_PSP_TARGETNAME}-impl>
+)
+    
 if (ENABLE_UNIT_TESTS)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/fsw/ut-stubs)
 endif (ENABLE_UNIT_TESTS)

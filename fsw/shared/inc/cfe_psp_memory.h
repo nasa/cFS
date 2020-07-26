@@ -40,7 +40,7 @@
 
 #include "common_types.h"
 #include "cfe_psp_config.h"
-#include "cfe_psp_exceptionstorage.h"
+#include "cfe_psp_exceptionstorage_types.h"
 
 typedef struct
 {
