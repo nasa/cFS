@@ -44,6 +44,10 @@
 int32 OS_FPUExcAttachHandler   (uint32 ExceptionNumber, osal_task_entry ExceptionHandler ,
                                  int32 parameter)
 {
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_FPUExcAttachHandler), ExceptionNumber);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_FPUExcAttachHandler), ExceptionHandler);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_FPUExcAttachHandler), parameter);
+
     int32 status;
 
     status = UT_DEFAULT_IMPL_ARGS(OS_FPUExcAttachHandler, ExceptionNumber, ExceptionHandler, parameter);
@@ -58,6 +62,8 @@ int32 OS_FPUExcAttachHandler   (uint32 ExceptionNumber, osal_task_entry Exceptio
  *****************************************************************************/
 int32 OS_FPUExcEnable          (int32 ExceptionNumber)
 {
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_FPUExcEnable), ExceptionNumber);
+
     int32 status;
 
     status = UT_DEFAULT_IMPL(OS_FPUExcEnable);
@@ -72,6 +78,8 @@ int32 OS_FPUExcEnable          (int32 ExceptionNumber)
  *****************************************************************************/
 int32 OS_FPUExcDisable         (int32 ExceptionNumber)
 {
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_FPUExcDisable), ExceptionNumber);
+
     int32 status;
 
     status = UT_DEFAULT_IMPL(OS_FPUExcDisable);
@@ -86,6 +94,8 @@ int32 OS_FPUExcDisable         (int32 ExceptionNumber)
  *****************************************************************************/
 int32 OS_FPUExcSetMask         (uint32 mask)
 {
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_FPUExcSetMask), mask);
+
     int32 status;
 
     status = UT_DEFAULT_IMPL(OS_FPUExcSetMask);
@@ -100,6 +110,8 @@ int32 OS_FPUExcSetMask         (uint32 mask)
  *****************************************************************************/
 int32 OS_FPUExcGetMask         (uint32 *mask)
 {
+    UT_Stub_RegisterContext(UT_KEY(OS_FPUExcGetMask), mask);
+
     int32 status;
 
     status = UT_DEFAULT_IMPL(OS_FPUExcGetMask);

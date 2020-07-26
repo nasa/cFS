@@ -85,6 +85,10 @@ int32 dummy_function(void)
 ******************************************************************************/
 int32 OS_ModuleLoad(uint32 *module_id, const char *module_name, const char *filename)
 {
+    UT_Stub_RegisterContext(UT_KEY(OS_ModuleLoad), module_id);
+    UT_Stub_RegisterContext(UT_KEY(OS_ModuleLoad), module_name);
+    UT_Stub_RegisterContext(UT_KEY(OS_ModuleLoad), filename);
+
     int32 status;
 
     status = UT_DEFAULT_IMPL(OS_ModuleLoad);
@@ -123,6 +127,8 @@ int32 OS_ModuleLoad(uint32 *module_id, const char *module_name, const char *file
 ******************************************************************************/
 int32 OS_ModuleUnload(uint32 module_id)
 {
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_ModuleUnload), module_id);
+
     int32 status;
 
     status = UT_DEFAULT_IMPL(OS_ModuleUnload);
@@ -157,6 +163,9 @@ int32 OS_ModuleUnload(uint32 module_id)
 ******************************************************************************/
 int32 OS_ModuleInfo(uint32 module_id, OS_module_prop_t *module_info)
 {
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_ModuleInfo), module_id);
+    UT_Stub_RegisterContext(UT_KEY(OS_ModuleInfo), module_info);
+
     int32 status;
 
     status = UT_DEFAULT_IMPL(OS_ModuleInfo);
@@ -192,13 +201,14 @@ int32 OS_ModuleInfo(uint32 module_id, OS_module_prop_t *module_info)
 ******************************************************************************/
 int32 OS_SymbolLookup(cpuaddr *symbol_address, const char *symbol_name)
 {
+    UT_Stub_RegisterContext(UT_KEY(OS_SymbolLookup), symbol_address);
+    UT_Stub_RegisterContext(UT_KEY(OS_SymbolLookup), symbol_name);
+
     int32 status;
 
     /*
      * Register the context so a hook can do something with the parameters
      */
-    UT_Stub_RegisterContext(UT_KEY(OS_SymbolLookup), symbol_address);
-    UT_Stub_RegisterContext(UT_KEY(OS_SymbolLookup), symbol_name);
 
     status = UT_DEFAULT_IMPL(OS_SymbolLookup);
 
@@ -220,8 +230,11 @@ int32 OS_SymbolLookup(cpuaddr *symbol_address, const char *symbol_name)
  * Stub function for OS_SymbolTableDump()
  *
  *****************************************************************************/
-int32 OS_SymbolTableDump ( const char *filename, uint32 SizeLimit )
+int32 OS_SymbolTableDump ( const char *filename, uint32 size_limit )
 {
+    UT_Stub_RegisterContext(UT_KEY(OS_SymbolTableDump), filename);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_SymbolTableDump), size_limit);
+
     int32 status;
 
     status = UT_DEFAULT_IMPL(OS_SymbolTableDump);

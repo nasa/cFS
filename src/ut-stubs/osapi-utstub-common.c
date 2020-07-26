@@ -57,6 +57,8 @@ int32 OS_API_Init(void)
  *****************************************************************************/
 void OS_ApplicationExit(int32 Status)
 {
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_ApplicationExit), Status);
+
     /* just call the default so a hook can be attached */
     UT_DEFAULT_IMPL(OS_ApplicationExit);
 }
@@ -100,7 +102,8 @@ void OS_IdleLoop(void)
  *****************************************************************************/
 void OS_ApplicationShutdown(uint8 flag)
 {
-    UT_Stub_RegisterContext(UT_KEY(OS_ApplicationShutdown), &flag);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_ApplicationShutdown), flag);
+
     UT_DEFAULT_IMPL(OS_ApplicationShutdown);
 }
 

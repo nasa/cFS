@@ -1,4 +1,4 @@
-core Flgith System (cFS) Unit Test (UT) Assert Library
+core Flight System (cFS) Unit Test (UT) Assert Library
 
 Introduction
 

@@ -42,10 +42,11 @@
  *****************************************************************************/
 int32 OS_GetLocalTime(OS_time_t *time_struct)
 {
+    UT_Stub_RegisterContext(UT_KEY(OS_GetLocalTime), time_struct);
+
     int32 status;
     uint32 count;
 
-    UT_Stub_RegisterContext(UT_KEY(OS_GetLocalTime), time_struct);
     status = UT_DEFAULT_IMPL(OS_GetLocalTime);
 
     if (status == OS_SUCCESS &&
@@ -67,9 +68,10 @@ int32 OS_GetLocalTime(OS_time_t *time_struct)
  *****************************************************************************/
 int32 OS_SetLocalTime(OS_time_t *time_struct)
 {
+    UT_Stub_RegisterContext(UT_KEY(OS_SetLocalTime), time_struct);
+
     int32 status;
 
-    UT_Stub_RegisterContext(UT_KEY(OS_SetLocalTime), time_struct);
     status = UT_DEFAULT_IMPL(OS_SetLocalTime);
 
     return status;

@@ -84,7 +84,7 @@ function (add_coverage_testrunner TESTNAME FSW_SRCFILE TESTCASE_SRCFILE)
     add_test(${TESTNAME} ${TESTNAME}-testrunner)
 
     foreach(TGT ${INSTALL_TARGET_LIST})
-        install(TARGETS ${TESTNAME}-testrunner DESTINATION ${TGTNAME}/${UT_INSTALL_SUBDIR})
+        install(TARGETS ${TESTNAME}-testrunner DESTINATION ${TGT}/${UT_INSTALL_SUBDIR})
     endforeach()
 
 endfunction()

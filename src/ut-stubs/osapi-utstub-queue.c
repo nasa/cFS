@@ -68,6 +68,12 @@ int32 OS_QueueCreate(uint32 *queue_id,
                      uint32 data_size,
                      uint32 flags)
 {
+    UT_Stub_RegisterContext(UT_KEY(OS_QueueCreate), queue_id);
+    UT_Stub_RegisterContext(UT_KEY(OS_QueueCreate), queue_name);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_QueueCreate), queue_depth);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_QueueCreate), data_size);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_QueueCreate), flags);
+
     int32   status;
 
     status = UT_DEFAULT_IMPL(OS_QueueCreate);
@@ -109,6 +115,8 @@ int32 OS_QueueCreate(uint32 *queue_id,
 ******************************************************************************/
 int32 OS_QueueDelete(uint32 queue_id)
 {
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_QueueDelete), queue_id);
+
     int32   status;
 
     status = UT_DEFAULT_IMPL(OS_QueueDelete);
@@ -152,6 +160,12 @@ int32 OS_QueueGet(uint32 queue_id,
                   uint32 *size_copied,
                   int32 timeout)
 {
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_QueueGet), queue_id);
+    UT_Stub_RegisterContext(UT_KEY(OS_QueueGet), data);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_QueueGet), size);
+    UT_Stub_RegisterContext(UT_KEY(OS_QueueGet), size_copied);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_QueueGet), timeout);
+
     int32   status;
 
     status = UT_DEFAULT_IMPL(OS_QueueGet);
@@ -193,6 +207,11 @@ int32 OS_QueueGet(uint32 queue_id,
 ******************************************************************************/
 int32 OS_QueuePut(uint32 queue_id, const void *data, uint32 size, uint32 flags)
 {
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_QueuePut), queue_id);
+    UT_Stub_RegisterContext(UT_KEY(OS_QueuePut), data);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_QueuePut), size);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_QueuePut), flags);
+
     int32   status;
 
     status = UT_DEFAULT_IMPL(OS_QueuePut);
@@ -212,6 +231,9 @@ int32 OS_QueuePut(uint32 queue_id, const void *data, uint32 size, uint32 flags)
  *****************************************************************************/
 int32 OS_QueueGetIdByName (uint32 *queue_id, const char *queue_name)
 {
+    UT_Stub_RegisterContext(UT_KEY(OS_QueueGetIdByName), queue_id);
+    UT_Stub_RegisterContext(UT_KEY(OS_QueueGetIdByName), queue_name);
+
     int32 status;
 
     status = UT_DEFAULT_IMPL(OS_QueueGetIdByName);
@@ -242,8 +264,11 @@ int32 OS_QueueGetIdByName (uint32 *queue_id, const char *queue_name)
 **        Returns OS_SUCCESS.
 **
 ******************************************************************************/
-int32 OS_QueueGetInfo(uint32 sem_id, OS_queue_prop_t *queue_prop)
+int32 OS_QueueGetInfo(uint32 queue_id, OS_queue_prop_t *queue_prop)
 {
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_QueueGetInfo), queue_id);
+    UT_Stub_RegisterContext(UT_KEY(OS_QueueGetInfo), queue_prop);
+
     int32 status;
 
     status = UT_DEFAULT_IMPL(OS_QueueGetInfo);

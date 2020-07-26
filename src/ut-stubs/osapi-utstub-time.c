@@ -41,8 +41,14 @@ UT_DEFAULT_STUB(OS_TimerCbAPI_Init,(void))
  * Stub function for OS_TimerAdd()
  *
  *****************************************************************************/
-int32 OS_TimerAdd(uint32 *timer_id, const char *timer_name, uint32 timebase_ref_id, OS_ArgCallback_t  callback_ptr, void *callback_arg)
+int32 OS_TimerAdd(uint32 *timer_id, const char *timer_name, uint32 timebase_id, OS_ArgCallback_t  callback_ptr, void *callback_arg)
 {
+    UT_Stub_RegisterContext(UT_KEY(OS_TimerAdd), timer_id);
+    UT_Stub_RegisterContext(UT_KEY(OS_TimerAdd), timer_name);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_TimerAdd), timebase_id);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_TimerAdd), callback_ptr);
+    UT_Stub_RegisterContext(UT_KEY(OS_TimerAdd), callback_arg);
+
     int32 status;
 
     status = UT_DEFAULT_IMPL(OS_TimerAdd);
@@ -64,8 +70,13 @@ int32 OS_TimerAdd(uint32 *timer_id, const char *timer_name, uint32 timebase_ref_
  * Stub function for OS_TimerCreate()
  *
  *****************************************************************************/
-int32 OS_TimerCreate(uint32 *timer_id, const char *timer_name, uint32 *accuracy, OS_TimerCallback_t  callback_ptr)
+int32 OS_TimerCreate(uint32 *timer_id, const char *timer_name, uint32 *clock_accuracy, OS_TimerCallback_t  callback_ptr)
 {
+    UT_Stub_RegisterContext(UT_KEY(OS_TimerCreate), timer_id);
+    UT_Stub_RegisterContext(UT_KEY(OS_TimerCreate), timer_name);
+    UT_Stub_RegisterContext(UT_KEY(OS_TimerCreate), clock_accuracy);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_TimerCreate), callback_ptr);
+
     int32 status;
 
     status = UT_DEFAULT_IMPL(OS_TimerCreate);
@@ -89,6 +100,10 @@ int32 OS_TimerCreate(uint32 *timer_id, const char *timer_name, uint32 *accuracy,
  *****************************************************************************/
 int32 OS_TimerSet(uint32 timer_id, uint32 start_time, uint32 interval_time)
 {
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_TimerSet), timer_id);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_TimerSet), start_time);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_TimerSet), interval_time);
+
     int32 status;
 
     status = UT_DEFAULT_IMPL(OS_TimerSet);
@@ -114,6 +129,8 @@ int32 OS_TimerSet(uint32 timer_id, uint32 start_time, uint32 interval_time)
 ******************************************************************************/
 int32 OS_TimerDelete(uint32 timer_id)
 {
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_TimerDelete), timer_id);
+
     int32 status;
 
     status = UT_DEFAULT_IMPL(OS_TimerDelete);
@@ -133,6 +150,9 @@ int32 OS_TimerDelete(uint32 timer_id)
  *****************************************************************************/
 int32 OS_TimerGetIdByName (uint32 *timer_id, const char *timer_name)
 {
+    UT_Stub_RegisterContext(UT_KEY(OS_TimerGetIdByName), timer_id);
+    UT_Stub_RegisterContext(UT_KEY(OS_TimerGetIdByName), timer_name);
+
     int32 status;
 
     status = UT_DEFAULT_IMPL(OS_TimerGetIdByName);
@@ -168,6 +188,9 @@ int32 OS_TimerGetIdByName (uint32 *timer_id, const char *timer_name)
 ******************************************************************************/
 int32 OS_TimerGetInfo(uint32 timer_id, OS_timer_prop_t *timer_prop)
 {
+    UT_Stub_RegisterContextGenericArg(UT_KEY(OS_TimerGetInfo), timer_id);
+    UT_Stub_RegisterContext(UT_KEY(OS_TimerGetInfo), timer_prop);
+
     int32 status;
 
     status = UT_DEFAULT_IMPL(OS_TimerGetInfo);
