@@ -4,13 +4,16 @@ queries:
 - exclude: "cpp/long-switch"
 - exclude: "cpp/trivial-switch"
 
+path_classifiers:
+  generated:
+    - "**/Ui_*"
+
 extraction:
   python:
     python_setup:
       version: "3"
     index:
       include: "tools/cFS-GroundSystem"
-      exclude: "tools/cFS-GroundSystem/**/Ui_*"
   cpp:
     index:
       build_command:
