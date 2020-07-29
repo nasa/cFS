@@ -1,0 +1,49 @@
+!==============================================================================
+!
+!                Originator: W. Moleski
+!                Responsible SC:  
+!                Responsible CSE: 
+!                Rev:  Last Change: May 16, 2011
+!
+!                    Telemetry Packet # nnnn (dec)
+!                 =================================
+!
+!       Packet Application ID: nnnn (Hex 'xxxx')
+!       Packet Title:  $sc $cpu DS Telemetry Data Packet
+!       Packet Length:  ?? Bytes (Including 12 Bytes Of Header)
+!	Collect             Frequency:         SEC
+!
+!       REFERENCES:
+!
+!       NOTES:
+!
+!       HISTORY: 
+!	16MAY11	WFM	: Initial version moved from HK Packet
+!
+!==============================================================================
+!
+#include "osconfig.h"
+#include "ds_platform_cfg.h"
+!
+TYPES
+   RECORD $sc_$cpu_DS_HK_FileStatusType	DESC="$sc $cpu DS File Status Entry"
+      ULI FileAge	DESC="Age of this file entry"
+      ULI FileSize	DESC="Size of this file entry"
+      ULI FileRate	DESC="Rate of this file entry"
+      ULI FileSeq	DESC="Sequence count"
+      UI  EnableState	DESC="State of this file entry (Enable/Disable)",
+			DISCRETE, DRANGE=(0,1), DLABEL=("Disabled","Enabled")
+      UI  OpenState	DESC="State of the file (Open/Closed)", DISCRETE,
+			DRANGE=(0,1), DLABEL=("Closed","Open")
+      CHAR FileName[DS_TOTAL_FNAME_BUFSIZE] DESC="Name of the file"
+   END
+END_TYPES
+
+PACKET Pxxxx APID=nnnn, DESC="$sc $cpu DS File Info Status Packet", STALE = 36
+#include "ccsds_header.rdl"
+!
+  $sc_$cpu_DS_HK_FileStatusType	$sc_$cpu_DS_FileState[0 .. DS_DEST_FILE_CNT-1] DESC="$sc $cpu DS File Status"
+
+!  END                !END APPEND RECORD FUNCTION
+!
+END

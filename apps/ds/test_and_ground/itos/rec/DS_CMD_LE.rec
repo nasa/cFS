@@ -1,0 +1,164 @@
+Enumeration FSW_DS_SET_APP_STATE_ENUM
+{
+    EnumerationValue FSW_DS_DISABLED {value=0}
+    EnumerationValue FSW_DS_ENABLED {value=1}
+}
+
+Enumeration FSW_DS_SET_TYPE_ENUM
+{
+    EnumerationValue FSW_DS_BY_COUNT {value=1}
+    EnumerationValue FSW_DS_BY_TIME {value=2}
+}
+
+CfeSoftwareCommand FSW_DS_SET_APP_STATE
+{
+    applicationId {range=0xBB}
+    commandCode {range=2}
+
+    U21 EnableState {enumeration=FSW_DS_SET_APP_STATE_ENUM,range=0..1}
+}
+
+CfeSoftwareCommand FSW_DS_NOOP
+{
+    applicationId {range=0xBB}
+    commandCode {range=0}
+}
+
+CfeSoftwareCommand FSW_DS_RESET
+{
+    applicationId {range=0xBB}
+    commandCode {range=1}
+}
+
+CfeSoftwareCommand FSW_DS_SET_FILTER_FILE
+{
+    applicationId {range=0xBB}
+    commandCode {range=3}
+
+    U21 MessageID {range=0..65535}
+    U21 FilterParmsIndex {range=0..65535}
+    U21 FileTableIndex {range=0..65535}
+}
+
+CfeSoftwareCommand FSW_DS_SET_FILTER_TYPE
+{
+    applicationId {range=0xBB}
+    commandCode {range=4}
+
+    U21 MessageID {range=0..65535}
+    U21 FilterParmsIndex {range=0..65535}
+    U21 FilterType {enumeration=FSW_DS_SET_TYPE_ENUM,range=1..2}
+}
+
+CfeSoftwareCommand FSW_DS_SET_FILTER_PARMS
+{
+    applicationId {range=0xBB}
+    commandCode {range=5}
+
+    U21 MessageID {range=0..65535}
+    U21 FilterParmsIndex {range=0..65535}
+    U21 Algorithm_N {range=0..65535}
+    U21 Algorithm_X {range=0..65535}
+    U21 Algorithm_O {range=0..65535}
+}
+
+CfeSoftwareCommand FSW_DS_SET_DEST_TYPE
+{
+    applicationId {range=0xBB}
+    commandCode {range=6}
+
+    U21 FileTableIndex {range=0..65535}
+    U21 FileNameType {enumeration=FSW_DS_SET_TYPE_ENUM,range=1..2}
+}
+
+CfeSoftwareCommand FSW_DS_SET_DEST_STATE
+{
+    applicationId {range=0xBB}
+    commandCode {range=7}
+
+    U21 FileTableIndex {range=0..65535}
+    U21 EnableState {enumeration=FSW_DS_SET_APP_STATE_ENUM,range=0..1}
+}
+
+CfeSoftwareCommand FSW_DS_SET_DEST_PATH
+{
+    applicationId {range=0xBB}
+    commandCode {range=8}
+
+    U4321 FileTableIndex {range=0..4294967295}
+    S1 Pathname {lengthInCharacters=64}
+}
+
+CfeSoftwareCommand FSW_DS_SET_DEST_BASE
+{
+    applicationId {range=0xBB}
+    commandCode {range=9}
+
+    U4321 FileTableIndex {range=0..4294967295}
+    S1 Basename {lengthInCharacters=64}
+}
+
+CfeSoftwareCommand FSW_DS_SET_DEST_EXT
+{
+    applicationId {range=0xBB}
+    commandCode {range=10}
+
+    U4321 FileTableIndex {range=0..4294967295}
+    S1 Extension {lengthInCharacters=8}
+}
+
+CfeSoftwareCommand FSW_DS_SET_DEST_SIZE
+{
+    applicationId {range=0xBB}
+    commandCode {range=11}
+
+    U4321 FileTableIndex {range=0..4294967295}
+    U4321 MaxFileSize {range=0..4294967295}
+}
+
+CfeSoftwareCommand FSW_DS_SET_DEST_AGE
+{
+    applicationId {range=0xBB}
+    commandCode {range=12}
+
+    U4321 FileTableIndex {range=0..4294967295}
+    U4321 MaxFileAge {range=0..4294967295}
+}
+
+CfeSoftwareCommand FSW_DS_SET_DEST_COUNT
+{
+    applicationId {range=0xBB}
+    commandCode {range=13}
+
+    U4321 FileTableIndex {range=0..4294967295}
+    U4321 SeqCount {range=0..4294967295}
+}
+
+CfeSoftwareCommand FSW_DS_CLOSE_FILE
+{
+    applicationId {range=0xBB}
+    commandCode {range=14}
+
+    U4321 FileTableIndex {range=0..4294967295}
+}
+
+CfeSoftwareCommand FSW_DS_GET_FILE_INFO
+{
+    applicationId {range=0xBB}
+    commandCode {range=15}
+}
+
+CfeSoftwareCommand FSW_DS_ADD_MID
+{
+    applicationId {range=0xBB}
+    commandCode {range=16}
+
+    U21 MessageID {range=0..65535}
+}
+
+CfeSoftwareCommand FSW_DS_CLOSE_ALL_FILES
+{
+    applicationId {range=0xBB}
+    commandCode {range=17}
+}
+

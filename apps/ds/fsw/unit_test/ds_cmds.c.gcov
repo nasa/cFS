@@ -1,0 +1,1535 @@
+        -:    0:Source:../src/ds_cmds.c
+        -:    0:Programs:4
+        -:    1:/************************************************************************
+        -:    2:**  $Id: ds_cmds.c.gcov 1.3.1.1 2017/02/03 12:21:37EST mdeschu Exp  $
+        -:    3:**
+        -:    4:**  Copyright (c) 2007-2014 United States Government as represented by the 
+        -:    5:**  Administrator of the National Aeronautics and Space Administration. 
+        -:    6:**  All Other Rights Reserved.  
+        -:    7:**
+        -:    8:**  This software was created at NASA's Goddard Space Flight Center.
+        -:    9:**  This software is governed by the NASA Open Source Agreement and may be 
+        -:   10:**  used, distributed and modified only pursuant to the terms of that 
+        -:   11:**  agreement.
+        -:   12:**
+        -:   13:**  CFS Data Storage (DS) command handler functions
+        -:   14:**
+        -:   15:*************************************************************************/
+        -:   16:
+        -:   17:#include "cfe.h"
+        -:   18:
+        -:   19:#include "cfs_utils.h"
+        -:   20:
+        -:   21:#include "ds_platform_cfg.h"
+        -:   22:#include "ds_verify.h"
+        -:   23:
+        -:   24:#include "ds_appdefs.h"
+        -:   25:#include "ds_msgids.h"
+        -:   26:
+        -:   27:#include "ds_msg.h"
+        -:   28:#include "ds_app.h"
+        -:   29:#include "ds_cmds.h"
+        -:   30:#include "ds_file.h"
+        -:   31:#include "ds_table.h"
+        -:   32:#include "ds_events.h"
+        -:   33:#include "ds_version.h"
+        -:   34:
+        -:   35:#include "string.h"
+        -:   36:
+        -:   37:
+        -:   38:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -:   39:/*                                                                 */
+        -:   40:/* DS_CmdNoop() - NOOP command                                     */
+        -:   41:/*                                                                 */
+        -:   42:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -:   43:
+        4:   44:void DS_CmdNoop(CFE_SB_MsgPtr_t MessagePtr)
+        -:   45:{
+        4:   46:    uint16 ActualLength = CFE_SB_GetTotalMsgLength(MessagePtr);
+        4:   47:    uint16 ExpectedLength = sizeof(DS_NoopCmd_t);
+        -:   48:
+        4:   49:    if (ExpectedLength != ActualLength)
+        -:   50:    {
+        -:   51:        /*
+        -:   52:        ** Invalid command packet length...
+        -:   53:        */
+        1:   54:        DS_AppData.CmdRejectedCounter++;
+        -:   55:
+        1:   56:        CFE_EVS_SendEvent(DS_NOOP_CMD_ERR_EID, CFE_EVS_ERROR,
+        -:   57:                         "Invalid NOOP command length: expected = %d, actual = %d",
+        -:   58:                          ExpectedLength, ActualLength);
+        -:   59:    }
+        -:   60:    else
+        -:   61:    {
+        -:   62:        /*
+        -:   63:        ** Do nothing except display "aliveness" event...
+        -:   64:        */
+        3:   65:        DS_AppData.CmdAcceptedCounter++;
+        -:   66:
+        3:   67:        CFE_EVS_SendEvent(DS_NOOP_CMD_EID, CFE_EVS_INFORMATION,
+        -:   68:                         "NOOP command, Version %d.%d.%d.%d",
+        -:   69:                          DS_MAJOR_VERSION, DS_MINOR_VERSION, DS_REVISION, DS_MISSION_REV);
+        -:   70:    }
+        -:   71:
+        4:   72:    return;
+        -:   73:
+        -:   74:} /* End of DS_CmdNoop() */
+        -:   75:
+        -:   76:
+        -:   77:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -:   78:/*                                                                 */
+        -:   79:/* DS_CmdReset() - reset hk telemetry counters command             */
+        -:   80:/*                                                                 */
+        -:   81:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -:   82:
+        3:   83:void DS_CmdReset(CFE_SB_MsgPtr_t MessagePtr)
+        -:   84:{
+        3:   85:    uint16 ActualLength = CFE_SB_GetTotalMsgLength(MessagePtr);
+        3:   86:    uint16 ExpectedLength = sizeof(DS_ResetCmd_t);
+        -:   87:
+        3:   88:    if (ExpectedLength != ActualLength)
+        -:   89:    {
+        -:   90:        /*
+        -:   91:        ** Invalid command packet length...
+        -:   92:        */
+        1:   93:        DS_AppData.CmdRejectedCounter++;
+        -:   94:
+        1:   95:        CFE_EVS_SendEvent(DS_RESET_CMD_ERR_EID, CFE_EVS_ERROR,
+        -:   96:                         "Invalid RESET command length: expected = %d, actual = %d",
+        -:   97:                          ExpectedLength, ActualLength);
+        -:   98:    }
+        -:   99:    else
+        -:  100:    {
+        -:  101:        /*
+        -:  102:        ** Reset application command counters...
+        -:  103:        */
+        2:  104:        DS_AppData.CmdAcceptedCounter = 0;
+        2:  105:        DS_AppData.CmdRejectedCounter = 0;
+        -:  106:
+        -:  107:        /*
+        -:  108:        ** Reset packet storage counters...
+        -:  109:        */
+        2:  110:        DS_AppData.DisabledPktCounter = 0;
+        2:  111:        DS_AppData.IgnoredPktCounter  = 0;
+        2:  112:        DS_AppData.FilteredPktCounter = 0;
+        2:  113:        DS_AppData.PassedPktCounter   = 0;
+        -:  114:
+        -:  115:        /*
+        -:  116:        ** Reset file I/O counters...
+        -:  117:        */
+        2:  118:        DS_AppData.FileWriteCounter     = 0;
+        2:  119:        DS_AppData.FileWriteErrCounter  = 0;
+        2:  120:        DS_AppData.FileUpdateCounter    = 0;
+        2:  121:        DS_AppData.FileUpdateErrCounter = 0;
+        -:  122:
+        -:  123:        /*
+        -:  124:        ** Reset configuration table counters...
+        -:  125:        */
+        2:  126:        DS_AppData.DestTblLoadCounter   = 0;
+        2:  127:        DS_AppData.DestTblErrCounter    = 0;
+        2:  128:        DS_AppData.FilterTblLoadCounter = 0;
+        2:  129:        DS_AppData.FilterTblErrCounter  = 0;
+        -:  130:
+        2:  131:        CFE_EVS_SendEvent(DS_RESET_CMD_EID, CFE_EVS_DEBUG, "Reset counters command");
+        -:  132:    }
+        -:  133:
+        3:  134:    return;
+        -:  135:
+        -:  136:} /* End of DS_CmdReset() */
+        -:  137:
+        -:  138:
+        -:  139:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -:  140:/*                                                                 */
+        -:  141:/* DS_CmdSetAppState() - set application ena/dis state             */
+        -:  142:/*                                                                 */
+        -:  143:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -:  144:
+        4:  145:void DS_CmdSetAppState(CFE_SB_MsgPtr_t MessagePtr)
+        -:  146:{
+        4:  147:    DS_AppStateCmd_t *DS_AppStateCmd = (DS_AppStateCmd_t *) MessagePtr;
+        4:  148:    uint16 ActualLength = CFE_SB_GetTotalMsgLength(MessagePtr);
+        4:  149:    uint16 ExpectedLength = sizeof(DS_AppStateCmd_t);
+        -:  150:
+        4:  151:    if (ExpectedLength != ActualLength)
+        -:  152:    {
+        -:  153:        /*
+        -:  154:        ** Invalid command packet length...
+        -:  155:        */
+        1:  156:        DS_AppData.CmdRejectedCounter++;
+        -:  157:
+        1:  158:        CFE_EVS_SendEvent(DS_ENADIS_CMD_ERR_EID, CFE_EVS_ERROR,
+        -:  159:                         "Invalid APP STATE command length: expected = %d, actual = %d",
+        -:  160:                          ExpectedLength, ActualLength);
+        -:  161:    }
+        3:  162:    else if (DS_TableVerifyState(DS_AppStateCmd->EnableState) == FALSE)
+        -:  163:    {
+        -:  164:        /*
+        -:  165:        ** Invalid enable/disable state...
+        -:  166:        */
+        1:  167:        DS_AppData.CmdRejectedCounter++;
+        -:  168:
+        1:  169:        CFE_EVS_SendEvent(DS_ENADIS_CMD_ERR_EID, CFE_EVS_ERROR,
+        -:  170:                         "Invalid APP STATE command arg: app state = %d",
+        1:  171:                          DS_AppStateCmd->EnableState);
+        -:  172:    }
+        -:  173:    else
+        -:  174:    {
+        -:  175:        /*
+        -:  176:        ** Set new DS application enable/disable state...
+        -:  177:        */
+        2:  178:        DS_AppData.AppEnableState = DS_AppStateCmd->EnableState;
+        -:  179:
+        -:  180:        /*
+        -:  181:        ** Update the Critical Data Store (CDS)...
+        -:  182:        */
+        2:  183:        DS_TableUpdateCDS();
+        -:  184:
+        2:  185:        DS_AppData.CmdAcceptedCounter++;
+        -:  186:
+        2:  187:        CFE_EVS_SendEvent(DS_ENADIS_CMD_EID, CFE_EVS_DEBUG,
+        -:  188:                         "APP STATE command: state = %d",
+        2:  189:                          DS_AppStateCmd->EnableState);
+        -:  190:    }
+        -:  191:
+        4:  192:    return;
+        -:  193:
+        -:  194:} /* End of DS_CmdSetAppState() */
+        -:  195:
+        -:  196:
+        -:  197:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -:  198:/*                                                                 */
+        -:  199:/* DS_CmdSetFilterFile() - set packet filter file index            */
+        -:  200:/*                                                                 */
+        -:  201:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -:  202:
+        8:  203:void DS_CmdSetFilterFile(CFE_SB_MsgPtr_t MessagePtr)
+        -:  204:{
+        8:  205:    DS_FilterFileCmd_t *DS_FilterFileCmd = (DS_FilterFileCmd_t *) MessagePtr;
+        8:  206:    uint16 ActualLength = CFE_SB_GetTotalMsgLength(MessagePtr);
+        8:  207:    uint16 ExpectedLength = sizeof(DS_FilterFileCmd_t);
+        -:  208:    DS_PacketEntry_t *pPacketEntry;
+        -:  209:    DS_FilterParms_t *pFilterParms;
+        -:  210:    int32 FilterTableIndex;
+        -:  211:
+        8:  212:    if (ExpectedLength != ActualLength)
+        -:  213:    {
+        -:  214:        /*
+        -:  215:        ** Invalid command packet length...
+        -:  216:        */
+        1:  217:        DS_AppData.CmdRejectedCounter++;
+        -:  218:
+        1:  219:        CFE_EVS_SendEvent(DS_FILE_CMD_ERR_EID, CFE_EVS_ERROR,
+        -:  220:                         "Invalid FILTER FILE command length: expected = %d, actual = %d",
+        -:  221:                          ExpectedLength, ActualLength);
+        -:  222:    }
+        7:  223:    else if (DS_FilterFileCmd->MessageID == DS_UNUSED)
+        -:  224:    {
+        -:  225:        /*
+        -:  226:        ** Invalid packet messageID...
+        -:  227:        */
+        1:  228:        DS_AppData.CmdRejectedCounter++;
+        -:  229:
+        1:  230:        CFE_EVS_SendEvent(DS_FILE_CMD_ERR_EID, CFE_EVS_ERROR,
+        -:  231:                         "Invalid FILTER FILE command arg: invalid messageID = 0x%4X",
+        1:  232:                          DS_FilterFileCmd->MessageID);
+        -:  233:    }
+        6:  234:    else if (DS_FilterFileCmd->FilterParmsIndex >= DS_FILTERS_PER_PACKET)
+        -:  235:    {
+        -:  236:        /*
+        -:  237:        ** Invalid packet filter parameters index...
+        -:  238:        */
+        1:  239:        DS_AppData.CmdRejectedCounter++;
+        -:  240:
+        1:  241:        CFE_EVS_SendEvent(DS_FILE_CMD_ERR_EID, CFE_EVS_ERROR,
+        -:  242:                         "Invalid FILTER FILE command arg: filter parameters index = %d",
+        1:  243:                          DS_FilterFileCmd->FilterParmsIndex);
+        -:  244:    }
+        5:  245:    else if (DS_TableVerifyFileIndex(DS_FilterFileCmd->FileTableIndex) == FALSE)
+        -:  246:    {
+        -:  247:        /*
+        -:  248:        ** Invalid destination file table index...
+        -:  249:        */
+        1:  250:        DS_AppData.CmdRejectedCounter++;
+        -:  251:
+        1:  252:        CFE_EVS_SendEvent(DS_FILE_CMD_ERR_EID, CFE_EVS_ERROR,
+        -:  253:                         "Invalid FILTER FILE command arg: file table index = %d",
+        1:  254:                          DS_FilterFileCmd->FileTableIndex);
+        -:  255:    }
+        4:  256:    else if (DS_AppData.FilterTblPtr == (DS_FilterTable_t *) NULL)
+        -:  257:    {
+        -:  258:        /*
+        -:  259:        ** Must have a valid packet filter table loaded...
+        -:  260:        */
+        2:  261:        DS_AppData.CmdRejectedCounter++;
+        -:  262:
+        2:  263:        CFE_EVS_SendEvent(DS_FILE_CMD_ERR_EID, CFE_EVS_ERROR,
+        -:  264:                         "Invalid FILTER FILE command: packet filter table is not loaded");
+        -:  265:    }
+        -:  266:    else
+        -:  267:    {
+        -:  268:        /*
+        -:  269:        ** Get the index of the filter table entry for this message ID...
+        -:  270:        */
+        2:  271:        FilterTableIndex = DS_TableFindMsgID(DS_FilterFileCmd->MessageID);
+        -:  272:
+        2:  273:        if (FilterTableIndex == DS_INDEX_NONE)
+        -:  274:        {
+        -:  275:            /*
+        -:  276:            ** Must not create - may only modify existing packet filter...
+        -:  277:            */
+        1:  278:            DS_AppData.CmdRejectedCounter++;
+        -:  279:
+        1:  280:            CFE_EVS_SendEvent(DS_FILE_CMD_ERR_EID, CFE_EVS_ERROR,
+        -:  281:                             "Invalid FILTER FILE command: Message ID 0x%04X is not in filter table",
+        1:  282:                              DS_FilterFileCmd->MessageID);
+        -:  283:        }
+        -:  284:        else
+        -:  285:        {
+        -:  286:            /*
+        -:  287:            ** Set new packet filter value (file table index)...
+        -:  288:            */
+        1:  289:            pPacketEntry = &DS_AppData.FilterTblPtr->Packet[FilterTableIndex];
+        1:  290:            pFilterParms = &pPacketEntry->Filter[DS_FilterFileCmd->FilterParmsIndex];
+        -:  291:
+        1:  292:            pFilterParms->FileTableIndex = DS_FilterFileCmd->FileTableIndex;
+        -:  293:
+        -:  294:            /*
+        -:  295:            ** Notify cFE that we have modified the table data...
+        -:  296:            */
+        1:  297:            CFE_TBL_Modified(DS_AppData.FilterTblHandle);
+        -:  298:
+        1:  299:            DS_AppData.CmdAcceptedCounter++;
+        -:  300:
+        3:  301:            CFE_EVS_SendEvent(DS_FILE_CMD_EID, CFE_EVS_DEBUG,
+        -:  302:                             "FILTER FILE command: MID = 0x%04X, index = %d, filter = %d, file = %d",
+        1:  303:                              DS_FilterFileCmd->MessageID, (int)FilterTableIndex,
+        1:  304:                              DS_FilterFileCmd->FilterParmsIndex,
+        1:  305:                              DS_FilterFileCmd->FileTableIndex);
+        -:  306:        }
+        -:  307:    }
+        -:  308:
+        8:  309:    return;
+        -:  310:
+        -:  311:} /* End of DS_CmdSetFilterFile() */
+        -:  312:
+        -:  313:
+        -:  314:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -:  315:/*                                                                 */
+        -:  316:/* DS_CmdSetFilterType() - set pkt filter filename type            */
+        -:  317:/*                                                                 */
+        -:  318:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -:  319:
+        8:  320:void DS_CmdSetFilterType(CFE_SB_MsgPtr_t MessagePtr)
+        -:  321:{
+        8:  322:    DS_FilterTypeCmd_t *DS_FilterTypeCmd = (DS_FilterTypeCmd_t *) MessagePtr;
+        8:  323:    uint16 ActualLength = CFE_SB_GetTotalMsgLength(MessagePtr);
+        8:  324:    uint16 ExpectedLength = sizeof(DS_FilterTypeCmd_t);
+        -:  325:    DS_PacketEntry_t *pPacketEntry;
+        -:  326:    DS_FilterParms_t *pFilterParms;
+        -:  327:    int32 FilterTableIndex;
+        -:  328:
+        8:  329:    if (ExpectedLength != ActualLength)
+        -:  330:    {
+        -:  331:        /*
+        -:  332:        ** Invalid command packet length...
+        -:  333:        */
+        1:  334:        DS_AppData.CmdRejectedCounter++;
+        -:  335:
+        1:  336:        CFE_EVS_SendEvent(DS_FTYPE_CMD_ERR_EID, CFE_EVS_ERROR,
+        -:  337:                         "Invalid FILTER TYPE command length: expected = %d, actual = %d",
+        -:  338:                          ExpectedLength, ActualLength);
+        -:  339:    }
+        7:  340:    else if (DS_FilterTypeCmd->MessageID == DS_UNUSED)
+        -:  341:    {
+        -:  342:        /*
+        -:  343:        ** Invalid packet messageID...
+        -:  344:        */
+        1:  345:        DS_AppData.CmdRejectedCounter++;
+        -:  346:
+        1:  347:        CFE_EVS_SendEvent(DS_FTYPE_CMD_ERR_EID, CFE_EVS_ERROR,
+        -:  348:                         "Invalid FILTER TYPE command arg: invalid messageID = 0x%04X",
+        1:  349:                          DS_FilterTypeCmd->MessageID);
+        -:  350:    }
+        6:  351:    else if (DS_FilterTypeCmd->FilterParmsIndex >= DS_FILTERS_PER_PACKET)
+        -:  352:    {
+        -:  353:        /*
+        -:  354:        ** Invalid packet filter parameters index...
+        -:  355:        */
+        1:  356:        DS_AppData.CmdRejectedCounter++;
+        -:  357:
+        1:  358:        CFE_EVS_SendEvent(DS_FTYPE_CMD_ERR_EID, CFE_EVS_ERROR,
+        -:  359:                         "Invalid FILTER TYPE command arg: filter parameters index = %d",
+        1:  360:                          DS_FilterTypeCmd->FilterParmsIndex);
+        -:  361:    }
+        5:  362:    else if (DS_TableVerifyType(DS_FilterTypeCmd->FilterType) == FALSE)
+        -:  363:    {
+        -:  364:        /*
+        -:  365:        ** Invalid packet filter filename type...
+        -:  366:        */
+        2:  367:        DS_AppData.CmdRejectedCounter++;
+        -:  368:
+        2:  369:        CFE_EVS_SendEvent(DS_FTYPE_CMD_ERR_EID, CFE_EVS_ERROR,
+        -:  370:                         "Invalid FILTER TYPE command arg: filter type = %d",
+        2:  371:                          DS_FilterTypeCmd->FilterType);
+        -:  372:    }
+        3:  373:    else if (DS_AppData.FilterTblPtr == (DS_FilterTable_t *) NULL)
+        -:  374:    {
+        -:  375:        /*
+        -:  376:        ** Must have a valid packet filter table loaded...
+        -:  377:        */
+        1:  378:        DS_AppData.CmdRejectedCounter++;
+        -:  379:
+        1:  380:        CFE_EVS_SendEvent(DS_FTYPE_CMD_ERR_EID, CFE_EVS_ERROR,
+        -:  381:                         "Invalid FILTER TYPE command: packet filter table is not loaded");
+        -:  382:    }
+        -:  383:    else
+        -:  384:    {
+        -:  385:        /*
+        -:  386:        ** Get the index of the filter table entry for this message ID...
+        -:  387:        */
+        2:  388:        FilterTableIndex = DS_TableFindMsgID(DS_FilterTypeCmd->MessageID);
+        -:  389:
+        2:  390:        if (FilterTableIndex == DS_INDEX_NONE)
+        -:  391:        {
+        -:  392:            /*
+        -:  393:            ** Must not create - may only modify existing packet filter...
+        -:  394:            */
+        1:  395:            DS_AppData.CmdRejectedCounter++;
+        -:  396:
+        1:  397:            CFE_EVS_SendEvent(DS_FTYPE_CMD_ERR_EID, CFE_EVS_ERROR,
+        -:  398:                             "Invalid FILTER TYPE command: Message ID 0x%04X is not in filter table",
+        1:  399:                              DS_FilterTypeCmd->MessageID);
+        -:  400:        }
+        -:  401:        else
+        -:  402:        {
+        -:  403:            /*
+        -:  404:            ** Set new packet filter value (filter type)...
+        -:  405:            */
+        1:  406:            pPacketEntry = &DS_AppData.FilterTblPtr->Packet[FilterTableIndex];
+        1:  407:            pFilterParms = &pPacketEntry->Filter[DS_FilterTypeCmd->FilterParmsIndex];
+        -:  408:
+        1:  409:            pFilterParms->FilterType = DS_FilterTypeCmd->FilterType;
+        -:  410:
+        -:  411:            /*
+        -:  412:            ** Notify cFE that we have modified the table data...
+        -:  413:            */
+        1:  414:            CFE_TBL_Modified(DS_AppData.FilterTblHandle);
+        -:  415:
+        1:  416:            DS_AppData.CmdAcceptedCounter++;
+        -:  417:
+        3:  418:            CFE_EVS_SendEvent(DS_FTYPE_CMD_EID, CFE_EVS_DEBUG,
+        -:  419:                             "FILTER TYPE command: MID = 0x%04X, index = %d, filter = %d, type = %d",
+        1:  420:                              DS_FilterTypeCmd->MessageID, (int)FilterTableIndex,
+        1:  421:                              DS_FilterTypeCmd->FilterParmsIndex,
+        1:  422:                              DS_FilterTypeCmd->FilterType);
+        -:  423:        }
+        -:  424:    }
+        -:  425:
+        8:  426:    return;
+        -:  427:
+        -:  428:} /* End of DS_CmdSetFilterType() */
+        -:  429:
+        -:  430:
+        -:  431:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -:  432:/*                                                                 */
+        -:  433:/* DS_CmdSetFilterParms() - set packet filter parameters           */
+        -:  434:/*                                                                 */
+        -:  435:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -:  436:
+        8:  437:void DS_CmdSetFilterParms(CFE_SB_MsgPtr_t MessagePtr)
+        -:  438:{
+        8:  439:    DS_FilterParmsCmd_t *DS_FilterParmsCmd = (DS_FilterParmsCmd_t *) MessagePtr;
+        8:  440:    uint16 ActualLength = CFE_SB_GetTotalMsgLength(MessagePtr);
+        8:  441:    uint16 ExpectedLength = sizeof(DS_FilterParmsCmd_t);
+        -:  442:    DS_PacketEntry_t *pPacketEntry;
+        -:  443:    DS_FilterParms_t *pFilterParms;
+        -:  444:    int32 FilterTableIndex;
+        -:  445:
+        8:  446:    if (ExpectedLength != ActualLength)
+        -:  447:    {
+        -:  448:        /*
+        -:  449:        ** Invalid command packet length...
+        -:  450:        */
+        1:  451:        DS_AppData.CmdRejectedCounter++;
+        -:  452:
+        1:  453:        CFE_EVS_SendEvent(DS_PARMS_CMD_ERR_EID, CFE_EVS_ERROR,
+        -:  454:                         "Invalid FILTER PARMS command length: expected = %d, actual = %d",
+        -:  455:                          ExpectedLength, ActualLength);
+        -:  456:    }
+        7:  457:    else if (DS_FilterParmsCmd->MessageID == DS_UNUSED)
+        -:  458:    {
+        -:  459:        /*
+        -:  460:        ** Invalid packet messageID...
+        -:  461:        */
+        2:  462:        DS_AppData.CmdRejectedCounter++;
+        -:  463:
+        2:  464:        CFE_EVS_SendEvent(DS_PARMS_CMD_ERR_EID, CFE_EVS_ERROR,
+        -:  465:                         "Invalid FILTER PARMS command arg: invalid messageID = 0x%04X",
+        2:  466:                          DS_FilterParmsCmd->MessageID);
+        -:  467:    }
+        5:  468:    else if (DS_FilterParmsCmd->FilterParmsIndex >= DS_FILTERS_PER_PACKET)
+        -:  469:    {
+        -:  470:        /*
+        -:  471:        ** Invalid packet filter parameters index...
+        -:  472:        */
+        1:  473:        DS_AppData.CmdRejectedCounter++;
+        -:  474:
+        1:  475:        CFE_EVS_SendEvent(DS_PARMS_CMD_ERR_EID, CFE_EVS_ERROR,
+        -:  476:                         "Invalid FILTER PARMS command arg: filter parameters index = %d",
+        1:  477:                          DS_FilterParmsCmd->FilterParmsIndex);
+        -:  478:    }
+        8:  479:    else if (DS_TableVerifyParms(DS_FilterParmsCmd->Algorithm_N,
+        4:  480:                                 DS_FilterParmsCmd->Algorithm_X,
+        4:  481:                                 DS_FilterParmsCmd->Algorithm_O) == FALSE)
+        -:  482:    {
+        -:  483:        /*
+        -:  484:        ** Invalid packet filter algorithm parameters...
+        -:  485:        */
+        1:  486:        DS_AppData.CmdRejectedCounter++;
+        -:  487:
+        3:  488:        CFE_EVS_SendEvent(DS_PARMS_CMD_ERR_EID, CFE_EVS_ERROR,
+        -:  489:                         "Invalid FILTER PARMS command arg: N = %d, X = %d, O = %d",
+        1:  490:                          DS_FilterParmsCmd->Algorithm_N,
+        1:  491:                          DS_FilterParmsCmd->Algorithm_X,
+        1:  492:                          DS_FilterParmsCmd->Algorithm_O);
+        -:  493:    }
+        3:  494:    else if (DS_AppData.FilterTblPtr == (DS_FilterTable_t *) NULL)
+        -:  495:    {
+        -:  496:        /*
+        -:  497:        ** Must have a valid packet filter table loaded...
+        -:  498:        */
+        1:  499:        DS_AppData.CmdRejectedCounter++;
+        -:  500:
+        1:  501:        CFE_EVS_SendEvent(DS_PARMS_CMD_ERR_EID, CFE_EVS_ERROR,
+        -:  502:                         "Invalid FILTER PARMS command: packet filter table is not loaded");
+        -:  503:    }
+        -:  504:    else
+        -:  505:    {
+        -:  506:        /*
+        -:  507:        ** Get the index of the filter table entry for this message ID...
+        -:  508:        */
+        2:  509:        FilterTableIndex = DS_TableFindMsgID(DS_FilterParmsCmd->MessageID);
+        -:  510:
+        2:  511:        if (FilterTableIndex == DS_INDEX_NONE)
+        -:  512:        {
+        -:  513:            /*
+        -:  514:            ** Must not create - may only modify existing packet filter...
+        -:  515:            */
+        1:  516:            DS_AppData.CmdRejectedCounter++;
+        -:  517:
+        1:  518:            CFE_EVS_SendEvent(DS_PARMS_CMD_ERR_EID, CFE_EVS_ERROR,
+        -:  519:                             "Invalid FILTER PARMS command: Message ID 0x%04X is not in filter table",
+        1:  520:                              DS_FilterParmsCmd->MessageID);
+        -:  521:        }
+        -:  522:        else
+        -:  523:        {
+        -:  524:            /*
+        -:  525:            ** Set new packet filter values (algorithm)...
+        -:  526:            */
+        1:  527:            pPacketEntry = &DS_AppData.FilterTblPtr->Packet[FilterTableIndex];
+        1:  528:            pFilterParms = &pPacketEntry->Filter[DS_FilterParmsCmd->FilterParmsIndex];
+        -:  529:
+        1:  530:            pFilterParms->Algorithm_N = DS_FilterParmsCmd->Algorithm_N;
+        1:  531:            pFilterParms->Algorithm_X = DS_FilterParmsCmd->Algorithm_X;
+        1:  532:            pFilterParms->Algorithm_O = DS_FilterParmsCmd->Algorithm_O;
+        -:  533:
+        -:  534:            /*
+        -:  535:            ** Notify cFE that we have modified the table data...
+        -:  536:            */
+        1:  537:            CFE_TBL_Modified(DS_AppData.FilterTblHandle);
+        -:  538:
+        1:  539:            DS_AppData.CmdAcceptedCounter++;
+        -:  540:
+        5:  541:            CFE_EVS_SendEvent(DS_PARMS_CMD_EID, CFE_EVS_DEBUG,
+        -:  542:                             "FILTER PARMS command: MID = 0x%04X, index = %d, filter = %d, N = %d, X = %d, O = %d",
+        2:  543:                              DS_FilterParmsCmd->MessageID, (int)FilterTableIndex, DS_FilterParmsCmd->FilterParmsIndex,
+        3:  544:                              pFilterParms->Algorithm_N, pFilterParms->Algorithm_X, pFilterParms->Algorithm_O);
+        -:  545:        }
+        -:  546:    }
+        -:  547:
+        8:  548:    return;
+        -:  549:
+        -:  550:} /* End of DS_CmdSetFilterParms() */
+        -:  551:
+        -:  552:
+        -:  553:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -:  554:/*                                                                 */
+        -:  555:/* DS_CmdSetDestType() - set destination filename type             */
+        -:  556:/*                                                                 */
+        -:  557:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -:  558:
+        6:  559:void DS_CmdSetDestType(CFE_SB_MsgPtr_t MessagePtr)
+        -:  560:{
+        6:  561:    DS_DestTypeCmd_t *DS_DestTypeCmd = (DS_DestTypeCmd_t *) MessagePtr;
+        6:  562:    uint16 ActualLength = CFE_SB_GetTotalMsgLength(MessagePtr);
+        6:  563:    uint16 ExpectedLength = sizeof(DS_DestTypeCmd_t);
+        -:  564:    DS_DestFileEntry_t *pDest;
+        -:  565:
+        6:  566:    if (ExpectedLength != ActualLength)
+        -:  567:    {
+        -:  568:        /*
+        -:  569:        ** Invalid command packet length...
+        -:  570:        */
+        1:  571:        DS_AppData.CmdRejectedCounter++;
+        -:  572:
+        1:  573:        CFE_EVS_SendEvent(DS_NTYPE_CMD_ERR_EID, CFE_EVS_ERROR,
+        -:  574:                         "Invalid DEST TYPE command length: expected = %d, actual = %d",
+        -:  575:                          ExpectedLength, ActualLength);
+        -:  576:    }
+        5:  577:    else if (DS_TableVerifyFileIndex(DS_DestTypeCmd->FileTableIndex) == FALSE)
+        -:  578:    {
+        -:  579:        /*
+        -:  580:        ** Invalid destination file table index...
+        -:  581:        */
+        1:  582:        DS_AppData.CmdRejectedCounter++;
+        -:  583:
+        1:  584:        CFE_EVS_SendEvent(DS_NTYPE_CMD_ERR_EID, CFE_EVS_ERROR,
+        -:  585:                         "Invalid DEST TYPE command arg: file table index = %d",
+        1:  586:                          DS_DestTypeCmd->FileTableIndex);
+        -:  587:    }
+        4:  588:    else if (DS_TableVerifyType(DS_DestTypeCmd->FileNameType) == FALSE)
+        -:  589:    {
+        -:  590:        /*
+        -:  591:        ** Invalid destination filename type...
+        -:  592:        */
+        2:  593:        DS_AppData.CmdRejectedCounter++;
+        -:  594:
+        2:  595:        CFE_EVS_SendEvent(DS_NTYPE_CMD_ERR_EID, CFE_EVS_ERROR,
+        -:  596:                         "Invalid DEST TYPE command arg: filename type = %d",
+        2:  597:                          DS_DestTypeCmd->FileNameType);
+        -:  598:    }
+        2:  599:    else if (DS_AppData.DestFileTblPtr == (DS_DestFileTable_t *) NULL)
+        -:  600:    {
+        -:  601:        /*
+        -:  602:        ** Must have a valid destination file table loaded...
+        -:  603:        */
+        1:  604:        DS_AppData.CmdRejectedCounter++;
+        -:  605:
+        1:  606:        CFE_EVS_SendEvent(DS_NTYPE_CMD_ERR_EID, CFE_EVS_ERROR,
+        -:  607:                         "Invalid DEST TYPE command: destination file table is not loaded");
+        -:  608:    }
+        -:  609:    else
+        -:  610:    {
+        -:  611:        /*
+        -:  612:        ** Set new destination table filename type...
+        -:  613:        */
+        1:  614:        pDest = &DS_AppData.DestFileTblPtr->File[DS_DestTypeCmd->FileTableIndex];
+        1:  615:        pDest->FileNameType = DS_DestTypeCmd->FileNameType;
+        -:  616:
+        -:  617:        /*
+        -:  618:        ** Notify cFE that we have modified the table data...
+        -:  619:        */
+        1:  620:        CFE_TBL_Modified(DS_AppData.DestFileTblHandle);
+        -:  621:
+        1:  622:        DS_AppData.CmdAcceptedCounter++;
+        -:  623:
+        2:  624:        CFE_EVS_SendEvent(DS_NTYPE_CMD_EID, CFE_EVS_DEBUG,
+        -:  625:                         "DEST TYPE command: file table index = %d, filename type = %d",
+        2:  626:                          DS_DestTypeCmd->FileTableIndex, DS_DestTypeCmd->FileNameType);
+        -:  627:    }
+        -:  628:
+        6:  629:    return;
+        -:  630:
+        -:  631:} /* End of DS_CmdSetDestType() */
+        -:  632:
+        -:  633:
+        -:  634:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -:  635:/*                                                                 */
+        -:  636:/* DS_CmdSetDestState() - set dest file ena/dis state              */
+        -:  637:/*                                                                 */
+        -:  638:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -:  639:
+        6:  640:void DS_CmdSetDestState(CFE_SB_MsgPtr_t MessagePtr)
+        -:  641:{
+        6:  642:    DS_DestStateCmd_t *DS_DestStateCmd = (DS_DestStateCmd_t *) MessagePtr;
+        6:  643:    uint16 ActualLength = CFE_SB_GetTotalMsgLength(MessagePtr);
+        6:  644:    uint16 ExpectedLength = sizeof(DS_DestStateCmd_t);
+        -:  645:
+        6:  646:    if (ExpectedLength != ActualLength)
+        -:  647:    {
+        -:  648:        /*
+        -:  649:        ** Invalid command packet length...
+        -:  650:        */
+        1:  651:        DS_AppData.CmdRejectedCounter++;
+        -:  652:
+        1:  653:        CFE_EVS_SendEvent(DS_STATE_CMD_ERR_EID, CFE_EVS_ERROR,
+        -:  654:                         "Invalid DEST STATE command length: expected = %d, actual = %d",
+        -:  655:                          ExpectedLength, ActualLength);
+        -:  656:    }
+        5:  657:    else if (DS_TableVerifyFileIndex(DS_DestStateCmd->FileTableIndex) == FALSE)
+        -:  658:    {
+        -:  659:        /*
+        -:  660:        ** Invalid destination file table index...
+        -:  661:        */
+        1:  662:        DS_AppData.CmdRejectedCounter++;
+        -:  663:
+        1:  664:        CFE_EVS_SendEvent(DS_STATE_CMD_ERR_EID, CFE_EVS_ERROR,
+        -:  665:                         "Invalid DEST STATE command arg: file table index = %d",
+        1:  666:                          DS_DestStateCmd->FileTableIndex);
+        -:  667:    }
+        4:  668:    else if (DS_TableVerifyState(DS_DestStateCmd->EnableState) == FALSE)
+        -:  669:    {
+        -:  670:        /*
+        -:  671:        ** Invalid destination file state...
+        -:  672:        */
+        1:  673:        DS_AppData.CmdRejectedCounter++;
+        -:  674:
+        1:  675:        CFE_EVS_SendEvent(DS_STATE_CMD_ERR_EID, CFE_EVS_ERROR,
+        -:  676:                         "Invalid DEST STATE command arg: file state = %d",
+        1:  677:                          DS_DestStateCmd->EnableState);
+        -:  678:    }
+        3:  679:    else if (DS_AppData.DestFileTblPtr == (DS_DestFileTable_t *) NULL)
+        -:  680:    {
+        -:  681:        /*
+        -:  682:        ** Must have a valid destination file table loaded...
+        -:  683:        */
+        2:  684:        DS_AppData.CmdRejectedCounter++;
+        -:  685:
+        2:  686:        CFE_EVS_SendEvent(DS_STATE_CMD_ERR_EID, CFE_EVS_ERROR,
+        -:  687:                         "Invalid DEST STATE command: destination file table is not loaded");
+        -:  688:    }
+        -:  689:    else
+        -:  690:    {
+        -:  691:        /*
+        -:  692:        ** Set new destination table file state in table and in current status...
+        -:  693:        */
+        1:  694:        DS_AppData.DestFileTblPtr->File[DS_DestStateCmd->FileTableIndex].EnableState = DS_DestStateCmd->EnableState;
+        1:  695:        DS_AppData.FileStatus[DS_DestStateCmd->FileTableIndex].FileState = DS_DestStateCmd->EnableState;
+        -:  696:
+        -:  697:        /*
+        -:  698:        ** Notify cFE that we have modified the table data...
+        -:  699:        */
+        1:  700:        CFE_TBL_Modified(DS_AppData.DestFileTblHandle);
+        -:  701:
+        1:  702:        DS_AppData.CmdAcceptedCounter++;
+        -:  703:
+        2:  704:        CFE_EVS_SendEvent(DS_STATE_CMD_EID, CFE_EVS_DEBUG,
+        -:  705:                         "DEST STATE command: file table index = %d, file state = %d",
+        2:  706:                          DS_DestStateCmd->FileTableIndex, DS_DestStateCmd->EnableState);
+        -:  707:    }
+        -:  708:
+        6:  709:    return;
+        -:  710:
+        -:  711:} /* End of DS_CmdSetDestState() */
+        -:  712:
+        -:  713:
+        -:  714:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -:  715:/*                                                                 */
+        -:  716:/* DS_CmdSetDestPath() - set path portion of filename              */
+        -:  717:/*                                                                 */
+        -:  718:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -:  719:
+        6:  720:void DS_CmdSetDestPath(CFE_SB_MsgPtr_t MessagePtr)
+        -:  721:{
+        6:  722:    DS_DestPathCmd_t *DS_DestPathCmd = (DS_DestPathCmd_t *) MessagePtr;
+        6:  723:    uint16 ActualLength = CFE_SB_GetTotalMsgLength(MessagePtr);
+        6:  724:    uint16 ExpectedLength = sizeof(DS_DestPathCmd_t);
+        -:  725:    DS_DestFileEntry_t *pDest;
+        -:  726:
+        6:  727:    if (ExpectedLength != ActualLength)
+        -:  728:    {
+        -:  729:        /*
+        -:  730:        ** Invalid command packet length...
+        -:  731:        */
+        1:  732:        DS_AppData.CmdRejectedCounter++;
+        -:  733:
+        1:  734:        CFE_EVS_SendEvent(DS_PATH_CMD_ERR_EID, CFE_EVS_ERROR,
+        -:  735:                         "Invalid DEST PATH command length: expected = %d, actual = %d",
+        -:  736:                          ExpectedLength, ActualLength);
+        -:  737:    }
+        5:  738:    else if (DS_TableVerifyFileIndex(DS_DestPathCmd->FileTableIndex) == FALSE)
+        -:  739:    {
+        -:  740:        /*
+        -:  741:        ** Invalid destination file table index...
+        -:  742:        */
+        1:  743:        DS_AppData.CmdRejectedCounter++;
+        -:  744:
+        1:  745:        CFE_EVS_SendEvent(DS_PATH_CMD_ERR_EID, CFE_EVS_ERROR,
+        -:  746:                         "Invalid DEST PATH command arg: file table index = %d",
+        -:  747:                          (int)DS_DestPathCmd->FileTableIndex);
+        -:  748:    }
+        4:  749:    else if (CFS_VerifyString(DS_DestPathCmd->Pathname, DS_PATHNAME_BUFSIZE,
+        -:  750:                              DS_STRING_REQUIRED, DS_FILENAME_TEXT) == FALSE)
+        -:  751:    {
+        -:  752:        /*
+        -:  753:        ** Invalid destination pathname...
+        -:  754:        */
+        2:  755:        DS_AppData.CmdRejectedCounter++;
+        -:  756:
+        2:  757:        CFE_EVS_SendEvent(DS_PATH_CMD_ERR_EID, CFE_EVS_ERROR,
+        -:  758:                         "Invalid DEST PATH command arg: pathname");
+        -:  759:    }
+        2:  760:    else if (DS_AppData.DestFileTblPtr == (DS_DestFileTable_t *) NULL)
+        -:  761:    {
+        -:  762:        /*
+        -:  763:        ** Must have a valid destination file table loaded...
+        -:  764:        */
+        1:  765:        DS_AppData.CmdRejectedCounter++;
+        -:  766:
+        1:  767:        CFE_EVS_SendEvent(DS_PATH_CMD_ERR_EID, CFE_EVS_ERROR,
+        -:  768:                         "Invalid DEST PATH command: destination file table is not loaded");
+        -:  769:    }
+        -:  770:    else
+        -:  771:    {
+        -:  772:        /*
+        -:  773:        ** Set path portion of destination table filename...
+        -:  774:        */
+        1:  775:        pDest = &DS_AppData.DestFileTblPtr->File[DS_DestPathCmd->FileTableIndex];
+        1:  776:        strcpy(pDest->Pathname, DS_DestPathCmd->Pathname);
+        -:  777:
+        -:  778:        /*
+        -:  779:        ** Notify cFE that we have modified the table data...
+        -:  780:        */
+        1:  781:        CFE_TBL_Modified(DS_AppData.DestFileTblHandle);
+        -:  782:
+        1:  783:        DS_AppData.CmdAcceptedCounter++;
+        -:  784:
+        1:  785:        CFE_EVS_SendEvent(DS_PATH_CMD_EID, CFE_EVS_DEBUG,
+        -:  786:                         "DEST PATH command: file table index = %d, pathname = '%s'",
+        -:  787:                          (int)DS_DestPathCmd->FileTableIndex, DS_DestPathCmd->Pathname);
+        -:  788:    }
+        -:  789:
+        6:  790:    return;
+        -:  791:
+        -:  792:} /* End of DS_CmdSetDestPath() */
+        -:  793:
+        -:  794:
+        -:  795:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -:  796:/*                                                                 */
+        -:  797:/* DS_CmdSetDestBase() - set base portion of filename              */
+        -:  798:/*                                                                 */
+        -:  799:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -:  800:
+        6:  801:void DS_CmdSetDestBase(CFE_SB_MsgPtr_t MessagePtr)
+        -:  802:{
+        6:  803:    DS_DestBaseCmd_t *DS_DestBaseCmd = (DS_DestBaseCmd_t *) MessagePtr;
+        6:  804:    uint16 ActualLength = CFE_SB_GetTotalMsgLength(MessagePtr);
+        6:  805:    uint16 ExpectedLength = sizeof(DS_DestBaseCmd_t);
+        -:  806:    DS_DestFileEntry_t *pDest;
+        -:  807:
+        6:  808:    if (ExpectedLength != ActualLength)
+        -:  809:    {
+        -:  810:        /*
+        -:  811:        ** Invalid command packet length...
+        -:  812:        */
+        1:  813:        DS_AppData.CmdRejectedCounter++;
+        -:  814:
+        1:  815:        CFE_EVS_SendEvent(DS_BASE_CMD_ERR_EID, CFE_EVS_ERROR,
+        -:  816:                         "Invalid DEST BASE command length: expected = %d, actual = %d",
+        -:  817:                          ExpectedLength, ActualLength);
+        -:  818:    }
+        5:  819:    else if (DS_TableVerifyFileIndex(DS_DestBaseCmd->FileTableIndex) == FALSE)
+        -:  820:    {
+        -:  821:        /*
+        -:  822:        ** Invalid destination file table index...
+        -:  823:        */
+        1:  824:        DS_AppData.CmdRejectedCounter++;
+        -:  825:
+        1:  826:        CFE_EVS_SendEvent(DS_BASE_CMD_ERR_EID, CFE_EVS_ERROR,
+        -:  827:                         "Invalid DEST BASE command arg: file table index = %d",
+        -:  828:                          (int)DS_DestBaseCmd->FileTableIndex);
+        -:  829:    }
+        4:  830:    else if (CFS_VerifyString(DS_DestBaseCmd->Basename, DS_BASENAME_BUFSIZE,
+        -:  831:                              DS_STRING_OPTIONAL, DS_FILENAME_TEXT) == FALSE)
+        -:  832:    {
+        -:  833:        /*
+        -:  834:        ** Invalid destination base filename...
+        -:  835:        */
+        1:  836:        DS_AppData.CmdRejectedCounter++;
+        -:  837:
+        1:  838:        CFE_EVS_SendEvent(DS_BASE_CMD_ERR_EID, CFE_EVS_ERROR,
+        -:  839:                         "Invalid DEST BASE command arg: base filename");
+        -:  840:    }
+        3:  841:    else if (DS_AppData.DestFileTblPtr == (DS_DestFileTable_t *) NULL)
+        -:  842:    {
+        -:  843:        /*
+        -:  844:        ** Must have a valid destination file table loaded...
+        -:  845:        */
+        2:  846:        DS_AppData.CmdRejectedCounter++;
+        -:  847:
+        2:  848:        CFE_EVS_SendEvent(DS_BASE_CMD_ERR_EID, CFE_EVS_ERROR,
+        -:  849:                         "Invalid DEST BASE command: destination file table is not loaded");
+        -:  850:    }
+        -:  851:    else
+        -:  852:    {
+        -:  853:        /*
+        -:  854:        ** Set base portion of destination table filename...
+        -:  855:        */
+        1:  856:        pDest = &DS_AppData.DestFileTblPtr->File[DS_DestBaseCmd->FileTableIndex];
+        1:  857:        strcpy(pDest->Basename, DS_DestBaseCmd->Basename);
+        -:  858:
+        -:  859:        /*
+        -:  860:        ** Notify cFE that we have modified the table data...
+        -:  861:        */
+        1:  862:        CFE_TBL_Modified(DS_AppData.DestFileTblHandle);
+        -:  863:
+        1:  864:        DS_AppData.CmdAcceptedCounter++;
+        -:  865:
+        1:  866:        CFE_EVS_SendEvent(DS_BASE_CMD_EID, CFE_EVS_DEBUG,
+        -:  867:                         "DEST BASE command: file table index = %d, base filename = '%s'",
+        -:  868:                          (int)DS_DestBaseCmd->FileTableIndex, DS_DestBaseCmd->Basename);
+        -:  869:    }
+        -:  870:
+        6:  871:    return;
+        -:  872:
+        -:  873:} /* End of DS_CmdSetDestBase() */
+        -:  874:
+        -:  875:
+        -:  876:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -:  877:/*                                                                 */
+        -:  878:/* DS_CmdSetDestExt() - set extension portion of filename          */
+        -:  879:/*                                                                 */
+        -:  880:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -:  881:
+        6:  882:void DS_CmdSetDestExt(CFE_SB_MsgPtr_t MessagePtr)
+        -:  883:{
+        6:  884:    DS_DestExtCmd_t *DS_DestExtCmd = (DS_DestExtCmd_t *) MessagePtr;
+        6:  885:    uint16 ActualLength = CFE_SB_GetTotalMsgLength(MessagePtr);
+        6:  886:    uint16 ExpectedLength = sizeof(DS_DestExtCmd_t);
+        -:  887:    DS_DestFileEntry_t *pDest;
+        -:  888:
+        6:  889:    if (ExpectedLength != ActualLength)
+        -:  890:    {
+        -:  891:        /*
+        -:  892:        ** Invalid command packet length...
+        -:  893:        */
+        1:  894:        DS_AppData.CmdRejectedCounter++;
+        -:  895:
+        1:  896:        CFE_EVS_SendEvent(DS_EXT_CMD_ERR_EID, CFE_EVS_ERROR,
+        -:  897:                         "Invalid DEST EXT command length: expected = %d, actual = %d",
+        -:  898:                          ExpectedLength, ActualLength);
+        -:  899:    }
+        5:  900:    else if (DS_TableVerifyFileIndex(DS_DestExtCmd->FileTableIndex) == FALSE)
+        -:  901:    {
+        -:  902:        /*
+        -:  903:        ** Invalid destination file table index...
+        -:  904:        */
+        1:  905:        DS_AppData.CmdRejectedCounter++;
+        -:  906:
+        1:  907:        CFE_EVS_SendEvent(DS_EXT_CMD_ERR_EID, CFE_EVS_ERROR,
+        -:  908:                         "Invalid DEST EXT command arg: file table index = %d",
+        -:  909:                          (int)DS_DestExtCmd->FileTableIndex);
+        -:  910:    }
+        4:  911:    else if (CFS_VerifyString(DS_DestExtCmd->Extension, DS_EXTENSION_BUFSIZE,
+        -:  912:                              DS_STRING_OPTIONAL, DS_FILENAME_TEXT) == FALSE)
+        -:  913:    {
+        -:  914:        /*
+        -:  915:        ** Invalid destination filename extension...
+        -:  916:        */
+        1:  917:        DS_AppData.CmdRejectedCounter++;
+        -:  918:
+        1:  919:        CFE_EVS_SendEvent(DS_EXT_CMD_ERR_EID, CFE_EVS_ERROR,
+        -:  920:                         "Invalid DEST EXT command arg: extension");
+        -:  921:    }
+        3:  922:    else if (DS_AppData.DestFileTblPtr == (DS_DestFileTable_t *) NULL)
+        -:  923:    {
+        -:  924:        /*
+        -:  925:        ** Must have a valid destination file table loaded...
+        -:  926:        */
+        2:  927:        DS_AppData.CmdRejectedCounter++;
+        -:  928:
+        2:  929:        CFE_EVS_SendEvent(DS_EXT_CMD_ERR_EID, CFE_EVS_ERROR,
+        -:  930:                         "Invalid DEST EXT command: destination file table is not loaded");
+        -:  931:    }
+        -:  932:    else
+        -:  933:    {
+        -:  934:        /*
+        -:  935:        ** Set extension portion of destination table filename...
+        -:  936:        */
+        1:  937:        pDest = &DS_AppData.DestFileTblPtr->File[DS_DestExtCmd->FileTableIndex];
+        1:  938:        strcpy(pDest->Extension, DS_DestExtCmd->Extension);
+        -:  939:
+        -:  940:        /*
+        -:  941:        ** Notify cFE that we have modified the table data...
+        -:  942:        */
+        1:  943:        CFE_TBL_Modified(DS_AppData.DestFileTblHandle);
+        -:  944:
+        1:  945:        DS_AppData.CmdAcceptedCounter++;
+        -:  946:
+        1:  947:        CFE_EVS_SendEvent(DS_EXT_CMD_EID, CFE_EVS_DEBUG,
+        -:  948:                         "DEST EXT command: file table index = %d, extension = '%s'",
+        -:  949:                          (int)DS_DestExtCmd->FileTableIndex, DS_DestExtCmd->Extension);
+        -:  950:    }
+        -:  951:
+        6:  952:    return;
+        -:  953:
+        -:  954:} /* End of DS_CmdSetDestExt() */
+        -:  955:
+        -:  956:
+        -:  957:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -:  958:/*                                                                 */
+        -:  959:/* DS_CmdSetDestSize() - set maximum file size limit               */
+        -:  960:/*                                                                 */
+        -:  961:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -:  962:
+        6:  963:void DS_CmdSetDestSize(CFE_SB_MsgPtr_t MessagePtr)
+        -:  964:{
+        6:  965:    DS_DestSizeCmd_t *DS_DestSizeCmd = (DS_DestSizeCmd_t *) MessagePtr;
+        6:  966:    uint16 ActualLength = CFE_SB_GetTotalMsgLength(MessagePtr);
+        6:  967:    uint16 ExpectedLength = sizeof(DS_DestSizeCmd_t);
+        -:  968:    DS_DestFileEntry_t *pDest;
+        -:  969:
+        6:  970:    if (ExpectedLength != ActualLength)
+        -:  971:    {
+        -:  972:        /*
+        -:  973:        ** Invalid command packet length...
+        -:  974:        */
+        1:  975:        DS_AppData.CmdRejectedCounter++;
+        -:  976:
+        1:  977:        CFE_EVS_SendEvent(DS_SIZE_CMD_ERR_EID, CFE_EVS_ERROR,
+        -:  978:                         "Invalid DEST SIZE command length: expected = %d, actual = %d",
+        -:  979:                          ExpectedLength, ActualLength);
+        -:  980:    }
+        5:  981:    else if (DS_TableVerifyFileIndex(DS_DestSizeCmd->FileTableIndex) == FALSE)
+        -:  982:    {
+        -:  983:        /*
+        -:  984:        ** Invalid destination file table index...
+        -:  985:        */
+        1:  986:        DS_AppData.CmdRejectedCounter++;
+        -:  987:
+        1:  988:        CFE_EVS_SendEvent(DS_SIZE_CMD_ERR_EID, CFE_EVS_ERROR,
+        -:  989:                         "Invalid DEST SIZE command arg: file table index = %d",
+        -:  990:                          (int)DS_DestSizeCmd->FileTableIndex);
+        -:  991:    }
+        4:  992:    else if (DS_TableVerifySize(DS_DestSizeCmd->MaxFileSize) == FALSE)
+        -:  993:    {
+        -:  994:        /*
+        -:  995:        ** Invalid destination file size limit...
+        -:  996:        */
+        2:  997:        DS_AppData.CmdRejectedCounter++;
+        -:  998:
+        2:  999:        CFE_EVS_SendEvent(DS_SIZE_CMD_ERR_EID, CFE_EVS_ERROR,
+        -: 1000:                         "Invalid DEST SIZE command arg: size limit = %d",
+        -: 1001:                          (int)DS_DestSizeCmd->MaxFileSize);
+        -: 1002:    }
+        2: 1003:    else if (DS_AppData.DestFileTblPtr == (DS_DestFileTable_t *) NULL)
+        -: 1004:    {
+        -: 1005:        /*
+        -: 1006:        ** Must have a valid destination file table loaded...
+        -: 1007:        */
+        1: 1008:        DS_AppData.CmdRejectedCounter++;
+        -: 1009:
+        1: 1010:        CFE_EVS_SendEvent(DS_SIZE_CMD_ERR_EID, CFE_EVS_ERROR,
+        -: 1011:                         "Invalid DEST SIZE command: destination file table is not loaded");
+        -: 1012:    }
+        -: 1013:    else
+        -: 1014:    {
+        -: 1015:        /*
+        -: 1016:        ** Set size limit for destination file...
+        -: 1017:        */
+        1: 1018:        pDest = &DS_AppData.DestFileTblPtr->File[DS_DestSizeCmd->FileTableIndex];
+        1: 1019:        pDest->MaxFileSize = DS_DestSizeCmd->MaxFileSize;
+        -: 1020:
+        -: 1021:        /*
+        -: 1022:        ** Notify cFE that we have modified the table data...
+        -: 1023:        */
+        1: 1024:        CFE_TBL_Modified(DS_AppData.DestFileTblHandle);
+        -: 1025:
+        1: 1026:        DS_AppData.CmdAcceptedCounter++;
+        -: 1027:
+        1: 1028:        CFE_EVS_SendEvent(DS_SIZE_CMD_EID, CFE_EVS_DEBUG,
+        -: 1029:                         "DEST SIZE command: file table index = %d, size limit = %d",
+        -: 1030:                          (int)DS_DestSizeCmd->FileTableIndex, (int)DS_DestSizeCmd->MaxFileSize);
+        -: 1031:    }
+        -: 1032:
+        6: 1033:    return;
+        -: 1034:
+        -: 1035:} /* End of DS_CmdSetDestSize() */
+        -: 1036:
+        -: 1037:
+        -: 1038:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -: 1039:/*                                                                 */
+        -: 1040:/* DS_CmdSetDestAge() - set maximum file age limit                 */
+        -: 1041:/*                                                                 */
+        -: 1042:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -: 1043:
+        6: 1044:void DS_CmdSetDestAge(CFE_SB_MsgPtr_t MessagePtr)
+        -: 1045:{
+        6: 1046:    DS_DestAgeCmd_t *DS_DestAgeCmd = (DS_DestAgeCmd_t *) MessagePtr;
+        6: 1047:    uint16 ActualLength = CFE_SB_GetTotalMsgLength(MessagePtr);
+        6: 1048:    uint16 ExpectedLength = sizeof(DS_DestAgeCmd_t);
+        -: 1049:    DS_DestFileEntry_t *pDest;
+        -: 1050:
+        6: 1051:    if (ExpectedLength != ActualLength)
+        -: 1052:    {
+        -: 1053:        /*
+        -: 1054:        ** Invalid command packet length...
+        -: 1055:        */
+        1: 1056:        DS_AppData.CmdRejectedCounter++;
+        -: 1057:
+        1: 1058:        CFE_EVS_SendEvent(DS_AGE_CMD_ERR_EID, CFE_EVS_ERROR,
+        -: 1059:                         "Invalid DEST AGE command length: expected = %d, actual = %d",
+        -: 1060:                          ExpectedLength, ActualLength);
+        -: 1061:    }
+        5: 1062:    else if (DS_TableVerifyFileIndex(DS_DestAgeCmd->FileTableIndex) == FALSE)
+        -: 1063:    {
+        -: 1064:        /*
+        -: 1065:        ** Invalid destination file table index...
+        -: 1066:        */
+        1: 1067:        DS_AppData.CmdRejectedCounter++;
+        -: 1068:
+        1: 1069:        CFE_EVS_SendEvent(DS_AGE_CMD_ERR_EID, CFE_EVS_ERROR,
+        -: 1070:                         "Invalid DEST AGE command arg: file table index = %d",
+        -: 1071:                          (int)DS_DestAgeCmd->FileTableIndex);
+        -: 1072:    }
+        4: 1073:    else if (DS_TableVerifyAge(DS_DestAgeCmd->MaxFileAge) == FALSE)
+        -: 1074:    {
+        -: 1075:        /*
+        -: 1076:        ** Invalid destination file age limit...
+        -: 1077:        */
+        2: 1078:        DS_AppData.CmdRejectedCounter++;
+        -: 1079:
+        2: 1080:        CFE_EVS_SendEvent(DS_AGE_CMD_ERR_EID, CFE_EVS_ERROR,
+        -: 1081:                         "Invalid DEST AGE command arg: age limit = %d",
+        -: 1082:                          (int)DS_DestAgeCmd->MaxFileAge);
+        -: 1083:    }
+        2: 1084:    else if (DS_AppData.DestFileTblPtr == (DS_DestFileTable_t *) NULL)
+        -: 1085:    {
+        -: 1086:        /*
+        -: 1087:        ** Must have a valid destination file table loaded...
+        -: 1088:        */
+        1: 1089:        DS_AppData.CmdRejectedCounter++;
+        -: 1090:
+        1: 1091:        CFE_EVS_SendEvent(DS_AGE_CMD_ERR_EID, CFE_EVS_ERROR,
+        -: 1092:                         "Invalid DEST AGE command: destination file table is not loaded");
+        -: 1093:    }
+        -: 1094:    else
+        -: 1095:    {
+        -: 1096:        /*
+        -: 1097:        ** Set age limit for destination file...
+        -: 1098:        */
+        1: 1099:        pDest = &DS_AppData.DestFileTblPtr->File[DS_DestAgeCmd->FileTableIndex];
+        1: 1100:        pDest->MaxFileAge = DS_DestAgeCmd->MaxFileAge;
+        -: 1101:
+        -: 1102:        /*
+        -: 1103:        ** Notify cFE that we have modified the table data...
+        -: 1104:        */
+        1: 1105:        CFE_TBL_Modified(DS_AppData.DestFileTblHandle);
+        -: 1106:
+        1: 1107:        DS_AppData.CmdAcceptedCounter++;
+        -: 1108:
+        1: 1109:        CFE_EVS_SendEvent(DS_AGE_CMD_EID, CFE_EVS_DEBUG,
+        -: 1110:                         "DEST AGE command: file table index = %d, age limit = %d",
+        -: 1111:                          (int)DS_DestAgeCmd->FileTableIndex, (int)DS_DestAgeCmd->MaxFileAge);
+        -: 1112:    }
+        -: 1113:
+        6: 1114:    return;
+        -: 1115:
+        -: 1116:} /* End of DS_CmdSetDestAge() */
+        -: 1117:
+        -: 1118:
+        -: 1119:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -: 1120:/*                                                                 */
+        -: 1121:/* DS_CmdSetDestCount() - set seq cnt portion of filename          */
+        -: 1122:/*                                                                 */
+        -: 1123:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -: 1124:
+        6: 1125:void DS_CmdSetDestCount(CFE_SB_MsgPtr_t MessagePtr)
+        -: 1126:{
+        6: 1127:    DS_DestCountCmd_t *DS_DestCountCmd = (DS_DestCountCmd_t *) MessagePtr;
+        6: 1128:    uint16 ActualLength = CFE_SB_GetTotalMsgLength(MessagePtr);
+        6: 1129:    uint16 ExpectedLength = sizeof(DS_DestCountCmd_t);
+        -: 1130:    DS_AppFileStatus_t *FileStatus;
+        -: 1131:    DS_DestFileEntry_t *DestFile;
+        -: 1132:
+        6: 1133:    if (ExpectedLength != ActualLength)
+        -: 1134:    {
+        -: 1135:        /*
+        -: 1136:        ** Invalid command packet length...
+        -: 1137:        */
+        1: 1138:        DS_AppData.CmdRejectedCounter++;
+        -: 1139:
+        1: 1140:        CFE_EVS_SendEvent(DS_SEQ_CMD_ERR_EID, CFE_EVS_ERROR,
+        -: 1141:                         "Invalid DEST COUNT command length: expected = %d, actual = %d",
+        -: 1142:                          ExpectedLength, ActualLength);
+        -: 1143:    }
+        5: 1144:    else if (DS_TableVerifyFileIndex(DS_DestCountCmd->FileTableIndex) == FALSE)
+        -: 1145:    {
+        -: 1146:        /*
+        -: 1147:        ** Invalid destination file table index...
+        -: 1148:        */
+        1: 1149:        DS_AppData.CmdRejectedCounter++;
+        -: 1150:
+        1: 1151:        CFE_EVS_SendEvent(DS_SEQ_CMD_ERR_EID, CFE_EVS_ERROR,
+        -: 1152:                         "Invalid DEST COUNT command arg: file table index = %d",
+        -: 1153:                          (int)DS_DestCountCmd->FileTableIndex);
+        -: 1154:    }
+        4: 1155:    else if (DS_TableVerifyCount(DS_DestCountCmd->SequenceCount) == FALSE)
+        -: 1156:    {
+        -: 1157:        /*
+        -: 1158:        ** Invalid destination file sequence count...
+        -: 1159:        */
+        1: 1160:        DS_AppData.CmdRejectedCounter++;
+        -: 1161:
+        1: 1162:        CFE_EVS_SendEvent(DS_SEQ_CMD_ERR_EID, CFE_EVS_ERROR,
+        -: 1163:                         "Invalid DEST COUNT command arg: sequence count = %d",
+        -: 1164:                          (int)DS_DestCountCmd->SequenceCount);
+        -: 1165:    }
+        3: 1166:    else if (DS_AppData.DestFileTblPtr == (DS_DestFileTable_t *) NULL)
+        -: 1167:    {
+        -: 1168:        /*
+        -: 1169:        ** Must have a valid destination file table loaded...
+        -: 1170:        */
+        2: 1171:        DS_AppData.CmdRejectedCounter++;
+        -: 1172:
+        2: 1173:        CFE_EVS_SendEvent(DS_SEQ_CMD_ERR_EID, CFE_EVS_ERROR,
+        -: 1174:                         "Invalid DEST COUNT command: destination file table is not loaded");
+        -: 1175:    }
+        -: 1176:    else
+        -: 1177:    {
+        -: 1178:        /*
+        -: 1179:        ** Set next sequence count for destination file...
+        -: 1180:        */
+        1: 1181:        DestFile = &DS_AppData.DestFileTblPtr->File[DS_DestCountCmd->FileTableIndex];
+        1: 1182:        FileStatus = &DS_AppData.FileStatus[DS_DestCountCmd->FileTableIndex];
+        -: 1183:
+        -: 1184:        /*
+        -: 1185:        ** Update both destination file table and current status...
+        -: 1186:        */
+        1: 1187:        DestFile->SequenceCount = DS_DestCountCmd->SequenceCount;
+        1: 1188:        FileStatus->FileCount = DS_DestCountCmd->SequenceCount;
+        -: 1189:
+        -: 1190:        /*
+        -: 1191:        ** Notify cFE that we have modified the table data...
+        -: 1192:        */
+        1: 1193:        CFE_TBL_Modified(DS_AppData.DestFileTblHandle);
+        -: 1194:
+        -: 1195:        /*
+        -: 1196:        ** Update the Critical Data Store (CDS)...
+        -: 1197:        */
+        1: 1198:        DS_TableUpdateCDS();
+        -: 1199:
+        1: 1200:        DS_AppData.CmdAcceptedCounter++;
+        -: 1201:
+        1: 1202:        CFE_EVS_SendEvent(DS_SEQ_CMD_EID, CFE_EVS_DEBUG,
+        -: 1203:                         "DEST COUNT command: file table index = %d, sequence count = %d",
+        -: 1204:                          (int)DS_DestCountCmd->FileTableIndex, (int)DS_DestCountCmd->SequenceCount);
+        -: 1205:    }
+        -: 1206:
+        6: 1207:    return;
+        -: 1208:
+        -: 1209:} /* End of DS_CmdSetDestCount() */
+        -: 1210:
+        -: 1211:
+        -: 1212:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -: 1213:/*                                                                 */
+        -: 1214:/* DS_CmdCloseFile() - close destination file                      */
+        -: 1215:/*                                                                 */
+        -: 1216:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -: 1217:
+        4: 1218:void DS_CmdCloseFile(CFE_SB_MsgPtr_t MessagePtr)
+        -: 1219:{
+        4: 1220:    DS_CloseFileCmd_t *DS_CloseFileCmd = (DS_CloseFileCmd_t *) MessagePtr;
+        4: 1221:    uint16 ActualLength = CFE_SB_GetTotalMsgLength(MessagePtr);
+        4: 1222:    uint16 ExpectedLength = sizeof(DS_CloseFileCmd_t);
+        -: 1223:
+        4: 1224:    if (ExpectedLength != ActualLength)
+        -: 1225:    {
+        -: 1226:        /*
+        -: 1227:        ** Invalid command packet length...
+        -: 1228:        */
+        1: 1229:        DS_AppData.CmdRejectedCounter++;
+        -: 1230:
+        1: 1231:        CFE_EVS_SendEvent(DS_CLOSE_CMD_ERR_EID, CFE_EVS_ERROR,
+        -: 1232:                         "Invalid DEST CLOSE command length: expected = %d, actual = %d",
+        -: 1233:                          ExpectedLength, ActualLength);
+        -: 1234:    }
+        3: 1235:    else if (DS_TableVerifyFileIndex(DS_CloseFileCmd->FileTableIndex) == FALSE)
+        -: 1236:    {
+        -: 1237:        /*
+        -: 1238:        ** Invalid destination file table index...
+        -: 1239:        */
+        1: 1240:        DS_AppData.CmdRejectedCounter++;
+        -: 1241:
+        1: 1242:        CFE_EVS_SendEvent(DS_CLOSE_CMD_ERR_EID, CFE_EVS_ERROR,
+        -: 1243:                         "Invalid DEST CLOSE command arg: file table index = %d",
+        -: 1244:                          (int)DS_CloseFileCmd->FileTableIndex);
+        -: 1245:    }
+        -: 1246:    else
+        -: 1247:    {
+        -: 1248:        /*
+        -: 1249:        ** Close destination file (if the file was open)...
+        -: 1250:        */
+        2: 1251:        if (DS_AppData.FileStatus[DS_CloseFileCmd->FileTableIndex].FileHandle != DS_CLOSED_FILE_HANDLE)
+        -: 1252:        {
+        1: 1253:            DS_FileUpdateHeader(DS_CloseFileCmd->FileTableIndex);
+        1: 1254:            DS_FileCloseDest(DS_CloseFileCmd->FileTableIndex);
+        -: 1255:        }
+        -: 1256:
+        2: 1257:        DS_AppData.CmdAcceptedCounter++;
+        -: 1258:
+        2: 1259:        CFE_EVS_SendEvent(DS_CLOSE_CMD_EID, CFE_EVS_DEBUG,
+        -: 1260:                         "DEST CLOSE command: file table index = %d",
+        -: 1261:                          (int)DS_CloseFileCmd->FileTableIndex);
+        -: 1262:    }
+        -: 1263:
+        4: 1264:    return;
+        -: 1265:
+        -: 1266:} /* End of DS_CmdCloseFile() */
+        -: 1267:
+        -: 1268:
+        -: 1269:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -: 1270:/*                                                                 */
+        -: 1271:/* DS_CmdCloseAll() - close all open destination files             */
+        -: 1272:/*                                                                 */
+        -: 1273:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -: 1274:
+        3: 1275:void DS_CmdCloseAll(CFE_SB_MsgPtr_t MessagePtr)
+        -: 1276:{
+        3: 1277:    uint16 ActualLength = CFE_SB_GetTotalMsgLength(MessagePtr);
+        3: 1278:    uint16 ExpectedLength = sizeof(DS_CloseAllCmd_t);
+        -: 1279:    int32  i;
+        -: 1280:
+        3: 1281:    if (ExpectedLength != ActualLength)
+        -: 1282:    {
+        -: 1283:        /*
+        -: 1284:        ** Invalid command packet length...
+        -: 1285:        */
+        1: 1286:        DS_AppData.CmdRejectedCounter++;
+        -: 1287:
+        1: 1288:        CFE_EVS_SendEvent(DS_CLOSE_ALL_CMD_ERR_EID, CFE_EVS_ERROR,
+        -: 1289:                         "Invalid DEST CLOSE ALL command length: expected = %d, actual = %d",
+        -: 1290:                          ExpectedLength, ActualLength);
+        -: 1291:    }
+        -: 1292:    else
+        -: 1293:    {
+        -: 1294:        /*
+        -: 1295:        ** Close all open destination files...
+        -: 1296:        */
+       34: 1297:        for (i = 0; i < DS_DEST_FILE_CNT; i++)
+        -: 1298:        {
+       32: 1299:            if (DS_AppData.FileStatus[i].FileHandle != DS_CLOSED_FILE_HANDLE)
+        -: 1300:            {
+        1: 1301:                DS_FileUpdateHeader(i);
+        1: 1302:                DS_FileCloseDest(i);
+        -: 1303:            }
+        -: 1304:        }
+        -: 1305:
+        2: 1306:        DS_AppData.CmdAcceptedCounter++;
+        -: 1307:
+        2: 1308:        CFE_EVS_SendEvent(DS_CLOSE_ALL_CMD_EID, CFE_EVS_DEBUG,
+        -: 1309:                         "DEST CLOSE ALL command");
+        -: 1310:    }
+        -: 1311:
+        3: 1312:    return;
+        -: 1313:
+        -: 1314:} /* End of DS_CmdCloseAll() */
+        -: 1315:
+        -: 1316:
+        -: 1317:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -: 1318:/*                                                                 */
+        -: 1319:/* DS_CmdGetFileInfo() - get file info packet                      */
+        -: 1320:/*                                                                 */
+        -: 1321:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -: 1322:
+        4: 1323:void DS_CmdGetFileInfo(CFE_SB_MsgPtr_t MessagePtr)
+        -: 1324:{
+        -: 1325:    DS_FileInfoPkt_t DS_FileInfoPkt;
+        4: 1326:    uint16 ActualLength = CFE_SB_GetTotalMsgLength(MessagePtr);
+        4: 1327:    uint16 ExpectedLength = sizeof(DS_GetFileInfoCmd_t);
+        -: 1328:    int32 i;
+        -: 1329:
+        4: 1330:    if (ExpectedLength != ActualLength)
+        -: 1331:    {
+        -: 1332:        /*
+        -: 1333:        ** Invalid command packet length...
+        -: 1334:        */
+        1: 1335:        DS_AppData.CmdRejectedCounter++;
+        -: 1336:
+        1: 1337:        CFE_EVS_SendEvent(DS_GET_FILE_INFO_CMD_ERR_EID, CFE_EVS_ERROR,
+        -: 1338:                         "Invalid GET FILE INFO command length: expected = %d, actual = %d",
+        -: 1339:                          ExpectedLength, ActualLength);
+        -: 1340:    }
+        -: 1341:    else
+        -: 1342:    {
+        -: 1343:        /*
+        -: 1344:        ** Create and send a file info packet...
+        -: 1345:        */
+        3: 1346:        DS_AppData.CmdAcceptedCounter++;
+        -: 1347:
+        3: 1348:        CFE_EVS_SendEvent(DS_GET_FILE_INFO_CMD_EID, CFE_EVS_DEBUG, "GET FILE INFO command");
+        -: 1349:
+        -: 1350:        /*
+        -: 1351:        ** Initialize file info telemetry packet...
+        -: 1352:        */
+        3: 1353:        CFE_SB_InitMsg(&DS_FileInfoPkt, DS_DIAG_TLM_MID, sizeof(DS_FileInfoPkt_t), TRUE);
+        -: 1354:
+        -: 1355:        /*
+        -: 1356:        ** Process array of destination file info data...
+        -: 1357:        */
+       51: 1358:        for (i = 0; i < DS_DEST_FILE_CNT; i++)
+        -: 1359:        {
+        -: 1360:            /*
+        -: 1361:            ** Set file age and size...
+        -: 1362:            */
+       48: 1363:            DS_FileInfoPkt.FileInfo[i].FileAge  = DS_AppData.FileStatus[i].FileAge;
+       48: 1364:            DS_FileInfoPkt.FileInfo[i].FileSize = DS_AppData.FileStatus[i].FileSize;
+        -: 1365:
+        -: 1366:            /*
+        -: 1367:            ** Set file growth rate (computed when process last HK request)...
+        -: 1368:            */
+       48: 1369:            DS_FileInfoPkt.FileInfo[i].FileRate = DS_AppData.FileStatus[i].FileRate;
+        -: 1370:
+        -: 1371:            /*
+        -: 1372:            ** Set current filename sequence count...
+        -: 1373:            */
+       48: 1374:            DS_FileInfoPkt.FileInfo[i].SequenceCount = DS_AppData.FileStatus[i].FileCount;
+        -: 1375:
+        -: 1376:            /*
+        -: 1377:            ** Set file enable/disable state...
+        -: 1378:            */
+       48: 1379:            if (DS_AppData.DestFileTblPtr == (DS_DestFileTable_t *) NULL)
+        -: 1380:            {
+       32: 1381:                DS_FileInfoPkt.FileInfo[i].EnableState = DS_DISABLED;
+        -: 1382:            }
+        -: 1383:            else
+        -: 1384:            {
+       16: 1385:                DS_FileInfoPkt.FileInfo[i].EnableState = DS_AppData.FileStatus[i].FileState;
+        -: 1386:            }
+        -: 1387:
+        -: 1388:            /*
+        -: 1389:            ** Set file open/closed state...
+        -: 1390:            */
+       48: 1391:            if (DS_AppData.FileStatus[i].FileHandle == DS_CLOSED_FILE_HANDLE)
+        -: 1392:            {
+       16: 1393:                DS_FileInfoPkt.FileInfo[i].OpenState = DS_CLOSED;
+        -: 1394:            }
+        -: 1395:            else
+        -: 1396:            {
+       32: 1397:                DS_FileInfoPkt.FileInfo[i].OpenState = DS_OPEN;
+        -: 1398:
+        -: 1399:                /*
+        -: 1400:                ** Set current open filename...
+        -: 1401:                */
+       32: 1402:                strcpy(DS_FileInfoPkt.FileInfo[i].FileName, DS_AppData.FileStatus[i].FileName);
+        -: 1403:            }
+        -: 1404:        }
+        -: 1405:
+        -: 1406:        /*
+        -: 1407:        ** Timestamp and send file info telemetry packet...
+        -: 1408:        */
+        3: 1409:        CFE_SB_TimeStampMsg((CFE_SB_Msg_t *) &DS_FileInfoPkt);
+        3: 1410:        CFE_SB_SendMsg((CFE_SB_Msg_t *) &DS_FileInfoPkt);
+        -: 1411:    }
+        -: 1412:
+        4: 1413:    return;
+        -: 1414:
+        -: 1415:} /* End of DS_CmdGetFileInfo() */
+        -: 1416:
+        -: 1417:
+        -: 1418:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -: 1419:/*                                                                 */
+        -: 1420:/* DS_CmdAddMID() - add message ID to packet filter table          */
+        -: 1421:/*                                                                 */
+        -: 1422:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -: 1423:
+        7: 1424:void DS_CmdAddMID(CFE_SB_MsgPtr_t MessagePtr)
+        -: 1425:{
+        7: 1426:    DS_AddMidCmd_t *DS_AddMidCmd = (DS_AddMidCmd_t *) MessagePtr;
+        7: 1427:    uint16 ActualLength = CFE_SB_GetTotalMsgLength(MessagePtr);
+        7: 1428:    uint16 ExpectedLength = sizeof(DS_AddMidCmd_t);
+        -: 1429:    DS_PacketEntry_t *pPacketEntry;
+        -: 1430:    DS_FilterParms_t *pFilterParms;
+        -: 1431:    int32 FilterTableIndex;
+        -: 1432:    int32 HashTableIndex;
+        -: 1433:    int32 i;
+        -: 1434:
+        7: 1435:    if (ExpectedLength != ActualLength)
+        -: 1436:    {
+        -: 1437:        /*
+        -: 1438:        ** Invalid command packet length...
+        -: 1439:        */
+        1: 1440:        DS_AppData.CmdRejectedCounter++;
+        -: 1441:
+        1: 1442:        CFE_EVS_SendEvent(DS_ADD_MID_CMD_ERR_EID, CFE_EVS_ERROR,
+        -: 1443:                         "Invalid ADD MID command length: expected = %d, actual = %d",
+        -: 1444:                          ExpectedLength, ActualLength);
+        -: 1445:    }
+        6: 1446:    else if (DS_AddMidCmd->MessageID == DS_UNUSED)
+        -: 1447:    {
+        -: 1448:        /*
+        -: 1449:        ** Invalid packet message ID - can be anything but unused...
+        -: 1450:        */
+        1: 1451:        DS_AppData.CmdRejectedCounter++;
+        -: 1452:
+        1: 1453:        CFE_EVS_SendEvent(DS_ADD_MID_CMD_ERR_EID, CFE_EVS_ERROR,
+        -: 1454:                         "Invalid ADD MID command arg: invalid MID = 0x%4X",
+        1: 1455:                          DS_AddMidCmd->MessageID);
+        -: 1456:    }
+        5: 1457:    else if (DS_AppData.FilterTblPtr == (DS_FilterTable_t *) NULL)
+        -: 1458:    {
+        -: 1459:        /*
+        -: 1460:        ** Must have a valid packet filter table loaded...
+        -: 1461:        */
+        2: 1462:        DS_AppData.CmdRejectedCounter++;
+        -: 1463:
+        2: 1464:        CFE_EVS_SendEvent(DS_ADD_MID_CMD_ERR_EID, CFE_EVS_ERROR,
+        -: 1465:                         "Invalid ADD MID command: filter table is not loaded");
+        -: 1466:    }
+        3: 1467:    else if ((FilterTableIndex = DS_TableFindMsgID(DS_AddMidCmd->MessageID)) != DS_INDEX_NONE)
+        -: 1468:    {
+        -: 1469:        /*
+        -: 1470:        ** New message ID is already in packet filter table...
+        -: 1471:        */
+        1: 1472:        DS_AppData.CmdRejectedCounter++;
+        -: 1473:
+        1: 1474:        CFE_EVS_SendEvent(DS_ADD_MID_CMD_ERR_EID, CFE_EVS_ERROR,
+        -: 1475:                         "Invalid ADD MID command: MID = 0x%4X is already in filter table at index = %d",
+        1: 1476:                          DS_AddMidCmd->MessageID, (int)FilterTableIndex);
+        -: 1477:    }
+        2: 1478:    else if ((FilterTableIndex = DS_TableFindMsgID(DS_UNUSED)) == DS_INDEX_NONE)
+        -: 1479:    {
+        -: 1480:        /*
+        -: 1481:        ** Packet filter table has no unused entries...
+        -: 1482:        */
+        1: 1483:        DS_AppData.CmdRejectedCounter++;
+        -: 1484:
+        1: 1485:        CFE_EVS_SendEvent(DS_ADD_MID_CMD_ERR_EID, CFE_EVS_ERROR,
+        -: 1486:                         "Invalid ADD MID command: filter table is full");
+        -: 1487:    }
+        -: 1488:    else
+        -: 1489:    {
+        -: 1490:        /*
+        -: 1491:        ** Initialize unused packet filter entry for new message ID...
+        -: 1492:        */
+        1: 1493:        pPacketEntry = &DS_AppData.FilterTblPtr->Packet[FilterTableIndex];
+        -: 1494:
+        1: 1495:        pPacketEntry->MessageID = DS_AddMidCmd->MessageID;
+        -: 1496:        
+        -: 1497:        /* Add the message ID to the hash table as well */
+        1: 1498:        HashTableIndex = DS_TableAddMsgID(DS_AddMidCmd->MessageID, FilterTableIndex);
+        -: 1499:
+        5: 1500:        for (i = 0; i < DS_FILTERS_PER_PACKET; i++)
+        -: 1501:        {
+        4: 1502:            pFilterParms = &pPacketEntry->Filter[i];
+        -: 1503:
+        4: 1504:            pFilterParms->FileTableIndex = 0;
+        4: 1505:            pFilterParms->FilterType = DS_BY_COUNT;
+        -: 1506:
+        4: 1507:            pFilterParms->Algorithm_N = 0;
+        4: 1508:            pFilterParms->Algorithm_X = 0;
+        4: 1509:            pFilterParms->Algorithm_O = 0;
+        -: 1510:        }
+        -: 1511:
+        1: 1512:        CFE_SB_SubscribeEx(DS_AddMidCmd->MessageID, DS_AppData.InputPipe,
+        -: 1513:                           CFE_SB_Default_Qos, DS_PER_PACKET_PIPE_LIMIT);
+        -: 1514:        /*
+        -: 1515:        ** Notify cFE that we have modified the table data...
+        -: 1516:        */
+        1: 1517:        CFE_TBL_Modified(DS_AppData.FilterTblHandle);
+        -: 1518:
+        1: 1519:        DS_AppData.CmdAcceptedCounter++;
+        -: 1520:
+        1: 1521:        CFE_EVS_SendEvent(DS_ADD_MID_CMD_EID, CFE_EVS_DEBUG,
+        -: 1522:                         "ADD MID command: MID = 0x%04X, index = %d",
+        1: 1523:                          DS_AddMidCmd->MessageID, (int)FilterTableIndex);
+        -: 1524:    }
+        -: 1525:
+        7: 1526:    return;
+        -: 1527:
+        -: 1528:} /* End of DS_CmdAddMID() */
+        -: 1529:
+        -: 1530:
+        -: 1531:/************************/
+        -: 1532:/*  End of File Comment */
+        -: 1533:/************************/

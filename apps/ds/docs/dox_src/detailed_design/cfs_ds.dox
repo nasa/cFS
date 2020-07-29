@@ -1,0 +1,315 @@
+/*==========================================================================*/
+/* NOTE: The Author should first tailor this document for their Application */
+/*       To do so, use an editor's "Find and Replace" feature as follows:   */
+/*          Find:         Replace with:                                     */
+/*          [qq]          Application's Mnemonic Name (all lower case)      */
+/*          [QQ]          Application's Mnemonic Name (all upper case)      */
+/*          [QQ_Name]     Application's Full Name (mixed case)              */
+/*                                                                          */
+/*      An example substitution would be as follows:                        */
+/*          Find:         Replace with:                                     */
+/*          [qq]          sc                                                */
+/*          [QQ]          SC                                                */
+/*          [QQ_Name]     CFS Stored Command                                */
+/*                                                                          */
+/*      Additional notes to the Author can be found in comment blocks such  */
+/*      as this one.  These comment blocks will not appear in the doxygen   */
+/*      output and do not need to be removed but can be if so desired.      */
+/*      All text found within the pages that is surrounded by "()" is       */
+/*      merely a suggestion as to the appropriate content the Author should */
+/*      insert at that location.                                            */
+/*==========================================================================*/
+/**
+    \mainpage CFS Data Storage (DS) User's Guide    
+
+       <UL>
+           <LI> \subpage cfsdsrevhist
+           <LI> \subpage cfsdsintro
+           <LI> \subpage cfsdsovr
+           <LI> \subpage cfsdsopr
+           <LI> \subpage cfsdsreq
+           <LI> \subpage cfsdsdg
+           <LI> \subpage cfsdscmds
+           <LI> \subpage cfsdstlm
+           <LI> \subpage cfsdstbl
+           <LI> \subpage cfsdscfg
+           <LI> \subpage cfsdscons
+           <LI> \subpage cfsdsfaqs
+           <LI> \subpage ds_events.h "CFS Data Storage Event Message Reference" <BR>
+       </UL>
+**/
+
+/**
+  \page cfsdsrevhist CFS Data Storage User's Guide Revision History
+
+  \verbatim  
+  $Log: cfs_ds.dox  $
+  Revision 1.1 2015/07/25 00:43:50EDT rperera 
+  Initial revision
+  Member added to project /CFS-APPs-PROJECT/ds/docs/dox_src/detailed_design/project.pj
+  Revision 1.1 2009/04/17 14:06:41EDT dkobe 
+  Initial revision
+  Member added to project c:/MKSDATA/MKS-REPOSITORY/CFS-REPOSITORY/ds/docs/dox_src/detailed_design/project.pj
+  Revision 1.1 2009/04/17 13:55:13EDT dkobe 
+  Initial revision
+  Member added to project c:/MKSDATA/MKS-REPOSITORY/MKS-CFE-PROJECT/fsw/cfe-apps/template/docs/dox_src/detailed_design/project.pj
+  \endverbatim
+  
+**/
+
+/*==========================================================================*/
+/* NOTE: The Author may wish to examine the Acronym list and ensure the     */
+/*       Application's abbreviation is put in alphabetical order.           */
+/*==========================================================================*/
+/**
+	\page cfsdsintro CFS Data Storage Introduction
+	
+  <H2> Scope </H2>
+
+  This document provides a complete specification for the commands and telemetry associated
+  with the CFS Data Storage (DS) application software.  The document is intended primarily 
+  for users of the software (operations personal, test engineers, and maintenance personnel).  
+  The last section of the document, the deployment guide section, is intended for mission 
+  developers when deploying and configuring the FM application software for a mission 
+  flight software build environment. 
+
+  <H2> Applicable Documents </H2>
+
+  <TABLE BORDER="1" CELLPADDING="2" WIDTH="60%">
+  <TR><TD WIDTH="20%"> <B>Document ID</B> </TD> 
+      <TD WIDTH="40%"> <B>Document Title</B> </TD>
+  <TR><TD WIDTH="20%"> TBD       </TD> 
+      <TD WIDTH="40%"> CFS Data Storage Application Requirements Document </TD>
+  <TR><TD WIDTH="20%"> TBD       </TD> 
+      <TD WIDTH="40%"> CFS Data Storage Heritage Analysis Document </TD>
+  <TR><TD WIDTH="20%"> TBD       </TD> 
+      <TD WIDTH="40%"> CFS Data Storage Design Document </TD>
+  </TABLE>
+
+
+  <H2> Acronyms </H2>
+
+  <TABLE BORDER="1" CELLPADDING="2" WIDTH="60%">
+  <TR><TD WIDTH="20%"> <B>Acronym</B> </TD> <TD WIDTH="40%"> <B>Description</B>                       </TD>
+  <TR><TD WIDTH="20%"> DS    </TD> <TD WIDTH="40%"> CFS Data Storage                                       </TD>
+  <TR><TD WIDTH="20%"> API     </TD> <TD WIDTH="40%"> Application Programming Interface               </TD>
+  <TR><TD WIDTH="20%"> ATP     </TD> <TD WIDTH="40%"> Absolute Time Processor                         </TD>
+  <TR><TD WIDTH="20%"> ATS     </TD> <TD WIDTH="40%"> Absolute Time tagged command Sequence           </TD>
+  <TR><TD WIDTH="20%"> CCSDS   </TD> <TD WIDTH="40%"> Consultative Committee for Space Data Systems   </TD>
+  <TR><TD WIDTH="20%"> C&DH    </TD> <TD WIDTH="40%"> Command and Data Handling                       </TD>
+  <TR><TD WIDTH="20%"> CFE     </TD> <TD WIDTH="40%"> Core Flight Executive                           </TD>
+  <TR><TD WIDTH="20%"> CFS     </TD> <TD WIDTH="40%"> Core Flight System                              </TD>
+  <TR><TD WIDTH="20%"> CI      </TD> <TD WIDTH="40%"> Command Ingest                                  </TD>
+  <TR><TD WIDTH="20%"> Cmd     </TD> <TD WIDTH="40%"> Command                                         </TD>
+  <TR><TD WIDTH="20%"> CPU     </TD> <TD WIDTH="40%"> Central Processing Unit                         </TD>
+  <TR><TD WIDTH="20%"> EDAC    </TD> <TD WIDTH="40%"> Error Detection and Correction                  </TD>
+  <TR><TD WIDTH="20%"> FDS     </TD> <TD WIDTH="40%"> Flight Data System                              </TD>
+  <TR><TD WIDTH="20%"> FM      </TD> <TD WIDTH="40%"> File Manager                                    </TD>
+  <TR><TD WIDTH="20%"> FSW     </TD> <TD WIDTH="40%"> Flight Software                                 </TD>
+  <TR><TD WIDTH="20%"> GN&C    </TD> <TD WIDTH="40%"> Guidance Navigation & Control                   </TD>
+  <TR><TD WIDTH="20%"> GSFC    </TD> <TD WIDTH="40%"> Goddard Space Flight Center                     </TD>
+  <TR><TD WIDTH="20%"> HK      </TD> <TD WIDTH="40%"> Housekeeping                                    </TD>
+  <TR><TD WIDTH="20%"> HW, H/W </TD> <TD WIDTH="40%"> Hardware                                        </TD>
+  <TR><TD WIDTH="20%"> ICD     </TD> <TD WIDTH="40%"> Interface Control Document                      </TD>
+  <TR><TD WIDTH="20%"> ISR     </TD> <TD WIDTH="40%"> Interrupt Service Routine                       </TD>
+  <TR><TD WIDTH="20%"> OS      </TD> <TD WIDTH="40%"> Operating System                                </TD>
+  <TR><TD WIDTH="20%"> OSAL    </TD> <TD WIDTH="40%"> Operating System Abstraction Layer              </TD>
+  <TR><TD WIDTH="20%"> Pkts    </TD> <TD WIDTH="40%"> Packets                                         </TD>
+  <TR><TD WIDTH="20%"> RAM     </TD> <TD WIDTH="40%"> Random-Access Memory                            </TD>
+  <TR><TD WIDTH="20%"> RTOS    </TD> <TD WIDTH="40%"> Real Time Operating System                      </TD>
+  <TR><TD WIDTH="20%"> RTP     </TD> <TD WIDTH="40%"> Relative Time Processor                         </TD>
+  <TR><TD WIDTH="20%"> RTS     </TD> <TD WIDTH="40%"> Relative Time tagged command Sequence           </TD>
+  <TR><TD WIDTH="20%"> SB      </TD> <TD WIDTH="40%"> Software Bus Service                            </TD>
+  <TR><TD WIDTH="20%"> SBC     </TD> <TD WIDTH="40%"> Single Board Computer                           </TD>
+  <TR><TD WIDTH="20%"> SC      </TD> <TD WIDTH="40%"> Stored Commands task                            </TD>
+  <TR><TD WIDTH="20%"> SW, S/W </TD> <TD WIDTH="40%"> Software                                        </TD>
+  <TR><TD WIDTH="20%"> TBD     </TD> <TD WIDTH="40%"> To Be Determined                                </TD>
+  <TR><TD WIDTH="20%"> TBL     </TD> <TD WIDTH="40%"> Table                                           </TD>
+  <TR><TD WIDTH="20%"> TDM     </TD> <TD WIDTH="40%"> Time Data Multiplex                             </TD>
+  <TR><TD WIDTH="20%"> TLM     </TD> <TD WIDTH="40%"> Telemetry                                       </TD>
+  <TR><TD WIDTH="20%"> UTC     </TD> <TD WIDTH="40%"> Universal time code                             </TD>
+  </TABLE>
+
+  Prev: \ref cfsdsrevhist <BR>
+  Next: \ref cfsdsovr
+**/
+
+/**
+	\page cfsdsovr CFS Data Storage Overview
+	
+	(Insert paragraph providing application purpose and a high level description of 
+	 application capabilites)
+	
+	\section DS Design Overview
+	
+	(Insert text and/or diagrams to describe high-level design.  Remember your audience is
+	 not necessarily going to be a software engineer!
+	 Diagrams can be inserted using the following formatting:
+	   \image html My_Diagram_Image_Filename.jpg "My Diagram Label" <BR>
+	 The referenced jpg file should be put into the same directory as this file.)
+	 
+    Prev: \ref cfsdsintro <BR>
+	Next: \ref cfsdsopr
+**/
+
+/**
+  \page cfsdsopr CFS Data Storage Operation
+  
+  (Insert intended operational scenarios.  This should include references to appropriate commands
+   and telemetry points as needed.  Detailed explanation of telemetry could also be useful.)
+   
+  Next: \ref cfsdsreq <BR>
+  Prev: \ref cfsdsovr
+**/
+
+/**
+  \page cfsdsreq CFS Data Storage Requirements
+    
+  (Insert high level requirements and add a reference to where detailed requirements can be found)
+    
+  Next: \ref cfsdsdg <BR>
+  Prev: \ref cfsdsopr 
+**/
+
+/**
+  \page cfsdsdg  CFS Data Storage Deployment Guide
+  
+  (Insert text describing steps required to integrate the application with a CFS system.  This should
+   include:
+     1) References to message IDs that need to be inserted into a CFS Scheduler table
+     2) References to telemetry that can be generated
+     3) Additional description of application configuration parameters that may need to be modified.
+        For example, questions that a systems integrator needs to have answered before the application
+        can be successfully integrated
+     4) References to the application's performance ID)
+     
+   Next: \ref cfsdscmds <BR>
+   Prev: \ref cfsdsreq
+**/
+
+/*==========================================================================*/
+/* NOTE: The Author does not need to add any material to the following page.*/
+/*       It is filled automatically by doxygen.                             */
+/*==========================================================================*/
+/**
+  \page cfsdscmds CFS Data Storage Commands
+
+  <TABLE BORDER="1" CELLPADDING="2" WIDTH="60%" ALIGN="CENTER">
+  <TR><TD WIDTH="20%" ALIGN="CENTER"> <B>\ref cfsdstlm</B> </TD> 
+      <TD WIDTH="20%" ALIGN="CENTER"> <B>\ref cfsdstbl</B></TD>
+      <TD WIDTH="20%" ALIGN="CENTER"> <B>\ref cfsdscfg</B></TD>
+  </TABLE>
+  
+  The following is a list of Commands that are processed by the CFS Data Storage Application. 
+
+**/
+
+/*==========================================================================*/
+/* NOTE: The Author does not need to add any material to the following page.*/
+/*       It is filled automatically by doxygen.                             */
+/*==========================================================================*/
+/**
+  \page cfsdstlm  CFS Data Storage Telemetry
+
+  <TABLE BORDER="1" CELLPADDING="2" WIDTH="60%" ALIGN="CENTER">
+  <TR><TD WIDTH="20%" ALIGN="CENTER"> <B>\ref cfsdscmds</B> </TD> 
+      <TD WIDTH="20%" ALIGN="CENTER"> <B>\ref cfsdstbl</B></TD>
+      <TD WIDTH="20%" ALIGN="CENTER"> <B>\ref cfsdscfg</B></TD>
+  </TABLE>
+  
+  The following are telemetry packets generated by the CFS Data Storage 
+  Application.
+
+**/
+
+/**
+  \page cfsdstbl CFS Data Storage Table Definitions
+
+  <TABLE BORDER="1" CELLPADDING="2" WIDTH="60%" ALIGN="CENTER">
+  <TR><TD WIDTH="20%" ALIGN="CENTER"> <B>\ref cfsdscmds</B></TD>
+      <TD WIDTH="20%" ALIGN="CENTER"> <B>\ref cfsdstlm</B> </TD> 
+      <TD WIDTH="20%" ALIGN="CENTER"> <B>\ref cfsdscfg</B></TD>
+  </TABLE>
+  
+  
+  (Include text describing data structures used in application tables.  Further text can be used to
+   describe the process of populating the table if necessary.  Default values may also be described)
+   
+**/
+
+/*==========================================================================*/
+/* NOTE: The Author does not need to add any material to the following page.*/
+/*       It is filled automatically by doxygen.                             */
+/*==========================================================================*/
+/**
+  \page cfsdscfg CFS Data Storage Configuration Parameters
+
+  <TABLE BORDER="1" CELLPADDING="2" WIDTH="60%" ALIGN="CENTER">
+  <TR><TD WIDTH="20%" ALIGN="CENTER"> <B>\ref cfsdscmds</B></TD>
+      <TD WIDTH="20%" ALIGN="CENTER"> <B>\ref cfsdstlm</B> </TD> 
+      <TD WIDTH="20%" ALIGN="CENTER"> <B>\ref cfsdstbl</B></TD>
+  </TABLE>
+  
+  The following are configuration parameters used to configure the CFS Data Storage
+  Application either for each platform or for a mission as a whole.
+
+**/
+
+/**
+  \page cfsdscons CFS Data Storage Operational Constraints
+
+  (Insert text that describes:
+    1) situations that would prevent the application from starting
+    2) causes for the application to terminate prematurely
+    3) commands that cannot be issued either out of order or without sufficient wait time, etc) 
+  
+  Next: \ref cfsdsfaqs <BR>
+  Prev: \ref cfsdstbl
+**/
+
+/**
+  \page cfsdsfaqs CFS Data Storage Frequently Asked Questions
+
+  <H1> (Insert text that categorizes a group of questions, if necessary, here) </H1>
+    
+  <B> (Q)
+     (Insert text of frequently asked question here)
+  </B> <BR> <BR> <I>
+     (Insert text of answer to question above here)
+  </I>
+  
+  <B> (Q)
+     (Insert text of frequently asked question here)
+  </B> <BR> <BR> <I>
+     (Insert text of answer to question above here)
+  </I>
+  
+  <B> (Q)
+     (Insert text of frequently asked question here)
+  </B> <BR> <BR> <I>
+     (Insert text of answer to question above here)
+  </I>
+  
+  <H1> (Insert text that categorizes another group of questions, if necessary, here) </H1>
+    
+  <B> (Q)
+     (Insert text of frequently asked question here)
+  </B> <BR> <BR> <I>
+     (Insert text of answer to question above here)
+  </I>
+  
+  <B> (Q)
+     (Insert text of frequently asked question here)
+  </B> <BR> <BR> <I>
+     (Insert text of answer to question above here)
+  </I>
+  
+  <B> (Q)
+     (Insert text of frequently asked question here)
+  </B> <BR> <BR> <I>
+     (Insert text of answer to question above here)
+  </I>
+  
+  
+  Prev: \ref cfsdscons
+**/

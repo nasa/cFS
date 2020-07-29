@@ -1,0 +1,3560 @@
+<html><head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Test Execution Summary</title>
+    <style type="text/css" media="screen">
+p {margin-top:0in; margin-bottom:.0001pt; margin-left:0in; margin-right:0in;}
+ul, ol  {margin-top:0in; margin-bottom:.0001pt; margin-left:0in; margin-right:0in;}
+body, table { font-family: Arial, Helvetica, Tahoma; font-size: 9pt; }
+table.display { font-family: Arial, Helvetica, Tahoma; font-size: 9pt; width: 100%;}
+table.display2 { font-family: Arial, Helvetica, Tahoma; font-size: 9pt; width: 95%;}
+.display td, .display2 td { vertical-align: top; font-size: 9pt;}
+table.list { font-family: Arial, Helvetica, Tahoma; font-size: 9pt; width: 95%; border-width: 1px; border-style: solid; border-color: #333399; border-collapse: collapse; padding: 5px 5px 5px 5px; }
+.list th { color: #000000; background-color: #F9F9E3; border-width: 1px; border-style: solid; border-color: #333399; }
+.list td { background-color: #F9F7F7; vertical-align: top; border-width: 1px; border-style: solid; border-color: #333399; padding: 5px 5px 5px 5px; }
+table.list2 { font-family: Arial, Helvetica, Tahoma; font-size: 9pt; border-width: 0px; border-style: solid; border-color: #333399; padding: 0px 0px 0px 0px; }
+.list2 th { font-size: 11pt; color: #333399; text-align: left; text-decoration: underline; background-color: #FFFFFF; padding: 2px 2px 2px 2px; }
+.list2 td { background-color: #FFFFFF; vertical-align: top; padding: 2px 2px 2px 2px; }
+table.list3 { font-family: Arial, Helvetica, Tahoma; font-size: 9pt; width: 100%; border-width: 1px; border-style: solid; border-color: #333399; border-collapse: collapse; padding: 0px 0px 0px 0px; }
+.list3 th { color: #000000; background-color: #ECECEC; border-width: 1px 0px 1px 0px; border-style: solid; border-color: #333399; padding: 5px 5px 5px 5px; }
+.list3 td { background-color: #F9F7F7; vertical-align: top; border-style: solid; border-color: #333399; border-width: 1px 0px 1px 0px; padding: 5px 5px 5px 5px; }
+td.logo { width: 10%; }
+.border { border-width: 0px; border-style: solid; border-color: #333399; padding: 2px 2px 2px 2px; }
+.center { text-align: center; }
+.right { text-align: right; }
+.nowrap { white-space: nowrap; }
+.title { font-size: 16pt; color: #333399; font-weight: bold; text-align: center; }
+.date { font-size: 10pt; color: #333399; font-weight: bold; text-align: right; }
+.header { font-size: 11pt; color: #000000; text-align: center; }
+.footer { font-size: 9pt; color: #999999; text-align: left; }
+.heading1 { font-size: 11pt; color: #000000; font-weight: bold; background-color: #F6E78C; }
+.heading2 { font-size: 11pt; color: #333399; font-weight: bold; background-color: #F6E78C; }
+.heading3 { font-size: 11pt; color: #000000; font-weight: bold; background-color: #E6E6CB; }
+.heading4 { font-size: 11pt; color: #333399; font-weight: bold; background-color: #E6E6CB; }
+.heading5 { font-size: 11pt; color: #000000; font-weight: bold; background-color: #CFCF9D; }
+.heading6 { font-size: 11pt; color: #333399; font-weight: bold; background-color: #CFCF9D; }
+.heading7 { font-size: 15pt; color: #000000; font-weight: bold; background-color: #CFCF9D; }
+.heading8 { font-size: 10pt; color: #000000; font-weight: bold; text-align: center; background-color: #F5EFCA; }
+.heading9 { font-size: 10pt; color: #000000; font-weight: bold; background-color: #F6E78C; }
+.grouping1 { font-size: 10pt; color: #333399; font-weight: bold; background-color: #CFCF9D; }
+.grouping2 { font-size: 10pt; color: #000000; font-weight: bold; background-color: #CFCF9D; }
+.grouping3 { font-size: 9pt; color: #333399; font-weight: bold; background-color: #E6E6CB; }
+.odd_row { background-color: #F8F3F7; }
+.even_row { background-color: #FFFBFF; }
+.level1 { background-color: #FFEFF7; padding: 2px 2px 2px 2px; }
+.level2 { background-color: #F7E7EF; padding: 2px 2px 2px 2px; }
+.level2_indent { background-color: #F7E7EF; padding: 2px 2px 2px 12px; }
+.level3 { background-color: #EFDFE7; padding: 2px 2px 2px 2px; }
+.level3_indent { background-color: #EFDFE7; padding: 2px 2px 2px 22px; }
+.level4 { background-color: #E7D7DF; padding: 2px 2px 2px 2px; }
+.level4_indent { background-color: #E7D7DF; padding: 2px 2px 2px 32px; }
+.level5 { background-color: #DFCFD7; padding: 2px 2px 2px 2px; }
+.level5_indent { background-color: #DFCFD7; padding: 2px 2px 2px 42px; }
+.level6 { background-color: #D1BFC8; padding: 2px 2px 2px 2px; }
+.level6_indent { background-color: #D1BFC8; padding: 2px 2px 2px 52px; }
+.level7 { background-color: #C2B0B9; padding: 2px 2px 2px 2px; }
+.level7_indent { background-color: #C2B0B9; padding: 2px 2px 2px 62px; }
+.level8 { background-color: #B0A0A8; padding: 2px 2px 2px 2px; }
+.level8_indent { background-color: #B0A0A8; padding: 2px 2px 2px 72px; }
+.indent_transparent { padding: 0px 0px 0px 12px }
+.context_backward_level4_indent { background-color: #E7D7DF; padding: 2px 2px 2px 2px; }
+.context_backward_level3_indent { background-color: #EFDFE7; padding: 2px 2px 2px 12px; }
+.context_backward_level2_indent { background-color: #F7E7EF; padding: 2px 2px 2px 22px; }
+.context_backward_level1_indent { background-color: #FFEFF7; padding: 2px 2px 2px 32px; }
+.context { color: #333399; font-weight: bold; background-color: #FFFFFF; border-style: solid; border-color: #000000; border-width: 1px; padding: 2px 2px 2px 2px; }
+.context_indent { color: #333399; font-weight: bold; background-color: #FFFFFF; border-style: solid; border-color: #000000; border-width: 1px; padding: 2px 2px 2px 42px; }
+.context_forward_level1_indent { background-color: #FFEFF7; padding: 2px 2px 2px 52px; }
+.context_forward_level2_indent { background-color: #F7E7EF; padding: 2px 2px 2px 62px; }
+.context_forward_level3_indent { background-color: #EFDFE7; padding: 2px 2px 2px 72px; }
+.context_forward_level4_indent { background-color: #E7D7DF; padding: 2px 2px 2px 82px; }
+.document_level1 { background-color: #FFFFFF; padding: 2px 2px 2px 2px; }
+.document_level2 { background-color: #FFFFFF; padding: 2px 2px 2px 12px; }
+.document_level3 { background-color: #FFFFFF; padding: 2px 2px 2px 22px; }
+.document_level4 { background-color: #FFFFFF; padding: 2px 2px 2px 32px; }
+.underline { text-decoration: underline; }
+.bold { color: #000000; font-weight: bold; }
+.bold_large { font-size: 12pt; color: #000000; font-weight: bold; }
+.bold_very_large { font-size: 14pt; color: #000000; font-weight: bold; }
+.bold_italic { color: #000000; font-weight: bold; font-style: italic; }
+.bold_underline { color: #000000; font-weight: bold; text-decoration: underline; }
+.bold_color { color: #333399; font-weight: bold; }
+.bold_color_large { font-size: 12pt; color: #333399; font-weight: bold; }
+.bold_color_italic { color: #333399; font-weight: bold; font-style: italic; }
+.bold_color_underline { color: #333399; font-weight: bold; text-decoration: underline; }
+.bold_color_underline_large { font-size: 11pt; color: #333399; font-weight: bold; text-decoration: underline; }
+.hr_default { height:1px; width:100%; color: #000000; background:#000000; }
+.calendar_no_date_cell { background-color: #F3F3F3; }
+</style>
+
+    <style type="text/css" media="print">
+p {margin-top:0in; margin-bottom:.0001pt; margin-left:0in; margin-right:0in;}
+ul, ol  {margin-top:0in; margin-bottom:.0001pt; margin-left:0in; margin-right:0in;}
+thead { display: table-header-group; }
+tfoot { display: table-footer-group; }
+tbody { display:table-row-group; }
+body, table { font-family: Arial, Helvetica, Tahoma; font-size: 9pt; }
+table.display { font-family: Arial, Helvetica, Tahoma; font-size: 9pt; width: 100%;}
+table.display2 { font-family: Arial, Helvetica, Tahoma; font-size: 9pt; width: 95%;}
+.display td, .display2 td { vertical-align: top; font-size: 9pt;}
+table.list { font-family: Arial, Helvetica, Tahoma; font-size: 9pt; width: 95%; border-width: 1px; border-style: solid; border-color: #333399; border-collapse: collapse; padding: 5px 5px 5px 5px; }
+.list th { color: #000000; background-color: #F9F9E3; border-width: 1px; border-style: solid; border-color: #333399; }
+.list td { background-color: #F9F7F7; vertical-align: top; border-width: 1px; border-style: solid; border-color: #333399; padding: 5px 5px 5px 5px; }
+table.list2 { font-family: Arial, Helvetica, Tahoma; font-size: 9pt; border-width: 0px; border-style: solid; border-color: #333399; padding: 0px 0px 0px 0px; }
+.list2 th { font-size: 11pt; color: #333399; text-align: left; text-decoration: underline; background-color: #FFFFFF; padding: 2px 2px 2px 2px; }
+.list2 td { background-color: #FFFFFF; vertical-align: top; padding: 2px 2px 2px 2px; }
+table.list3 { font-family: Arial, Helvetica, Tahoma; font-size: 9pt; width: 100%; border-width: 1px; border-style: solid; border-color: #333399; border-collapse: collapse; padding: 0px 0px 0px 0px; }
+.list3 th { color: #000000; background-color: #ECECEC; border-width: 1px 0px 1px 0px; border-style: solid; border-color: #333399; padding: 5px 5px 5px 5px; }
+.list3 td { background-color: #F9F7F7; vertical-align: top; border-style: solid; border-color: #333399; border-width: 1px 0px 1px 0px; padding: 5px 5px 5px 5px; }
+td.logo { width: 10%; }
+.border { border-width: 0px; border-style: solid; border-color: #333399; padding: 2px 2px 2px 2px; }
+.center { text-align: center; }
+.right { text-align: right; }
+.nowrap { white-space: nowrap; }
+.title { font-size: 16pt; color: #333399; font-weight: bold; text-align: center; }
+.date { font-size: 10pt; color: #333399; font-weight: bold; text-align: right; }
+.header { font-size: 11pt; color: #000000; text-align: center; }
+.footer { font-size: 9pt; color: #999999; text-align: left; }
+.heading1 { font-size: 11pt; color: #000000; font-weight: bold; background-color: #F6E78C; }
+.heading2 { font-size: 11pt; color: #333399; font-weight: bold; background-color: #F6E78C; }
+.heading3 { font-size: 11pt; color: #000000; font-weight: bold; background-color: #E6E6CB; }
+.heading4 { font-size: 11pt; color: #333399; font-weight: bold; background-color: #E6E6CB; }
+.heading5 { font-size: 11pt; color: #000000; font-weight: bold; background-color: #CFCF9D; }
+.heading6 { font-size: 11pt; color: #333399; font-weight: bold; background-color: #CFCF9D; }
+.heading7 { font-size: 15pt; color: #000000; font-weight: bold; background-color: #CFCF9D; }
+.heading8 { font-size: 10pt; color: #000000; font-weight: bold; text-align: center; background-color: #F5EFCA; }
+.heading9 { font-size: 10pt; color: #000000; font-weight: bold; background-color: #F6E78C; }
+.grouping1 { font-size: 10pt; color: #333399; font-weight: bold; background-color: #CFCF9D; }
+.grouping2 { font-size: 10pt; color: #000000; font-weight: bold; background-color: #CFCF9D; }
+.grouping3 { font-size: 9pt; color: #333399; font-weight: bold; background-color: #E6E6CB; }
+.odd_row { background-color: #F8F3F7; }
+.even_row { background-color: #FFFBFF; }
+.level1 { background-color: #FFEFF7; padding: 2px 2px 2px 2px; }
+.level2 { background-color: #F7E7EF; padding: 2px 2px 2px 2px; }
+.level2_indent { background-color: #F7E7EF; padding: 2px 2px 2px 12px; }
+.level3 { background-color: #EFDFE7; padding: 2px 2px 2px 2px; }
+.level3_indent { background-color: #EFDFE7; padding: 2px 2px 2px 22px; }
+.level4 { background-color: #E7D7DF; padding: 2px 2px 2px 2px; }
+.level4_indent { background-color: #E7D7DF; padding: 2px 2px 2px 32px; }
+.level5 { background-color: #DFCFD7; padding: 2px 2px 2px 2px; }
+.level5_indent { background-color: #DFCFD7; padding: 2px 2px 2px 42px; }
+.level6 { background-color: #D1BFC8; padding: 2px 2px 2px 2px; }
+.level6_indent { background-color: #D1BFC8; padding: 2px 2px 2px 52px; }
+.level7 { background-color: #C2B0B9; padding: 2px 2px 2px 2px; }
+.level7_indent { background-color: #C2B0B9; padding: 2px 2px 2px 62px; }
+.level8 { background-color: #B0A0A8; padding: 2px 2px 2px 2px; }
+.level8_indent { background-color: #B0A0A8; padding: 2px 2px 2px 72px; }
+.indent_transparent { padding: 0px 0px 0px 12px; }
+.context_backward_level4_indent { background-color: #E7D7DF; padding: 2px 2px 2px 2px; }
+.context_backward_level3_indent { background-color: #EFDFE7; padding: 2px 2px 2px 12px; }
+.context_backward_level2_indent { background-color: #F7E7EF; padding: 2px 2px 2px 22px; }
+.context_backward_level1_indent { background-color: #FFEFF7; padding: 2px 2px 2px 32px; }
+.context { color: #333399; font-weight: bold; background-color: #FFFFFF; border-style: solid; border-color: #000000; border-width: 1px; padding: 2px 2px 2px 2px; }
+.context_indent { color: #333399; font-weight: bold; background-color: #FFFFFF; border-style: solid; border-color: #000000; border-width: 1px; padding: 2px 2px 2px 42px; }
+.context_forward_level1_indent { background-color: #FFEFF7; padding: 2px 2px 2px 52px; }
+.context_forward_level2_indent { background-color: #F7E7EF; padding: 2px 2px 2px 62px; }
+.context_forward_level3_indent { background-color: #EFDFE7; padding: 2px 2px 2px 72px; }
+.context_forward_level4_indent { background-color: #E7D7DF; padding: 2px 2px 2px 82px; }
+.document_level1 { background-color: #FFFFFF; padding: 2px 2px 2px 2px; }
+.document_level2 { background-color: #FFFFFF; padding: 2px 2px 2px 12px; }
+.document_level3 { background-color: #FFFFFF; padding: 2px 2px 2px 22px; }
+.document_level4 { background-color: #FFFFFF; padding: 2px 2px 2px 32px; }
+.underline { text-decoration: underline; }
+.bold { color: #000000; font-weight: bold; }
+.bold_large { font-size: 12pt; color: #000000; font-weight: bold; }
+.bold_very_large { font-size: 14pt; color: #000000; font-weight: bold; }
+.bold_italic { color: #000000; font-weight: bold; font-style: italic; }
+.bold_underline { color: #000000; font-weight: bold; text-decoration: underline; }
+.bold_color { color: #333399; font-weight: bold; }
+.bold_color_large { font-size: 12pt; color: #333399; font-weight: bold; }
+.bold_color_italic { color: #333399; font-weight: bold; font-style: italic; }
+.bold_color_underline { color: #333399; font-weight: bold; text-decoration: underline; }
+.bold_color_underline_large { font-size: 11pt; color: #333399; font-weight: bold; text-decoration: underline; }
+.hr_default { height:1px; width:100%; color: #000000; background:#000000; }
+.calendar_no_date_cell { background-color: #F3F3F3; }
+</style>
+
+	<script type="text/javascript">
+		var line_count=0;
+		
+		function writeEvenOddTRTag() {
+			line_count++; 
+			if (line_count%2 == 0)
+				document.write("<tr class='even_row'>");
+			else
+				document.write("<tr class='odd_row'>");
+		}
+	</script>
+</head>
+
+
+
+<body>
+<table class="heading">
+<tbody><tr>
+	<td></td>
+	<td class="title_white" width="100%" align="right">Test Execution Summary</td>
+	<td>&nbsp;</td>
+</tr>
+</tbody></table>
+<table class="white_bg">
+    <tbody><tr><td></td></tr>
+</tbody></table>
+<table class="heading" width="100%">
+    <tbody><tr><td></td></tr>
+
+</tbody></table>
+<p class="header"></p>
+<p class="date">Feb 8, 2017</p>
+
+<table class="detailcols fullWidth">
+<!-- block ID=146056-->
+
+<!-- Display issue heading -->
+<tbody><tr><th style="text-align: left">DS_EnableState - Item 146056 </th></tr>
+<!-- Display issue field names and values -->
+
+<tr><td><b>TEST_Test_Name:</b> DS_EnableState</td></tr>
+
+<tr><td><b>TEST_Description:</b> <!-- MKS HTML --><span>This test 
+verifies that the cFS Data Storage (DS) application starts up in the 
+proper state based upon the DS_DEF_ENABLE_STATE and DS_CDS_ENABLE_STATE 
+configuration parameter settings.</span></td></tr>
+
+<tr><td><b>TEST_Current_Build:</b> 2.5.1.0</td></tr>
+
+<tr><td><b>TEST_Execution_Assigned_To:</b> Walt Moleski (wmoleski)</td></tr>
+
+<tr><td><b>TEST_Execution_Testbed:</b> cFE 6.5.0.0; OSAL 4.2.0.0; PSP 1.3.0.0</td></tr>
+
+<tr><td><b>TEST_Execution_Checksum:</b> 50244</td></tr>
+
+<tr><td><b>TEST_Execution_Completion_Date:</b> Feb 7, 2017</td></tr>
+
+<tr><td><b>TEST_Execution_Time:</b> &nbsp;</td></tr>
+
+<tr><td><b>TEST_Execution_Comments:</b> <!-- MKS HTML --><p>This test 
+was executed four times, one for each combination of the 
+DS_DEF_ENABLE_STATE and DS_CDS_ENABLE_STATE configuration parameters. 
+The execution times are below:</p><p>1 - 1: 529.239 seconds; 8.82066 minutes</p><p>1 - 0: 524.812 seconds; 8.74687 minutes</p><p>0 - 1: 519.753 seconds; 8.66255 minutes</p><p>0 - 0: 519.726 seconds; 8.6621 minutes</p></td></tr>
+
+<tr><td><b>TEST_Comments:</b> &nbsp;</td></tr>
+
+<!-- Relationships info -->
+<!-- Display relationship heading -->
+<tr><td>DCRs Submitted / Tested and Requirements Validated</td></tr>
+
+
+<tr><td class="detailheading" style="text-align: left">Links_To_TEST_from_DCRs_Backward,ALM_Validates:</td></tr>
+<tr>
+    <td>
+        <table class="detailcols fullWidth">
+        
+        <tbody><tr>
+            
+            <th>ReqID</th>
+            
+            <th>Text</th>
+            
+            <th>Build Test Method</th>
+            
+            <th>REQ_Build_Sys_Test_Results</th>
+            
+            <th>REQ_Build_Sys_Test_Comments</th>
+            
+            <th>DCR_Title</th>
+            
+            <th>DCR_TEST_Outcome</th>
+            
+        </tr>
+        <!-- block ID=146056-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="odd_row">
+            
+            <td>DS8000</td>
+            
+            <td><!-- MKS HTML --><p>DS shall generate a housekeeping message containing the following:</p><p>a) Valid Command Counter</p><p>b) Command Rejected Counter</p><p>c) Packets discarded (DS was disabled) Counter</p><p>d) Packets discarded (pkt has no filter) Counter</p><p>e) Packets discarded (failed filter test) Counter</p><p>f) Packets that passed filter test Counter</p><p>g) Good destination file I/O Counter</p><p>h) Bad destination file I/O Counter</p><p>i) Good updates to secondary header Counter</p><p>j) Bad updates to secondary header Counter</p><p>k) Destination file table loads Counter</p><p>l) Failed attempts to get table data pointer Counter</p><p>m) Packet filter table loads Counter</p><p>n) Failed attempts to get table data pointer Counter</p><p>o) Application State<br>p) Destination file(s) state: &nbsp;&nbsp;</p><p>1) File age &nbsp;&nbsp;</p><p>2) File size &nbsp;&nbsp;</p><p>3) File rate &nbsp;&nbsp;</p><p>4) Sequence count &nbsp;&nbsp;</p><p>5) Enable state &nbsp;&nbsp;</p><p>6) Open state &nbsp;&nbsp;</p><p>7) Filename<br>q) Filename of last loaded Filter Table</p></td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td><!-- MKS HTML -->This requirement passed in all DS test procedures (FileWrite, Filter, GenCmds, MoveFile, ResetCDS, ResetNoCds).</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=146056-->
+<!-- block ID=146056-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="even_row">
+            
+            <td>DS9000</td>
+            
+            <td><!-- MKS HTML --><p>Upon cFE Power-On DS shall initialize the following Housekeeping data to Zero (or value specified):</p><p>a) Valid Command Counter</p><p>b) Command Rejected Counter</p><p>c) Packets discarded (DS was disabled) Counter</p><p>d) Packets discarded (pkt has no filter) Counter</p><p>e) Packets discarded (failed filter test) Counter</p><p>f) Packets that passed filter test Counter</p><p>g) Good destination file I/O Counter h) Bad destination file I/O Counter</p><p>i) Good updates to secondary header Counter</p><p>j) Bad updates to secondary header Counter</p><p>k) Destination file table loads Counter</p><p>l) Failed attempts to get table data pointer Counter</p><p>m)Packet filter table loads Counter</p><p>n) Failed attempts to get table data pointer Counter</p></td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td><!-- MKS HTML -->This requirement passed in all DS test procedures (FileWrite, Filter, GenCmds, MoveFile, ResetCDS, ResetNoCds).</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=146056-->
+<!-- block ID=146056-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="odd_row">
+            
+            <td>DS9003</td>
+            
+            <td><!-- MKS HTML --><p>Upon a cFE Processor Reset or DS 
+Application Reset , &nbsp;DS shall restore the following if the 
+associated &lt;PLATFORM_DEFINED&gt; Preserve Flag is set to TRUE:<br>a) &nbsp; &nbsp; &nbsp; Packet Filter Table</p><p>b) &nbsp; &nbsp; &nbsp; Destination File Table</p><p>c) &nbsp; &nbsp; &nbsp; File Sequence number for all Destination File Sets<br>d) &nbsp; &nbsp; &nbsp; Packet Processing State (ENABLED or DISABLED)</p></td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=146056-->
+<!-- block ID=146056-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="even_row">
+            
+            <td>DS9004</td>
+            
+            <td><!-- MKS HTML -->Upon a cFE Processor Reset or DS 
+Application Reset , &nbsp;DS shall restore the following if the 
+associated &lt;PLATFORM_DEFINED&gt; Preserve Flag is set to FALSE:<br>a)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; File Sequence Counters<br>b)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;PLATFORM_DEFINED&gt; Packet Processing State</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=146056-->
+<!-- block ID=146056-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="odd_row">
+            
+            <td>DS9008</td>
+            
+            <td><!-- MKS HTML -->Upon cFE Power-On DS shall set the Packet Processing State to the &lt;PLATFORM_DEFINED&gt; state (ENABLED or DISABLED).</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td><!-- MKS HTML -->This requirement passed in the ResetCDS and ResetNoCDS procedures.</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=146056-->
+
+        </tbody></table>
+    </td>
+</tr>
+
+<tr><td><hr class="hr_default"></td></tr>
+<tr><td>&nbsp;</td></tr>
+<script type="text/javascript"> line_count=0; </script>
+<!-- blockend ID=146056-->
+<!-- block ID=4508-->
+
+<!-- Display issue heading -->
+<tr><th style="text-align: left">DS_FileWrite - Item 4508 </th></tr>
+<!-- Display issue field names and values -->
+
+<tr><td><b>TEST_Test_Name:</b> DS_FileWrite</td></tr>
+
+<tr><td><b>TEST_Description:</b> <!-- MKS HTML -->This test verifies 
+that the CFS Data Storage (DS) application writes messages to files 
+according to the requirements. Also, this test verifies the DS 
+application commands and that DS handles anomalies appropriately.</td></tr>
+
+<tr><td><b>TEST_Current_Build:</b> 2.5.1.0</td></tr>
+
+<tr><td><b>TEST_Execution_Assigned_To:</b> Walt Moleski (wmoleski)</td></tr>
+
+<tr><td><b>TEST_Execution_Testbed:</b> cFE 6.5.0.0; OSAL 4.2.0.0; PSP 1.3.0.0</td></tr>
+
+<tr><td><b>TEST_Execution_Checksum:</b> 50244</td></tr>
+
+<tr><td><b>TEST_Execution_Completion_Date:</b> Feb 7, 2017</td></tr>
+
+<tr><td><b>TEST_Execution_Time:</b> 1641.24 seconds; 27.354 minutes</td></tr>
+
+<tr><td><b>TEST_Execution_Comments:</b> &nbsp;</td></tr>
+
+<tr><td><b>TEST_Comments:</b> &nbsp;</td></tr>
+
+<!-- Relationships info -->
+<!-- Display relationship heading -->
+<tr><td>DCRs Submitted / Tested and Requirements Validated</td></tr>
+
+
+<tr><td class="detailheading" style="text-align: left">Links_To_TEST_from_DCRs_Backward,ALM_Validates:</td></tr>
+<tr>
+    <td>
+        <table class="detailcols fullWidth">
+        
+        <tbody><tr>
+            
+            <th>ReqID</th>
+            
+            <th>Text</th>
+            
+            <th>Build Test Method</th>
+            
+            <th>REQ_Build_Sys_Test_Results</th>
+            
+            <th>REQ_Build_Sys_Test_Comments</th>
+            
+            <th>DCR_Title</th>
+            
+            <th>DCR_TEST_Outcome</th>
+            
+        </tr>
+        <!-- block ID=4508-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="odd_row">
+            
+            <td>DS1002</td>
+            
+            <td><!-- MKS HTML -->For all DS commands, if the length 
+contained in the message header is not equal to the expected length, DS 
+shall reject the command and issue an event message.</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td><!-- MKS HTML -->This requirement passed in all DS test procedures (filewrite, filter, gencmds, resetcds, and resetnocds)</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4508-->
+<!-- block ID=4508-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="even_row">
+            
+            <td>DS1004</td>
+            
+            <td><!-- MKS HTML -->If DS accepts any command as valid, DS 
+shall execute the command, increment the DS Valid Command Counter and 
+issue an event message.</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td><!-- MKS HTML -->This requirement passed in all DS test procedures (filewrite, filter, gencmds, movefile, resetcds, and resetnocds)</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4508-->
+<!-- block ID=4508-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="odd_row">
+            
+            <td>DS1005</td>
+            
+            <td><!-- MKS HTML -->If DS rejects any command, DS shall 
+abort the command execution, increment the DS Command Rejected Counter 
+and issue an error event message.</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td><!-- MKS HTML -->This requirement passed in all DS test procedures (filewrite, filter, gencmds, resetcds, and resetnocds)</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4508-->
+<!-- block ID=4508-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="even_row">
+            
+            <td>DS3000</td>
+            
+            <td><!-- MKS HTML -->DS shall construct filenames based on the following definitions provided in the Destination File Table:</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td><!-- MKS HTML -->This requirement passed in the FileWrite, Filter and MoveFile test procedures</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4508-->
+<!-- block ID=4508-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="odd_row">
+            
+            <td>DS3000.1</td>
+            
+            <td><!-- MKS HTML -->If Filename Type indicates naming based
+ on Sequence the constructed filename will include a character 
+representation of the Sequence Count value from the Destination File 
+Table.</td>
+            
+            <td>Analysis</td>
+            
+            <td>Pass</td>
+            
+            <td><!-- MKS HTML -->This requirement passed in the 
+FileWrite, Filter and MoveFile test procedures. The output captured in 
+the logp files verify that the character representation of the sequence 
+count is contained in the filename. The FileWrite steps are 2.1.3, 2.2, 
+2.3.2, 2.6, 2.7, 3.1.1, 3.6, 3.9 and 3.14. The Filter steps are 2.1, 
+2.4.2, 2.8, 2.17, 3.3, 3.8 and 3.13. The MoveFile steps are 2.1.4, 2.2 
+and 2.3.2.</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4508-->
+<!-- block ID=4508-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="even_row">
+            
+            <td>DS3000.1.1</td>
+            
+            <td><!-- MKS HTML -->If Filename Type indicates naming based
+ on Sequence the value of Sequence Count shall be incremented each time a
+ file is created.</td>
+            
+            <td>Analysis</td>
+            
+            <td>Pass</td>
+            
+            <td><!-- MKS HTML -->This requirement passed in the 
+FileWrite, Filter and MoveFile test procedures. The output contained in 
+the logp files verify that the sequence count incremented when each file
+ was created. The FileWrite steps are 2.2, 2.3.2, 2.6, 2.7, 3.6 and 3.9.
+ The Filter steps are 2.4.2, 2.8, 2.17, 3.3, 3.8 and 3.13. The MoveFile 
+steps are 2.1.4, 2.2 and 2.3.2.</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4508-->
+<!-- block ID=4508-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="odd_row">
+            
+            <td>DS3000.2</td>
+            
+            <td><!-- MKS HTML -->If Filename Type indicates naming based
+ on Time the constructed filename will include a character 
+representation of the packet timestamp.</td>
+            
+            <td>Analysis</td>
+            
+            <td>Pass</td>
+            
+            <td><!-- MKS HTML -->This requirement passed in the 
+FileWrite and Filter test procedures. The output captured in the logp 
+files verify that the packet timestamp was represented and formatted 
+properly. The FileWrite step is 2.4.2 and the Filter steps are 2.2 and 
+2.14.</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4508-->
+<!-- block ID=4508-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="even_row">
+            
+            <td>DS3000.2.1</td>
+            
+            <td><!-- MKS HTML -->If Filename Type indicates naming based
+ on Time the file date and time shall be represented in the following 
+format: “YYYYDDDHHMMSS”.</td>
+            
+            <td>Analysis</td>
+            
+            <td>Pass</td>
+            
+            <td><!-- MKS HTML -->This requirement passed in the 
+FileWrite and Filter test procedures. The output captured in the logp 
+files verify that the packet timestamp was represented and formatted 
+properly. The FileWrite step is 2.4.2 and the Filter steps are 2.2 and 
+2.14.</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4508-->
+<!-- block ID=4508-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="odd_row">
+            
+            <td>DS3001</td>
+            
+            <td><!-- MKS HTML -->Prior to writing a packet to an 
+existing destination file, DS shall verify that the resulting file size 
+(after the write) shall not exceed the file size limit as defined in the
+ Destination File Table.</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4508-->
+<!-- block ID=4508-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="even_row">
+            
+            <td>DS3001.1</td>
+            
+            <td><!-- MKS HTML -->If the resulting file size would exceed the file size limit then DS shall close the existing file and open another file.</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4508-->
+<!-- block ID=4508-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="odd_row">
+            
+            <td>DS3001.2</td>
+            
+            <td><!-- MKS HTML -->A minimum of one packet shall be written to a file.</td>
+            
+            <td>Analysis</td>
+            
+            <td>Pass</td>
+            
+            <td><!-- MKS HTML -->This requirement passed in the 
+FileWrite and MoveFile test procedures. Step 2.3.2 in both procedures 
+sends a message with 1500 data bytes to a destination whose maximum size
+ is set to 1024 bytes. The file was created and closed when the next 
+message for this ID is received in Step 2.6 of the FileWrite procedure. 
+The file was analyzed and found to contain only the packet sent in Step 
+2.3.2.</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4508-->
+<!-- block ID=4508-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="even_row">
+            
+            <td>DS3002</td>
+            
+            <td><!-- MKS HTML -->Periodically, DS shall test the age of 
+all open destination files. If any file age exceeds the maximum age 
+defined for that file in the Destination File Table, then DS shall close
+ the file.</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4508-->
+<!-- block ID=4508-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="odd_row">
+            
+            <td>DS3002.1</td>
+            
+            <td><!-- MKS HTML -->DS shall update file age and test age limits every time DS processes its housekeeping telemetry request command.</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4508-->
+<!-- block ID=4508-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="even_row">
+            
+            <td>DS3003</td>
+            
+            <td><!-- MKS HTML -->Each DS destination file shall contain a
+ primary cFE file header with the following information: a) Content Type
+ b) SubType c) Primary header length d) Spacecraft ID e) Processor ID f)
+ Application ID g) File creation time (seconds) h) File creation time 
+(sub-seconds)</td>
+            
+            <td>Analysis</td>
+            
+            <td>Pass</td>
+            
+            <td><!-- MKS HTML -->This requirement passed in the 
+FileWrite and Filter test procedures. The contents of each file were 
+verified and contained the items specified. There was an additional 32 
+-byte description in the Primary header and a 2 -byte file table type in
+ the Seconday header.</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4508-->
+<!-- block ID=4508-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="odd_row">
+            
+            <td>DS3004</td>
+            
+            <td><!-- MKS HTML --><p>Each DS destination file shall contain a secondary file header with the following information:</p><p>a) File close time (seconds)</p><p>b) File close time (sub-seconds)</p><p>c) File table index</p><p>d) Qualified Filename</p></td>
+            
+            <td>Analysis</td>
+            
+            <td>Pass</td>
+            
+            <td><!-- MKS HTML -->This requirement passed in the 
+FileWrite and Filter test procedures. The contents of each file were 
+verified and contained the items specified. There was an additional 32 
+-byte description in the Primary header and a 2 -byte file table type in
+ the Seconday header.</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4508-->
+<!-- block ID=4508-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="even_row">
+            
+            <td>DS3005</td>
+            
+            <td><!-- MKS HTML --><p>For every file write error, DS shall:</p><p>a) Send an event message</p><p>b) Increment total number of file write errors</p><p>c) Close the destination file</p><p>d) Disable the destination</p></td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4508-->
+<!-- block ID=4508-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="odd_row">
+            
+            <td>DS5000</td>
+            
+            <td><!-- MKS HTML -->Upon receipt of a Disable command, DS shall stop filtering and storing messages.<br>&nbsp;<br>Note: This command will set the Packet Processing State to DISABLED.</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4508-->
+<!-- block ID=4508-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="even_row">
+            
+            <td>DS5001</td>
+            
+            <td><!-- MKS HTML -->Upon receipt of an Enable command, DS shall begin filtering and storing messages.<br>&nbsp;<br>Note: This command will set the Packet Processing State to ENABLED.</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4508-->
+<!-- block ID=4508-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="odd_row">
+            
+            <td>DS5002</td>
+            
+            <td><!-- MKS HTML -->Upon receipt of a Close File Command, DS shall close the command-specified files.</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4508-->
+<!-- block ID=4508-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="even_row">
+            
+            <td>DS5003</td>
+            
+            <td><!-- MKS HTML -->Upon receipt of a Set File Basename command, DS shall set the file basename for the command-specified destination file.</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4508-->
+<!-- block ID=4508-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="odd_row">
+            
+            <td>DS5004</td>
+            
+            <td><!-- MKS HTML -->Upon receipt of a Set Next File 
+Sequence Counter command, DS shall set the command-specified &nbsp;file 
+counter for the command-specified Destination File.</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4508-->
+<!-- block ID=4508-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="even_row">
+            
+            <td>DS5005</td>
+            
+            <td><!-- MKS HTML -->Upon receipt of an Enable Destination File command, DS shall enable file collection for the command-specified Destination File.</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4508-->
+<!-- block ID=4508-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="odd_row">
+            
+            <td>DS5006</td>
+            
+            <td><!-- MKS HTML -->Upon receipt of a Disable Destination File command, DS disable file collection for the command-specified Destination File.</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4508-->
+<!-- block ID=4508-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="even_row">
+            
+            <td>DS5011</td>
+            
+            <td><!-- MKS HTML -->Upon receipt of a Set Destination Type 
+for a destination file type command, DS shall update the Destination 
+type to the command-specified destination type.</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4508-->
+<!-- block ID=4508-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="odd_row">
+            
+            <td>DS5012</td>
+            
+            <td><!-- MKS HTML -->Upon receipt of a Set Path for a destination filename command, DS shall update the path to the command-specified path.</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4508-->
+<!-- block ID=4508-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="even_row">
+            
+            <td>DS5013</td>
+            
+            <td><!-- MKS HTML -->Upon receipt of a Set Extension for 
+destination filename command, DS shall update the file extension to the 
+command-specified extension.</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4508-->
+<!-- block ID=4508-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="odd_row">
+            
+            <td>DS5014</td>
+            
+            <td><!-- MKS HTML -->Upon receipt of a Set Maximum Size for a
+ destination file command, DS shall update the maximum file size to the 
+command-specified maximum.</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4508-->
+<!-- block ID=4508-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="even_row">
+            
+            <td>DS5015</td>
+            
+            <td><!-- MKS HTML -->Upon receipt of a Set Maximum Age for a
+ destination file command, DS shall update the maximum destination file 
+age to the command-specified maximum age. &nbsp;</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4508-->
+<!-- block ID=4508-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="odd_row">
+            
+            <td>DS8000</td>
+            
+            <td><!-- MKS HTML --><p>DS shall generate a housekeeping message containing the following:</p><p>a) Valid Command Counter</p><p>b) Command Rejected Counter</p><p>c) Packets discarded (DS was disabled) Counter</p><p>d) Packets discarded (pkt has no filter) Counter</p><p>e) Packets discarded (failed filter test) Counter</p><p>f) Packets that passed filter test Counter</p><p>g) Good destination file I/O Counter</p><p>h) Bad destination file I/O Counter</p><p>i) Good updates to secondary header Counter</p><p>j) Bad updates to secondary header Counter</p><p>k) Destination file table loads Counter</p><p>l) Failed attempts to get table data pointer Counter</p><p>m) Packet filter table loads Counter</p><p>n) Failed attempts to get table data pointer Counter</p><p>o) Application State<br>p) Destination file(s) state: &nbsp;&nbsp;</p><p>1) File age &nbsp;&nbsp;</p><p>2) File size &nbsp;&nbsp;</p><p>3) File rate &nbsp;&nbsp;</p><p>4) Sequence count &nbsp;&nbsp;</p><p>5) Enable state &nbsp;&nbsp;</p><p>6) Open state &nbsp;&nbsp;</p><p>7) Filename<br>q) Filename of last loaded Filter Table</p></td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td><!-- MKS HTML -->This requirement passed in all DS test procedures (FileWrite, Filter, GenCmds, MoveFile, ResetCDS, ResetNoCds).</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4508-->
+<!-- block ID=4508-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="even_row">
+            
+            <td>DS9000</td>
+            
+            <td><!-- MKS HTML --><p>Upon cFE Power-On DS shall initialize the following Housekeeping data to Zero (or value specified):</p><p>a) Valid Command Counter</p><p>b) Command Rejected Counter</p><p>c) Packets discarded (DS was disabled) Counter</p><p>d) Packets discarded (pkt has no filter) Counter</p><p>e) Packets discarded (failed filter test) Counter</p><p>f) Packets that passed filter test Counter</p><p>g) Good destination file I/O Counter h) Bad destination file I/O Counter</p><p>i) Good updates to secondary header Counter</p><p>j) Bad updates to secondary header Counter</p><p>k) Destination file table loads Counter</p><p>l) Failed attempts to get table data pointer Counter</p><p>m)Packet filter table loads Counter</p><p>n) Failed attempts to get table data pointer Counter</p></td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td><!-- MKS HTML -->This requirement passed in all DS test procedures (FileWrite, Filter, GenCmds, MoveFile, ResetCDS, ResetNoCds).</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4508-->
+
+        </tbody></table>
+    </td>
+</tr>
+
+<tr><td><hr class="hr_default"></td></tr>
+<tr><td>&nbsp;</td></tr>
+<script type="text/javascript"> line_count=0; </script>
+<!-- blockend ID=4508-->
+<!-- block ID=4509-->
+
+<!-- Display issue heading -->
+<tr><th style="text-align: left">DS_Filter - Item 4509 </th></tr>
+<!-- Display issue field names and values -->
+
+<tr><td><b>TEST_Test_Name:</b> DS_Filter</td></tr>
+
+<tr><td><b>TEST_Description:</b> <!-- MKS HTML -->This test verifies 
+that the CFS Data Storage (DS) application filters messages according to
+ the requirements. This test also verifies that the DS application 
+handles anomalies appropriately.</td></tr>
+
+<tr><td><b>TEST_Current_Build:</b> 2.5.1.0</td></tr>
+
+<tr><td><b>TEST_Execution_Assigned_To:</b> Walt Moleski (wmoleski)</td></tr>
+
+<tr><td><b>TEST_Execution_Testbed:</b> cFE 6.5.0.0; OSAL 4.2.0.0; PSP 1.3.0.0</td></tr>
+
+<tr><td><b>TEST_Execution_Checksum:</b> 50244</td></tr>
+
+<tr><td><b>TEST_Execution_Completion_Date:</b> Feb 7, 2017</td></tr>
+
+<tr><td><b>TEST_Execution_Time:</b> 1413.12 seconds; 23.552 minutes</td></tr>
+
+<tr><td><b>TEST_Execution_Comments:</b> &nbsp;</td></tr>
+
+<tr><td><b>TEST_Comments:</b> &nbsp;</td></tr>
+
+<!-- Relationships info -->
+<!-- Display relationship heading -->
+<tr><td>DCRs Submitted / Tested and Requirements Validated</td></tr>
+
+
+<tr><td class="detailheading" style="text-align: left">Links_To_TEST_from_DCRs_Backward,ALM_Validates:</td></tr>
+<tr>
+    <td>
+        <table class="detailcols fullWidth">
+        
+        <tbody><tr>
+            
+            <th>ReqID</th>
+            
+            <th>Text</th>
+            
+            <th>Build Test Method</th>
+            
+            <th>REQ_Build_Sys_Test_Results</th>
+            
+            <th>REQ_Build_Sys_Test_Comments</th>
+            
+            <th>DCR_Title</th>
+            
+            <th>DCR_TEST_Outcome</th>
+            
+        </tr>
+        <!-- block ID=4509-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="odd_row">
+            
+            <td>DS1002</td>
+            
+            <td><!-- MKS HTML -->For all DS commands, if the length 
+contained in the message header is not equal to the expected length, DS 
+shall reject the command and issue an event message.</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td><!-- MKS HTML -->This requirement passed in all DS test procedures (filewrite, filter, gencmds, resetcds, and resetnocds)</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4509-->
+<!-- block ID=4509-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="even_row">
+            
+            <td>DS1004</td>
+            
+            <td><!-- MKS HTML -->If DS accepts any command as valid, DS 
+shall execute the command, increment the DS Valid Command Counter and 
+issue an event message.</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td><!-- MKS HTML -->This requirement passed in all DS test procedures (filewrite, filter, gencmds, movefile, resetcds, and resetnocds)</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4509-->
+<!-- block ID=4509-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="odd_row">
+            
+            <td>DS1005</td>
+            
+            <td><!-- MKS HTML -->If DS rejects any command, DS shall 
+abort the command execution, increment the DS Command Rejected Counter 
+and issue an error event message.</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td><!-- MKS HTML -->This requirement passed in all DS test procedures (filewrite, filter, gencmds, resetcds, and resetnocds)</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4509-->
+<!-- block ID=4509-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="even_row">
+            
+            <td>DS2000</td>
+            
+            <td><!-- MKS HTML -->Upon receipt of a message, if the 
+Packet Processing State is ENABLED, DS shall determine if the message 
+shall be stored based on the contents of the Packet Filter Table and the
+ Destination File Table.</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4509-->
+<!-- block ID=4509-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="odd_row">
+            
+            <td>DS2000.1</td>
+            
+            <td><!-- MKS HTML --><p>The Packet Filter Table contents shall include:</p><p>a) Message ID</p><p>b) Destination file table index</p><p>c) Filter type (time/sequence count)</p><p>d) Algorithm N value</p><p>e) Algorithm X value f) Algorithm O value</p></td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4509-->
+<!-- block ID=4509-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="even_row">
+            
+            <td>DS2000.2</td>
+            
+            <td><!-- MKS HTML --><p>The Destination File Table contents shall include:</p><p>a)Pathname</p><p>b) Basename</p><p>c) Extension</p><p>d) Filename type (time/sequence)</p><p>e)Default Destination enable state</p><p>f) Max file size (in bytes)</p><p>g) Max file age (in seconds) h) Initial Sequence Count:</p></td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4509-->
+<!-- block ID=4509-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="odd_row">
+            
+            <td>DS2001</td>
+            
+            <td><!-- MKS HTML -->DS shall store "N of X" messages starting at offset O.</td>
+            
+            <td>Analysis</td>
+            
+            <td>Pass</td>
+            
+            <td><!-- MKS HTML -->This requirement was tested in Steps 
+2.4.2, 2.8 and 3.13. The correct number of packets were stored in each 
+test. However, the 3.13 test required some additional analysis to make 
+sure the correct packets were stored. The CCSDS sequence counts for the 
+packets were 4 - 9 with an N=4, X=6, and O=2. The mod 6 values were 
+4,5,0,1,2,3 respectively. So, starting at offset 2, 4 of 6 will be 
+stored. Thus, packets 4,5,8 and 9 should have been stored in the file 
+which they were.</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4509-->
+<!-- block ID=4509-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="even_row">
+            
+            <td>DS2001.1</td>
+            
+            <td><!-- MKS HTML -->If either the X value or the N value is zero, then the message shall not be stored.</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4509-->
+<!-- block ID=4509-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="odd_row">
+            
+            <td>DS2002</td>
+            
+            <td><!-- MKS HTML -->DS shall store each message in up to &lt;PLATFORM_DEFINED&gt; different destination files.</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4509-->
+<!-- block ID=4509-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="even_row">
+            
+            <td>DS2002.1</td>
+            
+            <td><!-- MKS HTML -->Destination files shall be created when
+ the first message is received that is passed by the filter algorithm 
+for that particular message and selects that particular destination 
+file.</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4509-->
+<!-- block ID=4509-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="odd_row">
+            
+            <td>DS2003</td>
+            
+            <td><!-- MKS HTML -->The input argument to the filter algorithm shall be determined by the Filter Type indicator.</td>
+            
+            <td>Analysis</td>
+            
+            <td>Pass</td>
+            
+            <td><!-- MKS HTML -->This requirement passed in Steps 3.13.2
+ and 3.16.2 of the Filter test procedure. 3.13.2 tested Sequence based 
+filtering and 3.16.2 tested Time based filtering.</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4509-->
+<!-- block ID=4509-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="even_row">
+            
+            <td>DS2003.1</td>
+            
+            <td><!-- MKS HTML -->If Filter Type indicates Sequence based
+ filtering then the algorithm input argument is a value equal to the 
+packet sequence count.</td>
+            
+            <td>Analysis</td>
+            
+            <td>Pass</td>
+            
+            <td><!-- MKS HTML -->This requirement passed in Step 3.13.2 
+of the Filter test procedure. Six messages were sent from the TST_DS 
+application. The CCSDS sequence counts for these messages were 4 - 9 
+with an N=4, X=6, and O=2. The mod 6 values were 4,5,0,1,2,3 
+respectively. So, starting at offset 2, 4 of 6 will be stored. Thus, 
+packets 4,5,8 and 9 should have been stored in the file which they were.</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4509-->
+<!-- block ID=4509-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="odd_row">
+            
+            <td>DS2003.2</td>
+            
+            <td><!-- MKS HTML -->If Filter Type indicates Time based 
+filtering then the algorithm input argument is a value created from the 
+lower 11 bits of packet timestamp seconds plus the high 4 bits of 
+timestamp subseconds.</td>
+            
+            <td>Analysis</td>
+            
+            <td>Pass</td>
+            
+            <td><!-- MKS HTML -->This requirement passed in Step 3.16.2 
+of the Filter test procedure. Six time messages were sent from the 
+TST_DS application. The Time stamp was set such that the Subseconds 
+value would have values of x'10000000' to x'60000000'. This would create
+ a time stamp that would be used in the filtering algorithm to determine
+ whether to store the message or not. The filtering parameters were N=4,
+ X=6 and O=2. So, performing the calculation of "time stamp" MOD X, we 
+get values of 1,2,3,4,5,6 for the messages. Starting at offset 2, 
+messages 2,3,4 and 5 should be stored in the packet which they were.</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4509-->
+<!-- block ID=4509-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="even_row">
+            
+            <td>DS3000</td>
+            
+            <td><!-- MKS HTML -->DS shall construct filenames based on the following definitions provided in the Destination File Table:</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td><!-- MKS HTML -->This requirement passed in the FileWrite, Filter and MoveFile test procedures</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4509-->
+<!-- block ID=4509-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="odd_row">
+            
+            <td>DS3000.1</td>
+            
+            <td><!-- MKS HTML -->If Filename Type indicates naming based
+ on Sequence the constructed filename will include a character 
+representation of the Sequence Count value from the Destination File 
+Table.</td>
+            
+            <td>Analysis</td>
+            
+            <td>Pass</td>
+            
+            <td><!-- MKS HTML -->This requirement passed in the 
+FileWrite, Filter and MoveFile test procedures. The output captured in 
+the logp files verify that the character representation of the sequence 
+count is contained in the filename. The FileWrite steps are 2.1.3, 2.2, 
+2.3.2, 2.6, 2.7, 3.1.1, 3.6, 3.9 and 3.14. The Filter steps are 2.1, 
+2.4.2, 2.8, 2.17, 3.3, 3.8 and 3.13. The MoveFile steps are 2.1.4, 2.2 
+and 2.3.2.</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4509-->
+<!-- block ID=4509-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="even_row">
+            
+            <td>DS3000.1.1</td>
+            
+            <td><!-- MKS HTML -->If Filename Type indicates naming based
+ on Sequence the value of Sequence Count shall be incremented each time a
+ file is created.</td>
+            
+            <td>Analysis</td>
+            
+            <td>Pass</td>
+            
+            <td><!-- MKS HTML -->This requirement passed in the 
+FileWrite, Filter and MoveFile test procedures. The output contained in 
+the logp files verify that the sequence count incremented when each file
+ was created. The FileWrite steps are 2.2, 2.3.2, 2.6, 2.7, 3.6 and 3.9.
+ The Filter steps are 2.4.2, 2.8, 2.17, 3.3, 3.8 and 3.13. The MoveFile 
+steps are 2.1.4, 2.2 and 2.3.2.</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4509-->
+<!-- block ID=4509-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="odd_row">
+            
+            <td>DS3000.2</td>
+            
+            <td><!-- MKS HTML -->If Filename Type indicates naming based
+ on Time the constructed filename will include a character 
+representation of the packet timestamp.</td>
+            
+            <td>Analysis</td>
+            
+            <td>Pass</td>
+            
+            <td><!-- MKS HTML -->This requirement passed in the 
+FileWrite and Filter test procedures. The output captured in the logp 
+files verify that the packet timestamp was represented and formatted 
+properly. The FileWrite step is 2.4.2 and the Filter steps are 2.2 and 
+2.14.</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4509-->
+<!-- block ID=4509-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="even_row">
+            
+            <td>DS3000.2.1</td>
+            
+            <td><!-- MKS HTML -->If Filename Type indicates naming based
+ on Time the file date and time shall be represented in the following 
+format: “YYYYDDDHHMMSS”.</td>
+            
+            <td>Analysis</td>
+            
+            <td>Pass</td>
+            
+            <td><!-- MKS HTML -->This requirement passed in the 
+FileWrite and Filter test procedures. The output captured in the logp 
+files verify that the packet timestamp was represented and formatted 
+properly. The FileWrite step is 2.4.2 and the Filter steps are 2.2 and 
+2.14.</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4509-->
+<!-- block ID=4509-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="odd_row">
+            
+            <td>DS3003</td>
+            
+            <td><!-- MKS HTML -->Each DS destination file shall contain a
+ primary cFE file header with the following information: a) Content Type
+ b) SubType c) Primary header length d) Spacecraft ID e) Processor ID f)
+ Application ID g) File creation time (seconds) h) File creation time 
+(sub-seconds)</td>
+            
+            <td>Analysis</td>
+            
+            <td>Pass</td>
+            
+            <td><!-- MKS HTML -->This requirement passed in the 
+FileWrite and Filter test procedures. The contents of each file were 
+verified and contained the items specified. There was an additional 32 
+-byte description in the Primary header and a 2 -byte file table type in
+ the Seconday header.</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4509-->
+<!-- block ID=4509-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="even_row">
+            
+            <td>DS3004</td>
+            
+            <td><!-- MKS HTML --><p>Each DS destination file shall contain a secondary file header with the following information:</p><p>a) File close time (seconds)</p><p>b) File close time (sub-seconds)</p><p>c) File table index</p><p>d) Qualified Filename</p></td>
+            
+            <td>Analysis</td>
+            
+            <td>Pass</td>
+            
+            <td><!-- MKS HTML -->This requirement passed in the 
+FileWrite and Filter test procedures. The contents of each file were 
+verified and contained the items specified. There was an additional 32 
+-byte description in the Primary header and a 2 -byte file table type in
+ the Seconday header.</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4509-->
+<!-- block ID=4509-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="odd_row">
+            
+            <td>DS5002</td>
+            
+            <td><!-- MKS HTML -->Upon receipt of a Close File Command, DS shall close the command-specified files.</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4509-->
+<!-- block ID=4509-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="even_row">
+            
+            <td>DS5008</td>
+            
+            <td><!-- MKS HTML -->Upon receipt of a Set File Index for a Packet Filter Table entry command, DS shall update the destination file index.</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4509-->
+<!-- block ID=4509-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="odd_row">
+            
+            <td>DS5009</td>
+            
+            <td><!-- MKS HTML -->Upon receipt of a Set Filter Type for a
+ Packet Filter Table entry command, DS shall update the filter type to 
+the command-specified filter type.</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4509-->
+<!-- block ID=4509-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="even_row">
+            
+            <td>DS5010</td>
+            
+            <td><!-- MKS HTML -->Upon receipt of a Set Filter Parameter 
+for a Packet Filter Table entry command, DS shall update the N, X, O 
+Parameters to the command-specified values</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4509-->
+<!-- block ID=4509-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="odd_row">
+            
+            <td>DS5016</td>
+            
+            <td><!-- MKS HTML -->Upon receipt of an Add Message ID to 
+Packet Filter Table command, DS shall add the command-specified Message 
+ID to the next unused entry in the Packet Filter Table.</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4509-->
+<!-- block ID=4509-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="even_row">
+            
+            <td>DS5016.1</td>
+            
+            <td><!-- MKS HTML -->If the command-specified Message ID is invalid DS will reject the command and send an event message.</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4509-->
+<!-- block ID=4509-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="odd_row">
+            
+            <td>DS5016.2</td>
+            
+            <td><!-- MKS HTML -->If the Packet Filter table is not loaded DS will reject the command and send an event message.</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4509-->
+<!-- block ID=4509-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="even_row">
+            
+            <td>DS5016.3</td>
+            
+            <td><!-- MKS HTML -->If the command-specified Message ID is 
+already specified in the Packet Filter Table DS will reject the command 
+and send an event message</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4509-->
+<!-- block ID=4509-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="odd_row">
+            
+            <td>DS5016.4</td>
+            
+            <td><!-- MKS HTML -->If there are no unused entries in the Packet Filter Table DS will reject the command and send an event message</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4509-->
+<!-- block ID=4509-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="even_row">
+            
+            <td>DS8000</td>
+            
+            <td><!-- MKS HTML --><p>DS shall generate a housekeeping message containing the following:</p><p>a) Valid Command Counter</p><p>b) Command Rejected Counter</p><p>c) Packets discarded (DS was disabled) Counter</p><p>d) Packets discarded (pkt has no filter) Counter</p><p>e) Packets discarded (failed filter test) Counter</p><p>f) Packets that passed filter test Counter</p><p>g) Good destination file I/O Counter</p><p>h) Bad destination file I/O Counter</p><p>i) Good updates to secondary header Counter</p><p>j) Bad updates to secondary header Counter</p><p>k) Destination file table loads Counter</p><p>l) Failed attempts to get table data pointer Counter</p><p>m) Packet filter table loads Counter</p><p>n) Failed attempts to get table data pointer Counter</p><p>o) Application State<br>p) Destination file(s) state: &nbsp;&nbsp;</p><p>1) File age &nbsp;&nbsp;</p><p>2) File size &nbsp;&nbsp;</p><p>3) File rate &nbsp;&nbsp;</p><p>4) Sequence count &nbsp;&nbsp;</p><p>5) Enable state &nbsp;&nbsp;</p><p>6) Open state &nbsp;&nbsp;</p><p>7) Filename<br>q) Filename of last loaded Filter Table</p></td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td><!-- MKS HTML -->This requirement passed in all DS test procedures (FileWrite, Filter, GenCmds, MoveFile, ResetCDS, ResetNoCds).</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4509-->
+<!-- block ID=4509-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="odd_row">
+            
+            <td>DS9000</td>
+            
+            <td><!-- MKS HTML --><p>Upon cFE Power-On DS shall initialize the following Housekeeping data to Zero (or value specified):</p><p>a) Valid Command Counter</p><p>b) Command Rejected Counter</p><p>c) Packets discarded (DS was disabled) Counter</p><p>d) Packets discarded (pkt has no filter) Counter</p><p>e) Packets discarded (failed filter test) Counter</p><p>f) Packets that passed filter test Counter</p><p>g) Good destination file I/O Counter h) Bad destination file I/O Counter</p><p>i) Good updates to secondary header Counter</p><p>j) Bad updates to secondary header Counter</p><p>k) Destination file table loads Counter</p><p>l) Failed attempts to get table data pointer Counter</p><p>m)Packet filter table loads Counter</p><p>n) Failed attempts to get table data pointer Counter</p></td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td><!-- MKS HTML -->This requirement passed in all DS test procedures (FileWrite, Filter, GenCmds, MoveFile, ResetCDS, ResetNoCds).</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4509-->
+
+        </tbody></table>
+    </td>
+</tr>
+
+<tr><td><hr class="hr_default"></td></tr>
+<tr><td>&nbsp;</td></tr>
+<script type="text/javascript"> line_count=0; </script>
+<!-- blockend ID=4509-->
+<!-- block ID=4510-->
+
+<!-- Display issue heading -->
+<tr><th style="text-align: left">DS_GenCmds - Item 4510 </th></tr>
+<!-- Display issue field names and values -->
+
+<tr><td><b>TEST_Test_Name:</b> DS_GenCmds</td></tr>
+
+<tr><td><b>TEST_Description:</b> <!-- MKS HTML -->This test verifies 
+that the CFS Data Storage (DS) general commands function properly. The 
+NOOP and Reset Counters commands will be tested. Invalid versions of 
+these commands will also be tested to ensure that the DS application 
+handled these properly.</td></tr>
+
+<tr><td><b>TEST_Current_Build:</b> 2.5.1.0</td></tr>
+
+<tr><td><b>TEST_Execution_Assigned_To:</b> Walt Moleski (wmoleski)</td></tr>
+
+<tr><td><b>TEST_Execution_Testbed:</b> cFE 6.5.0.0; OSAL 4.2.0.0; PSP 1.3.0.0</td></tr>
+
+<tr><td><b>TEST_Execution_Checksum:</b> 50244</td></tr>
+
+<tr><td><b>TEST_Execution_Completion_Date:</b> Feb 7, 2017</td></tr>
+
+<tr><td><b>TEST_Execution_Time:</b> 323.352 seconds; 5.3892 minutes</td></tr>
+
+<tr><td><b>TEST_Execution_Comments:</b> &nbsp;</td></tr>
+
+<tr><td><b>TEST_Comments:</b> &nbsp;</td></tr>
+
+<!-- Relationships info -->
+<!-- Display relationship heading -->
+<tr><td>DCRs Submitted / Tested and Requirements Validated</td></tr>
+
+
+<tr><td class="detailheading" style="text-align: left">Links_To_TEST_from_DCRs_Backward,ALM_Validates:</td></tr>
+<tr>
+    <td>
+        <table class="detailcols fullWidth">
+        
+        <tbody><tr>
+            
+            <th>ReqID</th>
+            
+            <th>Text</th>
+            
+            <th>Build Test Method</th>
+            
+            <th>REQ_Build_Sys_Test_Results</th>
+            
+            <th>REQ_Build_Sys_Test_Comments</th>
+            
+            <th>DCR_Title</th>
+            
+            <th>DCR_TEST_Outcome</th>
+            
+        </tr>
+        <!-- block ID=4510-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="odd_row">
+            
+            <td>DS1000</td>
+            
+            <td><!-- MKS HTML -->&nbsp;Upon receipt of a No-Op command, DS shall increment the DS Valid Command Counter and generate an event message.</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4510-->
+<!-- block ID=4510-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="even_row">
+            
+            <td>DS1001</td>
+            
+            <td><!-- MKS HTML --><p>Upon receipt of a Reset Counters command, DS shall reset the following housekeeping variables to a value of zero:</p><p>a) Valid Command Counter</p><p>b) Command Rejected Counter</p><p>c) Packets discarded (DS was disabled) Counter</p><p>d) Packets discarded (pkt has no filter) Counter</p><p>e) Packets discarded (failed filter test) Counter</p><p>f) Packets that passed filter test Counter</p><p>g) Good destination file I/O Counter</p><p>h) Bad destination file I/O Counter</p><p>i) Good updates to secondary header Counter</p><p>j) Bad updates to secondary header Counter</p><p>k) Destination file table loads Counter</p><p>l) Failed attempts to get table data pointer Counter</p><p>m)Packet filter table loads Counter</p><p>n) Failed attempts to get table data pointer Counter</p></td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4510-->
+<!-- block ID=4510-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="odd_row">
+            
+            <td>DS1002</td>
+            
+            <td><!-- MKS HTML -->For all DS commands, if the length 
+contained in the message header is not equal to the expected length, DS 
+shall reject the command and issue an event message.</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td><!-- MKS HTML -->This requirement passed in all DS test procedures (filewrite, filter, gencmds, resetcds, and resetnocds)</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4510-->
+<!-- block ID=4510-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="even_row">
+            
+            <td>DS1004</td>
+            
+            <td><!-- MKS HTML -->If DS accepts any command as valid, DS 
+shall execute the command, increment the DS Valid Command Counter and 
+issue an event message.</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td><!-- MKS HTML -->This requirement passed in all DS test procedures (filewrite, filter, gencmds, movefile, resetcds, and resetnocds)</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4510-->
+<!-- block ID=4510-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="odd_row">
+            
+            <td>DS1005</td>
+            
+            <td><!-- MKS HTML -->If DS rejects any command, DS shall 
+abort the command execution, increment the DS Command Rejected Counter 
+and issue an error event message.</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td><!-- MKS HTML -->This requirement passed in all DS test procedures (filewrite, filter, gencmds, resetcds, and resetnocds)</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4510-->
+<!-- block ID=4510-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="even_row">
+            
+            <td>DS8000</td>
+            
+            <td><!-- MKS HTML --><p>DS shall generate a housekeeping message containing the following:</p><p>a) Valid Command Counter</p><p>b) Command Rejected Counter</p><p>c) Packets discarded (DS was disabled) Counter</p><p>d) Packets discarded (pkt has no filter) Counter</p><p>e) Packets discarded (failed filter test) Counter</p><p>f) Packets that passed filter test Counter</p><p>g) Good destination file I/O Counter</p><p>h) Bad destination file I/O Counter</p><p>i) Good updates to secondary header Counter</p><p>j) Bad updates to secondary header Counter</p><p>k) Destination file table loads Counter</p><p>l) Failed attempts to get table data pointer Counter</p><p>m) Packet filter table loads Counter</p><p>n) Failed attempts to get table data pointer Counter</p><p>o) Application State<br>p) Destination file(s) state: &nbsp;&nbsp;</p><p>1) File age &nbsp;&nbsp;</p><p>2) File size &nbsp;&nbsp;</p><p>3) File rate &nbsp;&nbsp;</p><p>4) Sequence count &nbsp;&nbsp;</p><p>5) Enable state &nbsp;&nbsp;</p><p>6) Open state &nbsp;&nbsp;</p><p>7) Filename<br>q) Filename of last loaded Filter Table</p></td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td><!-- MKS HTML -->This requirement passed in all DS test procedures (FileWrite, Filter, GenCmds, MoveFile, ResetCDS, ResetNoCds).</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4510-->
+<!-- block ID=4510-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="odd_row">
+            
+            <td>DS9000</td>
+            
+            <td><!-- MKS HTML --><p>Upon cFE Power-On DS shall initialize the following Housekeeping data to Zero (or value specified):</p><p>a) Valid Command Counter</p><p>b) Command Rejected Counter</p><p>c) Packets discarded (DS was disabled) Counter</p><p>d) Packets discarded (pkt has no filter) Counter</p><p>e) Packets discarded (failed filter test) Counter</p><p>f) Packets that passed filter test Counter</p><p>g) Good destination file I/O Counter h) Bad destination file I/O Counter</p><p>i) Good updates to secondary header Counter</p><p>j) Bad updates to secondary header Counter</p><p>k) Destination file table loads Counter</p><p>l) Failed attempts to get table data pointer Counter</p><p>m)Packet filter table loads Counter</p><p>n) Failed attempts to get table data pointer Counter</p></td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td><!-- MKS HTML -->This requirement passed in all DS test procedures (FileWrite, Filter, GenCmds, MoveFile, ResetCDS, ResetNoCds).</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4510-->
+
+        </tbody></table>
+    </td>
+</tr>
+
+<tr><td><hr class="hr_default"></td></tr>
+<tr><td>&nbsp;</td></tr>
+<script type="text/javascript"> line_count=0; </script>
+<!-- blockend ID=4510-->
+<!-- block ID=4658-->
+
+<!-- Display issue heading -->
+<tr><th style="text-align: left">DS_MoveFile - Item 4658 </th></tr>
+<!-- Display issue field names and values -->
+
+<tr><td><b>TEST_Test_Name:</b> DS_MoveFile</td></tr>
+
+<tr><td><b>TEST_Description:</b> <!-- MKS HTML -->This test verifies 
+that the CFS Data Storage (DS) application writes messages to files 
+according to the requirements and moves these files to the 
+table-specified directory after they are closed.</td></tr>
+
+<tr><td><b>TEST_Current_Build:</b> 2.5.1.0</td></tr>
+
+<tr><td><b>TEST_Execution_Assigned_To:</b> Walt Moleski (wmoleski)</td></tr>
+
+<tr><td><b>TEST_Execution_Testbed:</b> cFE 6.5.0.0; OSAL 4.2.0.0; PSP 1.3.0.0</td></tr>
+
+<tr><td><b>TEST_Execution_Checksum:</b> 50244</td></tr>
+
+<tr><td><b>TEST_Execution_Completion_Date:</b> Feb 7, 2017</td></tr>
+
+<tr><td><b>TEST_Execution_Time:</b> 520.767 seconds; 8.67945 minutes</td></tr>
+
+<tr><td><b>TEST_Execution_Comments:</b> &nbsp;</td></tr>
+
+<tr><td><b>TEST_Comments:</b> &nbsp;</td></tr>
+
+<!-- Relationships info -->
+<!-- Display relationship heading -->
+<tr><td>DCRs Submitted / Tested and Requirements Validated</td></tr>
+
+
+<tr><td class="detailheading" style="text-align: left">Links_To_TEST_from_DCRs_Backward,ALM_Validates:</td></tr>
+<tr>
+    <td>
+        <table class="detailcols fullWidth">
+        
+        <tbody><tr>
+            
+            <th>ReqID</th>
+            
+            <th>Text</th>
+            
+            <th>Build Test Method</th>
+            
+            <th>REQ_Build_Sys_Test_Results</th>
+            
+            <th>REQ_Build_Sys_Test_Comments</th>
+            
+            <th>DCR_Title</th>
+            
+            <th>DCR_TEST_Outcome</th>
+            
+        </tr>
+        <!-- block ID=4658-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="odd_row">
+            
+            <td>DS1004</td>
+            
+            <td><!-- MKS HTML -->If DS accepts any command as valid, DS 
+shall execute the command, increment the DS Valid Command Counter and 
+issue an event message.</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td><!-- MKS HTML -->This requirement passed in all DS test procedures (filewrite, filter, gencmds, movefile, resetcds, and resetnocds)</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4658-->
+<!-- block ID=4658-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="even_row">
+            
+            <td>DS3000</td>
+            
+            <td><!-- MKS HTML -->DS shall construct filenames based on the following definitions provided in the Destination File Table:</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td><!-- MKS HTML -->This requirement passed in the FileWrite, Filter and MoveFile test procedures</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4658-->
+<!-- block ID=4658-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="odd_row">
+            
+            <td>DS3000.1</td>
+            
+            <td><!-- MKS HTML -->If Filename Type indicates naming based
+ on Sequence the constructed filename will include a character 
+representation of the Sequence Count value from the Destination File 
+Table.</td>
+            
+            <td>Analysis</td>
+            
+            <td>Pass</td>
+            
+            <td><!-- MKS HTML -->This requirement passed in the 
+FileWrite, Filter and MoveFile test procedures. The output captured in 
+the logp files verify that the character representation of the sequence 
+count is contained in the filename. The FileWrite steps are 2.1.3, 2.2, 
+2.3.2, 2.6, 2.7, 3.1.1, 3.6, 3.9 and 3.14. The Filter steps are 2.1, 
+2.4.2, 2.8, 2.17, 3.3, 3.8 and 3.13. The MoveFile steps are 2.1.4, 2.2 
+and 2.3.2.</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4658-->
+<!-- block ID=4658-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="even_row">
+            
+            <td>DS3000.1.1</td>
+            
+            <td><!-- MKS HTML -->If Filename Type indicates naming based
+ on Sequence the value of Sequence Count shall be incremented each time a
+ file is created.</td>
+            
+            <td>Analysis</td>
+            
+            <td>Pass</td>
+            
+            <td><!-- MKS HTML -->This requirement passed in the 
+FileWrite, Filter and MoveFile test procedures. The output contained in 
+the logp files verify that the sequence count incremented when each file
+ was created. The FileWrite steps are 2.2, 2.3.2, 2.6, 2.7, 3.6 and 3.9.
+ The Filter steps are 2.4.2, 2.8, 2.17, 3.3, 3.8 and 3.13. The MoveFile 
+steps are 2.1.4, 2.2 and 2.3.2.</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4658-->
+<!-- block ID=4658-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="odd_row">
+            
+            <td>DS3001</td>
+            
+            <td><!-- MKS HTML -->Prior to writing a packet to an 
+existing destination file, DS shall verify that the resulting file size 
+(after the write) shall not exceed the file size limit as defined in the
+ Destination File Table.</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4658-->
+<!-- block ID=4658-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="even_row">
+            
+            <td>DS3001.1</td>
+            
+            <td><!-- MKS HTML -->If the resulting file size would exceed the file size limit then DS shall close the existing file and open another file.</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4658-->
+<!-- block ID=4658-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="odd_row">
+            
+            <td>DS3001.2</td>
+            
+            <td><!-- MKS HTML -->A minimum of one packet shall be written to a file.</td>
+            
+            <td>Analysis</td>
+            
+            <td>Pass</td>
+            
+            <td><!-- MKS HTML -->This requirement passed in the 
+FileWrite and MoveFile test procedures. Step 2.3.2 in both procedures 
+sends a message with 1500 data bytes to a destination whose maximum size
+ is set to 1024 bytes. The file was created and closed when the next 
+message for this ID is received in Step 2.6 of the FileWrite procedure. 
+The file was analyzed and found to contain only the packet sent in Step 
+2.3.2.</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4658-->
+<!-- block ID=4658-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="even_row">
+            
+            <td>DS3002</td>
+            
+            <td><!-- MKS HTML -->Periodically, DS shall test the age of 
+all open destination files. If any file age exceeds the maximum age 
+defined for that file in the Destination File Table, then DS shall close
+ the file.</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4658-->
+<!-- block ID=4658-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="odd_row">
+            
+            <td>DS3002.1</td>
+            
+            <td><!-- MKS HTML -->DS shall update file age and test age limits every time DS processes its housekeeping telemetry request command.</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4658-->
+<!-- block ID=4658-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="even_row">
+            
+            <td>DS5002</td>
+            
+            <td><!-- MKS HTML -->Upon receipt of a Close File Command, DS shall close the command-specified files.</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4658-->
+<!-- block ID=4658-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="odd_row">
+            
+            <td>DS8000</td>
+            
+            <td><!-- MKS HTML --><p>DS shall generate a housekeeping message containing the following:</p><p>a) Valid Command Counter</p><p>b) Command Rejected Counter</p><p>c) Packets discarded (DS was disabled) Counter</p><p>d) Packets discarded (pkt has no filter) Counter</p><p>e) Packets discarded (failed filter test) Counter</p><p>f) Packets that passed filter test Counter</p><p>g) Good destination file I/O Counter</p><p>h) Bad destination file I/O Counter</p><p>i) Good updates to secondary header Counter</p><p>j) Bad updates to secondary header Counter</p><p>k) Destination file table loads Counter</p><p>l) Failed attempts to get table data pointer Counter</p><p>m) Packet filter table loads Counter</p><p>n) Failed attempts to get table data pointer Counter</p><p>o) Application State<br>p) Destination file(s) state: &nbsp;&nbsp;</p><p>1) File age &nbsp;&nbsp;</p><p>2) File size &nbsp;&nbsp;</p><p>3) File rate &nbsp;&nbsp;</p><p>4) Sequence count &nbsp;&nbsp;</p><p>5) Enable state &nbsp;&nbsp;</p><p>6) Open state &nbsp;&nbsp;</p><p>7) Filename<br>q) Filename of last loaded Filter Table</p></td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td><!-- MKS HTML -->This requirement passed in all DS test procedures (FileWrite, Filter, GenCmds, MoveFile, ResetCDS, ResetNoCds).</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4658-->
+<!-- block ID=4658-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="even_row">
+            
+            <td>DS9000</td>
+            
+            <td><!-- MKS HTML --><p>Upon cFE Power-On DS shall initialize the following Housekeeping data to Zero (or value specified):</p><p>a) Valid Command Counter</p><p>b) Command Rejected Counter</p><p>c) Packets discarded (DS was disabled) Counter</p><p>d) Packets discarded (pkt has no filter) Counter</p><p>e) Packets discarded (failed filter test) Counter</p><p>f) Packets that passed filter test Counter</p><p>g) Good destination file I/O Counter h) Bad destination file I/O Counter</p><p>i) Good updates to secondary header Counter</p><p>j) Bad updates to secondary header Counter</p><p>k) Destination file table loads Counter</p><p>l) Failed attempts to get table data pointer Counter</p><p>m)Packet filter table loads Counter</p><p>n) Failed attempts to get table data pointer Counter</p></td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td><!-- MKS HTML -->This requirement passed in all DS test procedures (FileWrite, Filter, GenCmds, MoveFile, ResetCDS, ResetNoCds).</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4658-->
+
+        </tbody></table>
+    </td>
+</tr>
+
+<tr><td><hr class="hr_default"></td></tr>
+<tr><td>&nbsp;</td></tr>
+<script type="text/javascript"> line_count=0; </script>
+<!-- blockend ID=4658-->
+<!-- block ID=4511-->
+
+<!-- Display issue heading -->
+<tr><th style="text-align: left">DS_ResetCDS - Item 4511 </th></tr>
+<!-- Display issue field names and values -->
+
+<tr><td><b>TEST_Test_Name:</b> DS_ResetCDS</td></tr>
+
+<tr><td><b>TEST_Description:</b> <!-- MKS HTML -->This test verifies 
+that the CFS Data Storage (DS) application initializes the appropriate 
+data items based upon the type of initialization that occurs 
+(Application Reset, Processor Reset, or Power-On Reset). This test also 
+verifies that the proper notifications occur if any anomalies exist with
+ the data items stated in the requirements.<br><br>NOTE: This test SHOULD NOT be executed if the Save Critical Data configuration parameter is set to NO by the Mission.</td></tr>
+
+<tr><td><b>TEST_Current_Build:</b> 2.5.1.0</td></tr>
+
+<tr><td><b>TEST_Execution_Assigned_To:</b> Walt Moleski (wmoleski)</td></tr>
+
+<tr><td><b>TEST_Execution_Testbed:</b> cFE 6.5.0.0; OSAL 4.2.0.0; PSP 1.3.0.0</td></tr>
+
+<tr><td><b>TEST_Execution_Checksum:</b> 50244</td></tr>
+
+<tr><td><b>TEST_Execution_Completion_Date:</b> Feb 7, 2017</td></tr>
+
+<tr><td><b>TEST_Execution_Time:</b> 2484.77 seconds; 41.4128 minutes</td></tr>
+
+<tr><td><b>TEST_Execution_Comments:</b> <!-- MKS HTML -->Critical Table 
+corruption tests were performed although there are no requirements for 
+this. However, when the critical table is corrupted, the table is loaded
+ from the table file resident on the CPU. This was tested and passed.</td></tr>
+
+<tr><td><b>TEST_Comments:</b> &nbsp;</td></tr>
+
+<!-- Relationships info -->
+<!-- Display relationship heading -->
+<tr><td>DCRs Submitted / Tested and Requirements Validated</td></tr>
+
+
+<tr><td class="detailheading" style="text-align: left">Links_To_TEST_from_DCRs_Backward,ALM_Validates:</td></tr>
+<tr>
+    <td>
+        <table class="detailcols fullWidth">
+        
+        <tbody><tr>
+            
+            <th>ReqID</th>
+            
+            <th>Text</th>
+            
+            <th>Build Test Method</th>
+            
+            <th>REQ_Build_Sys_Test_Results</th>
+            
+            <th>REQ_Build_Sys_Test_Comments</th>
+            
+            <th>DCR_Title</th>
+            
+            <th>DCR_TEST_Outcome</th>
+            
+        </tr>
+        <!-- block ID=4511-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="odd_row">
+            
+            <td>DS8000</td>
+            
+            <td><!-- MKS HTML --><p>DS shall generate a housekeeping message containing the following:</p><p>a) Valid Command Counter</p><p>b) Command Rejected Counter</p><p>c) Packets discarded (DS was disabled) Counter</p><p>d) Packets discarded (pkt has no filter) Counter</p><p>e) Packets discarded (failed filter test) Counter</p><p>f) Packets that passed filter test Counter</p><p>g) Good destination file I/O Counter</p><p>h) Bad destination file I/O Counter</p><p>i) Good updates to secondary header Counter</p><p>j) Bad updates to secondary header Counter</p><p>k) Destination file table loads Counter</p><p>l) Failed attempts to get table data pointer Counter</p><p>m) Packet filter table loads Counter</p><p>n) Failed attempts to get table data pointer Counter</p><p>o) Application State<br>p) Destination file(s) state: &nbsp;&nbsp;</p><p>1) File age &nbsp;&nbsp;</p><p>2) File size &nbsp;&nbsp;</p><p>3) File rate &nbsp;&nbsp;</p><p>4) Sequence count &nbsp;&nbsp;</p><p>5) Enable state &nbsp;&nbsp;</p><p>6) Open state &nbsp;&nbsp;</p><p>7) Filename<br>q) Filename of last loaded Filter Table</p></td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td><!-- MKS HTML -->This requirement passed in all DS test procedures (FileWrite, Filter, GenCmds, MoveFile, ResetCDS, ResetNoCds).</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4511-->
+<!-- block ID=4511-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="even_row">
+            
+            <td>DS9000</td>
+            
+            <td><!-- MKS HTML --><p>Upon cFE Power-On DS shall initialize the following Housekeeping data to Zero (or value specified):</p><p>a) Valid Command Counter</p><p>b) Command Rejected Counter</p><p>c) Packets discarded (DS was disabled) Counter</p><p>d) Packets discarded (pkt has no filter) Counter</p><p>e) Packets discarded (failed filter test) Counter</p><p>f) Packets that passed filter test Counter</p><p>g) Good destination file I/O Counter h) Bad destination file I/O Counter</p><p>i) Good updates to secondary header Counter</p><p>j) Bad updates to secondary header Counter</p><p>k) Destination file table loads Counter</p><p>l) Failed attempts to get table data pointer Counter</p><p>m)Packet filter table loads Counter</p><p>n) Failed attempts to get table data pointer Counter</p></td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td><!-- MKS HTML -->This requirement passed in all DS test procedures (FileWrite, Filter, GenCmds, MoveFile, ResetCDS, ResetNoCds).</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4511-->
+<!-- block ID=4511-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="odd_row">
+            
+            <td>DS9001</td>
+            
+            <td><!-- MKS HTML -->Upon cFE Power-On DS shall initialize the DS tables from the default files.</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td><!-- MKS HTML -->This requirement passed in the ResetCDS and ResetNoCDS test procedures.</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4511-->
+<!-- block ID=4511-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="even_row">
+            
+            <td>DS9002</td>
+            
+            <td><!-- MKS HTML -->Upon a cFE Processor Reset or DS Application Reset, DS shall close all files.</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td><!-- MKS HTML -->This requirement passed in the ResetCDS and ResetNoCDS test procedures.</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4511-->
+<!-- block ID=4511-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="odd_row">
+            
+            <td>DS9003</td>
+            
+            <td><!-- MKS HTML --><p>Upon a cFE Processor Reset or DS 
+Application Reset , &nbsp;DS shall restore the following if the 
+associated &lt;PLATFORM_DEFINED&gt; Preserve Flag is set to TRUE:<br>a) &nbsp; &nbsp; &nbsp; Packet Filter Table</p><p>b) &nbsp; &nbsp; &nbsp; Destination File Table</p><p>c) &nbsp; &nbsp; &nbsp; File Sequence number for all Destination File Sets<br>d) &nbsp; &nbsp; &nbsp; Packet Processing State (ENABLED or DISABLED)</p></td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4511-->
+<!-- block ID=4511-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="even_row">
+            
+            <td>DS9005</td>
+            
+            <td><!-- MKS HTML --><p>Upon any initialization and/or Packet Filter Table Update, DS shall validate the Packet Filter Table:</p><p>a) table descriptor text for each packet entry:</p><p>b) message ID (0 = unused, else ok)</p><p>c) destination file table index</p><p>d) filter type (time/sequence)</p><p>e) filter parms (N,X,O)</p></td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td><!-- MKS HTML -->This requirement passed in the ResetCDS and ResetNoCDS test procedures.</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4511-->
+<!-- block ID=4511-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="odd_row">
+            
+            <td>DS9006</td>
+            
+            <td><!-- MKS HTML -->Upon any initialization and/or Packet 
+Filter Table Update, DS shall subscribe to the messages defined in the 
+Data Storage Packet Filter Table.</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td><!-- MKS HTML -->This requirement passed in the ResetCDS and ResetNoCDS test procedures.</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4511-->
+<!-- block ID=4511-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="even_row">
+            
+            <td>DS9007</td>
+            
+            <td><!-- MKS HTML --><p>Upon any initialization and/or Destination File Table Update, DS will validate the Destination File Table:</p><p>a) table descriptor text for each destination file entry</p><p>b) pathname</p><p>c) basename</p><p>d) extension</p><p>e) filename type</p><p>f) file enable/disable state</p><p>g) max file size &nbsp;</p><p>h) max file age &nbsp;</p><p>i) sequence count</p></td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td><!-- MKS HTML -->This requirement passed in the ResetCDS and ResetNoCDS test procedures.</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4511-->
+<!-- block ID=4511-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="odd_row">
+            
+            <td>DS9008</td>
+            
+            <td><!-- MKS HTML -->Upon cFE Power-On DS shall set the Packet Processing State to the &lt;PLATFORM_DEFINED&gt; state (ENABLED or DISABLED).</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td><!-- MKS HTML -->This requirement passed in the ResetCDS and ResetNoCDS procedures.</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4511-->
+
+        </tbody></table>
+    </td>
+</tr>
+
+<tr><td><hr class="hr_default"></td></tr>
+<tr><td>&nbsp;</td></tr>
+<script type="text/javascript"> line_count=0; </script>
+<!-- blockend ID=4511-->
+<!-- block ID=4512-->
+
+<!-- Display issue heading -->
+<tr><th style="text-align: left">DS_ResetNoCDS - Item 4512 </th></tr>
+<!-- Display issue field names and values -->
+
+<tr><td><b>TEST_Test_Name:</b> DS_ResetNoCDS</td></tr>
+
+<tr><td><b>TEST_Description:</b> <!-- MKS HTML -->This test verifies 
+that the CFS Data Storage (DS) application initializes the appropriate 
+data items based upon the type of initialization that occurs 
+(Application Reset, Processor Reset, or Power-On Reset). This test also 
+verifies that the proper notifications occur if any anomalies exist with
+ the data items stated in the requirements.<br><br>NOTE: This test SHOULD NOT be executed if the Save Critical Data configuration parameter is set to YES by the Mission.</td></tr>
+
+<tr><td><b>TEST_Current_Build:</b> 2.5.1.0</td></tr>
+
+<tr><td><b>TEST_Execution_Assigned_To:</b> Walt Moleski (wmoleski)</td></tr>
+
+<tr><td><b>TEST_Execution_Testbed:</b> cFE 6.5.0.0; OSAL 4.2.0.0; PSP 1.3.0.0</td></tr>
+
+<tr><td><b>TEST_Execution_Checksum:</b> 50244</td></tr>
+
+<tr><td><b>TEST_Execution_Completion_Date:</b> Feb 7, 2017</td></tr>
+
+<tr><td><b>TEST_Execution_Time:</b> 1728.51 seconds; 28.8086 minutes</td></tr>
+
+<tr><td><b>TEST_Execution_Comments:</b> &nbsp;</td></tr>
+
+<tr><td><b>TEST_Comments:</b> &nbsp;</td></tr>
+
+<!-- Relationships info -->
+<!-- Display relationship heading -->
+<tr><td>DCRs Submitted / Tested and Requirements Validated</td></tr>
+
+
+<tr><td class="detailheading" style="text-align: left">Links_To_TEST_from_DCRs_Backward,ALM_Validates:</td></tr>
+<tr>
+    <td>
+        <table class="detailcols fullWidth">
+        
+        <tbody><tr>
+            
+            <th>ReqID</th>
+            
+            <th>Text</th>
+            
+            <th>Build Test Method</th>
+            
+            <th>REQ_Build_Sys_Test_Results</th>
+            
+            <th>REQ_Build_Sys_Test_Comments</th>
+            
+            <th>DCR_Title</th>
+            
+            <th>DCR_TEST_Outcome</th>
+            
+        </tr>
+        <!-- block ID=4512-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="odd_row">
+            
+            <td>DS8000</td>
+            
+            <td><!-- MKS HTML --><p>DS shall generate a housekeeping message containing the following:</p><p>a) Valid Command Counter</p><p>b) Command Rejected Counter</p><p>c) Packets discarded (DS was disabled) Counter</p><p>d) Packets discarded (pkt has no filter) Counter</p><p>e) Packets discarded (failed filter test) Counter</p><p>f) Packets that passed filter test Counter</p><p>g) Good destination file I/O Counter</p><p>h) Bad destination file I/O Counter</p><p>i) Good updates to secondary header Counter</p><p>j) Bad updates to secondary header Counter</p><p>k) Destination file table loads Counter</p><p>l) Failed attempts to get table data pointer Counter</p><p>m) Packet filter table loads Counter</p><p>n) Failed attempts to get table data pointer Counter</p><p>o) Application State<br>p) Destination file(s) state: &nbsp;&nbsp;</p><p>1) File age &nbsp;&nbsp;</p><p>2) File size &nbsp;&nbsp;</p><p>3) File rate &nbsp;&nbsp;</p><p>4) Sequence count &nbsp;&nbsp;</p><p>5) Enable state &nbsp;&nbsp;</p><p>6) Open state &nbsp;&nbsp;</p><p>7) Filename<br>q) Filename of last loaded Filter Table</p></td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td><!-- MKS HTML -->This requirement passed in all DS test procedures (FileWrite, Filter, GenCmds, MoveFile, ResetCDS, ResetNoCds).</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4512-->
+<!-- block ID=4512-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="even_row">
+            
+            <td>DS9000</td>
+            
+            <td><!-- MKS HTML --><p>Upon cFE Power-On DS shall initialize the following Housekeeping data to Zero (or value specified):</p><p>a) Valid Command Counter</p><p>b) Command Rejected Counter</p><p>c) Packets discarded (DS was disabled) Counter</p><p>d) Packets discarded (pkt has no filter) Counter</p><p>e) Packets discarded (failed filter test) Counter</p><p>f) Packets that passed filter test Counter</p><p>g) Good destination file I/O Counter h) Bad destination file I/O Counter</p><p>i) Good updates to secondary header Counter</p><p>j) Bad updates to secondary header Counter</p><p>k) Destination file table loads Counter</p><p>l) Failed attempts to get table data pointer Counter</p><p>m)Packet filter table loads Counter</p><p>n) Failed attempts to get table data pointer Counter</p></td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td><!-- MKS HTML -->This requirement passed in all DS test procedures (FileWrite, Filter, GenCmds, MoveFile, ResetCDS, ResetNoCds).</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4512-->
+<!-- block ID=4512-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="odd_row">
+            
+            <td>DS9001</td>
+            
+            <td><!-- MKS HTML -->Upon cFE Power-On DS shall initialize the DS tables from the default files.</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td><!-- MKS HTML -->This requirement passed in the ResetCDS and ResetNoCDS test procedures.</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4512-->
+<!-- block ID=4512-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="even_row">
+            
+            <td>DS9002</td>
+            
+            <td><!-- MKS HTML -->Upon a cFE Processor Reset or DS Application Reset, DS shall close all files.</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td><!-- MKS HTML -->This requirement passed in the ResetCDS and ResetNoCDS test procedures.</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4512-->
+<!-- block ID=4512-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="odd_row">
+            
+            <td>DS9004</td>
+            
+            <td><!-- MKS HTML -->Upon a cFE Processor Reset or DS 
+Application Reset , &nbsp;DS shall restore the following if the 
+associated &lt;PLATFORM_DEFINED&gt; Preserve Flag is set to FALSE:<br>a)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; File Sequence Counters<br>b)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;PLATFORM_DEFINED&gt; Packet Processing State</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4512-->
+<!-- block ID=4512-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="even_row">
+            
+            <td>DS9005</td>
+            
+            <td><!-- MKS HTML --><p>Upon any initialization and/or Packet Filter Table Update, DS shall validate the Packet Filter Table:</p><p>a) table descriptor text for each packet entry:</p><p>b) message ID (0 = unused, else ok)</p><p>c) destination file table index</p><p>d) filter type (time/sequence)</p><p>e) filter parms (N,X,O)</p></td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td><!-- MKS HTML -->This requirement passed in the ResetCDS and ResetNoCDS test procedures.</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4512-->
+<!-- block ID=4512-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="odd_row">
+            
+            <td>DS9006</td>
+            
+            <td><!-- MKS HTML -->Upon any initialization and/or Packet 
+Filter Table Update, DS shall subscribe to the messages defined in the 
+Data Storage Packet Filter Table.</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td><!-- MKS HTML -->This requirement passed in the ResetCDS and ResetNoCDS test procedures.</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4512-->
+<!-- block ID=4512-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="even_row">
+            
+            <td>DS9007</td>
+            
+            <td><!-- MKS HTML --><p>Upon any initialization and/or Destination File Table Update, DS will validate the Destination File Table:</p><p>a) table descriptor text for each destination file entry</p><p>b) pathname</p><p>c) basename</p><p>d) extension</p><p>e) filename type</p><p>f) file enable/disable state</p><p>g) max file size &nbsp;</p><p>h) max file age &nbsp;</p><p>i) sequence count</p></td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td><!-- MKS HTML -->This requirement passed in the ResetCDS and ResetNoCDS test procedures.</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4512-->
+<!-- block ID=4512-->
+
+		
+        
+        <!-- Display relationship issue field headings -->
+        
+        
+        <!-- Display relationship issue field values -->
+		<script type="text/javascript"> writeEvenOddTRTag(); </script><tr class="odd_row">
+            
+            <td>DS9008</td>
+            
+            <td><!-- MKS HTML -->Upon cFE Power-On DS shall set the Packet Processing State to the &lt;PLATFORM_DEFINED&gt; state (ENABLED or DISABLED).</td>
+            
+            <td>Demonstration</td>
+            
+            <td>Pass</td>
+            
+            <td><!-- MKS HTML -->This requirement passed in the ResetCDS and ResetNoCDS procedures.</td>
+            
+            <td>&nbsp;</td>
+            
+            <td>&nbsp;</td>
+            
+        </tr>
+        <!-- blockend ID=4512-->
+
+        </tbody></table>
+    </td>
+</tr>
+
+<tr><td><hr class="hr_default"></td></tr>
+<tr><td>&nbsp;</td></tr>
+<script type="text/javascript"> line_count=0; </script>
+<!-- blockend ID=4512-->
+
+</tbody></table>
+<center class="footer"></center>
+
+</body></html>

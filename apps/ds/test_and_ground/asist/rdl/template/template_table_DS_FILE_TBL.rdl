@@ -1,0 +1,54 @@
+!==============================================================================
+!
+!                Originator: W. Moleski
+!                Responsible SC:  
+!                Responsible CSE: 
+!                Rev:  Last Change: July 20, 2009
+!
+!                    Telemetry Packet #nnnn  (dec)
+!                 =================================
+!
+!       Packet Application ID: nnnn (Hex 'xxxx')
+!       Packet Title:  $sc $cpu DS Destination File table
+!       Packet Length:  ?? Bytes (Including ?? Bytes Of Header)
+!	Collect             Frequency:         SEC
+!  
+!       REFERENCES:
+!
+!       NOTES:
+!
+!       HISTORY: 
+!       2012/01/04 WFM  : Removed VARYING from Packet definition
+!
+!==============================================================================
+!
+#include "ds_platform_cfg.h"
+!
+!
+TYPES
+   RECORD $sc_$cpu_DS_FILE_ENTRY_TYPE  DESC="$sc $cpu DS Destination File Table Entry Type"
+#if DS_MOVE_FILES == 1
+      CHAR MoveDirName[DS_PATHNAME_BUFSIZE]   DESC="Destination File directory string where closed files are moved"
+#endif
+      CHAR Pathname[DS_PATHNAME_BUFSIZE]   DESC="Destination File path string"
+      CHAR Basename[DS_BASENAME_BUFSIZE]   DESC="Destination File basename string"
+      CHAR Extension[DS_EXTENSION_BUFSIZE] DESC="Destination File extension string"
+      UI  FileNameType	DESC="The current File Type", DISCRETE, DRANGE=(0,1,2), 
+			DLABEL=("Unused","Count","Time")
+      UI  FileState	DESC="The current File Entry state", DISCRETE,
+			DRANGE=(0,1),DLABEL=("Disabled","Enabled")
+      ULI FileSize	DESC="The maximum size in bytes for this file entry" 
+      ULI FileAge	DESC="The age in seconds for this file entry" 
+      ULI SeqCnt	DESC="The initial sequence count" 
+   END
+END_TYPES
+
+PACKET Pxxxx APID=nnnn, DESC="$sc $cpu DS Destination File Table"
+!
+#include "cfe_file_header.rdl"
+#include "cfe_tbl_header.rdl" 
+!
+   CHAR $sc_$cpu_DS_DF_TBL_Description[DS_DESCRIPTOR_BUFSIZE]  DESC="$sc $cpu DS Destination File Table Description"
+   $sc_$cpu_DS_FILE_ENTRY_TYPE $sc_$cpu_DS_DF_TBL[0 .. DS_DEST_FILE_CNT-1]  DESC="$sc $cpu DS Destination File Table Entries"
+!
+END
