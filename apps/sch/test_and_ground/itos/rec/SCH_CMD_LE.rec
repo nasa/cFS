@@ -1,0 +1,59 @@
+CfeSoftwareCommand FSW_SCH_NOOP
+{
+    applicationId {range=0x95}
+    commandCode {range=0}
+}
+
+CfeSoftwareCommand FSW_SCH_RESET_CNTRS
+{
+    applicationId {range=0x95}
+    commandCode {range=1}
+}
+
+
+CfeSoftwareCommand FSW_SCH_ENABLEENTRY
+{
+    applicationId {range=0x95}
+    commandCode {range=2}
+
+    U21 SlotNumber {}
+    U21 EntryNumber {}
+}
+
+CfeSoftwareCommand FSW_SCH_DISABLEENTRY
+{
+    applicationId {range=0x95}
+    commandCode {range=3}
+
+    U21 SlotNumber {}
+    U21 EntryNumber {}
+}
+
+CfeSoftwareCommand FSW_SCH_ENABLEGROUP
+{
+    applicationId {range=0x95}
+    commandCode {range=4}
+
+    U4321 GroupData {}
+}
+
+CfeSoftwareCommand FSW_SCH_DISABLEGROUP
+{
+    applicationId {range=0x95}
+    commandCode {range=5}
+
+    U4321 GroupData {}
+}
+
+CfeSoftwareCommand FSW_SCH_ENABLESYNC
+{
+    applicationId {range=0x95}
+    commandCode {range=6}
+}
+
+CfeSoftwareCommand FSW_SCH_SENDDIAG
+{
+    applicationId {range=0x95}
+    commandCode {range=7}
+}
+

@@ -1,0 +1,48 @@
+!==============================================================================
+!                Originator:      E. Uzo-Okoro
+!                Responsible SC:  Barbie Medina
+!                Responsible CSE: ??
+!                Rev:  Last Change: Nov 12, 2008  
+!
+!                    Telemetry Packet # nnnn (dec)
+!                 =================================
+!
+!       Packet Application ID: nnnn (Hex 'xxxx')
+!       Packet Title:  $sc $cpu SCH Schedule Definition table
+!       Packet Length:  ?? Bytes (Including ?? Bytes Of Header)
+!	Collect             Frequency:         SEC
+!
+!       REFERENCES:
+!
+!       NOTES:
+!
+!       HISTORY:
+!       2010/11/08 EUO  : Initial implementation
+!       2012/01/04 WFM  : Removed VARYING from Packet definition
+!
+!=============================================================================
+!
+#include "sch_msgdefs.h"
+#include "sch_platform_cfg.h"
+!
+TYPES
+   RECORD $sc_$cpu_SCH_ScheduleEntry_t  DESC="$sc $cpu Schedule definition table entry Type"
+      UB  EnableState		DESC="The State of this table entry",DISCRETE,
+                        	DRANGE=(0,1,2),DLABEL=("Unused","Enabled","Disabled")
+      UB  SE_Type			DESC="The Activity Type of this table entry",DISCRETE,
+                        	DRANGE=(0,1),DLABEL=("None","Send_Msg")
+      UI  SE_Frequency		DESC="Number of seconds between Activity execution"
+      UI  Remainder		DESC="Seconds offset to perform Activity"
+      UI  MessageIndex		DESC="Byte index into Message Definition Table"
+      ULI GroupData		DESC="Group and Multi-Group membership definitions"
+   END
+END_TYPES
+
+PACKET Pxxxx APID=nnnn, DESC="$sc $cpu SCH Schedule Definition Table"
+!
+#include "cfe_file_header.rdl"
+#include "cfe_tbl_header.rdl" 
+!
+$sc_$cpu_SCH_ScheduleEntry_t $sc_$cpu_SCH_DefaultScheduleTable[0 .. SCH_TABLE_ENTRIES-1]  DESC="$sc $cpu SCH Schedule Definition Table"
+!
+END

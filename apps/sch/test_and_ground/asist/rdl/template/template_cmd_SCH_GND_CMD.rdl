@@ -1,0 +1,52 @@
+!==============================================================================
+!                Originator:      E. Uzo-Okoro
+!                Responsible SC:  Barbie Medina
+!                Responsible CSE: ??
+!
+!                  $sc $cpu SCH Command Packet xxxx
+!                  ================================
+!
+!       Packet Application ID: nnnn (Hex 'xxxx')
+!       Packet Title:$sc $cpu Scheduler App Commands
+!       Packet Source:
+!
+!       HISTORY:
+!
+!  12NOV08     EUO           : Initial
+!
+!=============================================================================
+!
+#include "osconfig.h"
+#include "cfe_mission_cfg.h"
+!
+CLASS Pxxxx APID=nnnn, DESC="$sc $cpu Scheduler App Commands"
+!
+  CMD  $sc_$cpu_SCH_NOOP        	FCTN=0, DESC="$sc $cpu SCH no-op command code"
+!
+  CMD  $sc_$cpu_SCH_RESETCTRS    	FCTN=1, DESC="$sc $cpu SCH reset counters command code"
+!
+  CMDS $sc_$cpu_SCH_ENABLEENTRY         FCTN=2, DESC="$sc $cpu SCH enable schedule table entry command code"
+      UI SlotNumber  DESC="Slot Number of Activity whose state is to change"
+      UI EntryNumber   DESC="Entry Number of Activity whose state is to change"
+  END
+!
+  CMDS $sc_$cpu_SCH_DISABLEENTRY         FCTN=3, DESC="$sc $cpu SCH disable schedule table entry command code"
+      UI SlotNumber  DESC="Slot Number of Activity whose state is to change"
+      UI EntryNumber   DESC="Entry Number of Activity whose state is to change"
+  END
+!
+  CMDS $sc_$cpu_SCH_ENABLEGROUP      FCTN=4, DESC="$sc $cpu SCH enable group of entries command code"
+      ULI GroupData  DESC="Group and Multi-Group Identifiers"
+  END
+!
+  CMDS $sc_$cpu_SCH_DISABLEGROUP      FCTN=5, DESC="$sc $cpu SCH disable group of entries command code"
+      ULI GroupData  DESC="Group and Multi-Group Identifiers"
+  END
+!
+  CMD  $sc_$cpu_SCH_ENABLESYNC        	FCTN=6, DESC="$sc $cpu SCH enable major frame synchronization command code"
+!
+  CMD  $sc_$cpu_SCH_SENDDIAG    	FCTN=7, DESC="$sc $cpu SCH sends diagnostic message packet command code"
+!
+END       !END PACKET
+!
+!=============================================================================

@@ -1,0 +1,87 @@
+        -:    0:Source:../src/sch_api.c
+        -:    0:Programs:4
+        -:    1:/*
+        -:    2:** $Id: sch_api.c.gcov 1.2 2017/06/21 16:39:45EDT mdeschu Exp  $
+        -:    3:**
+        -:    4:**  Copyright (c) 2007-2014 United States Government as represented by the 
+        -:    5:**  Administrator of the National Aeronautics and Space Administration. 
+        -:    6:**  All Other Rights Reserved.  
+        -:    7:**
+        -:    8:**  This software was created at NASA's Goddard Space Flight Center.
+        -:    9:**  This software is governed by the NASA Open Source Agreement and may be 
+        -:   10:**  used, distributed and modified only pursuant to the terms of that 
+        -:   11:**  agreement.
+        -:   12:**
+        -:   13:** Purpose: This file contains api functions to modify and obtain the current
+        -:   14:**          SCH Schedule Processing state.
+        -:   15:** 
+        -:   16:** Author:
+        -:   17:**
+        -:   18:** References: 
+        -:   19:**
+        -:   20:*/
+        -:   21:
+        -:   22:/*
+        -:   23:** Includes
+        -:   24:*/
+        -:   25:
+        -:   26:#include "sch_api.h"
+        -:   27:#include "sch_apipriv.h"
+        -:   28:#include "sch_platform_cfg.h"
+        -:   29:
+        -:   30:/*
+        -:   31:** Exported data
+        -:   32:*/
+        -:   33:
+        -:   34:SCH_LibData_t SCH_LibData;
+        -:   35:
+        -:   36:/*******************************************************************
+        -:   37:**
+        -:   38:** SCH_LibInit() -- Initializes the SCH Library
+        -:   39:**
+        -:   40:** NOTE: For complete prolog information, see 'sch_apipriv.h'.
+        -:   41:********************************************************************/
+        1:   42:int32 SCH_LibInit(void)
+        -:   43:{
+        1:   44:    SCH_LibData.ProcessingDisabledCtr = SCH_LIB_DIS_CTR;
+        1:   45:    return OS_SUCCESS;
+        -:   46:}
+        -:   47:
+        -:   48:/*******************************************************************
+        -:   49:**
+        -:   50:** SCH_EnableProcessing() -- Enables SCH schedule processing
+        -:   51:**
+        -:   52:** NOTE: For complete prolog information, see 'sch_api.h'.
+        -:   53:********************************************************************/
+        1:   54:void SCH_EnableProcessing(void)
+        -:   55:{
+        1:   56:    if (SCH_LibData.ProcessingDisabledCtr > 0)
+        -:   57:    {
+        1:   58:        SCH_LibData.ProcessingDisabledCtr--;
+        -:   59:    }
+        1:   60:}
+        -:   61:
+        -:   62:
+        -:   63:/*******************************************************************
+        -:   64:**
+        -:   65:** SCH_DisableProcessing() -- Disables SCH schedule processing
+        -:   66:**
+        -:   67:** NOTE: For complete prolog information, see 'sch_api.h'.
+        -:   68:********************************************************************/
+        1:   69:void SCH_DisableProcessing(void)
+        -:   70:{
+        1:   71:    SCH_LibData.ProcessingDisabledCtr++;
+        1:   72:}
+        -:   73:
+        -:   74:
+        -:   75:/*******************************************************************
+        -:   76:**
+        -:   77:** SCH_GetProcessingState() -- Obtains the current SCH schedule
+        -:   78:**                             table processing state
+        -:   79:**
+        -:   80:** NOTE: For complete prolog information, see 'sch_api.h'.
+        -:   81:********************************************************************/
+        6:   82:boolean SCH_GetProcessingState(void)
+        -:   83:{
+        6:   84:    return (SCH_LibData.ProcessingDisabledCtr == 0);
+        -:   85:}
