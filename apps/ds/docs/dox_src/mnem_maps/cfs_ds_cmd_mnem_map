@@ -1,0 +1,35 @@
+#---------------------------------------------------------------------------
+# Each of the following assignment statements should have the documentation
+# mnemonic on the left followed by the mission specific command mnemonic
+# on the right of the equals operator.
+#
+# FORMATTING DETAILS TO REMEMBER!
+# 1) ALIASES line MUST have "+=" as the operator
+# 2) There CANNOT be spaces around the "=" operator on assignment statements
+# 3) NO comments, such as these, can be interspersed within the assignment
+#    statements
+# 4) If there are multiple mnemonics for a particular data point, they should
+#    be separated by the following ", \b \c " and enclosed in double quotes to 
+#    maintain proper formatting in the documentation.  For example:
+#        ES_RESET="$sc_$cpu_ES_ProcessorReset, \b \c $sc_$cpu_ES_PowerOnReset"
+#---------------------------------------------------------------------------
+ALIASES += \
+DS_NOOP=$sc_$cpu_DS_NOOP \
+DS_RESETCTRS=$sc_$cpu_DS_ResetCtrs \
+DS_ENABLE=$sc_$cpu_DS_Enable \
+DS_DISABLE=$sc_$cpu_DS_Disable \
+DS_FILTERFILE=$sc_$cpu_DS_SetFilterFile \
+DS_FILTERTYPE=$sc_$cpu_DS_SetFilterType \
+DS_FILTERPARMS=$sc_$cpu_DS_SetFilterParams \
+DS_FILENAMETYPE=$sc_$cpu_DS_SetFileType \
+DS_ENABLEFILE=$sc_$cpu_DS_EnableFile \
+DS_DISABLEFILE=$sc_$cpu_DS_DisableFile \
+DS_PATHNAME=$sc_$cpu_DS_SetPath \
+DS_BASENAME=$sc_$cpu_DS_SetBaseName \
+DS_EXTNAME=$sc_$cpu_DS_SetExtension \
+DS_MAXFILESIZE=$sc_$cpu_DS_SetMaxFileSize \
+DS_MAXFILEAGE=$sc_$cpu_DS_SetMaxFileAge \
+DS_SEQCOUNT=$sc_$cpu_DS_SetFileSeqCtr \
+DS_CLOSEFILE=$sc_$cpu_DS_CloseFile \
+DS_CLOSEALL=$sc_$cpu_DS_CloseAll \
+DS_ADDMID=$sc_$cpu_DS_AddMID

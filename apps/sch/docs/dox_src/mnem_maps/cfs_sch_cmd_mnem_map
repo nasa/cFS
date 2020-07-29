@@ -1,0 +1,26 @@
+#---------------------------------------------------------------------------
+# Each of the following assignment statements should have the documentation
+# mnemonic on the left followed by the mission specific command mnemonic
+# on the right of the equals operator.
+#
+# FORMATTING DETAILS TO REMEMBER!
+# 1) ALIASES line MUST have "+=" as the operator
+# 2) There CANNOT be spaces around the "=" operator on assignment statements
+# 3) Each line, EXCEPT the last, MUST have the line continuation character "\"
+#    at the end
+# 4) NO comments, such as these, can be interspersed within the assignment
+#    statements
+# 5) If there are multiple mnemonics for a particular data point, they should
+#    be separated by the following ", \b \c " and enclosed in double quotes to 
+#    maintain proper formatting in the documentation.  For example:
+#        ES_RESET="$sc_$cpu_ES_ProcessorReset, \b \c $sc_$cpu_ES_PowerOnReset"
+#---------------------------------------------------------------------------
+ALIASES += \
+SCH_NOOP=$sc_$cpu_SCH_NOOP \
+SCH_RESETCTRS=$sc_$cpu_SCH_ResetCtrs \
+SCH_ENABLEENTRY=$sc_$cpu_SCH_EnableEntry \
+SCH_DISABLEENTRY=$sc_$cpu_SCH_DisableEntry \
+SCH_ENABLEGROUP=$sc_$cpu_SCH_EnableGroup \
+SCH_DISABLEGROUP=$sc_$cpu_SCH_DisableGroup \
+SCH_ENABLESYNC=$sc_$cpu_SCH_EnableSync \
+SCH_SENDDIAG=$sc_$cpu_SCH_SendDiagnostic

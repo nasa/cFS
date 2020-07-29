@@ -1,0 +1,1273 @@
+        -:    0:Source:../src/sch_app.c
+        -:    0:Programs:4
+        -:    1:/*
+        -:    2:** $Id: sch_app.c.gcov 1.3 2017/06/21 16:39:45EDT mdeschu Exp  $
+        -:    3:**
+        -:    4:**  Copyright (c) 2007-2014 United States Government as represented by the 
+        -:    5:**  Administrator of the National Aeronautics and Space Administration. 
+        -:    6:**  All Other Rights Reserved.  
+        -:    7:**
+        -:    8:**  This software was created at NASA's Goddard Space Flight Center.
+        -:    9:**  This software is governed by the NASA Open Source Agreement and may be 
+        -:   10:**  used, distributed and modified only pursuant to the terms of that 
+        -:   11:**  agreement.
+        -:   12:**
+        -:   13:** Purpose: Scheduler (SCH) application
+        -:   14:**
+        -:   15:** Author:
+        -:   16:**
+        -:   17:** Notes:
+        -:   18:**
+        -:   19:*/
+        -:   20:
+        -:   21:/*************************************************************************
+        -:   22:**
+        -:   23:** Include section
+        -:   24:**
+        -:   25:**************************************************************************/
+        -:   26:
+        -:   27:#include "cfe.h"
+        -:   28:
+        -:   29:#include "sch_msgids.h"
+        -:   30:#include "sch_perfids.h"
+        -:   31:#include "sch_platform_cfg.h"
+        -:   32:
+        -:   33:#if SCH_LIB_PRESENCE == 1
+        -:   34:#include "sch_api.h"
+        -:   35:#endif
+        -:   36:
+        -:   37:#include "sch_custom.h"
+        -:   38:#include "sch_msg.h"
+        -:   39:#include "sch_events.h"
+        -:   40:#include "sch_app.h"
+        -:   41:#include "sch_cmds.h"
+        -:   42:#include "sch_version.h"
+        -:   43:
+        -:   44:#include "cfe_time_msg.h"
+        -:   45:#include "sch_verify.h"
+        -:   46:
+        -:   47:/*************************************************************************
+        -:   48:**
+        -:   49:** Macro definitions
+        -:   50:**
+        -:   51:**************************************************************************/
+        -:   52:
+        -:   53:/*
+        -:   54:** Time Semaphore Characteristics
+        -:   55:*/
+        -:   56:#define SCH_SEM_NAME     "SCH_TIME_SEM"
+        -:   57:#define SCH_SEM_VALUE    0
+        -:   58:#define SCH_SEM_OPTIONS  0
+        -:   59:
+        -:   60:/*
+        -:   61:** SDT Table Validation Error Codes
+        -:   62:*/
+        -:   63:#define SCH_SDT_GARBAGE_ENTRY    (-1)
+        -:   64:#define SCH_SDT_NO_FREQUENCY     (-2)
+        -:   65:#define SCH_SDT_BAD_REMAINDER    (-3)
+        -:   66:#define SCH_SDT_BAD_ACTIVITY     (-4)
+        -:   67:#define SCH_SDT_BAD_MSG_INDEX    (-5)
+        -:   68:#define SCH_SDT_BAD_ENABLE_STATE (-6)
+        -:   69:
+        -:   70:/*
+        -:   71:** MDT Table Validation Error Codes
+        -:   72:*/
+        -:   73:#define SCH_MDT_GARBAGE_ENTRY   (-1)
+        -:   74:#define SCH_MDT_INVALID_LENGTH  (-2)
+        -:   75:#define SCH_MDT_BAD_MSG_ID      (-3)
+        -:   76:
+        -:   77:/*************************************************************************
+        -:   78:**
+        -:   79:** Type definitions
+        -:   80:**
+        -:   81:**************************************************************************/
+        -:   82:
+        -:   83:/*
+        -:   84:** (none)
+        -:   85:*/
+        -:   86:
+        -:   87:/*************************************************************************
+        -:   88:**
+        -:   89:** Imported data
+        -:   90:**
+        -:   91:**************************************************************************/
+        -:   92:
+        -:   93:/*
+        -:   94:** (none)
+        -:   95:*/
+        -:   96:
+        -:   97:/*************************************************************************
+        -:   98:**
+        -:   99:** Exported data
+        -:  100:**
+        -:  101:**************************************************************************/
+        -:  102:
+        -:  103:/*
+        -:  104:** Application global data
+        -:  105:*/
+        -:  106:SCH_AppData_t           SCH_AppData;
+        -:  107:
+        -:  108:/*************************************************************************
+        -:  109:**
+        -:  110:** Function definitions
+        -:  111:**
+        -:  112:**************************************************************************/
+        -:  113:
+        -:  114:/*******************************************************************
+        -:  115:**
+        -:  116:** SCH_AppMain
+        -:  117:**
+        -:  118:** NOTE: For complete prolog information, see 'sch_app.h'
+        -:  119:********************************************************************/
+        -:  120:
+        7:  121:void SCH_AppMain(void)
+        -:  122:{
+        7:  123:    int32  Status    = CFE_SUCCESS;
+        7:  124:    uint32 RunStatus = CFE_ES_APP_RUN;
+        -:  125:
+        -:  126:    /*
+        -:  127:    ** Performance Log (start time counter)
+        -:  128:    */
+        7:  129:    CFE_ES_PerfLogEntry(SCH_APPMAIN_PERF_ID);
+        -:  130:
+        -:  131:    /*
+        -:  132:    ** Register application
+        -:  133:    */
+        7:  134:    Status = CFE_ES_RegisterApp();
+        -:  135:
+        -:  136:    /*
+        -:  137:    ** Perform application specific initialization
+        -:  138:    */
+        7:  139:    if (Status == CFE_SUCCESS)
+        -:  140:    {
+        6:  141:        Status = SCH_AppInit();
+        -:  142:    }
+        -:  143:    
+        -:  144:    /* If no errors were detected during initialization, then wait for everyone to start */
+        7:  145:    if (Status == CFE_SUCCESS)
+        -:  146:    {
+        5:  147:        Status = SCH_CustomLateInit();
+        5:  148:        if (Status != CFE_SUCCESS)
+        -:  149:        {
+        1:  150:            CFE_EVS_SendEvent(SCH_MAJOR_FRAME_SUB_ERR_EID, CFE_EVS_ERROR,
+        -:  151:                              "Error initializing Timers (RC=0x%08X)", 
+        -:  152:                              (unsigned int)Status);    
+        -:  153:        }
+        -:  154:    }
+        -:  155:
+        -:  156:    /*
+        -:  157:    ** Check for start-up error
+        -:  158:    */
+        7:  159:    if (Status != CFE_SUCCESS)
+        -:  160:    {
+        -:  161:        /*
+        -:  162:        ** Set request to terminate main loop
+        -:  163:        */
+        3:  164:        RunStatus = CFE_ES_APP_ERROR;
+        -:  165:    }
+        -:  166:
+        -:  167:    /*
+        -:  168:    ** Main process loop
+        -:  169:    */
+       18:  170:    while (CFE_ES_RunLoop(&RunStatus))
+        -:  171:    {
+        -:  172:        /*
+        -:  173:        ** Performance Log (stop time counter)
+        -:  174:        */
+        4:  175:        CFE_ES_PerfLogExit(SCH_APPMAIN_PERF_ID);
+        -:  176:
+        -:  177:        /*
+        -:  178:        ** Wait for the next slot (Major or Minor Frame)
+        -:  179:        */
+        4:  180:        Status = OS_BinSemTake(SCH_AppData.TimeSemaphore);
+        -:  181:
+        -:  182:        /*
+        -:  183:        ** Performance Log (start time counter)
+        -:  184:        */
+        4:  185:        CFE_ES_PerfLogEntry(SCH_APPMAIN_PERF_ID);
+        -:  186:
+        -:  187:        /*
+        -:  188:        ** Report if during the previous frame the major has determined to be unstable
+        -:  189:        */
+        4:  190:        if (SCH_AppData.IgnoreMajorFrame == TRUE)
+        -:  191:        {
+        1:  192:            if (SCH_AppData.IgnoreMajorFrameMsgSent == FALSE)
+        -:  193:            {
+        1:  194:                CFE_EVS_SendEvent(SCH_NOISY_MAJOR_FRAME_ERR_EID, CFE_EVS_ERROR, 
+        -:  195:                                  "Major Frame Sync too noisy (Slot %d). Disabling synchronization.", 
+        1:  196:                                  SCH_AppData.MinorFramesSinceTone);
+        1:  197:                SCH_AppData.IgnoreMajorFrameMsgSent = TRUE;
+        -:  198:            }
+        -:  199:        }
+        -:  200:        else
+        -:  201:        {
+        3:  202:            SCH_AppData.IgnoreMajorFrameMsgSent = FALSE;
+        -:  203:        }
+        -:  204:
+        -:  205:        /*
+        -:  206:        ** Process schedule table activities
+        -:  207:        */
+        -:  208:#if SCH_LIB_PRESENCE == 1
+        8:  209:        if ((Status == OS_SUCCESS) &&
+        4:  210:            (SCH_GetProcessingState() == TRUE))
+        -:  211:        {
+        2:  212:            Status = SCH_ProcessScheduleTable();
+        -:  213:        }
+        -:  214:#else
+        -:  215:        if (Status == OS_SUCCESS)
+        -:  216:        {
+        -:  217:            Status = SCH_ProcessScheduleTable();
+        -:  218:        }
+        -:  219:#endif
+        -:  220:
+        -:  221:        /*
+        -:  222:        ** Note: If there were some reason to exit the task
+        -:  223:        **       normally (without error) then we would set
+        -:  224:        **       RunStatus = CFE_ES_APP_EXIT
+        -:  225:        */
+        4:  226:        if (Status != SCH_SUCCESS)
+        -:  227:        {
+        -:  228:            /*
+        -:  229:            ** Set request to terminate main loop
+        -:  230:            */
+        1:  231:            RunStatus = CFE_ES_APP_ERROR;
+        -:  232:        }
+        -:  233:
+        -:  234:    } /* End of while */
+        -:  235:
+        -:  236:    /*
+        -:  237:    ** Check for "fatal" process error
+        -:  238:    */
+        7:  239:    if ((Status != OS_SUCCESS) || (Status != SCH_SUCCESS))
+        -:  240:    {
+        -:  241:        /*
+        -:  242:        ** Send an event describing the reason for the termination
+        -:  243:        */
+        4:  244:        CFE_EVS_SendEvent(SCH_APP_EXIT_EID, CFE_EVS_CRITICAL, 
+        -:  245:                          "SCH App: terminating, err = 0x%08X", (unsigned int)Status);
+        -:  246:
+        -:  247:        /*
+        -:  248:        ** In case cFE Event Services is not working
+        -:  249:        */
+        4:  250:        CFE_ES_WriteToSysLog("SCH App terminating, err = 0x%08X\n", (unsigned int)Status);
+        -:  251:    }
+        -:  252: 
+        -:  253:    /*
+        -:  254:    ** Perform any custom cleanup
+        -:  255:    */
+        7:  256:    SCH_CustomCleanup();
+        -:  257:
+        -:  258:    /*
+        -:  259:    ** Performance Log (stop time counter)
+        -:  260:    */
+        7:  261:    CFE_ES_PerfLogExit(SCH_APPMAIN_PERF_ID);
+        -:  262:
+        -:  263:    /*
+        -:  264:    ** Let cFE kill the task (and any child tasks)
+        -:  265:    */
+        7:  266:    CFE_ES_ExitApp(RunStatus);
+        -:  267:
+        7:  268:} /* End of SH_AppMain() */
+        -:  269:
+        -:  270:
+        -:  271:/*******************************************************************
+        -:  272:**
+        -:  273:** SCH_AppInit
+        -:  274:**
+        -:  275:** NOTE: For complete prolog information, see above
+        -:  276:********************************************************************/
+        -:  277:
+       12:  278:int32 SCH_AppInit(void)
+        -:  279:{
+       12:  280:    int32 Status = CFE_SUCCESS;
+        -:  281:
+        -:  282:    /*
+        -:  283:    ** Initialize Application Processing Counters
+        -:  284:    */
+       12:  285:    SCH_AppData.SlotsProcessedCount = 0;
+       12:  286:    SCH_AppData.SkippedSlotsCount   = 0;
+       12:  287:    SCH_AppData.MultipleSlotsCount  = 0;
+       12:  288:    SCH_AppData.SameSlotCount       = 0;
+       12:  289:    SCH_AppData.ScheduleActivitySuccessCount = 0;
+       12:  290:    SCH_AppData.ScheduleActivityFailureCount = 0;
+        -:  291:
+        -:  292:    /*
+        -:  293:    ** Initialize Command Counters
+        -:  294:    */
+       12:  295:    SCH_AppData.CmdCounter = 0;
+       12:  296:    SCH_AppData.ErrCounter = 0;
+        -:  297:    
+        -:  298:    /*
+        -:  299:    ** Get our assigned Application ID
+        -:  300:    */
+       12:  301:    Status = CFE_ES_GetAppID(&SCH_AppData.AppID);
+       12:  302:    if (Status != CFE_SUCCESS)
+        -:  303:    {
+        2:  304:        CFE_ES_WriteToSysLog("SCH App: Unable to obtain own AppID, RC=0x%08X\n", (unsigned int)Status);
+        2:  305:        return(Status);
+        -:  306:    }
+        -:  307:    
+        -:  308:    /*
+        -:  309:    ** Initialize Event Services Interface
+        -:  310:    */
+       10:  311:    Status = SCH_EvsInit();
+       10:  312:    if (Status != CFE_SUCCESS)
+        -:  313:    {
+        1:  314:        return(Status);
+        -:  315:    }
+        -:  316:    
+        9:  317:    Status = SCH_SbInit();
+        9:  318:    if (Status != CFE_SUCCESS)
+        -:  319:    {
+        1:  320:        return(Status); 
+        -:  321:    }
+        -:  322:    
+        -:  323:    /*
+        -:  324:    ** Initialize application tables
+        -:  325:    */
+        8:  326:    Status = SCH_TblInit();
+        8:  327:    if (Status != CFE_SUCCESS)
+        -:  328:    {
+        1:  329:        return(Status);
+        -:  330:    }
+        -:  331:
+        -:  332:    /*
+        -:  333:    ** Initialize timer interfaces
+        -:  334:    */
+        7:  335:    Status = SCH_TimerInit();
+        7:  336:    if (Status != CFE_SUCCESS)
+        -:  337:    {
+        1:  338:        return(Status);
+        -:  339:    }
+        -:  340:
+        -:  341:    /*
+        -:  342:    ** Application startup event message
+        -:  343:    */
+        6:  344:    Status = CFE_EVS_SendEvent(SCH_INITSTATS_INF_EID,
+        -:  345:                               CFE_EVS_INFORMATION,
+        -:  346:                               "SCH Initialized. Version %d.%d.%d.%d",
+        -:  347:                               SCH_MAJOR_VERSION,
+        -:  348:                               SCH_MINOR_VERSION,
+        -:  349:                               SCH_REVISION,
+        -:  350:                               SCH_MISSION_REV);
+        -:  351: 
+        6:  352:    return(Status);
+        -:  353:
+        -:  354:} /* End of SCH_AppInit() */
+        -:  355:
+        -:  356:
+        -:  357:/*******************************************************************
+        -:  358:**
+        -:  359:** SCH_EvsInit
+        -:  360:**
+        -:  361:** NOTE: For complete prolog information, see above
+        -:  362:********************************************************************/
+        -:  363:
+       12:  364:int32 SCH_EvsInit(void)
+        -:  365:{
+       12:  366:    int32   Status = CFE_SUCCESS;
+        -:  367:
+       12:  368:    SCH_AppData.EventFilters[0].EventID = SCH_SAME_SLOT_EID;
+       12:  369:    SCH_AppData.EventFilters[0].Mask    = CFE_EVS_FIRST_ONE_STOP;
+        -:  370:
+       12:  371:    SCH_AppData.EventFilters[1].EventID = SCH_MULTI_SLOTS_EID;
+       12:  372:    SCH_AppData.EventFilters[1].Mask    = CFE_EVS_FIRST_ONE_STOP;
+        -:  373:
+       12:  374:    SCH_AppData.EventFilters[2].EventID = SCH_SKIPPED_SLOTS_EID;
+       12:  375:    SCH_AppData.EventFilters[2].Mask    = CFE_EVS_FIRST_ONE_STOP;
+        -:  376:
+       12:  377:    SCH_AppData.EventFilters[3].EventID = SCH_CORRUPTION_EID;
+       12:  378:    SCH_AppData.EventFilters[3].Mask    = CFE_EVS_FIRST_TWO_STOP;
+        -:  379:
+       12:  380:    SCH_AppData.EventFilters[4].EventID = SCH_PACKET_SEND_EID;
+       12:  381:    SCH_AppData.EventFilters[4].Mask    = CFE_EVS_FIRST_ONE_STOP;
+        -:  382:
+        -:  383:    /*
+        -:  384:    ** Register for event services
+        -:  385:    */
+       12:  386:    Status = CFE_EVS_Register(SCH_AppData.EventFilters, SCH_FILTER_COUNT, CFE_EVS_BINARY_FILTER);
+       12:  387:    if (Status != CFE_SUCCESS)
+        -:  388:    {
+        2:  389:        CFE_ES_WriteToSysLog("SCH App: Error Registering For Event Services, RC=0x%08X\n", (unsigned int)Status);
+        -:  390:    }
+        -:  391:
+       12:  392:    return(Status);
+        -:  393:    
+        -:  394:} /* End of SCH_EvsInit() */
+        -:  395:
+        -:  396:
+        -:  397:/*******************************************************************
+        -:  398:**
+        -:  399:** SCH_SbInit
+        -:  400:**
+        -:  401:** NOTE: For complete prolog information, see above
+        -:  402:********************************************************************/
+        -:  403:
+       13:  404:int32 SCH_SbInit(void)
+        -:  405:{
+       13:  406:    int32 Status = CFE_SUCCESS;
+        -:  407:    
+       13:  408:    SCH_AppData.MsgPtr  = (CFE_SB_MsgPtr_t) NULL;
+       13:  409:    SCH_AppData.CmdPipe = 0;
+        -:  410:    
+        -:  411:    /*
+        -:  412:    ** Initialize housekeeping packet (clear user data area)
+        -:  413:    */
+       13:  414:    CFE_SB_InitMsg(&SCH_AppData.HkPacket, SCH_HK_TLM_MID, sizeof(SCH_HkPacket_t), TRUE);
+        -:  415:    
+        -:  416:    /*
+        -:  417:    ** Initialize diagnostic packet (clear user data area)
+        -:  418:    */
+       13:  419:    CFE_SB_InitMsg(&SCH_AppData.DiagPacket, SCH_DIAG_TLM_MID, sizeof(SCH_DiagPacket_t), TRUE);
+        -:  420:
+        -:  421:    /*
+        -:  422:    ** Create Software Bus message pipe
+        -:  423:    */
+       13:  424:    Status = CFE_SB_CreatePipe(&SCH_AppData.CmdPipe, SCH_PIPE_DEPTH, SCH_PIPE_NAME);
+       13:  425:    if (Status != CFE_SUCCESS)
+        -:  426:    {
+        2:  427:        CFE_EVS_SendEvent(SCH_CR_PIPE_ERR_EID, CFE_EVS_ERROR,
+        -:  428:                          "Error Creating SB Pipe, RC=0x%08X", (unsigned int)Status);
+        2:  429:        return(Status);
+        -:  430:    }
+        -:  431:
+        -:  432:    /*
+        -:  433:    ** Subscribe to Housekeeping request commands
+        -:  434:    */
+       11:  435:    Status = CFE_SB_Subscribe(SCH_SEND_HK_MID, SCH_AppData.CmdPipe);
+       11:  436:    if (Status != CFE_SUCCESS)
+        -:  437:    {
+        1:  438:        CFE_EVS_SendEvent(SCH_SUB_HK_REQ_ERR_EID, CFE_EVS_ERROR,
+        -:  439:                          "Error Subscribing to HK Request(MID=0x%04X), RC=0x%08X", 
+        -:  440:                          SCH_SEND_HK_MID, (unsigned int)Status);    
+        1:  441:        return(Status);
+        -:  442:    }
+        -:  443:
+        -:  444:    /*
+        -:  445:    ** Subscribe to SCH ground command packets
+        -:  446:    */
+       10:  447:    Status = CFE_SB_Subscribe(SCH_CMD_MID, SCH_AppData.CmdPipe);
+       10:  448:    if (Status != CFE_SUCCESS)
+        -:  449:    {
+        1:  450:        CFE_EVS_SendEvent(SCH_SUB_GND_CMD_ERR_EID, CFE_EVS_ERROR,
+        -:  451:                          "Error Subscribing to GND CMD(MID=0x%04X), RC=0x%08X", 
+        -:  452:                          SCH_CMD_MID, (unsigned int)Status);    
+        1:  453:        return(Status);
+        -:  454:    }
+        -:  455:
+        9:  456:    return(Status);
+        -:  457:    
+        -:  458:} /* End of SCH_SbInit() */
+        -:  459:
+        -:  460:
+        -:  461:/*******************************************************************
+        -:  462:**
+        -:  463:** SCH_TblInit
+        -:  464:**
+        -:  465:** NOTE: For complete prolog information, see above
+        -:  466:********************************************************************/
+        -:  467:
+       14:  468:int32 SCH_TblInit(void)
+        -:  469:{
+       14:  470:    uint32 TableSize = 0;
+       14:  471:    int32  Status = CFE_SUCCESS;
+        -:  472:
+        -:  473:    /*
+        -:  474:    ** Initialize SCH table variables
+        -:  475:    */
+       14:  476:    SCH_AppData.ScheduleTable = (SCH_ScheduleEntry_t *) NULL;
+       14:  477:    SCH_AppData.MessageTable  = (SCH_MessageEntry_t  *) NULL;
+        -:  478:
+       14:  479:    SCH_AppData.ScheduleTableHandle = CFE_TBL_BAD_TABLE_HANDLE;
+       14:  480:    SCH_AppData.MessageTableHandle  = CFE_TBL_BAD_TABLE_HANDLE;
+        -:  481:    
+       14:  482:    SCH_AppData.BadTableDataCount       = 0;
+       14:  483:    SCH_AppData.TableVerifySuccessCount = 0;
+       14:  484:    SCH_AppData.TableVerifyFailureCount = 0;
+       14:  485:    SCH_AppData.TablePassCount          = 0;
+        -:  486:
+        -:  487:    /*
+        -:  488:    ** Register schedule definition table
+        -:  489:    */
+       14:  490:    TableSize = SCH_TABLE_ENTRIES * sizeof (SCH_ScheduleEntry_t);
+        -:  491:
+       14:  492:    Status = CFE_TBL_Register(&SCH_AppData.ScheduleTableHandle,
+        -:  493:                               SCH_SCHEDULE_TABLE_NAME,
+        -:  494:                               TableSize,
+        -:  495:                               CFE_TBL_OPT_DEFAULT,
+        -:  496:                               SCH_ValidateScheduleData);
+        -:  497:
+       14:  498:    if (Status != CFE_SUCCESS)
+        -:  499:    {
+        2:  500:        CFE_EVS_SendEvent(SCH_SDT_REG_ERR_EID, CFE_EVS_ERROR,
+        -:  501:                          "Error Registering SDT, RC=0x%08X", 
+        -:  502:                          (unsigned int)Status);    
+        2:  503:        return(Status);
+        -:  504:    }
+        -:  505:
+        -:  506:    /*
+        -:  507:    ** Register message definition table
+        -:  508:    */
+       12:  509:    TableSize = SCH_MAX_MESSAGES * sizeof (SCH_MessageEntry_t);
+        -:  510:
+       12:  511:    Status = CFE_TBL_Register(&SCH_AppData.MessageTableHandle,
+        -:  512:                               SCH_MESSAGE_TABLE_NAME,
+        -:  513:                               TableSize,
+        -:  514:                               CFE_TBL_OPT_DEFAULT,
+        -:  515:                               SCH_ValidateMessageData);
+        -:  516:
+       12:  517:    if (Status != CFE_SUCCESS)
+        -:  518:    {
+        1:  519:        CFE_EVS_SendEvent(SCH_MDT_REG_ERR_EID, CFE_EVS_ERROR,
+        -:  520:                          "Error Registering MDT, RC=0x%08X", 
+        -:  521:                          (unsigned int)Status);    
+        1:  522:        return(Status);
+        -:  523:    }
+        -:  524:
+        -:  525:    /*
+        -:  526:    ** Load default schedule definition table data
+        -:  527:    */
+       11:  528:    Status = CFE_TBL_Load(SCH_AppData.ScheduleTableHandle,
+        -:  529:                          CFE_TBL_SRC_FILE,
+        -:  530:                          (const void *) SCH_SCHEDULE_FILENAME);
+        -:  531:
+       11:  532:    if (Status != CFE_SUCCESS)
+        -:  533:    {
+        1:  534:        CFE_EVS_SendEvent(SCH_SDT_LOAD_ERR_EID, CFE_EVS_ERROR,
+        -:  535:                          "Error (RC=0x%08X) Loading SDT with %s", 
+        -:  536:                          (unsigned int)Status, SCH_SCHEDULE_FILENAME);    
+        1:  537:        return(Status);
+        -:  538:    }
+        -:  539:
+        -:  540:    /*
+        -:  541:    ** Load default message definition table data
+        -:  542:    */
+       10:  543:    Status = CFE_TBL_Load(SCH_AppData.MessageTableHandle,
+        -:  544:                          CFE_TBL_SRC_FILE,
+        -:  545:                          (const void *) SCH_MESSAGE_FILENAME);
+        -:  546:
+       10:  547:    if (Status != CFE_SUCCESS)
+        -:  548:    {
+        1:  549:        CFE_EVS_SendEvent(SCH_MDT_LOAD_ERR_EID, CFE_EVS_ERROR,
+        -:  550:                          "Error (RC=0x%08X) Loading MDT with %s", 
+        -:  551:                          (unsigned int)Status, SCH_MESSAGE_FILENAME);    
+        1:  552:        return(Status);
+        -:  553:    }
+        -:  554:
+        -:  555:
+        -:  556:    /*
+        -:  557:    ** Get pointers to table data
+        -:  558:    */
+        9:  559:    Status = SCH_AcquirePointers();
+        -:  560:
+        9:  561:    if (Status != CFE_SUCCESS)
+        -:  562:    {
+        1:  563:        CFE_EVS_SendEvent(SCH_ACQ_PTR_ERR_EID, CFE_EVS_ERROR,
+        -:  564:                          "Error Acquiring Tbl Ptrs (RC=0x%08X)", 
+        -:  565:                          (unsigned int)Status);    
+        1:  566:        return(Status);
+        -:  567:    }
+        -:  568:
+        8:  569:    return(Status);
+        -:  570:
+        -:  571:} /* End of SCH_TblInit() */
+        -:  572:
+        -:  573:
+        -:  574:/*******************************************************************
+        -:  575:**
+        -:  576:** SCH_TimerInit
+        -:  577:**
+        -:  578:** NOTE: For complete prolog information, see above
+        -:  579:********************************************************************/
+        -:  580:
+       11:  581:int32 SCH_TimerInit(void)
+        -:  582:{
+       11:  583:    int32             Status = CFE_SUCCESS;
+        -:  584:    
+        -:  585:    /*
+        -:  586:    ** Start off assuming Major Frame synch is normal
+        -:  587:    ** and should be coming at any moment
+        -:  588:    */
+       11:  589:    SCH_AppData.IgnoreMajorFrame     = FALSE;
+       11:  590:    SCH_AppData.IgnoreMajorFrameMsgSent = FALSE;
+       11:  591:    SCH_AppData.UnexpectedMajorFrame = FALSE;
+       11:  592:    SCH_AppData.SyncToMET            = SCH_NOT_SYNCHRONIZED;
+       11:  593:    SCH_AppData.MajorFrameSource     = SCH_MAJOR_FS_NONE;
+       11:  594:    SCH_AppData.NextSlotNumber       = 0;
+       11:  595:    SCH_AppData.MinorFramesSinceTone = SCH_TIME_SYNC_SLOT;
+       11:  596:    SCH_AppData.LastSyncMETSlot      = 0;
+       11:  597:    SCH_AppData.SyncAttemptsLeft     = 0;
+        -:  598:    
+       11:  599:    SCH_AppData.UnexpectedMajorFrameCount   = 0;
+       11:  600:    SCH_AppData.MissedMajorFrameCount       = 0;
+       11:  601:    SCH_AppData.ValidMajorFrameCount        = 0;
+       11:  602:    SCH_AppData.WorstCaseSlotsPerMinorFrame = 1;
+        -:  603:    
+        -:  604:    /*
+        -:  605:    ** Configure Major Frame and Minor Frame sources
+        -:  606:    */
+       11:  607:    SCH_AppData.ClockAccuracy = SCH_WORST_CLOCK_ACCURACY;
+        -:  608:    /*
+        -:  609:    ** Create the timer to be used for minor frames
+        -:  610:    */
+       11:  611:    Status = SCH_CustomEarlyInit();
+        -:  612:    
+       11:  613:    if (Status != CFE_SUCCESS)
+        -:  614:    {
+        1:  615:        CFE_EVS_SendEvent(SCH_MINOR_FRAME_TIMER_CREATE_ERR_EID, CFE_EVS_ERROR,
+        -:  616:                          "Error creating Timer (RC=0x%08X)", 
+        -:  617:                          (unsigned int)Status);    
+        1:  618:        return(Status);
+        -:  619:    }
+        -:  620:    
+        -:  621:    /*
+        -:  622:    ** Determine if the timer has an acceptable clock accuracy
+        -:  623:    */
+       10:  624:    if (SCH_AppData.ClockAccuracy > SCH_WORST_CLOCK_ACCURACY)
+        -:  625:    {
+        1:  626:        CFE_EVS_SendEvent(SCH_MINOR_FRAME_TIMER_ACC_WARN_EID, CFE_EVS_INFORMATION,
+        -:  627:                          "OS Timer Accuracy (%d > reqd %d usec) requires Minor Frame MET sync",
+        -:  628:                          (int)SCH_AppData.ClockAccuracy, SCH_WORST_CLOCK_ACCURACY);
+        -:  629:        
+        -:  630:        /* Synchronize Minor Frame Timing with Mission Elapsed Time to keep from losing slots */
+        1:  631:        SCH_AppData.SyncToMET = SCH_MINOR_SYNCHRONIZED;
+        -:  632:
+        -:  633:        /* Calculate how many slots we may have to routinely process on each Minor Frame Wakeup */
+        1:  634:        SCH_AppData.WorstCaseSlotsPerMinorFrame = ((SCH_AppData.ClockAccuracy * 2) / SCH_NORMAL_SLOT_PERIOD) + 1;
+        -:  635:    }
+        -:  636:    
+        -:  637:    /*
+        -:  638:    ** Create main task semaphore (given by MajorFrameCallback and MinorFrameCallback)
+        -:  639:    */
+       10:  640:    Status = OS_BinSemCreate(&SCH_AppData.TimeSemaphore, SCH_SEM_NAME, SCH_SEM_VALUE, SCH_SEM_OPTIONS);
+       10:  641:    if (Status != CFE_SUCCESS)
+        -:  642:    {
+        2:  643:        CFE_EVS_SendEvent(SCH_SEM_CREATE_ERR_EID, CFE_EVS_ERROR,
+        -:  644:                          "Error creating Main Loop Timing Semaphore (RC=0x%08X)", 
+        -:  645:                          (unsigned int)Status);    
+        2:  646:        return(Status);
+        -:  647:    }
+        -:  648:    
+        8:  649:    return(Status);
+        -:  650:    
+        -:  651:} /* End of SCH_TimerInit() */
+        -:  652:
+        -:  653:
+        -:  654:/*******************************************************************
+        -:  655:**
+        -:  656:** SCH_ProcessScheduleTable
+        -:  657:**
+        -:  658:** NOTE: For complete prolog information, see above
+        -:  659:********************************************************************/
+        -:  660:
+        9:  661:int32 SCH_ProcessScheduleTable(void)
+        -:  662:{
+        -:  663:    uint32 CurrentSlot;
+        -:  664:    uint32 ProcessCount;
+        9:  665:    int32  Result = CFE_SUCCESS;
+        -:  666:
+        -:  667:    /*
+        -:  668:    ** Get the slot we should be at 
+        -:  669:    */
+        9:  670:    CurrentSlot = SCH_CustomGetCurrentSlotNumber();
+        -:  671:
+        -:  672:    /*
+        -:  673:    ** Compute the number of slots we need to process (watch for rollover)
+        -:  674:    */
+        9:  675:    if (CurrentSlot < SCH_AppData.NextSlotNumber)
+        -:  676:    {
+        4:  677:        ProcessCount = SCH_TOTAL_SLOTS - SCH_AppData.NextSlotNumber;
+        4:  678:        ProcessCount += (CurrentSlot + 1);
+        -:  679:    }
+        -:  680:    else
+        -:  681:    {
+        5:  682:        ProcessCount = (CurrentSlot - SCH_AppData.NextSlotNumber) + 1;
+        -:  683:    }
+        -:  684:
+        -:  685:    /*
+        -:  686:    ** Correct for the following conditions observed when minor frame driven
+        -:  687:    ** by a clock with poor accuracy
+        -:  688:    **
+        -:  689:    **   1) Wake up a little too late for just 1 slot
+        -:  690:    **      symptom = multi slots event followed by same slot event
+        -:  691:    **
+        -:  692:    **   2) Wake up a little too early for just 1 slot
+        -:  693:    **      symptom = same slot event followed by multi slots event
+        -:  694:    */
+        9:  695:    if (ProcessCount == 2)
+        -:  696:    {
+        -:  697:        /*
+        -:  698:        ** If we want to do 2 slots but last time was OK then assume we
+        -:  699:        **    are seeing condition #1 above.  By doing just 1 slot now,
+        -:  700:        **    there will still be 1 to do when the next wakeup occurs
+        -:  701:        **    and we will avoid both events.  But, if we really are in
+        -:  702:        **    a delayed state, we will process both slots when we wake
+        -:  703:        **    up next time because then the last time will NOT be OK.
+        -:  704:        */
+        1:  705:        if (SCH_AppData.LastProcessCount == 1)
+        -:  706:        {
+        1:  707:            ProcessCount = 1;
+        -:  708:        }
+        1:  709:        SCH_AppData.LastProcessCount = 2;
+        -:  710:    }
+        8:  711:    else if (ProcessCount == SCH_TOTAL_SLOTS)
+        -:  712:    {
+        -:  713:        /*
+        -:  714:        ** Same as previous comment except in reverse order.
+        -:  715:        */
+        3:  716:        if (SCH_AppData.LastProcessCount != SCH_TOTAL_SLOTS)
+        -:  717:        {
+        2:  718:            ProcessCount = 1;
+        -:  719:        }
+        3:  720:        SCH_AppData.LastProcessCount = SCH_TOTAL_SLOTS;
+        -:  721:    }
+        -:  722:    else
+        -:  723:    {
+        5:  724:        SCH_AppData.LastProcessCount = ProcessCount;
+        -:  725:    }
+        -:  726:
+        -:  727:    /*
+        -:  728:    ** If current slot = next slot - 1, assume current slot did not increment
+        -:  729:    */
+        9:  730:    if (ProcessCount == SCH_TOTAL_SLOTS)
+        -:  731:    {
+        1:  732:        SCH_AppData.SameSlotCount++;
+        -:  733:
+        1:  734:        CFE_EVS_SendEvent(SCH_SAME_SLOT_EID, CFE_EVS_DEBUG,
+        -:  735:                          "Slot did not increment: slot = %d",
+        -:  736:                          (int)CurrentSlot);
+        1:  737:        ProcessCount = 0;
+        -:  738:    }
+        -:  739:
+        -:  740:    /*
+        -:  741:    ** If we are too far behind, jump forward and do just the current slot
+        -:  742:    */
+        9:  743:    if (ProcessCount > SCH_MAX_LAG_COUNT)
+        -:  744:    {
+        2:  745:        SCH_AppData.SkippedSlotsCount++;
+        -:  746:
+        4:  747:        CFE_EVS_SendEvent(SCH_SKIPPED_SLOTS_EID, CFE_EVS_ERROR,
+        -:  748:                          "Slots skipped: slot = %d, count = %d",
+        4:  749:                          SCH_AppData.NextSlotNumber, (int)(ProcessCount - 1));
+        -:  750:
+        -:  751:        /*
+        -:  752:        ** Update the pass counter if we are skipping the rollover slot
+        -:  753:        */
+        2:  754:        if (CurrentSlot < SCH_AppData.NextSlotNumber)
+        -:  755:        {
+        1:  756:            SCH_AppData.TablePassCount++;
+        -:  757:        }
+        -:  758:
+        -:  759:        /*
+        -:  760:        ** Process ground commands if we are skipping the time synch slot
+        -:  761:        ** NOTE: This assumes the Time Synch Slot is the LAST Schedule slot
+        -:  762:        **       (see definition of SCH_TIME_SYNC_SLOT in sch_app.h)
+        -:  763:        ** Ground commands should only be processed at the end of the schedule table
+        -:  764:        ** so that Group Enable/Disable commands do not change the state of entries
+        -:  765:        ** in the middle of a schedule.
+        -:  766:        */
+        2:  767:        if ((SCH_AppData.NextSlotNumber + ProcessCount) > SCH_TIME_SYNC_SLOT)
+        -:  768:        {
+        2:  769:            Result = SCH_ProcessCommands();
+        -:  770:        }
+        -:  771:
+        2:  772:        SCH_AppData.NextSlotNumber = CurrentSlot;
+        2:  773:        ProcessCount = 1;
+        -:  774:    }
+        -:  775:
+        -:  776:    /*
+        -:  777:    ** Don't try to catch up all at once, just do a couple
+        -:  778:    */
+        9:  779:    if (ProcessCount > SCH_MAX_SLOTS_PER_WAKEUP)
+        -:  780:    {
+        2:  781:        ProcessCount = SCH_MAX_SLOTS_PER_WAKEUP;
+        -:  782:    }
+        -:  783:
+        -:  784:    /*
+        -:  785:    ** Keep track of multi-slot processing
+        -:  786:    */
+        9:  787:    if (ProcessCount > 1)
+        -:  788:    {
+        2:  789:        SCH_AppData.MultipleSlotsCount++;
+        -:  790:
+        -:  791:        /* Generate an event message if not syncing to MET or when there is more than two being processed */
+        2:  792:        if ((ProcessCount > SCH_AppData.WorstCaseSlotsPerMinorFrame) || (SCH_AppData.SyncToMET == SCH_NOT_SYNCHRONIZED))
+        -:  793:        {
+        4:  794:            CFE_EVS_SendEvent(SCH_MULTI_SLOTS_EID, CFE_EVS_INFORMATION,
+        -:  795:                              "Multiple slots processed: slot = %d, count = %d",
+        2:  796:                              SCH_AppData.NextSlotNumber, (int)ProcessCount);
+        -:  797:        }
+        -:  798:    }
+        -:  799:
+        -:  800:    /*
+        -:  801:    ** Process the slots (most often this will be just one)
+        -:  802:    */
+       33:  803:    while ((ProcessCount != 0) && (Result == CFE_SUCCESS))
+        -:  804:    {
+       15:  805:        Result = SCH_ProcessNextSlot();
+        -:  806:
+       15:  807:        ProcessCount--;
+        -:  808:    }
+        -:  809:
+        9:  810:    return(Result);
+        -:  811:
+        -:  812:} /* End of SCH_ProcessScheduleTable() */
+        -:  813:
+        -:  814:
+        -:  815:/*******************************************************************
+        -:  816:**
+        -:  817:** SCH_ProcessNextSlot
+        -:  818:**
+        -:  819:** NOTE: For complete prolog information, see above
+        -:  820:********************************************************************/
+        -:  821:
+       17:  822:int32 SCH_ProcessNextSlot(void)
+        -:  823:{
+       17:  824:    int32 Result = CFE_SUCCESS;
+        -:  825:    int32 EntryNumber;
+        -:  826:    int32 SlotIndex;
+        -:  827:    SCH_ScheduleEntry_t *NextEntry;
+        -:  828:
+       17:  829:    SlotIndex = SCH_AppData.NextSlotNumber * SCH_ENTRIES_PER_SLOT;
+       17:  830:    NextEntry = &SCH_AppData.ScheduleTable[SlotIndex];
+        -:  831:
+        -:  832:    /*
+        -:  833:    ** Process each (enabled) entry in the schedule table slot
+        -:  834:    */
+      102:  835:    for (EntryNumber = 0; EntryNumber < SCH_ENTRIES_PER_SLOT; EntryNumber++)
+        -:  836:    {
+       85:  837:        if (NextEntry->EnableState == SCH_ENABLED)
+        -:  838:        {
+        2:  839:            SCH_ProcessNextEntry(NextEntry, EntryNumber);
+        -:  840:        }
+        -:  841:
+       85:  842:        NextEntry++;
+        -:  843:    }
+        -:  844:
+        -:  845:    /*
+        -:  846:    ** Process ground commands in the slot reserved for time synch
+        -:  847:    ** Ground commands should only be processed at the end of the schedule table
+        -:  848:    ** so that Group Enable/Disable commands do not change the state of entries
+        -:  849:    ** in the middle of a schedule.
+        -:  850:    */
+       17:  851:    if (SCH_AppData.NextSlotNumber == SCH_TIME_SYNC_SLOT)
+        -:  852:    {
+        1:  853:        Result = SCH_ProcessCommands();
+        -:  854:    }
+        -:  855:
+        -:  856:    /*
+        -:  857:    ** Maintain "next" schedule table slot index
+        -:  858:    */
+       17:  859:    SCH_AppData.NextSlotNumber++;
+        -:  860:
+       17:  861:    if (SCH_AppData.NextSlotNumber == SCH_TOTAL_SLOTS)
+        -:  862:    {
+        1:  863:        SCH_AppData.NextSlotNumber = 0;
+        1:  864:        SCH_AppData.TablePassCount++;
+        -:  865:    }
+        -:  866:
+        -:  867:    /*
+        -:  868:    ** Maintain "total slots processed" counter
+        -:  869:    */
+       17:  870:    SCH_AppData.SlotsProcessedCount++;
+        -:  871:
+       17:  872:    return(Result);
+        -:  873:
+        -:  874:} /* End of SCH_ProcessNextSlot() */
+        -:  875:
+        -:  876:
+        -:  877:/*******************************************************************
+        -:  878:**
+        -:  879:** SCH_ProcessNextEntry
+        -:  880:**
+        -:  881:** NOTE: For complete prolog information, see above
+        -:  882:********************************************************************/
+        -:  883:
+        8:  884:void SCH_ProcessNextEntry(SCH_ScheduleEntry_t *NextEntry, int32 EntryNumber)
+        -:  885:{
+        -:  886:    int32   Status;
+        -:  887:    uint32  Remainder;
+        -:  888:    uint16 *Message;
+        -:  889:
+        -:  890:    /*
+        -:  891:    ** Check for invalid table entry
+        -:  892:    **
+        -:  893:    ** (run time corruption -- data was verified at table load)
+        -:  894:    */
+       28:  895:    if ((NextEntry->MessageIndex >= SCH_MAX_MESSAGES) ||
+        7:  896:        (NextEntry->Frequency    == SCH_UNUSED)       ||
+        4:  897:        (NextEntry->Type         != SCH_ACTIVITY_SEND_MSG) ||
+        3:  898:        (NextEntry->Remainder    >= NextEntry->Frequency))
+        -:  899:    {
+        6:  900:        SCH_AppData.BadTableDataCount++;
+        -:  901:
+        -:  902:        /*
+        -:  903:        ** Too much data for just one event
+        -:  904:        */
+        6:  905:        CFE_EVS_SendEvent(SCH_CORRUPTION_EID, CFE_EVS_ERROR,
+        -:  906:                          "Corrupt data error (1): slot = %d, entry = %d",
+        6:  907:                          SCH_AppData.NextSlotNumber, (int)EntryNumber);
+        -:  908:
+       24:  909:        CFE_EVS_SendEvent(SCH_CORRUPTION_EID, CFE_EVS_ERROR,
+        -:  910:                          "Corrupt data error (2): msg = %d, freq = %d, type = %d, rem = %d",
+        6:  911:                          NextEntry->MessageIndex,
+        6:  912:                          NextEntry->Frequency,
+        6:  913:                          NextEntry->Type,
+        6:  914:                          NextEntry->Remainder);
+        -:  915:
+        -:  916:        /*
+        -:  917:        ** Disable entry to avoid repeating this error
+        -:  918:        */
+        6:  919:        NextEntry->EnableState = SCH_DISABLED;
+        6:  920:        CFE_TBL_Modified(SCH_AppData.ScheduleTableHandle);
+        -:  921:    }
+        -:  922:    else
+        -:  923:    {
+        -:  924:        /*
+        -:  925:        ** Look for entry active on this particular pass through table
+        -:  926:        */
+        2:  927:        Remainder = SCH_AppData.TablePassCount % NextEntry->Frequency;
+        -:  928:
+        2:  929:        if (Remainder == NextEntry->Remainder)
+        -:  930:        {
+        2:  931:            Message = SCH_AppData.MessageTable[NextEntry->MessageIndex].MessageBuffer;
+        2:  932:            Status = CFE_SB_SendMsg((CFE_SB_Msg_t *) Message);
+        -:  933:            
+        -:  934:            /* If additional activity types are added in the future, a switch statement */
+        -:  935:            /* would be useful, as shown below:                                         */
+        -:  936:            /* NOTE: The "default" clause should never be able to be executed but is    */
+        -:  937:            /*       required by Flight Software Branch Coding Standards                */
+        -:  938:       /*
+        -:  939:        *   switch(NextEntry->Type)
+        -:  940:        *   {
+        -:  941:        *       case SCH_ACTIVITY_SEND_MSG:
+        -:  942:        *           Message = SCH_AppData.MessageTable[NextEntry->MessageIndex].MessageBuffer;
+        -:  943:        *           Status = CFE_SB_SendMsg((CFE_SB_Msg_t *) Message);
+        -:  944:        *           break;
+        -:  945:        *            
+        -:  946:        *       default:
+        -:  947:        *           Status = SCH_UNKNOWN_ACTIVITY;
+        -:  948:        *           break;
+        -:  949:        *   }
+        -:  950:        */
+        2:  951:            if (Status == CFE_SUCCESS)
+        -:  952:            {
+        1:  953:                SCH_AppData.ScheduleActivitySuccessCount++;
+        -:  954:            }
+        -:  955:            else
+        -:  956:            {
+        1:  957:                SCH_AppData.ScheduleActivityFailureCount++;
+        -:  958:
+        2:  959:                CFE_EVS_SendEvent(SCH_PACKET_SEND_EID, CFE_EVS_ERROR,
+        -:  960:                                  "Activity error: slot = %d, entry = %d, err = 0x%08X",
+        1:  961:                                  SCH_AppData.NextSlotNumber, (int)EntryNumber, (unsigned int)Status);
+        -:  962:            }
+        -:  963:        }
+        -:  964:    }
+        -:  965:
+        8:  966:    return;
+        -:  967:
+        -:  968:} /* End of SCH_ProcessNextEntry() */
+        -:  969:
+        -:  970:
+        -:  971:/*******************************************************************
+        -:  972:**
+        -:  973:** SCH_ProcessCommands
+        -:  974:**
+        -:  975:** NOTE: For complete prolog information, see above
+        -:  976:********************************************************************/
+        -:  977:
+        7:  978:int32 SCH_ProcessCommands(void)
+        -:  979:{
+        7:  980:    int32 Status = CFE_SUCCESS;
+        -:  981:
+       22:  982:    while (Status == CFE_SUCCESS)
+        -:  983:    {
+        -:  984:        /*
+        -:  985:        ** Process pending Software Bus messages
+        -:  986:        */
+        8:  987:        Status = CFE_SB_RcvMsg(&SCH_AppData.MsgPtr, SCH_AppData.CmdPipe, CFE_SB_POLL);
+        -:  988:
+        8:  989:        if (Status == CFE_SUCCESS)
+        -:  990:        {
+        2:  991:            Status = SCH_AppPipe(SCH_AppData.MsgPtr);
+        -:  992:        }
+        -:  993:    }
+        -:  994:
+        7:  995:    if (Status == CFE_SB_NO_MESSAGE)
+        -:  996:    {
+        -:  997:        /*
+        -:  998:        ** It's OK to not get a message -- we are polling
+        -:  999:        */
+        4: 1000:        Status = CFE_SUCCESS;
+        -: 1001:    }
+        -: 1002:
+        7: 1003:    return(Status);
+        -: 1004:
+        -: 1005:} /* End of SCH_ProcessCommands() */
+        -: 1006:
+        -: 1007:
+        -: 1008:/*******************************************************************
+        -: 1009:**
+        -: 1010:** SCH_ValidateScheduleData
+        -: 1011:**
+        -: 1012:** NOTE: For complete prolog information, see above
+        -: 1013:********************************************************************/
+        -: 1014:
+       14: 1015:int32 SCH_ValidateScheduleData(void *TableData)
+        -: 1016:{
+       14: 1017:    SCH_ScheduleEntry_t *TableArray = (SCH_ScheduleEntry_t *) TableData;
+       14: 1018:    int32 EntryResult = CFE_SUCCESS;
+       14: 1019:    int32 TableResult = CFE_SUCCESS;
+        -: 1020:    int32 TableIndex;
+        -: 1021:
+        -: 1022:    uint8  EnableState;
+        -: 1023:    uint8  Type;
+        -: 1024:    uint16 Frequency;
+        -: 1025:    uint16 Remainder;
+        -: 1026:    uint16 MessageIndex;
+        -: 1027:    uint32 GroupData;
+        -: 1028:
+       14: 1029:    int32 GoodCount   = 0;
+       14: 1030:    int32 BadCount    = 0;
+       14: 1031:    int32 UnusedCount = 0;
+        -: 1032:
+        -: 1033:    /*
+        -: 1034:    ** Verify each entry in pending SCH schedule table
+        -: 1035:    */
+     7014: 1036:    for (TableIndex = 0; TableIndex < SCH_TABLE_ENTRIES; TableIndex++)
+        -: 1037:    {
+     7000: 1038:        EnableState  = TableArray[TableIndex].EnableState;
+     7000: 1039:        Type         = TableArray[TableIndex].Type;
+     7000: 1040:        Frequency    = TableArray[TableIndex].Frequency;
+     7000: 1041:        Remainder    = TableArray[TableIndex].Remainder;
+     7000: 1042:        MessageIndex = TableArray[TableIndex].MessageIndex;
+     7000: 1043:        GroupData    = TableArray[TableIndex].GroupData;
+        -: 1044:
+     7000: 1045:        EntryResult  = CFE_SUCCESS;
+        -: 1046:
+     7000: 1047:        if (EnableState == SCH_UNUSED)
+        -: 1048:        {
+        -: 1049:            /*
+        -: 1050:            ** If enable state is unused, then all fields must be unused
+        -: 1051:            */
+     5500: 1052:            if ((Frequency != SCH_UNUSED) ||
+        -: 1053:                (Remainder != SCH_UNUSED) ||
+        -: 1054:                (GroupData != SCH_UNUSED) ||
+        -: 1055:                (Type      != SCH_UNUSED) ||
+        -: 1056:                (MessageIndex != SCH_UNUSED))
+        -: 1057:            {
+     2500: 1058:                EntryResult = SCH_SDT_GARBAGE_ENTRY;
+     2500: 1059:                BadCount++;
+        -: 1060:            }
+        -: 1061:            else
+        -: 1062:            {
+      500: 1063:                UnusedCount++;
+        -: 1064:            }
+        -: 1065:        }
+     7500: 1066:        else if ((EnableState == SCH_ENABLED) || (EnableState == SCH_DISABLED))
+        -: 1067:        {
+        -: 1068:            /*
+        -: 1069:            ** If enable state is used, then verify all fields
+        -: 1070:            **
+        -: 1071:            **  - Frequency must be non-zero
+        -: 1072:            **  - Remainder must be < Frequency
+        -: 1073:            **  - Type must be SCH_ACTIVITY_SEND_MSG
+        -: 1074:            **  - MessageIndex must be non-zero (reserved value = "unused")
+        -: 1075:            **  - MessageIndex must be < SCH_MAX_MESSAGES
+        -: 1076:            */
+     3500: 1077:            if (Frequency == SCH_UNUSED)
+        -: 1078:            {
+     1000: 1079:                EntryResult = SCH_SDT_NO_FREQUENCY;
+        -: 1080:            }
+     2500: 1081:            else if (Remainder >= Frequency)
+        -: 1082:            {
+      500: 1083:                EntryResult = SCH_SDT_BAD_REMAINDER;
+        -: 1084:            }
+     2000: 1085:            else if (Type != SCH_ACTIVITY_SEND_MSG)
+        -: 1086:            {
+      500: 1087:                EntryResult = SCH_SDT_BAD_ACTIVITY;
+        -: 1088:            }
+     1500: 1089:            else if (MessageIndex == 0)
+        -: 1090:            {
+      500: 1091:                EntryResult = SCH_SDT_BAD_MSG_INDEX;
+        -: 1092:            }
+     1000: 1093:            else if (MessageIndex >= SCH_MAX_MESSAGES)
+        -: 1094:            {
+      500: 1095:                EntryResult = SCH_SDT_BAD_MSG_INDEX;
+        -: 1096:            }
+        -: 1097:            
+     3500: 1098:            if (EntryResult != CFE_SUCCESS)
+        -: 1099:            {
+     3000: 1100:                BadCount++;
+        -: 1101:            }
+        -: 1102:            else
+        -: 1103:            {
+      500: 1104:                GoodCount++;
+        -: 1105:            }
+        -: 1106:        }
+        -: 1107:        else
+        -: 1108:        {
+      500: 1109:            EntryResult = SCH_SDT_BAD_ENABLE_STATE;
+      500: 1110:            BadCount++;
+        -: 1111:        }
+        -: 1112:
+        -: 1113:        /*
+        -: 1114:        ** Send event for "first" error found
+        -: 1115:        */
+     7000: 1116:        if ((EntryResult != CFE_SUCCESS) && (TableResult == CFE_SUCCESS))
+        -: 1117:        {
+       12: 1118:            TableResult = EntryResult;
+        -: 1119:
+       12: 1120:            CFE_EVS_SendEvent(SCH_SCHEDULE_TBL_ERR_EID, CFE_EVS_ERROR,
+        -: 1121:                              "Schedule tbl verify error - idx[%d] ena[%d] typ[%d] fre[%d] rem[%d] msg[%d] grp[0x%08X]",
+        -: 1122:                              (int)TableIndex, EnableState, Type, Frequency, Remainder, MessageIndex, (unsigned int)GroupData);
+        -: 1123:        }
+        -: 1124:    }
+        -: 1125:
+        -: 1126:    /*
+        -: 1127:    ** Send event describing results
+        -: 1128:    */
+       14: 1129:    CFE_EVS_SendEvent(SCH_SCHEDULE_TABLE_EID, CFE_EVS_DEBUG,
+        -: 1130:                      "Schedule table verify results -- good[%d] bad[%d] unused[%d]",
+        -: 1131:                      (int)GoodCount, (int)BadCount, (int)UnusedCount);
+        -: 1132:    /*
+        -: 1133:    ** Maintain table verification statistics
+        -: 1134:    */
+       14: 1135:    if (TableResult == CFE_SUCCESS)
+        -: 1136:    {
+        2: 1137:        SCH_AppData.TableVerifySuccessCount++;
+        -: 1138:    }
+        -: 1139:    else
+        -: 1140:    {
+       12: 1141:        SCH_AppData.TableVerifyFailureCount++;
+        -: 1142:    }
+        -: 1143:
+       14: 1144:    return(TableResult);
+        -: 1145:
+        -: 1146:} /* End of SCH_ValidateScheduleData() */
+        -: 1147:
+        -: 1148:
+        -: 1149:/*******************************************************************
+        -: 1150:**
+        -: 1151:** SCH_ValidateMessageData
+        -: 1152:**
+        -: 1153:** NOTE: For complete prolog information, see above
+        -: 1154:********************************************************************/
+        -: 1155:
+        7: 1156:int32 SCH_ValidateMessageData(void *TableData)
+        -: 1157:{
+        7: 1158:    SCH_MessageEntry_t *TableArray = (SCH_MessageEntry_t *) TableData;
+        7: 1159:    int32 EntryResult = CFE_SUCCESS;
+        7: 1160:    int32 TableResult = CFE_SUCCESS;
+        -: 1161:    int32 TableIndex;
+        -: 1162:    int32 BufferIndex;
+        -: 1163:
+        -: 1164:
+        -: 1165:    uint16         *MessageBuffer;
+        -: 1166:    uint16         *UserDataPtr;
+        -: 1167:
+        -: 1168:    uint16          MessageLength;
+        -: 1169:    CFE_SB_MsgId_t  MessageID;
+        7: 1170:    CFE_SB_MsgId_t  MaxValue = (CFE_SB_MsgId_t) SCH_MDT_MAX_MSG_ID;
+        7: 1171:    CFE_SB_MsgId_t  MinValue = (CFE_SB_MsgId_t) SCH_MDT_MIN_MSG_ID;
+        -: 1172:
+        7: 1173:    int32 GoodCount   = 0;
+        7: 1174:    int32 BadCount    = 0;
+        7: 1175:    int32 UnusedCount = 0;
+        -: 1176:
+        -: 1177:    /*
+        -: 1178:    ** Verify each entry in pending SCH Message table
+        -: 1179:    */
+      903: 1180:    for (TableIndex = 0; TableIndex < SCH_MAX_MESSAGES; TableIndex++)
+        -: 1181:    {
+      896: 1182:        EntryResult = CFE_SUCCESS;
+      896: 1183:        BufferIndex = 0;
+        -: 1184:
+      896: 1185:        MessageBuffer = &TableArray[TableIndex].MessageBuffer[0];
+      896: 1186:        MessageID     = CFE_SB_GetMsgId((CFE_SB_MsgPtr_t) MessageBuffer);
+      896: 1187:        MessageLength = CFE_SB_GetTotalMsgLength((CFE_SB_MsgPtr_t) MessageBuffer);
+        -: 1188:
+      896: 1189:        if (MessageID == SCH_UNUSED_MID)
+        -: 1190:        {
+        -: 1191:            /*
+        -: 1192:            ** If message ID is unused, then look for junk in user data portion
+        -: 1193:            */
+      256: 1194:            UnusedCount++;
+      256: 1195:            UserDataPtr = (uint16 *)CFE_SB_GetUserData((CFE_SB_MsgPtr_t) MessageBuffer);
+    16067: 1196:            while (UserDataPtr < &TableArray[TableIndex+1].MessageBuffer[0])
+        -: 1197:            {
+    15556: 1198:                if (*UserDataPtr != SCH_UNUSED)
+        -: 1199:                {
+        1: 1200:                    EntryResult = SCH_MDT_GARBAGE_ENTRY;
+        1: 1201:                    BadCount++;
+        1: 1202:                    UnusedCount--;
+        1: 1203:                    break;
+        -: 1204:                }
+    15555: 1205:                UserDataPtr++;
+        -: 1206:            }
+        -: 1207:        }
+     1152: 1208:        else if ((MessageID <= MaxValue) && 
+        -: 1209:                 (MessageID >= MinValue))
+        -: 1210:        {
+        -: 1211:            /*
+        -: 1212:            ** If message ID is valid, then check message length
+        -: 1213:            */
+     1152: 1214:            if ((MessageLength > (SCH_MAX_MSG_WORDS * 2)) ||
+        -: 1215:                (MessageLength < (SCH_MIN_MSG_WORDS * 2)) ||
+      256: 1216:               ((MessageLength & 1) != 0))
+        -: 1217:            {
+      384: 1218:                EntryResult = SCH_MDT_INVALID_LENGTH;
+      384: 1219:                BadCount++;
+        -: 1220:            }
+        -: 1221:            else
+        -: 1222:            {
+      128: 1223:                GoodCount++;
+        -: 1224:            }
+        -: 1225:        }
+        -: 1226:        else
+        -: 1227:        {
+      128: 1228:            EntryResult = SCH_MDT_BAD_MSG_ID;
+      128: 1229:            BadCount++;
+        -: 1230:        }
+        -: 1231:
+        -: 1232:        /*
+        -: 1233:        ** Save index of "first" error found
+        -: 1234:        */
+      896: 1235:        if ((EntryResult != CFE_SUCCESS) && (TableResult == CFE_SUCCESS))
+        -: 1236:        {
+        5: 1237:            TableResult = EntryResult;
+        -: 1238:
+        5: 1239:            CFE_EVS_SendEvent(SCH_MESSAGE_TBL_ERR_EID, CFE_EVS_ERROR,
+        -: 1240:                              "Message tbl verify err - idx[%d] mid[0x%X] len[%d] buf[%d]",
+        -: 1241:                              (int)TableIndex, MessageID, MessageLength, (int)BufferIndex);
+        -: 1242:        }
+        -: 1243:    }
+        -: 1244:
+        -: 1245:    /*
+        -: 1246:    ** Send event describing results
+        -: 1247:    */
+        7: 1248:    CFE_EVS_SendEvent(SCH_MESSAGE_TABLE_EID, CFE_EVS_DEBUG,
+        -: 1249:                      "Message tbl verify results - good[%d] bad[%d] unused[%d]",
+        -: 1250:                      (int)GoodCount, (int)BadCount, (int)UnusedCount);
+        -: 1251:    /*
+        -: 1252:    ** Maintain table verification statistics
+        -: 1253:    */
+        7: 1254:    if (TableResult == CFE_SUCCESS)
+        -: 1255:    {
+        2: 1256:        SCH_AppData.TableVerifySuccessCount++;
+        -: 1257:    }
+        -: 1258:    else
+        -: 1259:    {
+        5: 1260:        SCH_AppData.TableVerifyFailureCount++;
+        -: 1261:    }
+        -: 1262:
+        7: 1263:    return(TableResult);
+        -: 1264:
+        -: 1265:} /* End of SCH_ValidateMessageData() */
+        -: 1266:
+        -: 1267:
+        -: 1268:/************************/
+        -: 1269:/*  End of File Comment */
+        -: 1270:/************************/
+        -: 1271:

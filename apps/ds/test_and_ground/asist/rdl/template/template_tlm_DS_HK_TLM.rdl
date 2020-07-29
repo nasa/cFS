@@ -1,0 +1,71 @@
+!==============================================================================
+!
+!                Originator: W. Moleski
+!                Responsible SC:  
+!                Responsible CSE: 
+!                Rev:  Last Change: July 20, 2009  
+!
+!                    Telemetry Packet # nnnn (dec)
+!                 =================================
+!
+!       Packet Application ID: nnnn (Hex 'xxxx')
+!       Packet Title:  $sc $cpu DS Telemetry Data Packet
+!       Packet Length:  ?? Bytes (Including 12 Bytes Of Header)
+!	Collect             Frequency:         SEC
+!
+!       REFERENCES:
+!
+!       NOTES:
+!
+!       HISTORY: 
+!	16MAY11	WFM	: Removed the File Info State structure
+!	05JUL11	WFM	: Updated types to match DS source changes
+!
+!==============================================================================
+!
+#include "osconfig.h"
+#include "ds_platform_cfg.h"
+!
+
+PACKET Pxxxx APID=nnnn, DESC="$sc $cpu DS Telemetry Data Packet", STALE = 36
+#include "ccsds_header.rdl"
+!
+  UB  $sc_$cpu_DS_CMDPC         DESC="$sc $cpu DS Command Processed Counter",
+                                        UNITS=Counts
+!
+  UB  $sc_$cpu_DS_CMDEC         DESC="$sc $cpu DS Command Error Counter",
+                                        UNITS=Counts, YH=1, DOLIMIT
+!
+  UB  $sc_$cpu_DS_DestLoadCnt    DESC="The number of times the Destination File table was loaded successfully"
+!
+  UB  $sc_$cpu_DS_DestPtrErrCnt  DESC="The number of times DS failed to get a pointer to the Destination File table"
+!
+  UB  $sc_$cpu_DS_FilterLoadCnt  DESC="The number of the packet filter table was loaded successfully"
+!
+  UB  $sc_$cpu_DS_FilterPtrErrCnt DESC="The number of times DS failed to get a pointer to the Packet Filter table"
+!
+  UB  $sc_$cpu_DS_AppEnaState    DESC="The state of the DS Application",
+				 DISCRETE, DRANGE=(0,1),
+				 DLABEL=("Disabled","Enabled")
+!
+  UB  $sc_$cpu_DS_Spare  DESC="Spare for alignment purposes"
+!
+  UI  $sc_$cpu_DS_FileWriteCnt   DESC="The number of good destination file writes"
+!
+  UI  $sc_$cpu_DS_FileWriteErrCnt DESC="The number of bad destination file writes"
+!
+  UI  $sc_$cpu_DS_FileUpdCnt     DESC="The number of good secondary header updates"
+!
+  UI  $sc_$cpu_DS_FileUpdErrCnt  DESC="The number of bad secondary header updates"
+!
+  ULI $sc_$cpu_DS_DisabledPktCnt DESC="The number of packets rcv'd while DS was disabled"
+!
+  ULI $sc_$cpu_DS_IgnoredPktCnt  DESC="The number of packets rcv'd that had no filter"
+!
+  ULI $sc_$cpu_DS_FilteredPktCnt DESC="The number of packets that failed the filter test"
+!
+  ULI $sc_$cpu_DS_PassedPktCnt   DESC="The number of packets that passed filter test"
+!
+!  END                !END APPEND RECORD FUNCTION
+!
+END

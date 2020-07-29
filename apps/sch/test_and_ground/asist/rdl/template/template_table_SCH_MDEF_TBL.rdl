@@ -1,0 +1,40 @@
+!==============================================================================
+!                Originator:      E. Uzo-Okoro
+!                Responsible SC:  Barbie Medina
+!                Responsible CSE: ??
+!                Rev: 
+!
+!                    Telemetry Packet # nnnn (dec)
+!                 =================================
+!
+!       Packet Application ID: nnnn (Hex 'xxxx')
+!       Packet Title:  $sc $cpu SCH Message Definition table
+!       Packet Length:  ?? Bytes (Including ?? Bytes Of Header)
+!	Collect             Frequency:         SEC
+!
+!       REFERENCES:
+!
+!       NOTES:
+!
+!       HISTORY:
+!       2010/11/08 EUO  : Initial implementation
+!       2012/01/04 WFM  : Removed VARYING from Packet definition
+!
+!=============================================================================
+!
+#include "sch_platform_cfg.h"
+!
+TYPES
+   RECORD $sc_$cpu_SCH_MessageEntry_t  DESC="$sc $cpu SCH Message definition table entry Type"
+      UI MessageBuffer[SCH_MAX_MSG_WORDS] 	DESC="Packed Messages"
+   END
+END_TYPES
+
+PACKET Pxxxx APID=nnnn, DESC="$sc $cpu SCH Message Definition Table"
+!
+#include "cfe_file_header.rdl"
+#include "cfe_tbl_header.rdl" 
+!
+$sc_$cpu_SCH_MessageEntry_t $sc_$cpu_SCH_DefaultMessageTable[0 .. SCH_MAX_MESSAGES-1]  DESC="$sc $cpu SCH Message Definition Table"
+!
+END

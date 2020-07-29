@@ -1,0 +1,133 @@
+!==============================================================================
+!                Originator:      W. Moleski
+!                Responsible SC:  
+!                Responsible CSE: 
+!                Rev:  Last Change:  July 20, 2009
+!
+!                  $sc $cpu DS Command Packet xxxx
+!                  ================================
+!
+!       Packet Application ID: nnnn (Hex 'xxxx')
+!       Packet Title:$sc $cpu Data Storage App Commands
+!       Packet Source:
+!
+!       HISTORY:
+!
+!  20JUL09	WFM           : Initial
+!  16MAY11	WFM           : Added the new Get File Info command.
+!  02FEB17	WFM           : Updated to make commands 32-bit aligned.
+!
+!=============================================================================
+!
+#include "osconfig.h"
+#include "cfe_mission_cfg.h"
+#include "ds_platform_cfg.h"
+
+CLASS Pxxxx APID=nnnn, DESC="$sc $cpu Data Storage App Commands"
+!
+  CMD  $sc_$cpu_DS_NOOP        	    FCTN=0, DESC="$sc $cpu DS no-op command"
+!
+  CMD  $sc_$cpu_DS_RESETCTRS        FCTN=1, DESC="$sc $cpu DS reset counters command"
+!
+  CMDS  $sc_$cpu_DS_Enable          FCTN=2, DESC="$sc $cpu DS Enable Application State command"
+	UI NewState	STATIC,DEFAULT=1,INVISIBLE, DESC=""
+	UI Spare	STATIC,DEFAULT=0,INVISIBLE, DESC=""
+  END
+!
+  CMDS  $sc_$cpu_DS_Disable         FCTN=2, DESC="$sc $cpu DS Disable Application State command"
+	UI NewState	STATIC,DEFAULT=0,INVISIBLE, DESC=""
+	UI Spare	STATIC,DEFAULT=0,INVISIBLE, DESC=""
+  END
+!
+  CMDS  $sc_$cpu_DS_SetFilterFile   FCTN=3, DESC="$sc $cpu DS Set Filter File Selection command"
+	UI MessageID	DESC="The ID of the existing message"
+	UI ParamIndex	DESC="The index into Filter Parameter Array"
+	UI FileIndex	DESC="The index into Destination File Table"
+	UI Spare	STATIC,DEFAULT=0,INVISIBLE, DESC=""
+  END
+!
+  CMDS  $sc_$cpu_DS_SetFilterType   FCTN=4, DESC="$sc $cpu DS Set Filter Type command"
+	UI MessageID	DESC="The ID of the existing message"
+	UI ParamIndex	DESC="The index into Filter Parameter Array"
+	UI FilterType	DESC="The Filter Type to use for the index above"
+	UI Spare	STATIC,DEFAULT=0,INVISIBLE, DESC=""
+  END
+!
+  CMDS  $sc_$cpu_DS_SetFilterParams FCTN=5, DESC="$sc $cpu DS Set Filter Paramaters command"
+	UI MessageID	DESC="The ID of the existing message"
+	UI ParamIndex	DESC="The index into Filter Parameter Array"
+	UI N_Value	DESC="The N value to use in the Filter Algorithm for the index above"
+	UI X_Value	DESC="The X value to use in the Filter Algorithm for the index above"
+	UI O_Value	DESC="The O value to use in the Filter Algorithm for the index above"
+	UI Spare	STATIC,DEFAULT=0,INVISIBLE, DESC=""
+  END
+!
+  CMDS  $sc_$cpu_DS_SetFileType     FCTN=6, DESC="$sc $cpu DS Set Destination File Type command"
+	UI FileIndex	DESC="The index into Destination File Table"
+	UI FileType	DESC="The File Type to use for the index above"
+  END
+!
+  CMDS  $sc_$cpu_DS_EnableFile      FCTN=7, DESC="$sc $cpu DS Set Destination File Type command"
+	UI FileIndex	DESC="The index into Destination File Table"
+	UI NewState	STATIC,DEFAULT=1,INVISIBLE, DESC=""
+  END
+!
+  CMDS  $sc_$cpu_DS_DisableFile     FCTN=7, DESC="$sc $cpu DS Set Destination File Type command"
+	UI FileIndex	DESC="The index into Destination File Table"
+	UI NewState	STATIC,DEFAULT=0,INVISIBLE, DESC=""
+  END
+!
+  CMDS  $sc_$cpu_DS_SetPath         FCTN=8, DESC="$sc $cpu DS Set Destination File Pathname command"
+	UI FileIndex	DESC="The index into Destination File Table"
+	UI Spare	STATIC,DEFAULT=0,INVISIBLE, DESC=""
+	CHAR PathName[DS_PATHNAME_BUFSIZE] DESC="The pathname string to use for the index above"
+  END
+!
+  CMDS  $sc_$cpu_DS_SetBasename     FCTN=9, DESC="$sc $cpu DS Set Destination File Basename command"
+	UI FileIndex	DESC="The index into Destination File Table"
+	UI Spare	STATIC,DEFAULT=0,INVISIBLE, DESC=""
+	CHAR BaseName[DS_BASENAME_BUFSIZE] DESC="The basename string to use for the index above"
+  END
+!
+  CMDS  $sc_$cpu_DS_SetExtension    FCTN=10, DESC="$sc $cpu DS Set Destination File Extension command"
+	UI FileIndex	DESC="The index into Destination File Table"
+	UI Spare	STATIC,DEFAULT=0,INVISIBLE, DESC=""
+	CHAR Extension[DS_EXTENSION_BUFSIZE] DESC="The extension string to use for the index above"
+  END
+!
+  CMDS  $sc_$cpu_DS_SetMaxFileSize  FCTN=11, DESC="$sc $cpu DS Set Destination File Maximum Size command"
+	UI FileIndex	DESC="The index into Destination File Table"
+	UI Spare	STATIC,DEFAULT=0,INVISIBLE, DESC=""
+	ULI MaxSize	DESC="The maximum file size in bytes for the index above"
+  END
+!
+  CMDS  $sc_$cpu_DS_SetMaxFileAge   FCTN=12, DESC="$sc $cpu DS Set Destination File Maximum Age command"
+	UI FileIndex	DESC="The index into Destination File Table"
+	UI Spare	STATIC,DEFAULT=0,INVISIBLE, DESC=""
+	ULI MaxAge	DESC="The maximum file age in seconds for the index above"
+  END
+!
+  CMDS  $sc_$cpu_DS_SetFileSeqCtr   FCTN=13, DESC="$sc $cpu DS Set Destination File Next Sequence Counter command"
+	UI FileIndex	DESC="The index into Destination File Table"
+	UI Spare	STATIC,DEFAULT=0,INVISIBLE, DESC=""
+	ULI SeqCount	DESC="The next sequence counter to use for the index above"
+  END
+!
+  CMDS  $sc_$cpu_DS_CloseFile       FCTN=14, DESC="$sc $cpu DS Close Destination File command"
+	UI FileIndex	DESC="The index into Destination File Table of the file to close"
+	UI Spare	STATIC,DEFAULT=0,INVISIBLE, DESC=""
+  END
+!
+  CMD  $sc_$cpu_DS_GetFileInfo      FCTN=15, DESC="The Get File Info command"
+!
+  CMDS  $sc_$cpu_DS_AddMID          FCTN=16, DESC="$sc $cpu DS Add Message ID command"
+	UI MessageID	DESC="The message ID to add to the Packet Filter Table"
+	UI Spare	STATIC,DEFAULT=0,INVISIBLE, DESC=""
+  END
+!
+  CMD  $sc_$cpu_DS_CloseAllFiles    FCTN=17, DESC="The Get File Info command"
+!
+!
+END       !END PACKET
+!
+!=============================================================================

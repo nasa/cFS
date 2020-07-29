@@ -1,0 +1,1282 @@
+        -:    0:Source:../src/ds_table.c
+        -:    0:Programs:4
+        -:    1:/************************************************************************
+        -:    2:**   $Id: ds_table.c.gcov 1.4.1.2 2017/02/06 01:43:34EST mdeschu Exp  $
+        -:    3:**
+        -:    4:**  Copyright (c) 2007-2014 United States Government as represented by the 
+        -:    5:**  Administrator of the National Aeronautics and Space Administration. 
+        -:    6:**  All Other Rights Reserved.  
+        -:    7:**
+        -:    8:**  This software was created at NASA's Goddard Space Flight Center.
+        -:    9:**  This software is governed by the NASA Open Source Agreement and may be 
+        -:   10:**  used, distributed and modified only pursuant to the terms of that 
+        -:   11:**  agreement.
+        -:   12:**
+        -:   13:**  CFS Data Storage (DS) table management functions
+        -:   14:**
+        -:   15:*************************************************************************/
+        -:   16:
+        -:   17:#include "cfe.h"
+        -:   18:
+        -:   19:#include "cfs_utils.h"
+        -:   20:
+        -:   21:#include "ds_msgids.h"
+        -:   22:
+        -:   23:#include "ds_platform_cfg.h"
+        -:   24:#include "ds_verify.h"
+        -:   25:
+        -:   26:#include "ds_appdefs.h"
+        -:   27:
+        -:   28:#include "ds_app.h"
+        -:   29:#include "ds_table.h"
+        -:   30:#include "ds_msg.h"
+        -:   31:#include "ds_events.h"
+        -:   32:
+        -:   33:
+        -:   34:#define DS_CDS_NAME  "DS_CDS"
+        -:   35:
+        -:   36:
+        -:   37:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -:   38:/*                                                                 */
+        -:   39:/* DS_TableInit() - DS application table initialization            */
+        -:   40:/*                                                                 */
+        -:   41:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -:   42:
+        9:   43:int32 DS_TableInit(void)
+        -:   44:{
+        -:   45:    int32 Result1;
+        -:   46:    int32 Result2;
+        9:   47:    boolean NeedToLoadDestTable = FALSE;
+        9:   48:    boolean NeedToLoadFilterTable = FALSE;
+        9:   49:    uint16 TableRegisterFlags = CFE_TBL_OPT_SNGL_BUFFER | CFE_TBL_OPT_LOAD_DUMP;
+        -:   50:
+        -:   51:    #if (DS_MAKE_TABLES_CRITICAL == 1)
+        9:   52:    TableRegisterFlags |= CFE_TBL_OPT_CRITICAL;
+        -:   53:    #endif
+        -:   54:
+        -:   55:    /*
+        -:   56:    ** If registration fails for either table then the DS app will
+        -:   57:    **   terminate immediately. Without valid table handles, the DS
+        -:   58:    **   app will never be able to load table data.
+        -:   59:    **
+        -:   60:    ** However, as long as both tables were successfully registered,
+        -:   61:    **   it doesn't matter that one or both table loads fail.  The
+        -:   62:    **   DS app can still continue - or at least the DS app can limp
+        -:   63:    **   along until an external influence (ground or RTS) can manage
+        -:   64:    **   to get both tables loaded.
+        -:   65:    */
+        9:   66:    Result1 = CFE_TBL_Register(&DS_AppData.DestFileTblHandle, DS_DESTINATION_TBL_NAME,
+        -:   67:                                sizeof (DS_DestFileTable_t), TableRegisterFlags,
+        -:   68:                               (CFE_TBL_CallbackFuncPtr_t) DS_TableVerifyDestFile);
+        -:   69:
+        9:   70:    if (Result1 == CFE_TBL_INFO_RECOVERED_TBL)
+        -:   71:    {
+        -:   72:        /*
+        -:   73:        ** cFE registered the table and restored the table data
+        -:   74:        */
+        1:   75:        NeedToLoadDestTable = FALSE;
+        -:   76:
+        1:   77:        CFE_EVS_SendEvent(DS_INIT_TBL_CDS_EID, CFE_EVS_DEBUG,
+        -:   78:                         "Destination File Table data restored from CDS");
+        -:   79:        /*
+        -:   80:        ** This is not an error so clear the result value for later tests
+        -:   81:        */
+        1:   82:        Result1 = CFE_SUCCESS;
+        -:   83:    }
+        8:   84:    else if (Result1 == CFE_SUCCESS)
+        -:   85:    {
+        -:   86:        /*
+        -:   87:        ** cFE registered the table - we need to load the table data
+        -:   88:        */
+        7:   89:        NeedToLoadDestTable = TRUE;
+        -:   90:    }
+        -:   91:    else
+        -:   92:    {
+        -:   93:        /*
+        -:   94:        ** cFE did not register the table - we cannot continue
+        -:   95:        */ 
+        1:   96:        CFE_EVS_SendEvent(DS_INIT_TBL_ERR_EID, CFE_EVS_ERROR,
+        -:   97:                         "Unable to register Destination File Table: Error = 0x%08X",
+        -:   98:                          (unsigned int)Result1);
+        -:   99:    }
+        -:  100:
+        9:  101:    if (Result1 == CFE_SUCCESS)
+        -:  102:    {
+        8:  103:        Result1 = CFE_TBL_Register(&DS_AppData.FilterTblHandle, DS_FILTER_TBL_NAME,
+        -:  104:                                    sizeof (DS_FilterTable_t), TableRegisterFlags,
+        -:  105:                                   (CFE_TBL_CallbackFuncPtr_t) DS_TableVerifyFilter);
+        -:  106:
+        8:  107:        if (Result1 == CFE_TBL_INFO_RECOVERED_TBL)
+        -:  108:        {
+        -:  109:            /*
+        -:  110:            ** cFE registered the table and restored the table data
+        -:  111:            */
+        1:  112:            NeedToLoadFilterTable = FALSE;
+        -:  113:
+        1:  114:            CFE_EVS_SendEvent(DS_INIT_TBL_CDS_EID, CFE_EVS_DEBUG,
+        -:  115:                             "Filter Table data restored from CDS");
+        -:  116:            /*
+        -:  117:            ** This is not an error so clear the result value for later tests
+        -:  118:            */
+        1:  119:            Result1 = CFE_SUCCESS;
+        -:  120:        }
+        7:  121:        else if (Result1 == CFE_SUCCESS)
+        -:  122:        {
+        -:  123:            /*
+        -:  124:            ** cFE registered the table - we need to load the table data
+        -:  125:            */
+        6:  126:            NeedToLoadFilterTable = TRUE;
+        -:  127:        }
+        -:  128:        else
+        -:  129:        {
+        -:  130:            /*
+        -:  131:            ** cFE did not register the table - we cannot continue
+        -:  132:            */ 
+        1:  133:            CFE_EVS_SendEvent(DS_INIT_TBL_ERR_EID, CFE_EVS_ERROR,
+        -:  134:                             "Unable to register Filter Table: Error = 0x%08X",
+        -:  135:                              (unsigned int)Result1);
+        -:  136:        }
+        -:  137:    }
+        -:  138:
+        -:  139:    /*
+        -:  140:    ** Now load the tables - but only if the registration succeeded
+        -:  141:    **   and the table data has not already been restored from the
+        -:  142:    **   Critical Data Store.
+        -:  143:    */
+        9:  144:    if (Result1 == CFE_SUCCESS)
+        -:  145:    {
+        7:  146:        if (NeedToLoadDestTable)
+        -:  147:        {
+        6:  148:            Result2 = CFE_TBL_Load(DS_AppData.DestFileTblHandle,
+        -:  149:                                   CFE_TBL_SRC_FILE, DS_DEF_DEST_FILENAME);
+        -:  150:
+        6:  151:            if (Result2 != CFE_SUCCESS)
+        -:  152:            {
+        4:  153:                CFE_EVS_SendEvent(DS_INIT_TBL_ERR_EID, CFE_EVS_ERROR,
+        -:  154:                   "Unable to load default Destination File Table: Filename = '%s', Error = 0x%08X",
+        -:  155:                                  DS_DEF_DEST_FILENAME, (unsigned int)Result2);
+        -:  156:            }
+        -:  157:        }
+        -:  158:
+        7:  159:        if (NeedToLoadFilterTable)
+        -:  160:        {
+        6:  161:            Result2 = CFE_TBL_Load(DS_AppData.FilterTblHandle,
+        -:  162:                                   CFE_TBL_SRC_FILE, DS_DEF_FILTER_FILENAME);
+        -:  163:
+        6:  164:            if (Result2 != CFE_SUCCESS)
+        -:  165:            {
+        4:  166:                CFE_EVS_SendEvent(DS_INIT_TBL_ERR_EID, CFE_EVS_ERROR,
+        -:  167:                   "Unable to load default Filter Table: Filename = '%s', Error = 0x%08X",
+        -:  168:                                  DS_DEF_FILTER_FILENAME, (unsigned int)Result2);
+        -:  169:            }
+        -:  170:        }
+        -:  171:
+        -:  172:        /*
+        -:  173:        ** Get initial table data pointers...
+        -:  174:        */
+        7:  175:        DS_TableManageDestFile();
+        7:  176:        DS_TableManageFilter();
+        -:  177:    }
+        -:  178:
+        9:  179:    return(Result1);
+        -:  180:
+        -:  181:} /* End of DS_TableInit() */
+        -:  182:
+        -:  183:
+        -:  184:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -:  185:/*                                                                 */
+        -:  186:/* DS_TableManageDestFile() - manage table data updates            */
+        -:  187:/*                                                                 */
+        -:  188:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -:  189:
+       14:  190:void DS_TableManageDestFile(void)
+        -:  191:{
+        -:  192:    int32 i, Result;
+        -:  193:
+        -:  194:    /*
+        -:  195:    ** Pointer will be NULL until first successful table load...
+        -:  196:    */
+       14:  197:    if (DS_AppData.DestFileTblPtr == (DS_DestFileTable_t *) NULL)
+        -:  198:    {
+        -:  199:        /*
+        -:  200:        ** Still waiting for the first table load...
+        -:  201:        */
+       11:  202:        CFE_TBL_ReleaseAddress(DS_AppData.DestFileTblHandle);
+       11:  203:        CFE_TBL_Manage(DS_AppData.DestFileTblHandle);
+       11:  204:        Result = CFE_TBL_GetAddress((void *)&DS_AppData.DestFileTblPtr,
+       11:  205:                                             DS_AppData.DestFileTblHandle);
+        -:  206:
+       11:  207:        if (Result == CFE_TBL_INFO_UPDATED)
+        -:  208:        {
+        -:  209:            /*
+        -:  210:            ** Got a pointer to initial table data...
+        -:  211:            */
+        1:  212:            DS_AppData.DestTblLoadCounter++;
+        -:  213:
+        -:  214:            /*
+        -:  215:            ** Keep local copies of table values that software will modify...
+        -:  216:            */
+       17:  217:            for (i = 0; i < DS_DEST_FILE_CNT; i++)
+        -:  218:            {
+       16:  219:                DS_AppData.FileStatus[i].FileState = DS_AppData.DestFileTblPtr->File[i].EnableState;
+       16:  220:                DS_AppData.FileStatus[i].FileCount = DS_AppData.DestFileTblPtr->File[i].SequenceCount;
+        -:  221:            }
+        -:  222:
+        -:  223:            /*
+        -:  224:            ** Store local values in the Critical Data Store (CDS)...
+        -:  225:            */
+        1:  226:            DS_TableUpdateCDS();
+        -:  227:        }
+       10:  228:        else if (Result == CFE_TBL_ERR_NEVER_LOADED)
+        -:  229:        {
+        -:  230:            /*
+        -:  231:            ** Still waiting for the first table load...
+        -:  232:            */
+        1:  233:            DS_AppData.DestTblErrCounter++;
+        -:  234:
+        -:  235:            /*
+        -:  236:            ** Make sure we don't try to use the empty table buffer...
+        -:  237:            */
+        1:  238:            DS_AppData.DestFileTblPtr = (DS_DestFileTable_t *) NULL;
+        -:  239:        }
+        -:  240:    }
+        -:  241:    else
+        -:  242:    {
+        -:  243:        /*
+        -:  244:        ** Already have initial table data...
+        -:  245:        */
+        3:  246:        Result = CFE_TBL_GetStatus(DS_AppData.DestFileTblHandle);
+        -:  247:
+        3:  248:        if (Result == CFE_TBL_INFO_DUMP_PENDING)
+        -:  249:        {
+        -:  250:            /*
+        -:  251:            ** Dump the current table data...
+        -:  252:            */
+        1:  253:            CFE_TBL_DumpToBuffer(DS_AppData.DestFileTblHandle);       
+        -:  254:        }
+        2:  255:        else if (Result == CFE_TBL_INFO_VALIDATION_PENDING)
+        -:  256:        {
+        -:  257:            /*
+        -:  258:            ** Validate the pending table data...
+        -:  259:            */
+        1:  260:            CFE_TBL_Validate(DS_AppData.DestFileTblHandle);
+        -:  261:        }
+        1:  262:        else if (Result == CFE_TBL_INFO_UPDATE_PENDING)
+        -:  263:        {
+        -:  264:            /*
+        -:  265:            ** Update the current table with new data...
+        -:  266:            */
+        1:  267:            DS_AppData.DestTblLoadCounter++;
+        -:  268:
+        -:  269:            /*
+        -:  270:            ** Allow cFE to update the table data...
+        -:  271:            */
+        1:  272:            CFE_TBL_ReleaseAddress(DS_AppData.DestFileTblHandle);
+        1:  273:            CFE_TBL_Update(DS_AppData.DestFileTblHandle);
+        1:  274:            CFE_TBL_GetAddress((void *)&DS_AppData.DestFileTblPtr,
+        1:  275:                                        DS_AppData.DestFileTblHandle);
+        -:  276:            /*
+        -:  277:            ** Keep local copies of table values that software will modify...
+        -:  278:            */
+       17:  279:            for (i = 0; i < DS_DEST_FILE_CNT; i++)
+        -:  280:            {
+       16:  281:                DS_AppData.FileStatus[i].FileState = DS_AppData.DestFileTblPtr->File[i].EnableState;
+       16:  282:                DS_AppData.FileStatus[i].FileCount = DS_AppData.DestFileTblPtr->File[i].SequenceCount;
+        -:  283:            }
+        -:  284:
+        -:  285:            /*
+        -:  286:            ** Store local values in the Critical Data Store (CDS)...
+        -:  287:            */
+        1:  288:            DS_TableUpdateCDS();
+        -:  289:        }
+        -:  290:    }
+        -:  291:
+       14:  292:    return;
+        -:  293:
+        -:  294:} /* End of DS_TableManageDestFile() */
+        -:  295:
+        -:  296:
+        -:  297:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -:  298:/*                                                                 */
+        -:  299:/* DS_TableManageFilter() - manage table data updates              */
+        -:  300:/*                                                                 */
+        -:  301:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -:  302:
+       14:  303:void DS_TableManageFilter(void)
+        -:  304:{
+        -:  305:    int32 Result;
+        -:  306:
+        -:  307:    /*
+        -:  308:    ** Pointer will be NULL until first successful filter table load...
+        -:  309:    */
+       14:  310:    if (DS_AppData.FilterTblPtr == (DS_FilterTable_t *) NULL)
+        -:  311:    {
+        -:  312:        /*
+        -:  313:        ** Still waiting for the first filter table load...
+        -:  314:        */
+       10:  315:        CFE_TBL_ReleaseAddress(DS_AppData.FilterTblHandle);
+       10:  316:        CFE_TBL_Manage(DS_AppData.FilterTblHandle);
+       10:  317:        Result = CFE_TBL_GetAddress((void *)&DS_AppData.FilterTblPtr,
+       10:  318:                                             DS_AppData.FilterTblHandle);
+        -:  319:
+       10:  320:        if (Result == CFE_TBL_INFO_UPDATED)
+        -:  321:        {
+        -:  322:            /*
+        -:  323:            ** Got a pointer to initial filter table data...
+        -:  324:            */
+        1:  325:            DS_AppData.FilterTblLoadCounter++;
+        -:  326:
+        -:  327:            /*
+        -:  328:            ** Subscribe to the packets in the new filter table...
+        -:  329:            */
+        1:  330:            DS_TableSubscribe();
+        -:  331:
+        -:  332:            /*
+        -:  333:            ** Create hash table for messageID's in new filter table...
+        -:  334:            */
+        1:  335:            DS_TableCreateHash();
+        -:  336:        }
+        9:  337:        else if (Result == CFE_TBL_ERR_NEVER_LOADED)
+        -:  338:        {
+        -:  339:            /*
+        -:  340:            ** Still waiting for the first filter table load...
+        -:  341:            */
+        1:  342:            DS_AppData.FilterTblErrCounter++;
+        -:  343:
+        -:  344:            /*
+        -:  345:            ** Make sure we don't try to use the empty table buffer...
+        -:  346:            */
+        1:  347:            DS_AppData.FilterTblPtr = (DS_FilterTable_t *) NULL;
+        -:  348:        }
+        -:  349:    }
+        -:  350:    else
+        -:  351:    {
+        -:  352:        /*
+        -:  353:        ** Already have initial filter table data...
+        -:  354:        */
+        4:  355:        Result = CFE_TBL_GetStatus(DS_AppData.FilterTblHandle);
+        -:  356:
+        4:  357:        if (Result == CFE_TBL_INFO_DUMP_PENDING)
+        -:  358:        {
+        -:  359:            /*
+        -:  360:            ** Dump the current filter table data...
+        -:  361:            */
+        1:  362:            CFE_TBL_DumpToBuffer(DS_AppData.FilterTblHandle);       
+        -:  363:        }
+        3:  364:        else if (Result == CFE_TBL_INFO_VALIDATION_PENDING)
+        -:  365:        {
+        -:  366:            /*
+        -:  367:            ** Validate the pending filter table data...
+        -:  368:            */
+        1:  369:            CFE_TBL_Validate(DS_AppData.FilterTblHandle);
+        -:  370:        }
+        2:  371:        else if (Result == CFE_TBL_INFO_UPDATE_PENDING)
+        -:  372:        {
+        -:  373:            /*
+        -:  374:            ** Update the current filter table with new data...
+        -:  375:            */
+        1:  376:            DS_AppData.FilterTblLoadCounter++;
+        -:  377:
+        -:  378:            /*
+        -:  379:            ** Un-subscribe to the packets in the old filter table...
+        -:  380:            */
+        1:  381:            DS_TableUnsubscribe();
+        -:  382:
+        -:  383:            /*
+        -:  384:            ** Allow cFE to update the filter table data...
+        -:  385:            */
+        1:  386:            CFE_TBL_ReleaseAddress(DS_AppData.FilterTblHandle);
+        1:  387:            CFE_TBL_Update(DS_AppData.FilterTblHandle);
+        1:  388:            CFE_TBL_GetAddress((void *)&DS_AppData.FilterTblPtr,
+        1:  389:                                        DS_AppData.FilterTblHandle);
+        -:  390:            /*
+        -:  391:            ** Subscribe to the packets in the new filter table...
+        -:  392:            */
+        1:  393:            DS_TableSubscribe();
+        -:  394:
+        -:  395:            /*
+        -:  396:            ** Create hash table for messageID's in new filter table...
+        -:  397:            */
+        1:  398:            DS_TableCreateHash();
+        -:  399:        }
+        -:  400:    }
+        -:  401:
+       14:  402:    return;
+        -:  403:
+        -:  404:} /* End of DS_TableManageFilter() */
+        -:  405:
+        -:  406:
+        -:  407:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -:  408:/*                                                                 */
+        -:  409:/* DS_TableVerifyDestFile() - validate table data                  */
+        -:  410:/*                                                                 */
+        -:  411:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -:  412:
+        3:  413:int32 DS_TableVerifyDestFile(void *TableData)
+        -:  414:{
+        3:  415:    DS_DestFileTable_t *DestFileTable = (DS_DestFileTable_t *) TableData;
+        3:  416:    char *DescResult = "OK";
+        3:  417:    int32 Result = CFE_SUCCESS;
+        -:  418:    int32 i;
+        -:  419:
+        3:  420:    int32 CountGood   = 0;
+        3:  421:    int32 CountBad    = 0;
+        3:  422:    int32 CountUnused = 0;
+        -:  423:
+        -:  424:    /*
+        -:  425:    ** Perform the following "per table" validation:
+        -:  426:    **
+        -:  427:    **   Descriptor = zero terminated text string (optional)
+        -:  428:    */
+        3:  429:    if (CFS_VerifyString(DestFileTable->Descriptor, DS_DESCRIPTOR_BUFSIZE,
+        -:  430:                         DS_STRING_OPTIONAL, DS_DESCRIPTIVE_TEXT) == FALSE)
+        -:  431:    {
+        1:  432:        CFE_EVS_SendEvent(DS_FIL_TBL_ERR_EID, CFE_EVS_ERROR,
+        -:  433:                         "Destination file table verify err: invalid descriptor text");
+        -:  434:
+        1:  435:        DescResult = "bad";
+        1:  436:        Result = DS_TABLE_VERIFY_ERR;
+        -:  437:    }
+        -:  438:
+        -:  439:    /*
+        -:  440:    ** Each entry in table will be unused, good or bad
+        -:  441:    */
+       51:  442:    for (i = 0; i < DS_DEST_FILE_CNT; i++)
+        -:  443:    {
+       48:  444:        if (DS_TableEntryUnused(&DestFileTable->File[i], sizeof(DS_DestFileEntry_t)) == TRUE)
+        -:  445:        {
+       45:  446:            CountUnused++;
+        -:  447:        }
+        3:  448:        else if (DS_TableVerifyDestFileEntry(&DestFileTable->File[i], (uint8) i, CountBad) == TRUE)
+        -:  449:        {
+        2:  450:            CountGood++;
+        -:  451:        }
+        -:  452:        else
+        -:  453:        {
+        1:  454:            CountBad++;
+        1:  455:            Result = DS_TABLE_VERIFY_ERR;
+        -:  456:        }
+        -:  457:    }
+        -:  458:
+        -:  459:    /*
+        -:  460:    ** Note that totals include each table entry plus the descriptor
+        -:  461:    */
+        3:  462:    CFE_EVS_SendEvent(DS_FIL_TBL_EID, CFE_EVS_INFORMATION,
+        -:  463:       "Destination file table verify results: desc text = %s, good entries = %d, bad = %d, unused = %d",
+        -:  464:                      DescResult, (int)CountGood, (int)CountBad, (int)CountUnused);
+        -:  465:
+        3:  466:    return(Result);
+        -:  467:
+        -:  468:} /* End of DS_TableVerifyDestFile() */
+        -:  469:
+        -:  470:
+        -:  471:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -:  472:/*                                                                 */
+        -:  473:/* DS_TableVerifyDestFileEntry() - verify dest table entry         */
+        -:  474:/*                                                                 */
+        -:  475:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -:  476:
+       12:  477:boolean DS_TableVerifyDestFileEntry(DS_DestFileEntry_t *DestFileEntry,
+        -:  478:                                    uint8 TableIndex, int32 ErrorCount)
+        -:  479:{
+       12:  480:    char *CommonErrorText = "Destination file table verify err:";
+       12:  481:    boolean Result = TRUE;
+        -:  482:
+        -:  483:    /*
+        -:  484:    ** Perform the following "per table entry" validation:
+        -:  485:    **
+        -:  486:    **   Pathname  = zero terminated text string (required)
+        -:  487:    **   Basename  = zero terminated text string (optional)
+        -:  488:    **   Extension = zero terminated text string (optional)
+        -:  489:    **
+        -:  490:    **  FileNameType = DS_BY_COUNT or DS_BY_TIME
+        -:  491:    **  EnableState  = DS_ENABLED or DS_DISABLED
+        -:  492:    **
+        -:  493:    **  MaxFileSize   = cannot be less than DS_FILE_MIN_SIZE_LIMIT
+        -:  494:    **  MaxFileAge    = cannot be less than DS_FILE_MIN_AGE_LIMIT
+        -:  495:    **  SequenceCount = may be zero, cannot exceed DS_MAX_SEQUENCE_COUNT
+        -:  496:    */
+       12:  497:    if (CFS_VerifyString(DestFileEntry->Pathname, DS_PATHNAME_BUFSIZE,
+        -:  498:                         DS_STRING_REQUIRED, DS_FILENAME_TEXT) == FALSE)
+        -:  499:    {
+        1:  500:        if (ErrorCount == 0)
+        -:  501:        {
+        1:  502:            CFE_EVS_SendEvent(DS_FIL_TBL_ERR_EID, CFE_EVS_ERROR,
+        -:  503:                             "%s index = %d, invalid pathname text",
+        -:  504:                              CommonErrorText, TableIndex);
+        -:  505:        }
+        1:  506:        Result = FALSE;
+        -:  507:    }
+       11:  508:    else if (CFS_VerifyString(DestFileEntry->Basename, DS_BASENAME_BUFSIZE,
+        -:  509:                              DS_STRING_OPTIONAL, DS_FILENAME_TEXT) == FALSE)
+        -:  510:    {
+        1:  511:        if (ErrorCount == 0)
+        -:  512:        {
+        1:  513:            CFE_EVS_SendEvent(DS_FIL_TBL_ERR_EID, CFE_EVS_ERROR,
+        -:  514:                             "%s index = %d, invalid basename text",
+        -:  515:                              CommonErrorText, TableIndex);
+        -:  516:        }
+        1:  517:        Result = FALSE;
+        -:  518:    }
+       10:  519:    else if (CFS_VerifyString(DestFileEntry->Extension, DS_EXTENSION_BUFSIZE,
+        -:  520:                              DS_STRING_OPTIONAL, DS_FILENAME_TEXT) == FALSE)
+        -:  521:    {
+        2:  522:        if (ErrorCount == 0)
+        -:  523:        {
+        2:  524:            CFE_EVS_SendEvent(DS_FIL_TBL_ERR_EID, CFE_EVS_ERROR,
+        -:  525:                             "%s index = %d, invalid extension text",
+        -:  526:                              CommonErrorText, TableIndex);
+        -:  527:        }
+        2:  528:        Result = FALSE;
+        -:  529:    }
+        8:  530:    else if (DS_TableVerifyType(DestFileEntry->FileNameType) == FALSE)
+        -:  531:    {
+        1:  532:        if (ErrorCount == 0)
+        -:  533:        {
+        1:  534:            CFE_EVS_SendEvent(DS_FIL_TBL_ERR_EID, CFE_EVS_ERROR,
+        -:  535:                             "%s index = %d, filename type = %d",
+        1:  536:                              CommonErrorText, TableIndex, DestFileEntry->FileNameType);
+        -:  537:        }
+        1:  538:        Result = FALSE;
+        -:  539:    }
+        7:  540:    else if (DS_TableVerifyState(DestFileEntry->EnableState) == FALSE)
+        -:  541:    {
+        1:  542:        if (ErrorCount == 0)
+        -:  543:        {
+        1:  544:            CFE_EVS_SendEvent(DS_FIL_TBL_ERR_EID, CFE_EVS_ERROR,
+        -:  545:                             "%s index = %d, file enable state = %d",
+        1:  546:                              CommonErrorText, TableIndex, DestFileEntry->EnableState);
+        -:  547:        }
+        1:  548:        Result = FALSE;
+        -:  549:    }
+        6:  550:    else if (DS_TableVerifySize(DestFileEntry->MaxFileSize) == FALSE)
+        -:  551:    {
+        1:  552:        if (ErrorCount == 0)
+        -:  553:        {
+        1:  554:            CFE_EVS_SendEvent(DS_FIL_TBL_ERR_EID, CFE_EVS_ERROR,
+        -:  555:                             "%s index = %d, max file size = %d",
+        -:  556:                              CommonErrorText, (int)TableIndex, (int)DestFileEntry->MaxFileSize);
+        -:  557:        }
+        1:  558:        Result = FALSE;
+        -:  559:    }
+        5:  560:    else if (DS_TableVerifyAge(DestFileEntry->MaxFileAge) == FALSE)
+        -:  561:    {
+        1:  562:        if (ErrorCount == 0)
+        -:  563:        {
+        1:  564:            CFE_EVS_SendEvent(DS_FIL_TBL_ERR_EID, CFE_EVS_ERROR,
+        -:  565:                             "%s index = %d, max file age = %d",
+        -:  566:                              CommonErrorText, (int)TableIndex, (int)DestFileEntry->MaxFileAge);
+        -:  567:        }
+        1:  568:        Result = FALSE;
+        -:  569:    }
+        4:  570:    else if (DS_TableVerifyCount(DestFileEntry->SequenceCount) == FALSE)
+        -:  571:    {
+        1:  572:        if (ErrorCount == 0)
+        -:  573:        {
+        1:  574:            CFE_EVS_SendEvent(DS_FIL_TBL_ERR_EID, CFE_EVS_ERROR,
+        -:  575:                             "%s index = %d, sequence count = %d",
+        -:  576:                              CommonErrorText, (int)TableIndex, (int)DestFileEntry->SequenceCount);
+        -:  577:        }
+        1:  578:        Result = FALSE;
+        -:  579:    }
+        -:  580:
+       12:  581:    return(Result);
+        -:  582:
+        -:  583:} /* End of DS_TableVerifyDestFileEntry() */
+        -:  584:
+        -:  585:
+        -:  586:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -:  587:/*                                                                 */
+        -:  588:/* DS_TableVerifyFilter() - validate table data                    */
+        -:  589:/*                                                                 */
+        -:  590:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -:  591:
+        3:  592:int32 DS_TableVerifyFilter(void *TableData)
+        -:  593:{
+        3:  594:    DS_FilterTable_t *FilterTable = (DS_FilterTable_t *) TableData;
+        3:  595:    char *DescResult = "OK";
+        3:  596:    int32 Result = CFE_SUCCESS;
+        -:  597:    int32 i;
+        -:  598:
+        3:  599:    int32 CountGood   = 0;
+        3:  600:    int32 CountBad    = 0;
+        3:  601:    int32 CountUnused = 0;
+        -:  602:
+        -:  603:    /*
+        -:  604:    ** Perform the following validation:
+        -:  605:    **
+        -:  606:    **   Descriptor = zero terminated text string (may be empty)
+        -:  607:    **
+        -:  608:    **   MessageID = unlimited, zero means unused
+        -:  609:    */
+        3:  610:    if (CFS_VerifyString(FilterTable->Descriptor, DS_DESCRIPTOR_BUFSIZE,
+        -:  611:                         DS_STRING_OPTIONAL, DS_DESCRIPTIVE_TEXT) == FALSE)
+        -:  612:    {
+        1:  613:        CFE_EVS_SendEvent(DS_FLT_TBL_ERR_EID, CFE_EVS_ERROR,
+        -:  614:                         "Filter table verify err: invalid descriptor text");
+        -:  615:
+        1:  616:        DescResult = "bad";
+        1:  617:        Result = DS_TABLE_VERIFY_ERR;
+        -:  618:    }
+        -:  619:
+        -:  620:    /*
+        -:  621:    ** Each entry in table will be unused, good or bad
+        -:  622:    */
+      771:  623:    for (i = 0; i < DS_PACKETS_IN_FILTER_TABLE; i++)
+        -:  624:    {
+      768:  625:        if (FilterTable->Packet[i].MessageID == DS_UNUSED)
+        -:  626:        {
+      765:  627:            CountUnused++;
+        -:  628:        }
+        3:  629:        else if (DS_TableVerifyFilterEntry(&FilterTable->Packet[i], (uint8) i, CountBad) == TRUE)
+        -:  630:        {
+        2:  631:            CountGood++;
+        -:  632:        }
+        -:  633:        else
+        -:  634:        {
+        1:  635:            CountBad++;
+        1:  636:            Result = DS_TABLE_VERIFY_ERR;
+        -:  637:        }
+        -:  638:    }
+        -:  639:
+        -:  640:    /*
+        -:  641:    ** Note that totals include each table entry plus the descriptor
+        -:  642:    */
+        3:  643:    CFE_EVS_SendEvent(DS_FLT_TBL_EID, CFE_EVS_INFORMATION,
+        -:  644:       "Filter table verify results: desc text = %s, good entries = %d, bad = %d, unused = %d",
+        -:  645:                      DescResult, (int)CountGood, (int)CountBad, (int)CountUnused);
+        -:  646:
+        3:  647:    return(Result);
+        -:  648:
+        -:  649:} /* End of DS_TableVerifyFilter() */
+        -:  650:
+        -:  651:
+        -:  652:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -:  653:/*                                                                 */
+        -:  654:/* DS_TableVerifyFilterEntry() - verify filter table entry         */
+        -:  655:/*                                                                 */
+        -:  656:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -:  657:
+        7:  658:boolean DS_TableVerifyFilterEntry(DS_PacketEntry_t *PacketEntry,
+        -:  659:                                  int32 TableIndex, int32 ErrorCount)
+        -:  660:{
+        7:  661:    char *CommonErrorText = "Filter table verify err:";
+        -:  662:    DS_FilterParms_t *FilterParms;
+        7:  663:    boolean Result = TRUE;
+        -:  664:    int32 i;
+        -:  665:
+        -:  666:    /*
+        -:  667:    ** Each packet filter table entry has multiple filters per packet
+        -:  668:    **
+        -:  669:    ** Perform the following validation (per filter):
+        -:  670:    **
+        -:  671:    **   FileTableIndex = must be less than DS_DEST_FILE_CNT
+        -:  672:    **   FilterType = must be DS_BY_COUNT or DS_BY_TIME
+        -:  673:    **
+        -:  674:    **   Algorithm_N = cannot exceed Algorithm_X, zero means filter ALL
+        -:  675:    **   Algorithm_X = unlimited
+        -:  676:    **   Algorithm_O = must be less than Algorithm_X
+        -:  677:    **
+        -:  678:    **   Note: unused filters (all zero's) are valid
+        -:  679:    */
+       23:  680:    for (i = 0; (i < DS_FILTERS_PER_PACKET) && (Result == TRUE); i++)
+        -:  681:    {
+       16:  682:        FilterParms = &PacketEntry->Filter[i];
+        -:  683:
+       16:  684:        if (DS_TableEntryUnused(FilterParms, sizeof(DS_FilterParms_t)) == FALSE)
+        -:  685:        {
+        -:  686:            /*
+        -:  687:            ** If any filter field is non-zero then all filter fields must be valid
+        -:  688:            */
+        4:  689:            if (DS_TableVerifyFileIndex((uint32) FilterParms->FileTableIndex) == FALSE)
+        -:  690:            {
+        1:  691:                if (ErrorCount == 0)
+        -:  692:                {
+        2:  693:                    CFE_EVS_SendEvent(DS_FLT_TBL_ERR_EID, CFE_EVS_ERROR,
+        -:  694:                                     "%s MID = 0x%04X, index = %d, filter = %d, file table index = %d",
+        1:  695:                                      CommonErrorText, PacketEntry->MessageID,
+        1:  696:                                      (int)TableIndex, (int)i, FilterParms->FileTableIndex);
+        -:  697:                }
+        1:  698:                Result = FALSE;
+        -:  699:            }
+        3:  700:            else if (DS_TableVerifyType((uint16) FilterParms->FilterType) == FALSE)
+        -:  701:            {
+        2:  702:                if (ErrorCount == 0)
+        -:  703:                {
+        4:  704:                    CFE_EVS_SendEvent(DS_FLT_TBL_ERR_EID, CFE_EVS_ERROR,
+        -:  705:                                     "%s MID = 0x%04X, index = %d, filter = %d, filter type = %d",
+        2:  706:                                      CommonErrorText, PacketEntry->MessageID,
+        2:  707:                                      (int)TableIndex, (int)i, FilterParms->FilterType);
+        -:  708:                }
+        2:  709:                Result = FALSE;
+        -:  710:            }
+        2:  711:            else if (DS_TableVerifyParms(FilterParms->Algorithm_N,
+        1:  712:                                         FilterParms->Algorithm_X,
+        1:  713:                                         FilterParms->Algorithm_O) == FALSE)
+        -:  714:            {
+        1:  715:                if (ErrorCount == 0)
+        -:  716:                {
+        4:  717:                    CFE_EVS_SendEvent(DS_FLT_TBL_ERR_EID, CFE_EVS_ERROR,
+        -:  718:                                     "%s MID = 0x%04X, index = %d, filter = %d, filter parms N = %d, X = %d, O = %d",
+        1:  719:                                      CommonErrorText, PacketEntry->MessageID, (int)TableIndex, (int)i,
+        1:  720:                                      FilterParms->Algorithm_N,
+        1:  721:                                      FilterParms->Algorithm_X,
+        1:  722:                                      FilterParms->Algorithm_O);
+        -:  723:                }
+        1:  724:                Result = FALSE;
+        -:  725:            }
+        -:  726:        }
+        -:  727:    }
+        -:  728:
+        7:  729:    return(Result);
+        -:  730:
+        -:  731:} /* End of DS_TableVerifyFilterEntry() */
+        -:  732:
+        -:  733:
+        -:  734:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -:  735:/*                                                                 */
+        -:  736:/* DS_TableEntryUnused() - find unused table entries               */
+        -:  737:/*                                                                 */
+        -:  738:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -:  739:
+       66:  740:boolean DS_TableEntryUnused(void *TableEntry, int32 BufferSize)
+        -:  741:{
+       66:  742:    char *Buffer = (char *) TableEntry;
+       66:  743:    boolean Result = TRUE;
+        -:  744:    int32 i;
+        -:  745:
+     7157:  746:    for (i = 0; i < BufferSize; i++)
+        -:  747:    {
+     7099:  748:        if (Buffer[i] != DS_UNUSED)
+        -:  749:        {
+        8:  750:            Result = FALSE;
+        8:  751:            break;
+        -:  752:        }
+        -:  753:    }
+        -:  754:
+       66:  755:    return(Result);
+        -:  756:
+        -:  757:} /* End of DS_TableEntryUnused() */
+        -:  758:
+        -:  759:
+        -:  760:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -:  761:/*                                                                 */
+        -:  762:/* DS_TableVerifyFileIndex() - verify dest file index              */
+        -:  763:/*                                                                 */
+        -:  764:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -:  765:
+       54:  766:boolean DS_TableVerifyFileIndex(uint16 FileTableIndex)
+        -:  767:{
+       54:  768:    boolean Result = TRUE;
+        -:  769:
+       54:  770:    if (FileTableIndex >= DS_DEST_FILE_CNT)
+        -:  771:    {
+       12:  772:        Result = FALSE;
+        -:  773:    }
+        -:  774:
+       54:  775:    return(Result);
+        -:  776:
+        -:  777:} /* End of DS_TableVerifyFileIndex() */
+        -:  778:
+        -:  779:
+        -:  780:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -:  781:/*                                                                 */
+        -:  782:/* DS_TableVerifyParms() - verify algorithm parameters             */
+        -:  783:/*                                                                 */
+        -:  784:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -:  785:
+        8:  786:boolean DS_TableVerifyParms(uint16 Algorithm_N, uint16 Algorithm_X, uint16 Algorithm_O)
+        -:  787:{
+        8:  788:    boolean Result = TRUE;
+        -:  789:
+        -:  790:    /*
+        -:  791:    ** Unused entries (all zero's) are valid
+        -:  792:    */
+        8:  793:    if ((Algorithm_N != 0) || (Algorithm_X != 0) || (Algorithm_O != 0))
+        -:  794:    {
+        5:  795:        if (Algorithm_N > Algorithm_X)
+        -:  796:        {
+        -:  797:            /*
+        -:  798:            ** "pass this many" cannot exceed "out of this many"
+        -:  799:            */
+        1:  800:            Result = FALSE;
+        -:  801:        }
+        4:  802:        else if (Algorithm_O >= Algorithm_X)
+        -:  803:        {
+        -:  804:            /*
+        -:  805:            ** "at this offset" must be less than "out of this many"
+        -:  806:            */
+        3:  807:            Result = FALSE;
+        -:  808:        }
+        -:  809:    }
+        -:  810:
+        8:  811:    return(Result);
+        -:  812:
+        -:  813:} /* End of DS_TableVerifyParms() */
+        -:  814:
+        -:  815:
+        -:  816:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -:  817:/*                                                                 */
+        -:  818:/* DS_TableVerifyType() - verify filter or filename type           */
+        -:  819:/*                                                                 */
+        -:  820:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -:  821:
+       22:  822:boolean DS_TableVerifyType(uint16 TimeVsCount)
+        -:  823:{
+       22:  824:    boolean Result = TRUE;
+        -:  825:
+       22:  826:    if ((TimeVsCount != DS_BY_COUNT) && (TimeVsCount != DS_BY_TIME))
+        -:  827:    {
+        8:  828:        Result = FALSE;
+        -:  829:    }
+        -:  830:
+       22:  831:    return(Result);
+        -:  832:
+        -:  833:} /* End of DS_TableVerifyType() */
+        -:  834:
+        -:  835:
+        -:  836:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -:  837:/*                                                                 */
+        -:  838:/* DS_TableVerifyState() - verify file ena/dis state               */
+        -:  839:/*                                                                 */
+        -:  840:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -:  841:
+       16:  842:boolean DS_TableVerifyState(uint16 EnableState)
+        -:  843:{
+       16:  844:    boolean Result = TRUE;
+        -:  845:
+       16:  846:    if ((EnableState != DS_ENABLED) && (EnableState != DS_DISABLED))
+        -:  847:    {
+        4:  848:        Result = FALSE;
+        -:  849:    }
+        -:  850:
+       16:  851:    return(Result);
+        -:  852:
+        -:  853:} /* End of DS_TableVerifyState() */
+        -:  854:
+        -:  855:
+        -:  856:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -:  857:/*                                                                 */
+        -:  858:/* DS_TableVerifySize() - verify file size limit                   */
+        -:  859:/*                                                                 */
+        -:  860:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -:  861:
+       12:  862:boolean DS_TableVerifySize(uint32 MaxFileSize)
+        -:  863:{
+       12:  864:    boolean Result = TRUE;
+        -:  865:
+       12:  866:    if (MaxFileSize < DS_FILE_MIN_SIZE_LIMIT)
+        -:  867:    {
+        4:  868:        Result = FALSE;
+        -:  869:    }
+        -:  870:
+       12:  871:    return(Result);
+        -:  872:
+        -:  873:} /* End of DS_TableVerifySize() */
+        -:  874:
+        -:  875:
+        -:  876:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -:  877:/*                                                                 */
+        -:  878:/* DS_TableVerifyAge() - verify file age limit                     */
+        -:  879:/*                                                                 */
+        -:  880:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -:  881:
+       11:  882:boolean DS_TableVerifyAge(uint32 MaxFileAge)
+        -:  883:{
+       11:  884:    boolean Result = TRUE;
+        -:  885:
+       11:  886:    if (MaxFileAge < DS_FILE_MIN_AGE_LIMIT)
+        -:  887:    {
+        4:  888:        Result = FALSE;
+        -:  889:    }
+        -:  890:
+       11:  891:    return(Result);
+        -:  892:
+        -:  893:} /* End of DS_TableVerifyAge() */
+        -:  894:
+        -:  895:
+        -:  896:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -:  897:/*                                                                 */
+        -:  898:/* DS_TableVerifyCount() - verify sequence count                   */
+        -:  899:/*                                                                 */
+        -:  900:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -:  901:
+       10:  902:boolean DS_TableVerifyCount(uint32 SequenceCount)
+        -:  903:{
+       10:  904:    boolean Result = TRUE;
+        -:  905:
+       10:  906:    if (SequenceCount > DS_MAX_SEQUENCE_COUNT)
+        -:  907:    {
+        3:  908:        Result = FALSE;
+        -:  909:    }
+        -:  910:
+       10:  911:    return(Result);
+        -:  912:
+        -:  913:} /* End of DS_TableVerifyCount() */
+        -:  914:
+        -:  915:
+        -:  916:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -:  917:/*                                                                 */
+        -:  918:/* DS_TableSubscribe() - process new filter table                  */
+        -:  919:/*                                                                 */
+        -:  920:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -:  921:
+        3:  922:void DS_TableSubscribe(void)
+        -:  923:{
+        -:  924:    DS_PacketEntry_t *FilterPackets;
+        -:  925:    CFE_SB_MsgId_t MessageID;
+        -:  926:    int32 i;
+        -:  927:
+        3:  928:    FilterPackets = DS_AppData.FilterTblPtr->Packet;
+        -:  929:
+        -:  930:    /*
+        -:  931:    ** Check each entry in "new" packet filter table...
+        -:  932:    */
+      771:  933:    for (i = 0; i < DS_PACKETS_IN_FILTER_TABLE; i++)
+        -:  934:    {
+      768:  935:        MessageID = FilterPackets[i].MessageID;
+        -:  936:
+        -:  937:        /*
+        -:  938:        ** Already subscribe to DS command packets...
+        -:  939:        */
+      768:  940:        if ((MessageID != DS_UNUSED) &&
+        -:  941:            (MessageID != DS_CMD_MID) &&
+        -:  942:            (MessageID != DS_SEND_HK_MID))
+        -:  943:        {
+      108:  944:            CFE_SB_SubscribeEx(MessageID, DS_AppData.InputPipe,
+        -:  945:                CFE_SB_Default_Qos, DS_PER_PACKET_PIPE_LIMIT);
+        -:  946:        }
+        -:  947:    }
+        -:  948:
+        3:  949:    return;
+        -:  950:
+        -:  951:} /* End of DS_TableSubscribe() */
+        -:  952:
+        -:  953:
+        -:  954:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -:  955:/*                                                                 */
+        -:  956:/* DS_TableUnsubscribe() - process old filter table                */
+        -:  957:/*                                                                 */
+        -:  958:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -:  959:
+        2:  960:void DS_TableUnsubscribe(void)
+        -:  961:{
+        -:  962:    DS_PacketEntry_t *FilterPackets;
+        -:  963:    CFE_SB_MsgId_t MessageID;
+        -:  964:    int32 i;
+        -:  965:
+        2:  966:    FilterPackets = DS_AppData.FilterTblPtr->Packet;
+        -:  967:
+        -:  968:    /*
+        -:  969:    ** Check each entry in "old" packet filter table...
+        -:  970:    */
+      514:  971:    for (i = 0; i < DS_PACKETS_IN_FILTER_TABLE; i++)
+        -:  972:    {
+      512:  973:        MessageID = FilterPackets[i].MessageID;
+        -:  974:
+        -:  975:        /*
+        -:  976:        ** Do not un-subscribe to unused or DS command packets...
+        -:  977:        */
+      512:  978:        if ((MessageID != DS_UNUSED) &&
+        -:  979:            (MessageID != DS_CMD_MID) &&
+        -:  980:            (MessageID != DS_SEND_HK_MID))
+        -:  981:        {
+      108:  982:            CFE_SB_Unsubscribe(MessageID, DS_AppData.InputPipe);
+        -:  983:        }
+        -:  984:    }
+        -:  985:
+        2:  986:    return;
+        -:  987:
+        -:  988:} /* End of DS_TableUnsubscribe() */
+        -:  989:
+        -:  990:
+        -:  991:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -:  992:/*                                                                 */
+        -:  993:/* DS_TableCreateCDS() - create DS storage area in CDS             */
+        -:  994:/*                                                                 */
+        -:  995:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -:  996:
+        6:  997:int32 DS_TableCreateCDS(void)
+        -:  998:{
+        -:  999:    /* Store file sequence counts and task ena/dis state in CDS */
+        -: 1000:    uint32 DataStoreBuffer[DS_DEST_FILE_CNT + 1];
+        -: 1001:    int32 Result;
+        -: 1002:    int32 i;
+        -: 1003:
+        -: 1004:    /*
+        -: 1005:    ** Request for CDS area from cFE Executive Services...
+        -: 1006:    */
+        6: 1007:    Result = CFE_ES_RegisterCDS(&DS_AppData.DataStoreHandle,
+        -: 1008:                                 sizeof(DataStoreBuffer), DS_CDS_NAME);
+        -: 1009:
+        6: 1010:    if (Result == CFE_SUCCESS)
+        -: 1011:    {
+        -: 1012:        /*
+        -: 1013:        ** New CDS area - write to Critical Data Store...
+        -: 1014:        */
+       68: 1015:        for (i = 0; i < DS_DEST_FILE_CNT; i++)
+        -: 1016:        {
+       64: 1017:            DataStoreBuffer[i] = DS_AppData.FileStatus[i].FileCount;
+        -: 1018:        }
+        -: 1019:
+        4: 1020:        DataStoreBuffer[DS_DEST_FILE_CNT] = DS_AppData.AppEnableState;
+        -: 1021:
+        4: 1022:        Result = CFE_ES_CopyToCDS(DS_AppData.DataStoreHandle, DataStoreBuffer);
+        -: 1023:    }
+        2: 1024:    else if (Result == CFE_ES_CDS_ALREADY_EXISTS)
+        -: 1025:    {
+        -: 1026:        /*
+        -: 1027:        ** Pre-existing CDS area - read from Critical Data Store...
+        -: 1028:        */
+        1: 1029:        Result = CFE_ES_RestoreFromCDS(DataStoreBuffer, DS_AppData.DataStoreHandle);
+        -: 1030:
+        1: 1031:        if (Result == CFE_SUCCESS)
+        -: 1032:        {
+       17: 1033:            for (i = 0; i < DS_DEST_FILE_CNT; i++)
+        -: 1034:            {
+       16: 1035:                DS_AppData.FileStatus[i].FileCount = DataStoreBuffer[i];
+        -: 1036:            }
+        -: 1037:
+        -: 1038:            #if (DS_CDS_ENABLE_STATE == 1)
+        -: 1039:            /* Only restore enable/disable state if configured */
+        1: 1040:            DS_AppData.AppEnableState = (uint8) DataStoreBuffer[DS_DEST_FILE_CNT];
+        -: 1041:            #endif
+        -: 1042:        }
+        -: 1043:    }
+        -: 1044:
+        6: 1045:    if (Result != CFE_SUCCESS)
+        -: 1046:    {
+        -: 1047:        /*
+        -: 1048:        ** CDS is broken - prevent further errors...
+        -: 1049:        */
+        1: 1050:        DS_AppData.DataStoreHandle = 0;
+        -: 1051:
+        1: 1052:        CFE_EVS_SendEvent(DS_INIT_CDS_ERR_EID, CFE_EVS_ERROR,
+        -: 1053:                         "Critical Data Store access error = 0x%08X", (unsigned int)Result);
+        -: 1054:        /*
+        -: 1055:        ** CDS errors are not fatal - DS can still run...
+        -: 1056:        */
+        1: 1057:        Result = CFE_SUCCESS;
+        -: 1058:    }
+        -: 1059:
+        6: 1060:    return(Result);
+        -: 1061:
+        -: 1062:} /* End of DS_TableCreateCDS() */
+        -: 1063:
+        -: 1064:
+        -: 1065:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -: 1066:/*                                                                 */
+        -: 1067:/* DS_TableUpdateCDS() - update DS storage area in CDS             */
+        -: 1068:/*                                                                 */
+        -: 1069:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -: 1070:
+        8: 1071:void DS_TableUpdateCDS(void)
+        -: 1072:{
+        -: 1073:    /* Store file sequence counts and task ena/dis state in CDS */
+        -: 1074:    uint32 DataStoreBuffer[DS_DEST_FILE_CNT + 1];
+        -: 1075:    int32 Result;
+        -: 1076:    int32 i;
+        -: 1077:
+        -: 1078:    /*
+        -: 1079:    ** Handle is non-zero when CDS is active...
+        -: 1080:    */
+        8: 1081:    if (DS_AppData.DataStoreHandle != 0)
+        -: 1082:    {
+        -: 1083:        /*
+        -: 1084:        ** Copy file sequence counts values to the data array...
+        -: 1085:        */
+       34: 1086:        for (i = 0; i < DS_DEST_FILE_CNT; i++)
+        -: 1087:        {
+       32: 1088:            DataStoreBuffer[i] = DS_AppData.FileStatus[i].FileCount;
+        -: 1089:        }
+        -: 1090:
+        -: 1091:        /*
+        -: 1092:        ** Always save the DS enable/disable state in the CDS...
+        -: 1093:        **  (DS_CDS_ENABLE_STATE controls restoring the state)
+        -: 1094:        */
+        2: 1095:        DataStoreBuffer[DS_DEST_FILE_CNT] = DS_AppData.AppEnableState;
+        -: 1096:
+        -: 1097:        /*
+        -: 1098:        ** Update DS portion of Critical Data Store...
+        -: 1099:        */
+        2: 1100:        Result = CFE_ES_CopyToCDS(DS_AppData.DataStoreHandle, DataStoreBuffer);
+        -: 1101:
+        2: 1102:        if (Result != CFE_SUCCESS)
+        -: 1103:        {
+        1: 1104:            CFE_EVS_SendEvent(DS_INIT_CDS_ERR_EID, CFE_EVS_ERROR,
+        -: 1105:                             "Critical Data Store access error = 0x%08X", (unsigned int)Result);
+        -: 1106:            /*
+        -: 1107:            ** CDS is broken - prevent further errors...
+        -: 1108:            */
+        1: 1109:            DS_AppData.DataStoreHandle = 0;
+        -: 1110:        }
+        -: 1111:    }
+        -: 1112:
+        8: 1113:    return;
+        -: 1114:
+        -: 1115:} /* End of DS_TableUpdateCDS() */
+        -: 1116:
+        -: 1117:
+        -: 1118:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -: 1119:/*                                                                 */
+        -: 1120:/* DS_TableHashFunction() - convert messageID to hash table index  */
+        -: 1121:/*                                                                 */
+        -: 1122:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -: 1123:
+     1044: 1124:uint32 DS_TableHashFunction(CFE_SB_MsgId_t MessageID)
+        -: 1125:{
+        -: 1126:    /*
+        -: 1127:    **   The purpose of a hash function is to take the input value
+        -: 1128:    ** and convert it to an index into the hash table. Assume that
+        -: 1129:    ** the range of input values is much different (larger) than
+        -: 1130:    ** the number of entries in the hash table. Then multiple input
+        -: 1131:    ** values must resolve to the same output table index. This is ok
+        -: 1132:    ** because each entry in the hash table is a linked list of all
+        -: 1133:    ** the inputs with the same hash function result.
+        -: 1134:    **
+        -: 1135:    **   This particular hash function takes advantage of knowledge
+        -: 1136:    ** regarding the format of the input values (cFE MessageID). By
+        -: 1137:    ** ignoring the bits that define version number, packet type and
+        -: 1138:    ** secondary header (high 5 bits of 16) we are left with the bits
+        -: 1139:    ** (mask = 0x7FF) that can identify 2048 unique input telemetry
+        -: 1140:    ** packets. Also, by using a fixed hash table size of 256 entries
+        -: 1141:    ** and using only the lower 8 bits of the bitmask as the result
+        -: 1142:    ** of the hash function, no single hash table entry will have more
+        -: 1143:    ** than 8 elements in its linked list.
+        -: 1144:    **
+        -: 1145:    **   To look up a MessageID in the DS packet filter table, rather
+        -: 1146:    ** than search the entire filter table, DS does the following:
+        -: 1147:    **
+        -: 1148:    **   - call the hash function
+        -: 1149:    **     (input = MessageID, output = hash table index)
+        -: 1150:    **
+        -: 1151:    **   - search hash table entry linked list for matching MessageID
+        -: 1152:    **     (each linked list contains, at most, 8 linked list elements)
+        -: 1153:    **
+        -: 1154:    **   - matching linked list element has index into filter table
+        -: 1155:    **     (can now go directly to the correct filter table entry)
+        -: 1156:    */
+     1044: 1157:    return((uint32) (MessageID & DS_HASH_TABLE_MASK));
+        -: 1158:
+        -: 1159:} /* End of DS_TableHashFunction() */
+        -: 1160:
+        -: 1161:
+        -: 1162:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -: 1163:/*                                                                 */
+        -: 1164:/* DS_TableCreateHash() - create and populate hash table           */
+        -: 1165:/*                                                                 */
+        -: 1166:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -: 1167:
+        4: 1168:void DS_TableCreateHash(void)
+        -: 1169:{
+        -: 1170:    int32 FilterIndex;
+        -: 1171:
+        -: 1172:    /*
+        -: 1173:    ** Initialize global hash table structures...
+        -: 1174:    */
+        4: 1175:    CFE_PSP_MemSet(DS_AppData.HashLinks, 0, (sizeof(DS_HashLink_t) * DS_PACKETS_IN_FILTER_TABLE));
+        4: 1176:    CFE_PSP_MemSet(DS_AppData.HashTable, 0, (sizeof(DS_HashLink_t *) * DS_HASH_TABLE_ENTRIES));
+        -: 1177:
+     1028: 1178:    for (FilterIndex = 0; FilterIndex < DS_PACKETS_IN_FILTER_TABLE; FilterIndex++)
+        -: 1179:    {
+     1024: 1180:        DS_TableAddMsgID(DS_AppData.FilterTblPtr->Packet[FilterIndex].MessageID, FilterIndex);
+        -: 1181:    }
+        -: 1182:
+        4: 1183:    return;
+        -: 1184:
+        -: 1185:} /* End of DS_TableCreateHash() */
+        -: 1186:
+        -: 1187:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -: 1188:/*                                                                 */
+        -: 1189:/* DS_TableFindMsgID() - get filter table index for MID            */
+        -: 1190:/*                                                                 */
+        -: 1191:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -: 1192:
+     1025: 1193:int32 DS_TableAddMsgID(CFE_SB_MsgId_t MessageID, int32 FilterIndex)
+        -: 1194:{
+        -: 1195:    int32 HashIndex;
+        -: 1196:    DS_HashLink_t *NewLink;
+        -: 1197:    DS_HashLink_t *LinkList;
+        -: 1198:
+        -: 1199:    /* Get unused linked list entry (one link entry per filter table entry) */
+     1025: 1200:    NewLink = &DS_AppData.HashLinks[FilterIndex];
+        -: 1201:
+        -: 1202:    /* Set filter table data values for new linked list entry */
+     1025: 1203:    NewLink->Index = FilterIndex;
+     1025: 1204:    NewLink->MessageID = MessageID;
+        -: 1205:
+        -: 1206:    /* Hash table function converts MID into hash table index */
+     1025: 1207:    HashIndex = DS_TableHashFunction(NewLink->MessageID);
+        -: 1208:
+     1025: 1209:    if (DS_AppData.HashTable[HashIndex] == (DS_HashLink_t *) NULL)
+        -: 1210:    {
+        -: 1211:        /* Set first link in this hash table entry linked list */
+      106: 1212:        DS_AppData.HashTable[HashIndex] = NewLink;
+        -: 1213:    }
+        -: 1214:    else
+        -: 1215:    {
+        -: 1216:        /* Get start of linked list (all MID's with same hash result) */
+      919: 1217:        LinkList = DS_AppData.HashTable[HashIndex];
+        -: 1218:
+        -: 1219:        /* Find last link */
+    90237: 1220:        while (LinkList->Next != (DS_HashLink_t *) NULL)
+        -: 1221:        {
+    88399: 1222:            LinkList = LinkList->Next;
+        -: 1223:        }
+        -: 1224:
+        -: 1225:        /* Add new link */
+      919: 1226:        LinkList->Next = NewLink;
+        -: 1227:    }
+        -: 1228:
+     1025: 1229:    return(HashIndex);
+        -: 1230:
+        -: 1231:} /* End of DS_TableAddMsgID() */
+        -: 1232:
+        -: 1233:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -: 1234:/*                                                                 */
+        -: 1235:/* DS_TableFindMsgID() - get filter table index for MID            */
+        -: 1236:/*                                                                 */
+        -: 1237:/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+        -: 1238:
+       18: 1239:int32 DS_TableFindMsgID(CFE_SB_MsgId_t MessageID)
+        -: 1240:{
+        -: 1241:    DS_PacketEntry_t *FilterPackets;
+        -: 1242:    DS_HashLink_t *HashLink;
+        -: 1243:    int32 HashTableIndex;
+        -: 1244:    int32 FilterTableIndex;
+        -: 1245:
+        -: 1246:    /* De-reference filter table packet array */
+       18: 1247:    FilterPackets = DS_AppData.FilterTblPtr->Packet;
+        -: 1248:
+        -: 1249:    /* Set search result to "not found" */
+       18: 1250:    FilterTableIndex = DS_INDEX_NONE;
+        -: 1251:
+        -: 1252:    /* Hash table function converts MID into hash table index */
+       18: 1253:    HashTableIndex = DS_TableHashFunction(MessageID);
+        -: 1254:
+        -: 1255:    /* Get start of linked list (all MID's with same hash result) */
+       18: 1256:    HashLink = DS_AppData.HashTable[HashTableIndex];
+        -: 1257:
+        -: 1258:    /* NULL when list is empty or end of list */
+       37: 1259:    while (HashLink != (DS_HashLink_t *) NULL)
+        -: 1260:    {
+        -: 1261:        /* Compare this linked list entry for matching MessageID */
+       11: 1262:        if (FilterPackets[HashLink->Index].MessageID == MessageID)
+        -: 1263:        {
+        -: 1264:            /* Stop the search - we found it */
+       10: 1265:            FilterTableIndex = HashLink->Index;
+       10: 1266:            break;
+        -: 1267:        }
+        -: 1268:
+        -: 1269:        /* Max of 8 links per design */
+        1: 1270:        HashLink = HashLink->Next;
+        -: 1271:    }
+        -: 1272:
+       18: 1273:    return(FilterTableIndex);
+        -: 1274:
+        -: 1275:} /* End of DS_TableFindMsgID() */
+        -: 1276:
+        -: 1277:
+        -: 1278:/************************/
+        -: 1279:/*  End of File Comment */
+        -: 1280:/************************/

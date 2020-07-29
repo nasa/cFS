@@ -1,0 +1,1253 @@
+##############################################################################
+## $Id: ds_test_log_defaultconfig.txt 1.5.1.2 2017/02/06 01:43:28EST mdeschu Exp  $
+##
+## Purpose: CFS DS application unit test baseline output log for default 
+## configuration of ds_platform_cfg.h
+##
+## Author: Charles Zogby
+##
+##############################################################################
+
+DS 2.5.0.0 Unit Test Output (with default configuration of ds_platform_cfg.h: DS_FILE_HEADER_TYPE = 1, DS_MOVE_FILES = FALSE):
+
+
+./ds_testrunner.exe
+
+Running Test: DS_AppMain_Test_Nominal
+ERROR EVENT ID=8 Unable to load default Destination File Table: Filename = '/cf/apps/ds_file_tbl.tbl', Error = 0xCC000013
+ERROR EVENT ID=8 Unable to load default Filter Table: Filename = '/cf/apps/ds_filter_tbl.tbl', Error = 0xCC000013
+INFO EVENT ID=1 Application initialized, version 2.5.0.0, data at 0x0809ECE0
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 3
+
+Running Test: DS_AppMain_Test_RegisterAppError
+CRITICAL EVENT ID=3 Application terminating, err = 0xFFFFFFFF
+SYSTEM LOG: DS application terminating, err = 0xFFFFFFFF
+
+PASS: Application terminating, err = 0xFFFFFFFF
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+PASS: DS application terminating, err = 0xFFFFFFFF
+
+PASS: Ut_CFE_ES_GetSysLogQueueDepth() == 1
+
+Running Test: DS_AppMain_Test_AppInitializeError
+ERROR EVENT ID=2 Unable to register for EVS services, err = 0xFFFFFFFF
+CRITICAL EVENT ID=3 Application terminating, err = 0xFFFFFFFF
+SYSTEM LOG: DS application terminating, err = 0xFFFFFFFF
+
+PASS: Application terminating, err = 0xFFFFFFFF
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 2
+PASS: DS application terminating, err = 0xFFFFFFFF
+
+PASS: Ut_CFE_ES_GetSysLogQueueDepth() == 1
+
+Running Test: DS_AppMain_Test_SBError
+ERROR EVENT ID=8 Unable to load default Destination File Table: Filename = '/cf/apps/ds_file_tbl.tbl', Error = 0xCC000013
+ERROR EVENT ID=8 Unable to load default Filter Table: Filename = '/cf/apps/ds_filter_tbl.tbl', Error = 0xCC000013
+INFO EVENT ID=1 Application initialized, version 2.5.0.0, data at 0x0809ECE0
+CRITICAL EVENT ID=3 Application terminating, err = 0xFFFFFFFF
+SYSTEM LOG: DS application terminating, err = 0xFFFFFFFF
+
+PASS: Application terminating, err = 0xFFFFFFFF
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 4
+PASS: DS application terminating, err = 0xFFFFFFFF
+
+PASS: Ut_CFE_ES_GetSysLogQueueDepth() == 1
+
+Running Test: DS_AppInitialize_Test_Nominal
+ERROR EVENT ID=8 Unable to load default Destination File Table: Filename = '/cf/apps/ds_file_tbl.tbl', Error = 0xCC000013
+ERROR EVENT ID=8 Unable to load default Filter Table: Filename = '/cf/apps/ds_filter_tbl.tbl', Error = 0xCC000013
+INFO EVENT ID=1 Application initialized, version 2.5.0.0, data at 0x0809ECE0
+PASS: DS_AppData.AppEnableState == DS_DEF_ENABLE_STATE
+PASS: DS_AppData.FileStatus[0].FileHandle == DS_CLOSED_FILE_HANDLE
+PASS: DS_AppData.FileStatus[DS_DEST_FILE_CNT/2].FileHandle == DS_CLOSED_FILE_HANDLE
+PASS: DS_AppData.FileStatus[DS_DEST_FILE_CNT-1].FileHandle == DS_CLOSED_FILE_HANDLE
+PASS: Application initialized, version 2.5.0.0, data at 0x0809ECE0
+PASS: Result == CFE_SUCCESS
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 3
+
+Running Test: DS_AppInitialize_Test_EVSRegisterError
+ERROR EVENT ID=2 Unable to register for EVS services, err = 0xFFFFFFFF
+PASS: DS_AppData.AppEnableState == DS_DEF_ENABLE_STATE
+PASS: DS_AppData.FileStatus[0].FileHandle == DS_CLOSED_FILE_HANDLE
+PASS: DS_AppData.FileStatus[DS_DEST_FILE_CNT/2].FileHandle == DS_CLOSED_FILE_HANDLE
+PASS: DS_AppData.FileStatus[DS_DEST_FILE_CNT-1].FileHandle == DS_CLOSED_FILE_HANDLE
+PASS: Unable to register for EVS services, err = 0xFFFFFFFF
+PASS: Result == -1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_AppInitialize_Test_SBCreatePipeError
+ERROR EVENT ID=2 Unable to create input pipe, err = 0xFFFFFFFF
+PASS: DS_AppData.AppEnableState == DS_DEF_ENABLE_STATE
+PASS: DS_AppData.FileStatus[0].FileHandle == DS_CLOSED_FILE_HANDLE
+PASS: DS_AppData.FileStatus[DS_DEST_FILE_CNT/2].FileHandle == DS_CLOSED_FILE_HANDLE
+PASS: DS_AppData.FileStatus[DS_DEST_FILE_CNT-1].FileHandle == DS_CLOSED_FILE_HANDLE
+PASS: Unable to create input pipe, err = 0xFFFFFFFF
+PASS: Result == -1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_AppInitialize_Test_SBSubscribeHKError
+ERROR EVENT ID=2 Unable to subscribe to HK request, err = 0xFFFFFFFF
+PASS: DS_AppData.AppEnableState == DS_DEF_ENABLE_STATE
+PASS: DS_AppData.FileStatus[0].FileHandle == DS_CLOSED_FILE_HANDLE
+PASS: DS_AppData.FileStatus[DS_DEST_FILE_CNT/2].FileHandle == DS_CLOSED_FILE_HANDLE
+PASS: DS_AppData.FileStatus[DS_DEST_FILE_CNT-1].FileHandle == DS_CLOSED_FILE_HANDLE
+PASS: Unable to subscribe to HK request, err = 0xFFFFFFFF
+PASS: Result == -1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_AppInitialize_Test_SBSubscribeDSError
+ERROR EVENT ID=2 Unable to subscribe to DS commands, err = 0xFFFFFFFF
+PASS: DS_AppData.AppEnableState == DS_DEF_ENABLE_STATE
+PASS: DS_AppData.FileStatus[0].FileHandle == DS_CLOSED_FILE_HANDLE
+PASS: DS_AppData.FileStatus[DS_DEST_FILE_CNT/2].FileHandle == DS_CLOSED_FILE_HANDLE
+PASS: DS_AppData.FileStatus[DS_DEST_FILE_CNT-1].FileHandle == DS_CLOSED_FILE_HANDLE
+PASS: Unable to subscribe to DS commands, err = 0xFFFFFFFF
+PASS: Result == -1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_AppProcessMsg_Test_Cmd
+INFO EVENT ID=31 NOOP command, Version 2.5.0.0
+PASS: NOOP command, Version 2.5.0.0
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_AppProcessMsg_Test_HK
+PKT: 08 B8 C0 00 00 65 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 66 66 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: DS_AppProcessMsg_Test_HKInvalidRequest
+ERROR EVENT ID=22 Invalid HK request length: expected = 8, actual = 0
+PASS: Invalid HK request length: expected = 8, actual = 0
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_AppProcessMsg_Test_UnknownMID
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: DS_AppProcessCmd_Test_Noop
+INFO EVENT ID=31 NOOP command, Version 2.5.0.0
+PASS: NOOP command, Version 2.5.0.0
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_AppProcessCmd_Test_Reset
+DEBUG EVENT ID=33 Reset counters command
+PASS: Reset counters command
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_AppProcessCmd_Test_SetAppState
+DEBUG EVENT ID=35 APP STATE command: state = 0
+PASS: APP STATE command: state = 0
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_AppProcessCmd_Test_SetFilterFile
+ERROR EVENT ID=38 Invalid FILTER FILE command: packet filter table is not loaded
+PASS: Invalid FILTER FILE command: packet filter table is not loaded
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_AppProcessCmd_Test_SetFilterType
+ERROR EVENT ID=40 Invalid FILTER TYPE command arg: filter type = 0
+PASS: Invalid FILTER TYPE command arg: filter type = 0
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_AppProcessCmd_Test_SetFilterParms
+ERROR EVENT ID=42 Invalid FILTER PARMS command arg: invalid messageID = 0x0000
+PASS: Invalid FILTER PARMS command arg: invalid messageID = 0x0000
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_AppProcessCmd_Test_SetDestType
+ERROR EVENT ID=44 Invalid DEST TYPE command arg: filename type = 0
+PASS: Invalid DEST TYPE command arg: filename type = 0
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_AppProcessCmd_Test_SetDestState
+ERROR EVENT ID=46 Invalid DEST STATE command: destination file table is not loaded
+PASS: Invalid DEST STATE command: destination file table is not loaded
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_AppProcessCmd_Test_SetDestPath
+ERROR EVENT ID=48 Invalid DEST PATH command arg: pathname
+PASS: Invalid DEST PATH command arg: pathname
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_AppProcessCmd_Test_SetDestBase
+ERROR EVENT ID=50 Invalid DEST BASE command: destination file table is not loaded
+PASS: Invalid DEST BASE command: destination file table is not loaded
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_AppProcessCmd_Test_SetDestExt
+ERROR EVENT ID=52 Invalid DEST EXT command: destination file table is not loaded
+PASS: Invalid DEST EXT command: destination file table is not loaded
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_AppProcessCmd_Test_SetDestSize
+ERROR EVENT ID=54 Invalid DEST SIZE command arg: size limit = 0
+PASS: Invalid DEST SIZE command arg: size limit = 0
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_AppProcessCmd_Test_SetDestAge
+ERROR EVENT ID=56 Invalid DEST AGE command arg: age limit = 0
+PASS: Invalid DEST AGE command arg: age limit = 0
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_AppProcessCmd_Test_SetDestCount
+ERROR EVENT ID=58 Invalid DEST COUNT command: destination file table is not loaded
+PASS: Invalid DEST COUNT command: destination file table is not loaded
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_AppProcessCmd_Test_CloseFile
+DEBUG EVENT ID=59 DEST CLOSE command: file table index = 0
+PASS: DEST CLOSE command: file table index = 0
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_AppProcessCmd_Test_GetFileInfo
+DEBUG EVENT ID=62 GET FILE INFO command
+PKT: 08 B9 C0 00 05 45 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+PASS: GET FILE INFO command
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_AppProcessCmd_Test_AddMID
+ERROR EVENT ID=65 Invalid ADD MID command: filter table is not loaded
+PASS: Invalid ADD MID command: filter table is not loaded
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_AppProcessCmd_Test_CloseAll
+DEBUG EVENT ID=66 DEST CLOSE ALL command
+PASS: DEST CLOSE ALL command
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_AppProcessCmd_Test_InvalidCommandCode
+ERROR EVENT ID=21 Invalid command code: MID = 0x18BB, CC = 99
+PASS: Invalid command code: MID = 0x18BB, CC = 99
+PASS: DS_AppData.CmdRejectedCounter == 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_AppProcessHK_Test
+PKT: 08 B8 C0 00 00 65 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+PASS: DS_AppData.FileStatus[0].FileRate == 99 / DS_SECS_PER_HK_CYCLE
+PASS: DS_AppData.FileStatus[0].FileGrowth == 0
+PASS: DS_AppData.FileStatus[DS_DEST_FILE_CNT/2].FileRate == 99 / DS_SECS_PER_HK_CYCLE
+PASS: DS_AppData.FileStatus[DS_DEST_FILE_CNT/2].FileGrowth == 0
+PASS: DS_AppData.FileStatus[DS_DEST_FILE_CNT - 1].FileRate == 99 / DS_SECS_PER_HK_CYCLE
+PASS: DS_AppData.FileStatus[DS_DEST_FILE_CNT - 1].FileGrowth == 0
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+PASS: DS_HkPacket_t is 32-bit aligned
+
+Running Test: DS_AppStorePacket_Test_Nominal
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: DS_AppStorePacket_Test_DSDisabled
+PASS: DS_AppData.DisabledPktCounter == 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: DS_AppStorePacket_Test_FilterTableNotLoaded
+PASS: DS_AppData.IgnoredPktCounter == 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: DS_AppStorePacket_Test_DestFileTableNotLoaded
+PASS: DS_AppData.IgnoredPktCounter == 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: DS_CmdNoop_Test_Nominal
+INFO EVENT ID=31 NOOP command, Version 2.5.0.0
+PASS: DS_AppData.CmdAcceptedCounter == 1
+PASS: NOOP command, Version 2.5.0.0
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+PASS: DS_NoopCmd_t is 32-bit aligned
+
+Running Test: DS_CmdNoop_Test_InvalidCommandLength
+ERROR EVENT ID=32 Invalid NOOP command length: expected = 8, actual = 1
+PASS: DS_AppData.CmdRejectedCounter == 1
+PASS: Invalid NOOP command length: expected = 8, actual = 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_CmdReset_Test_Nominal
+DEBUG EVENT ID=33 Reset counters command
+PASS: DS_AppData.CmdAcceptedCounter == 0
+PASS: DS_AppData.CmdRejectedCounter == 0
+PASS: DS_AppData.DisabledPktCounter == 0
+PASS: DS_AppData.IgnoredPktCounter == 0
+PASS: DS_AppData.FilteredPktCounter == 0
+PASS: DS_AppData.PassedPktCounter == 0
+PASS: DS_AppData.FileWriteCounter == 0
+PASS: DS_AppData.FileWriteErrCounter == 0
+PASS: DS_AppData.FileUpdateCounter == 0
+PASS: DS_AppData.FileUpdateErrCounter == 0
+PASS: DS_AppData.DestTblLoadCounter == 0
+PASS: DS_AppData.DestTblErrCounter == 0
+PASS: DS_AppData.FilterTblLoadCounter == 0
+PASS: DS_AppData.FilterTblErrCounter == 0
+PASS: Reset counters command
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+PASS: DS_ResetCmd_t is 32-bit aligned
+
+Running Test: DS_CmdReset_Test_InvalidCommandLength
+ERROR EVENT ID=34 Invalid RESET command length: expected = 8, actual = 1
+PASS: DS_AppData.CmdRejectedCounter == 1
+PASS: Invalid RESET command length: expected = 8, actual = 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_CmdSetAppState_Test_Nominal
+DEBUG EVENT ID=35 APP STATE command: state = 1
+PASS: DS_AppData.CmdAcceptedCounter == 1
+PASS: DS_AppData.AppEnableState == TRUE
+PASS: APP STATE command: state = 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+PASS: DS_AppStateCmd_t is 32-bit aligned
+
+Running Test: DS_CmdSetAppState_Test_InvalidCommandLength
+ERROR EVENT ID=36 Invalid APP STATE command length: expected = 12, actual = 1
+PASS: DS_AppData.CmdRejectedCounter == 1
+PASS: Invalid APP STATE command length: expected = 12, actual = 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_CmdSetAppState_Test_InvalidAppState
+ERROR EVENT ID=36 Invalid APP STATE command arg: app state = 99
+PASS: DS_AppData.CmdRejectedCounter == 1
+PASS: Invalid APP STATE command arg: app state = 99
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_CmdSetFilterFile_Test_Nominal
+DEBUG EVENT ID=37 FILTER FILE command: MID = 0x18BB, index = 0, filter = 2, file = 4
+PASS: DS_AppData.CmdAcceptedCounter == 1
+PASS: DS_AppData.FilterTblPtr->Packet[CmdPacket.FileTableIndex].Filter[CmdPacket.FilterParmsIndex].FileTableIndex == 0
+PASS: FILTER FILE command: MID = 0x18BB, index = 0, filter = 2, file = 4
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+PASS: DS_FilterFileCmd_t is 32-bit aligned
+
+Running Test: DS_CmdSetFilterFile_Test_InvalidCommandLength
+ERROR EVENT ID=38 Invalid FILTER FILE command length: expected = 16, actual = 1
+PASS: DS_AppData.CmdRejectedCounter == 1
+PASS: Invalid FILTER FILE command length: expected = 16, actual = 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_CmdSetFilterFile_Test_InvalidMessageID
+ERROR EVENT ID=38 Invalid FILTER FILE command arg: invalid messageID = 0x   0
+PASS: DS_AppData.CmdRejectedCounter == 1
+PASS: Invalid FILTER FILE command arg: invalid messageID = 0x   0
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_CmdSetFilterFile_Test_InvalidFilterParametersIndex
+ERROR EVENT ID=38 Invalid FILTER FILE command arg: filter parameters index = 4
+PASS: DS_AppData.CmdRejectedCounter == 1
+PASS: Invalid FILTER FILE command arg: filter parameters index = 4
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_CmdSetFilterFile_Test_InvalidFileTableIndex
+ERROR EVENT ID=38 Invalid FILTER FILE command arg: file table index = 99
+PASS: DS_AppData.CmdRejectedCounter == 1
+PASS: Invalid FILTER FILE command arg: file table index = 99
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_CmdSetFilterFile_Test_FilterTableNotLoaded
+ERROR EVENT ID=38 Invalid FILTER FILE command: packet filter table is not loaded
+PASS: DS_AppData.CmdRejectedCounter == 1
+PASS: Invalid FILTER FILE command: packet filter table is not loaded
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_CmdSetFilterFile_Test_MessageIDNotInFilterTable
+ERROR EVENT ID=38 Invalid FILTER FILE command: Message ID 0x9999 is not in filter table
+PASS: DS_AppData.CmdRejectedCounter == 1
+PASS: Invalid FILTER FILE command: Message ID 0x9999 is not in filter table
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_CmdSetFilterType_Test_Nominal
+DEBUG EVENT ID=39 FILTER TYPE command: MID = 0x18BB, index = 0, filter = 2, type = 1
+PASS: DS_AppData.CmdAcceptedCounter == 1
+PASS: DS_AppData.FilterTblPtr->Packet[0].Filter[CmdPacket.FilterParmsIndex].FilterType == 1
+PASS: FILTER TYPE command: MID = 0x18BB, index = 0, filter = 2, type = 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+PASS: DS_FilterTypeCmd_t is 32-bit aligned
+
+Running Test: DS_CmdSetFilterType_Test_InvalidCommandLength
+ERROR EVENT ID=40 Invalid FILTER TYPE command length: expected = 16, actual = 1
+PASS: DS_AppData.CmdRejectedCounter == 1
+PASS: Invalid FILTER TYPE command length: expected = 16, actual = 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_CmdSetFilterType_Test_InvalidMessageID
+ERROR EVENT ID=40 Invalid FILTER TYPE command arg: invalid messageID = 0x0000
+PASS: DS_AppData.CmdRejectedCounter == 1
+PASS: Invalid FILTER TYPE command arg: invalid messageID = 0x0000
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_CmdSetFilterType_Test_InvalidFilterParametersIndex
+ERROR EVENT ID=40 Invalid FILTER TYPE command arg: filter parameters index = 4
+PASS: DS_AppData.CmdRejectedCounter == 1
+PASS: Invalid FILTER TYPE command arg: filter parameters index = 4
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_CmdSetFilterType_Test_InvalidFilterType
+ERROR EVENT ID=40 Invalid FILTER TYPE command arg: filter type = 0
+PASS: DS_AppData.CmdRejectedCounter == 1
+PASS: Invalid FILTER TYPE command arg: filter type = 0
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_CmdSetFilterType_Test_FilterTableNotLoaded
+ERROR EVENT ID=40 Invalid FILTER TYPE command: packet filter table is not loaded
+PASS: DS_AppData.CmdRejectedCounter == 1
+PASS: Invalid FILTER TYPE command: packet filter table is not loaded
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_CmdSetFilterType_Test_MessageIDNotInFilterTable
+ERROR EVENT ID=40 Invalid FILTER TYPE command: Message ID 0x9999 is not in filter table
+PASS: DS_AppData.CmdRejectedCounter == 1
+PASS: Invalid FILTER TYPE command: Message ID 0x9999 is not in filter table
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_CmdSetFilterParms_Test_Nominal
+DEBUG EVENT ID=41 FILTER PARMS command: MID = 0x18BB, index = 0, filter = 2, N = 0, X = 0, O = 0
+PASS: DS_AppData.CmdAcceptedCounter == 1
+PASS: DS_AppData.FilterTblPtr->Packet[0].Filter[CmdPacket.FilterParmsIndex].Algorithm_N == 0
+PASS: DS_AppData.FilterTblPtr->Packet[0].Filter[CmdPacket.FilterParmsIndex].Algorithm_X == 0
+PASS: DS_AppData.FilterTblPtr->Packet[0].Filter[CmdPacket.FilterParmsIndex].Algorithm_O == 0
+PASS: FILTER PARMS command: MID = 0x18BB, index = 0, filter = 2, N = 0, X = 0, O = 0
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+PASS: DS_FilterParmsCmd_t is 32-bit aligned
+
+Running Test: DS_CmdSetFilterParms_Test_InvalidCommandLength
+ERROR EVENT ID=42 Invalid FILTER PARMS command length: expected = 20, actual = 1
+PASS: DS_AppData.CmdRejectedCounter == 1
+PASS: Invalid FILTER PARMS command length: expected = 20, actual = 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_CmdSetFilterParms_Test_InvalidMessageID
+ERROR EVENT ID=42 Invalid FILTER PARMS command arg: invalid messageID = 0x0000
+PASS: DS_AppData.CmdRejectedCounter == 1
+PASS: Invalid FILTER PARMS command arg: invalid messageID = 0x0000
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_CmdSetFilterParms_Test_InvalidFilterParametersIndex
+ERROR EVENT ID=42 Invalid FILTER PARMS command arg: filter parameters index = 4
+PASS: DS_AppData.CmdRejectedCounter == 1
+PASS: Invalid FILTER PARMS command arg: filter parameters index = 4
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_CmdSetFilterParms_Test_InvalidFilterAlgorithm
+ERROR EVENT ID=42 Invalid FILTER PARMS command arg: N = 1, X = 1, O = 1
+PASS: DS_AppData.CmdRejectedCounter == 1
+PASS: Invalid FILTER PARMS command arg: N = 1, X = 1, O = 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_CmdSetFilterParms_Test_FilterTableNotLoaded
+ERROR EVENT ID=42 Invalid FILTER PARMS command: packet filter table is not loaded
+PASS: DS_AppData.CmdRejectedCounter == 1
+PASS: Invalid FILTER PARMS command: packet filter table is not loaded
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_CmdSetFilterParms_Test_MessageIDNotInFilterTable
+ERROR EVENT ID=42 Invalid FILTER PARMS command: Message ID 0x9999 is not in filter table
+PASS: DS_AppData.CmdRejectedCounter == 1
+PASS: Invalid FILTER PARMS command: Message ID 0x9999 is not in filter table
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_CmdSetDestType_Test_Nominal
+DEBUG EVENT ID=43 DEST TYPE command: file table index = 1, filename type = 2
+PASS: DS_AppData.CmdAcceptedCounter == 1
+PASS: DS_AppData.DestFileTblPtr->File[CmdPacket.FileTableIndex].FileNameType == 2
+PASS: DEST TYPE command: file table index = 1, filename type = 2
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+PASS: DS_DestTypeCmd_t is 32-bit aligned
+
+Running Test: DS_CmdSetDestType_Test_InvalidCommandLength
+ERROR EVENT ID=44 Invalid DEST TYPE command length: expected = 12, actual = 1
+PASS: DS_AppData.CmdRejectedCounter == 1
+PASS: Invalid DEST TYPE command length: expected = 12, actual = 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_CmdSetDestType_Test_InvalidFileTableIndex
+ERROR EVENT ID=44 Invalid DEST TYPE command arg: file table index = 99
+PASS: DS_AppData.CmdRejectedCounter == 1
+PASS: Invalid DEST TYPE command arg: file table index = 99
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_CmdSetDestType_Test_InvalidFilenameType
+ERROR EVENT ID=44 Invalid DEST TYPE command arg: filename type = 99
+PASS: DS_AppData.CmdRejectedCounter == 1
+PASS: Invalid DEST TYPE command arg: filename type = 99
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_CmdSetDestType_Test_FileTableNotLoaded
+ERROR EVENT ID=44 Invalid DEST TYPE command: destination file table is not loaded
+PASS: DS_AppData.CmdRejectedCounter == 1
+PASS: Invalid DEST TYPE command: destination file table is not loaded
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_CmdSetDestState_Test_Nominal
+DEBUG EVENT ID=45 DEST STATE command: file table index = 1, file state = 1
+PASS: DS_AppData.CmdAcceptedCounter == 1
+PASS: DS_AppData.DestFileTblPtr->File[CmdPacket.FileTableIndex].EnableState == CmdPacket.EnableState
+PASS: DEST STATE command: file table index = 1, file state = 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+PASS: DS_DestStateCmd_t is 32-bit aligned
+
+Running Test: DS_CmdSetDestState_Test_InvalidCommandLength
+ERROR EVENT ID=46 Invalid DEST STATE command length: expected = 12, actual = 1
+PASS: DS_AppData.CmdRejectedCounter == 1
+PASS: Invalid DEST STATE command length: expected = 12, actual = 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_CmdSetDestState_Test_InvalidFileTableIndex
+ERROR EVENT ID=46 Invalid DEST STATE command arg: file table index = 99
+PASS: DS_AppData.CmdRejectedCounter == 1
+PASS: Invalid DEST STATE command arg: file table index = 99
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_CmdSetDestState_Test_InvalidFileState
+ERROR EVENT ID=46 Invalid DEST STATE command arg: file state = 99
+PASS: DS_AppData.CmdRejectedCounter == 1
+PASS: Invalid DEST STATE command arg: file state = 99
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_CmdSetDestState_Test_FileTableNotLoaded
+ERROR EVENT ID=46 Invalid DEST STATE command: destination file table is not loaded
+PASS: DS_AppData.CmdRejectedCounter == 1
+PASS: Invalid DEST STATE command: destination file table is not loaded
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_CmdSetDestPath_Test_Nominal
+DEBUG EVENT ID=47 DEST PATH command: file table index = 1, pathname = 'pathname'
+PASS: DS_AppData.CmdAcceptedCounter == 1
+PASS: strncmp (DS_AppData.DestFileTblPtr->File[CmdPacket.FileTableIndex].Pathname, 'pathname', OS_MAX_PATH_LEN) == 0
+PASS: DEST PATH command: file table index = 1, pathname = 'pathname'
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+PASS: DS_DestPathCmd_t is 32-bit aligned
+
+Running Test: DS_CmdSetDestPath_Test_InvalidCommandLength
+ERROR EVENT ID=48 Invalid DEST PATH command length: expected = 76, actual = 1
+PASS: DS_AppData.CmdRejectedCounter == 1
+PASS: Invalid DEST PATH command length: expected = 76, actual = 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_CmdSetDestPath_Test_InvalidFileTableIndex
+ERROR EVENT ID=48 Invalid DEST PATH command arg: file table index = 99
+PASS: DS_AppData.CmdRejectedCounter == 1
+PASS: Invalid DEST PATH command arg: file table index = 99
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_CmdSetDestPath_Test_InvalidPathname
+ERROR EVENT ID=48 Invalid DEST PATH command arg: pathname
+PASS: DS_AppData.CmdRejectedCounter == 1
+PASS: Invalid DEST PATH command arg: pathname
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_CmdSetDestPath_Test_FileTableNotLoaded
+ERROR EVENT ID=48 Invalid DEST PATH command: destination file table is not loaded
+PASS: DS_AppData.CmdRejectedCounter == 1
+PASS: Invalid DEST PATH command: destination file table is not loaded
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_CmdSetDestBase_Test_Nominal
+DEBUG EVENT ID=49 DEST BASE command: file table index = 1, base filename = 'base'
+PASS: DS_AppData.CmdAcceptedCounter == 1
+PASS: strncmp (DS_AppData.DestFileTblPtr->File[CmdPacket.FileTableIndex].Basename, 'base', OS_MAX_PATH_LEN) == 0
+PASS: DEST BASE command: file table index = 1, base filename = 'base'
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+PASS: DS_DestBaseCmd_t is 32-bit aligned
+
+Running Test: DS_CmdSetDestBase_Test_InvalidCommandLength
+ERROR EVENT ID=50 Invalid DEST BASE command length: expected = 76, actual = 1
+PASS: DS_AppData.CmdRejectedCounter == 1
+PASS: Invalid DEST BASE command length: expected = 76, actual = 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_CmdSetDestBase_Test_InvalidFileTableIndex
+ERROR EVENT ID=50 Invalid DEST BASE command arg: file table index = 99
+PASS: DS_AppData.CmdRejectedCounter == 1
+PASS: Invalid DEST BASE command arg: file table index = 99
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_CmdSetDestBase_Test_InvalidBaseFilename
+ERROR EVENT ID=50 Invalid DEST BASE command arg: base filename
+PASS: DS_AppData.CmdRejectedCounter == 1
+PASS: Invalid DEST BASE command arg: base filename
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_CmdSetDestBase_Test_FileTableNotLoaded
+ERROR EVENT ID=50 Invalid DEST BASE command: destination file table is not loaded
+PASS: DS_AppData.CmdRejectedCounter == 1
+PASS: Invalid DEST BASE command: destination file table is not loaded
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_CmdSetDestExt_Test_Nominal
+DEBUG EVENT ID=51 DEST EXT command: file table index = 1, extension = 'txt'
+PASS: DS_AppData.CmdAcceptedCounter == 1
+PASS: strncmp (DS_AppData.DestFileTblPtr->File[CmdPacket.FileTableIndex].Extension, 'txt', DS_EXTENSION_BUFSIZE) == 0
+PASS: DEST EXT command: file table index = 1, extension = 'txt'
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+PASS: DS_DestExtCmd_t is 32-bit aligned
+
+Running Test: DS_CmdSetDestExt_Test_InvalidCommandLength
+ERROR EVENT ID=52 Invalid DEST EXT command length: expected = 20, actual = 1
+PASS: DS_AppData.CmdRejectedCounter == 1
+PASS: Invalid DEST EXT command length: expected = 20, actual = 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_CmdSetDestExt_Test_InvalidFileTableIndex
+ERROR EVENT ID=52 Invalid DEST EXT command arg: file table index = 99
+PASS: DS_AppData.CmdRejectedCounter == 1
+PASS: Invalid DEST EXT command arg: file table index = 99
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_CmdSetDestExt_Test_InvalidFilenameExtension
+ERROR EVENT ID=52 Invalid DEST EXT command arg: extension
+PASS: DS_AppData.CmdRejectedCounter == 1
+PASS: Invalid DEST EXT command arg: extension
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_CmdSetDestExt_Test_FileTableNotLoaded
+ERROR EVENT ID=52 Invalid DEST EXT command: destination file table is not loaded
+PASS: DS_AppData.CmdRejectedCounter == 1
+PASS: Invalid DEST EXT command: destination file table is not loaded
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_CmdSetDestSize_Test_Nominal
+DEBUG EVENT ID=53 DEST SIZE command: file table index = 1, size limit = 100000000
+PASS: DS_AppData.CmdAcceptedCounter == 1
+PASS: DS_AppData.DestFileTblPtr->File[CmdPacket.FileTableIndex].MaxFileSize == 100000000
+PASS: DEST SIZE command: file table index = 1, size limit = 100000000
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+PASS: DS_DestSizeCmd_t is 32-bit aligned
+
+Running Test: DS_CmdSetDestSize_Test_InvalidCommandLength
+ERROR EVENT ID=54 Invalid DEST SIZE command length: expected = 16, actual = 1
+PASS: DS_AppData.CmdRejectedCounter == 1
+PASS: Invalid DEST SIZE command length: expected = 16, actual = 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_CmdSetDestSize_Test_InvalidFileTableIndex
+ERROR EVENT ID=54 Invalid DEST SIZE command arg: file table index = 99
+PASS: DS_AppData.CmdRejectedCounter == 1
+PASS: Invalid DEST SIZE command arg: file table index = 99
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_CmdSetDestSize_Test_InvalidFileSizeLimit
+ERROR EVENT ID=54 Invalid DEST SIZE command arg: size limit = 1
+PASS: DS_AppData.CmdRejectedCounter == 1
+PASS: Invalid DEST SIZE command arg: size limit = 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_CmdSetDestSize_Test_FileTableNotLoaded
+ERROR EVENT ID=54 Invalid DEST SIZE command: destination file table is not loaded
+PASS: DS_AppData.CmdRejectedCounter == 1
+PASS: Invalid DEST SIZE command: destination file table is not loaded
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_CmdSetDestAge_Test_Nominal
+DEBUG EVENT ID=55 DEST AGE command: file table index = 1, age limit = 1000
+PASS: DS_AppData.CmdAcceptedCounter == 1
+PASS: DS_AppData.DestFileTblPtr->File[CmdPacket.FileTableIndex].MaxFileAge == 1000
+PASS: DEST AGE command: file table index = 1, age limit = 1000
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+PASS: DS_DestAgeCmd_t is 32-bit aligned
+
+Running Test: DS_CmdSetDestAge_Test_InvalidCommandLength
+ERROR EVENT ID=56 Invalid DEST AGE command length: expected = 16, actual = 1
+PASS: DS_AppData.CmdRejectedCounter == 1
+PASS: Invalid DEST AGE command length: expected = 16, actual = 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_CmdSetDestAge_Test_InvalidFileTableIndex
+ERROR EVENT ID=56 Invalid DEST AGE command arg: file table index = 99
+PASS: DS_AppData.CmdRejectedCounter == 1
+PASS: Invalid DEST AGE command arg: file table index = 99
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_CmdSetDestAge_Test_InvalidFileAgeLimit
+ERROR EVENT ID=56 Invalid DEST AGE command arg: age limit = 1
+PASS: DS_AppData.CmdRejectedCounter == 1
+PASS: Invalid DEST AGE command arg: age limit = 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_CmdSetDestAge_Test_FileTableNotLoaded
+ERROR EVENT ID=56 Invalid DEST AGE command: destination file table is not loaded
+PASS: DS_AppData.CmdRejectedCounter == 1
+PASS: Invalid DEST AGE command: destination file table is not loaded
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_CmdSetDestCount_Test_Nominal
+DEBUG EVENT ID=57 DEST COUNT command: file table index = 1, sequence count = 1
+PASS: DS_AppData.CmdAcceptedCounter == 1
+PASS: DS_AppData.DestFileTblPtr->File[CmdPacket.FileTableIndex].SequenceCount == 1
+PASS: DS_AppData.FileStatus[CmdPacket.FileTableIndex].FileCount == 1
+PASS: DEST COUNT command: file table index = 1, sequence count = 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+PASS: DS_DestCountCmd_t is 32-bit aligned
+
+Running Test: DS_CmdSetDestCount_Test_InvalidCommandLength
+ERROR EVENT ID=58 Invalid DEST COUNT command length: expected = 16, actual = 1
+PASS: DS_AppData.CmdRejectedCounter == 1
+PASS: Invalid DEST COUNT command length: expected = 16, actual = 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_CmdSetDestCount_Test_InvalidFileTableIndex
+ERROR EVENT ID=58 Invalid DEST COUNT command arg: file table index = 99
+PASS: DS_AppData.CmdRejectedCounter == 1
+PASS: Invalid DEST COUNT command arg: file table index = 99
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_CmdSetDestCount_Test_InvalidFileSequenceCount
+ERROR EVENT ID=58 Invalid DEST COUNT command arg: sequence count = -1
+PASS: DS_AppData.CmdRejectedCounter == 1
+PASS: Invalid DEST COUNT command arg: sequence count = -1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_CmdSetDestCount_Test_FileTableNotLoaded
+ERROR EVENT ID=58 Invalid DEST COUNT command: destination file table is not loaded
+PASS: DS_AppData.CmdRejectedCounter == 1
+PASS: Invalid DEST COUNT command: destination file table is not loaded
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_CmdCloseFile_Test_Nominal
+DEBUG EVENT ID=59 DEST CLOSE command: file table index = 0
+PASS: DS_AppData.CmdAcceptedCounter == 1
+PASS: DEST CLOSE command: file table index = 0
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+PASS: DS_CloseFileCmd_t is 32-bit aligned
+
+Running Test: DS_CmdCloseFile_Test_InvalidCommandLength
+ERROR EVENT ID=60 Invalid DEST CLOSE command length: expected = 12, actual = 1
+PASS: DS_AppData.CmdRejectedCounter == 1
+PASS: Invalid DEST CLOSE command length: expected = 12, actual = 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_CmdCloseFile_Test_InvalidFileTableIndex
+ERROR EVENT ID=60 Invalid DEST CLOSE command arg: file table index = 99
+PASS: DS_AppData.CmdRejectedCounter == 1
+PASS: Invalid DEST CLOSE command arg: file table index = 99
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_CmdCloseAll_Test_Nominal
+DEBUG EVENT ID=66 DEST CLOSE ALL command
+PASS: DS_AppData.CmdAcceptedCounter == 1
+PASS: DEST CLOSE ALL command
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+PASS: DS_CloseAllCmd_t is 32-bit aligned
+
+Running Test: DS_CmdCloseAll_Test_InvalidCommandLength
+ERROR EVENT ID=67 Invalid DEST CLOSE ALL command length: expected = 8, actual = 1
+PASS: DS_AppData.CmdRejectedCounter == 1
+PASS: Invalid DEST CLOSE ALL command length: expected = 8, actual = 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_CmdGetFileInfo_Test_EnabledOpen
+DEBUG EVENT ID=62 GET FILE INFO command
+PKT: 08 B9 C0 00 05 45 00 00 00 00 00 00 01 00 00 00 02 00 00 00 03 00 00 00 04 00 00 00 05 00 01 00 66 69 6C 65 6E 61 6D 65 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 02 00 00 00 03 00 00 00 04 00 00 00 05 00 01 00 66 69 6C 65 6E 61 6D 65 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 02 00 00 00 03 00 00 00 04 00 00 00 05 00 01 00 66 69 6C 65 6E 61 6D 65 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 02 00 00 00 03 00 00 00 04 00 00 00 05 00 01 00 66 69 6C 65 6E 61 6D 65 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 02 00 00 00 03 00 00 00 04 00 00 00 05 00 01 00 66 69 6C 65 6E 61 6D 65 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 02 00 00 00 03 00 00 00 04 00 00 00 05 00 01 00 66 69 6C 65 6E 61 6D 65 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 02 00 00 00 03 00 00 00 04 00 00 00 05 00 01 00 66 69 6C 65 6E 61 6D 65 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 02 00 00 00 03 00 00 00 04 00 00 00 05 00 01 00 66 69 6C 65 6E 61 6D 65 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 02 00 00 00 03 00 00 00 04 00 00 00 05 00 01 00 66 69 6C 65 6E 61 6D 65 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 02 00 00 00 03 00 00 00 04 00 00 00 05 00 01 00 66 69 6C 65 6E 61 6D 65 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 02 00 00 00 03 00 00 00 04 00 00 00 05 00 01 00 66 69 6C 65 6E 61 6D 65 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 02 00 00 00 03 00 00 00 04 00 00 00 05 00 01 00 66 69 6C 65 6E 61 6D 65 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 02 00 00 00 03 00 00 00 04 00 00 00 05 00 01 00 66 69 6C 65 6E 61 6D 65 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 02 00 00 00 03 00 00 00 04 00 00 00 05 00 01 00 66 69 6C 65 6E 61 6D 65 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 02 00 00 00 03 00 00 00 04 00 00 00 05 00 01 00 66 69 6C 65 6E 61 6D 65 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 02 00 00 00 03 00 00 00 04 00 00 00 05 00 01 00 66 69 6C 65 6E 61 6D 65 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+PASS: DS_AppData.CmdAcceptedCounter == 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+PASS: DS_FileInfoPkt_t is 32-bit aligned
+
+Running Test: DS_CmdGetFileInfo_Test_DisabledClosed
+DEBUG EVENT ID=62 GET FILE INFO command
+PKT: 08 B9 C0 00 05 45 00 00 00 00 00 00 01 00 00 00 02 00 00 00 03 00 00 00 04 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 02 00 00 00 03 00 00 00 04 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 02 00 00 00 03 00 00 00 04 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 02 00 00 00 03 00 00 00 04 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 02 00 00 00 03 00 00 00 04 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 02 00 00 00 03 00 00 00 04 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 02 00 00 00 03 00 00 00 04 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 02 00 00 00 03 00 00 00 04 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 02 00 00 00 03 00 00 00 04 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 02 00 00 00 03 00 00 00 04 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 02 00 00 00 03 00 00 00 04 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 02 00 00 00 03 00 00 00 04 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 02 00 00 00 03 00 00 00 04 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 02 00 00 00 03 00 00 00 04 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 02 00 00 00 03 00 00 00 04 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 02 00 00 00 03 00 00 00 04 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+PASS: DS_AppData.CmdAcceptedCounter == 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_CmdGetFileInfo_Test_InvalidCommandLength
+ERROR EVENT ID=63 Invalid GET FILE INFO command length: expected = 8, actual = 1
+PASS: DS_AppData.CmdRejectedCounter == 1
+PASS: Invalid GET FILE INFO command length: expected = 8, actual = 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_CmdAddMID_Test_Nominal
+PASS: DS_AddMidCmd_t is 32-bit aligned
+DEBUG EVENT ID=64 ADD MID command: MID = 0x18BB, index = 0
+PASS: DS_AppData.CmdAcceptedCounter == 1
+PASS: DS_AppData.FilterTblPtr->Packet[FilterTableIndex].MessageID == 0x18BB
+PASS: DS_AppData.FilterTblPtr->Packet[FilterTableIndex].Filter[0].FileTableIndex == 0
+PASS: DS_AppData.FilterTblPtr->Packet[FilterTableIndex].Filter[0].FilterType == DS_BY_COUNT
+PASS: DS_AppData.FilterTblPtr->Packet[FilterTableIndex].Filter[0].Algorithm_N == 0
+PASS: DS_AppData.FilterTblPtr->Packet[FilterTableIndex].Filter[0].Algorithm_X == 0
+PASS: DS_AppData.FilterTblPtr->Packet[FilterTableIndex].Filter[0].Algorithm_O == 0
+PASS: DS_AppData.FilterTblPtr->Packet[FilterTableIndex].Filter[DS_FILTERS_PER_PACKET/2].FileTableIndex == 0
+PASS: DS_AppData.FilterTblPtr->Packet[FilterTableIndex].Filter[DS_FILTERS_PER_PACKET/2].FilterType == DS_BY_COUNT
+PASS: DS_AppData.FilterTblPtr->Packet[FilterTableIndex].Filter[DS_FILTERS_PER_PACKET/2].Algorithm_N == 0
+PASS: DS_AppData.FilterTblPtr->Packet[FilterTableIndex].Filter[DS_FILTERS_PER_PACKET/2].Algorithm_X == 0
+PASS: DS_AppData.FilterTblPtr->Packet[FilterTableIndex].Filter[DS_FILTERS_PER_PACKET/2].Algorithm_O == 0
+PASS: DS_AppData.FilterTblPtr->Packet[FilterTableIndex].Filter[DS_FILTERS_PER_PACKET-1].FileTableIndex == 0
+PASS: DS_AppData.FilterTblPtr->Packet[FilterTableIndex].Filter[DS_FILTERS_PER_PACKET-1].FilterType == DS_BY_COUNT
+PASS: DS_AppData.FilterTblPtr->Packet[FilterTableIndex].Filter[DS_FILTERS_PER_PACKET-1].Algorithm_N == 0
+PASS: DS_AppData.FilterTblPtr->Packet[FilterTableIndex].Filter[DS_FILTERS_PER_PACKET-1].Algorithm_X == 0
+PASS: DS_AppData.FilterTblPtr->Packet[FilterTableIndex].Filter[DS_FILTERS_PER_PACKET-1].Algorithm_O == 0
+PASS: DS_AppData.HashLinks[0].Index == 0
+PASS: DS_AppData.HashLinks[0].MessageID == 0x18BB
+PASS: ADD MID command: MID = 0x18BB, index = 0
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_CmdAddMID_Test_InvalidCommandLength
+ERROR EVENT ID=65 Invalid ADD MID command length: expected = 12, actual = 1
+PASS: DS_AppData.CmdRejectedCounter == 1
+PASS: Invalid ADD MID command length: expected = 12, actual = 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_CmdAddMID_Test_InvalidMessageID
+ERROR EVENT ID=65 Invalid ADD MID command arg: invalid MID = 0x   0
+PASS: DS_AppData.CmdRejectedCounter == 1
+PASS: Invalid ADD MID command arg: invalid MID = 0x   0
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_CmdAddMID_Test_FilterTableNotLoaded
+ERROR EVENT ID=65 Invalid ADD MID command: filter table is not loaded
+PASS: DS_AppData.CmdRejectedCounter == 1
+PASS: Invalid ADD MID command: filter table is not loaded
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_CmdAddMID_Test_MIDAlreadyInFilterTable
+ERROR EVENT ID=65 Invalid ADD MID command: MID = 0x18BB is already in filter table at index = 0
+PASS: DS_AppData.CmdRejectedCounter == 1
+PASS: Invalid ADD MID command: MID = 0x18BB is already in filter table at index = 0
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_CmdAddMID_Test_FilterTableFull
+ERROR EVENT ID=65 Invalid ADD MID command: filter table is full
+PASS: DS_AppData.CmdRejectedCounter == 1
+PASS: Invalid ADD MID command: filter table is full
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_FileStorePacket_Test_Nominal
+PASS: DS_AppData.PassedPktCounter == 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: DS_FileStorePacket_Test_PacketNotInTable
+PASS: DS_AppData.IgnoredPktCounter == 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: DS_FileStorePacket_Test_PassedFilterFalse
+PASS: DS_AppData.FilteredPktCounter == 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: DS_FileSetupWrite_Test_Nominal
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: DS_FileSetupWrite_Test_FileHandleClosed
+ERROR EVENT ID=16 FILE WRITE error: result = 0, length = 64, dest = 0, name = 'l¸Î¿/vºÎ¿.˜Û-'
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_FileSetupWrite_Test_MaxFileSizeExceeded
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: DS_FileWriteData_Test_Nominal
+PASS: DS_AppData.FileWriteCounter == 1
+PASS: DS_AppData.FileStatus[FileIndex].FileSize == 10
+PASS: DS_AppData.FileStatus[FileIndex].FileGrowth == 10
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: DS_FileWriteData_Test_Error
+ERROR EVENT ID=16 FILE WRITE error: result = -1, length = 10, dest = 0, name = 'directory1/'
+PASS: FILE WRITE error: result = -1, length = 10, dest = 0, name = 'directory1/'
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_FileWriteHeader_Test_PlatformConfigCFE_Nominal
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+PASS: DS_AppData.FileWriteCounter == 2
+PASS: sizeof(CFE_FS_Header_t) + sizeof(DS_FileHeader_t)
+PASS: sizeof(CFE_FS_Header_t) + sizeof(DS_FileHeader_t)
+
+Running Test: DS_FileWriteHeader_Test_PrimaryHeaderError
+ERROR EVENT ID=16 FILE WRITE error: result = -1, length = 64, dest = 0, name = ''
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_FileWriteHeader_Test_SecondaryHeaderError
+ERROR EVENT ID=16 FILE WRITE error: result = -1, length = 76, dest = 0, name = ''
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_FileWriteError_Test
+ERROR EVENT ID=16 FILE WRITE error: result = -1, length = 10, dest = 0, name = 'filename'
+PASS: DS_AppData.FileWriteErrCounter == 1
+PASS: FILE WRITE error: result = -1, length = 10, dest = 0, name = 'filename'
+PASS: DS_AppData.FileStatus[FileIndex].FileState == DS_DISABLED
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_FileCreateDest_Test_Nominal
+PASS: DS_AppData.FileWriteCounter == 3
+PASS: DS_AppData.FileStatus[FileIndex].FileHandle == 5
+PASS: DS_AppData.FileStatus[FileIndex].FileCount == 5
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: DS_FileCreateDest_Test_Error
+ERROR EVENT ID=15 FILE CREATE error: result = -1, dest = 0, name = 'path/basename.extension'
+PASS: DS_AppData.FileWriteErrCounter == 1
+PASS: FILE CREATE error: result = -1, dest = 0, name = 'path/basename.extension'
+PASS: strncmp (DS_AppData.FileStatus[FileIndex].FileName, , DS_TOTAL_FNAME_BUFSIZE) == 0
+PASS: DS_AppData.FileStatus[FileIndex].FileState == DS_DISABLED
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_FileCreateName_Test_Nominal
+PASS: strncmp (DS_AppData.FileStatus[FileIndex].FileName, 'path/basename.extension', DS_TOTAL_FNAME_BUFSIZE) == 0
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: DS_FileCreateName_Test_Error
+ERROR EVENT ID=14 FILE NAME error: dest = 0, path = 'path', base = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', seq = 
+PASS: FILE NAME error: dest = 0, path = 'path', base = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', seq = 
+PASS: DS_AppData.FileStatus[FileIndex].FileState == DS_DISABLED
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_FileCreateSequence_Test_ByCount
+PASS: strncmp(Sequence, '00000001', DS_TOTAL_FNAME_BUFSIZE) == 0
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: DS_FileCreateSequence_Test_ByTime
+PASS: strncmp(Sequence, '1980001000000', DS_TOTAL_FNAME_BUFSIZE) == 0
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: DS_FileCreateSequence_Test_BadFilenameType
+PASS: strncmp(Sequence, '', DS_TOTAL_FNAME_BUFSIZE) == 0
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: DS_FileUpdateHeader_Test_PlatformConfigCFE_Nominal
+PASS: DS_AppData.FileUpdateCounter == 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: DS_FileUpdateHeader_Test_WriteError
+PASS: DS_AppData.FileUpdateErrCounter == 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: DS_FileUpdateHeader_Test_PlatformConfigCFE_SeekError
+PASS: DS_AppData.FileUpdateErrCounter == 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: DS_FileCloseDest_Test_MoveFilesFalse
+PASS: DS_AppData.FileStatus[FileIndex].FileHandle == DS_CLOSED_FILE_HANDLE
+PASS: DS_AppData.FileStatus[FileIndex].FileAge == 0
+PASS: DS_AppData.FileStatus[FileIndex].FileSize == 0
+PASS: DS_AppData.FileStatus[FileIndex].FileName[0] == 0
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: DS_FileTestAge_Test_Nominal
+PASS: DS_AppData.FileStatus[FileIndex].FileAge == 2
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: DS_FileTestAge_Test_ExceedMaxAge
+PASS: DS_AppData.FileStatus[FileIndex].FileAge == 0
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: DS_TableInit_Test_Nominal
+PASS: Result == CFE_SUCCESS
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: DS_TableInit_Test_TableInfoRecovered
+DEBUG EVENT ID=7 Destination File Table data restored from CDS
+DEBUG EVENT ID=7 Filter Table data restored from CDS
+PASS: Result == CFE_SUCCESS
+PASS: Destination File Table data restored from CDS
+PASS: Filter Table data restored from CDS
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 2
+
+Running Test: DS_TableInit_Test_RegisterDestTableError
+ERROR EVENT ID=8 Unable to register Destination File Table: Error = 0x00000099
+PASS: Result == 0x99
+PASS: Unable to register Destination File Table: Error = 0x00000099
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_TableInit_Test_RegisterFilterTableError
+ERROR EVENT ID=8 Unable to register Filter Table: Error = 0x00000099
+PASS: Result == 0x99
+PASS: Unable to register Filter Table: Error = 0x00000099
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_TableInit_Test_LoadDestTableError
+ERROR EVENT ID=8 Unable to load default Destination File Table: Filename = '/cf/apps/ds_file_tbl.tbl', Error = 0xCC000013
+PASS: Result == CFE_SUCCESS
+PASS: Unable to load default Destination File Table: Filename = '/cf/apps/ds_file_tbl.tbl', Error = 0xCC000013
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_TableInit_Test_LoadFilterTableError
+ERROR EVENT ID=8 Unable to load default Filter Table: Filename = '/cf/apps/ds_filter_tbl.tbl', Error = 0xCC000013
+PASS: Result == CFE_SUCCESS
+PASS: Unable to load default Filter Table: Filename = '/cf/apps/ds_filter_tbl.tbl', Error = 0xCC000013
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_TableManageDestFile_Test_TableInfoUpdated
+PASS: DS_AppData.DestTblLoadCounter == 1
+PASS: DS_AppData.FileStatus[0].FileState == 0
+PASS: DS_AppData.FileStatus[0].FileCount == 0
+PASS: DS_AppData.FileStatus[DS_DEST_FILE_CNT/2].FileState == DS_DEST_FILE_CNT/2
+PASS: DS_AppData.FileStatus[DS_DEST_FILE_CNT/2].FileCount == DS_DEST_FILE_CNT/2
+PASS: DS_AppData.FileStatus[DS_DEST_FILE_CNT-1].FileState == DS_DEST_FILE_CNT-1
+PASS: DS_AppData.FileStatus[DS_DEST_FILE_CNT-1].FileCount == DS_DEST_FILE_CNT-1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: DS_TableManageDestFile_Test_TableNeverLoaded
+PASS: DS_AppData.DestTblErrCounter == 1
+PASS: DS_AppData.DestFileTblPtr == (DS_DestFileTable_t *) NULL
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: DS_TableManageDestFile_Test_TableInfoDumpPending
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: DS_TableManageDestFile_Test_TableInfoValidationPending
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: DS_TableManageDestFile_Test_TableInfoUpdatePending
+PASS: DS_AppData.DestTblLoadCounter == 1
+PASS: DS_AppData.FileStatus[0].FileState == 0
+PASS: DS_AppData.FileStatus[0].FileCount == 0
+PASS: DS_AppData.FileStatus[DS_DEST_FILE_CNT/2].FileState == DS_DEST_FILE_CNT/2
+PASS: DS_AppData.FileStatus[DS_DEST_FILE_CNT/2].FileCount == DS_DEST_FILE_CNT/2
+PASS: DS_AppData.FileStatus[DS_DEST_FILE_CNT-1].FileState == DS_DEST_FILE_CNT-1
+PASS: DS_AppData.FileStatus[DS_DEST_FILE_CNT-1].FileCount == DS_DEST_FILE_CNT-1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: DS_TableManageFilter_Test_TableInfoUpdated
+PASS: DS_AppData.FilterTblLoadCounter == 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: DS_TableManageFilter_Test_TableNeverLoaded
+PASS: DS_AppData.FilterTblErrCounter == 1
+PASS: DS_AppData.FilterTblPtr == (DS_FilterTable_t *) NULL
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: DS_TableManageFilter_Test_TableInfoDumpPending
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: DS_TableManageFilter_Test_TableInfoValidationPending
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: DS_TableManageFilter_Test_TableInfoUpdatePending
+PASS: DS_AppData.FilterTblLoadCounter == 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: DS_TableVerifyDestFile_Test_Nominal
+INFO EVENT ID=10 Destination file table verify results: desc text = OK, good entries = 1, bad = 0, unused = 15
+PASS: Result == CFE_SUCCESS
+PASS: Destination file table verify results: desc text = OK, good entries = 1, bad = 0, unused = 15
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_TableVerifyDestFile_Test_DestFileTableVerificationError
+ERROR EVENT ID=11 Destination file table verify err: invalid descriptor text
+INFO EVENT ID=10 Destination file table verify results: desc text = bad, good entries = 1, bad = 0, unused = 15
+PASS: Result == DS_TABLE_VERIFY_ERR
+PASS: Destination file table verify err: invalid descriptor text
+PASS: Destination file table verify results: desc text = bad, good entries = 1, bad = 0, unused = 15
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 2
+
+Running Test: DS_TableVerifyDestFile_Test_CountBad
+ERROR EVENT ID=11 Destination file table verify err: index = 0, invalid extension text
+INFO EVENT ID=10 Destination file table verify results: desc text = OK, good entries = 0, bad = 1, unused = 15
+PASS: Result == DS_TABLE_VERIFY_ERR
+PASS: Destination file table verify err: index = 0, invalid extension text
+PASS: Destination file table verify results: desc text = OK, good entries = 0, bad = 1, unused = 15
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 2
+
+Running Test: DS_TableVerifyDestFileEntry_Test_Nominal
+PASS: Result == TRUE
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: DS_TableVerifyDestFileEntry_Test_InvalidPathname
+ERROR EVENT ID=11 Destination file table verify err: index = 0, invalid pathname text
+PASS: Result == FALSE
+PASS: Destination file table verify err: index = 0, invalid pathname text
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_TableVerifyDestFileEntry_Test_InvalidBasename
+ERROR EVENT ID=11 Destination file table verify err: index = 0, invalid basename text
+PASS: Result == FALSE
+PASS: Destination file table verify err: index = 0, invalid basename text
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_TableVerifyDestFileEntry_Test_InvalidExtension
+ERROR EVENT ID=11 Destination file table verify err: index = 0, invalid extension text
+PASS: Result == FALSE
+PASS: Destination file table verify err: index = 0, invalid extension text
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_TableVerifyDestFileEntry_Test_InvalidFilenameType
+ERROR EVENT ID=11 Destination file table verify err: index = 0, filename type = 99
+PASS: Result == FALSE
+PASS: Destination file table verify err: index = 0, filename type = 99
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_TableVerifyDestFileEntry_Test_InvalidFileEnableState
+ERROR EVENT ID=11 Destination file table verify err: index = 0, file enable state = 99
+PASS: Result == FALSE
+PASS: Destination file table verify err: index = 0, file enable state = 99
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_TableVerifyDestFileEntry_Test_InvalidSize
+ERROR EVENT ID=11 Destination file table verify err: index = 0, max file size = 1023
+PASS: Result == FALSE
+PASS: Destination file table verify err: index = 0, max file size = 1023
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_TableVerifyDestFileEntry_Test_InvalidAge
+ERROR EVENT ID=11 Destination file table verify err: index = 0, max file age = 59
+PASS: Result == FALSE
+PASS: Destination file table verify err: index = 0, max file age = 59
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_TableVerifyDestFileEntry_Test_InvalidSequenceCount
+ERROR EVENT ID=11 Destination file table verify err: index = 0, sequence count = 100000000
+PASS: Result == FALSE
+PASS: Destination file table verify err: index = 0, sequence count = 100000000
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_TableVerifyFilter_Test_Nominal
+INFO EVENT ID=12 Filter table verify results: desc text = OK, good entries = 1, bad = 0, unused = 255
+PASS: Result == CFE_SUCCESS
+PASS: Filter table verify results: desc text = OK, good entries = 1, bad = 0, unused = 255
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_TableVerifyFilter_Test_FilterTableVerificationError
+ERROR EVENT ID=13 Filter table verify err: invalid descriptor text
+INFO EVENT ID=12 Filter table verify results: desc text = bad, good entries = 1, bad = 0, unused = 255
+PASS: Result == DS_TABLE_VERIFY_ERR
+PASS: Filter table verify err: invalid descriptor text
+PASS: Filter table verify results: desc text = bad, good entries = 1, bad = 0, unused = 255
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 2
+
+Running Test: DS_TableVerifyFilter_Test_CountBad
+ERROR EVENT ID=13 Filter table verify err: MID = 0x18BB, index = 0, filter = 0, filter type = 4
+INFO EVENT ID=12 Filter table verify results: desc text = OK, good entries = 0, bad = 1, unused = 255
+PASS: Result == DS_TABLE_VERIFY_ERR
+PASS: Filter table verify err: MID = 0x18BB, index = 0, filter = 0, filter type = 4
+PASS: Filter table verify results: desc text = OK, good entries = 0, bad = 1, unused = 255
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 2
+
+Running Test: DS_TableVerifyFilterEntry_Test_Nominal
+PASS: Result == TRUE
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: DS_TableVerifyFilterEntry_Test_InvalidFileTableIndex
+ERROR EVENT ID=13 Filter table verify err: MID = 0x18BB, index = 0, filter = 0, file table index = 17
+PASS: Result == FALSE
+PASS: Filter table verify err: MID = 0x18BB, index = 0, filter = 0, file table index = 17
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_TableVerifyFilterEntry_Test_InvalidFilterType
+ERROR EVENT ID=13 Filter table verify err: MID = 0x18BB, index = 0, filter = 0, filter type = 99
+PASS: Result == FALSE
+PASS: Filter table verify err: MID = 0x18BB, index = 0, filter = 0, filter type = 99
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_TableVerifyFilterEntry_Test_InvalidFilterParms
+ERROR EVENT ID=13 Filter table verify err: MID = 0x18BB, index = 0, filter = 0, filter parms N = 1, X = 3, O = 99
+PASS: Result == FALSE
+PASS: Filter table verify err: MID = 0x18BB, index = 0, filter = 0, filter parms N = 1, X = 3, O = 99
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_TableEntryUnused_Test_Nominal
+PASS: Result == TRUE
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: DS_TableEntryUnused_Test_Fail
+PASS: Result == FALSE
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: DS_TableVerifyFileIndex_Test_Nominal
+PASS: Result == TRUE
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: DS_TableVerifyFileIndex_Test_Fail
+PASS: Result == FALSE
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: DS_TableVerifyParms_Test_NominalOnlyXNonZero
+PASS: Result == TRUE
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: DS_TableVerifyParms_Test_NGreaterThanXOnlyNNonZero
+PASS: Result == FALSE
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: DS_TableVerifyParms_Test_OGreaterThanXOnlyONonZero
+PASS: Result == FALSE
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: DS_TableVerifyType_Test_Nominal
+PASS: Result == TRUE
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: DS_TableVerifyType_Test_Fail
+PASS: Result == FALSE
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: DS_TableVerifyState_Test_Nominal
+PASS: Result == TRUE
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: DS_TableVerifyState_Test_Fail
+PASS: Result == FALSE
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: DS_TableVerifySize_Test_Nominal
+PASS: Result == TRUE
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: DS_TableVerifySize_Test_Fail
+PASS: Result == FALSE
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: DS_TableVerifyAge_Test_Nominal
+PASS: Result == TRUE
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: DS_TableVerifyAge_Test_Fail
+PASS: Result == FALSE
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: DS_TableVerifyCount_Test_Nominal
+PASS: Result == TRUE
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: DS_TableVerifyCount_Test_Fail
+PASS: Result == FALSE
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: DS_TableSubscribe_Test
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: DS_TableUnsubscribe_Test
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: DS_TableCreateCDS_Test_NewCDSArea
+PASS: Result == CFE_SUCCESS
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: DS_TableCreateCDS_Test_PreExistingCDSArea
+PASS: Result == CFE_SUCCESS
+PASS: DS_AppData.FileStatus[0].FileCount == 0
+PASS: DS_AppData.FileStatus[DS_DEST_FILE_CNT/2].FileCount == 0
+PASS: DS_AppData.FileStatus[DS_DEST_FILE_CNT-1].FileCount == 0
+PASS: DS_AppData.AppEnableState == 0
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: DS_TableCreateCDS_Test_Error
+ERROR EVENT ID=6 Critical Data Store access error = 0xFFFFFFFF
+PASS: DS_AppData.DataStoreHandle == 0
+PASS: Critical Data Store access error = 0xFFFFFFFF
+PASS: Result == CFE_SUCCESS
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_TableUpdateCDS_Test_Nominal
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: DS_TableUpdateCDS_Test_Error
+ERROR EVENT ID=6 Critical Data Store access error = 0xFFFFFFFF
+PASS: Critical Data Store access error = 0xFFFFFFFF
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: DS_TableHashFunction_Test
+PASS: Result == 187
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: DS_TableCreateHash_Test_Nominal
+PASS: DS_AppData.HashLinks[0].Index == 0
+PASS: DS_AppData.HashLinks[0].MessageID == 0x18BB
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: DS_TableCreateHash_Test_NullTable
+PASS: DS_AppData.HashLinks[0].Index == 0
+PASS: DS_AppData.HashLinks[0].MessageID == 0x18BB
+PASS: DS_AppData.HashTable[187] == &DS_AppData.HashLinks[0]
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: DS_TableFindMsgID_Test
+PASS: Result == 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Tests Executed:    207
+Assert Pass Count: 645
+Assert Fail Count: 0
+
+gcov: '../src/ds_file.c' 100.00%  178
+gcov: '../src/ds_app.c' 100.00%  146
+gcov: '../src/ds_cmds.c' 100.00%  439
+gcov: '../src/ds_table.c' 100.00%  319
+

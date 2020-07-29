@@ -1,0 +1,52 @@
+!==============================================================================
+!
+!                Originator: W. Moleski
+!                Responsible SC:  
+!                Responsible CSE: 
+!                Rev:  Last Change: July 20, 2009
+!
+!                    Telemetry Packet #nnnn  (dec)
+!                 =================================
+!
+!       Packet Application ID: nnnn (Hex 'xxxx')
+!       Packet Title:  $sc $cpu DS Packet Filter table
+!       Packet Length:  ?? Bytes (Including ?? Bytes Of Header)
+!	Collect             Frequency:         SEC
+!  
+!       REFERENCES:
+!
+!       NOTES:
+!
+!       HISTORY: 
+!       2012/01/04 WFM  : Removed VARYING from Packet definition
+!
+!==============================================================================
+!
+#include "ds_platform_cfg.h"
+!
+!
+TYPES
+   RECORD $sc_$cpu_DS_PARAM_ENTRY_TYPE  DESC="$sc $cpu DS Filter Table Parameter Entry Type"
+      UB  Index         DESC="The current index"
+      UB  FilterType	DESC="The current state", DISCRETE, DRANGE=(0,1,2), 
+			DLABEL=("Unused","Count","Time")
+      UI  N_Value	DESC="The Algorithm N Value" 
+      UI  X_Value	DESC="The Algorithm X Value" 
+      UI  O_Value	DESC="The Algorithm O Value" 
+   END
+
+   RECORD $sc_$cpu_DS_PKT_ENTRY_TYPE  DESC="$sc $cpu DS Filter Table Packet Entry Type"
+      SB_MSGID_T MessageID	DESC="The message ID for the packet to filter"
+      $sc_$cpu_DS_PARAM_ENTRY_TYPE FilterParams[0 .. DS_FILTERS_PER_PACKET-1]
+   END
+END_TYPES
+
+PACKET Pxxxx APID=nnnn, DESC="$sc $cpu DS Packet Filter Table"
+!
+#include "cfe_file_header.rdl"
+#include "cfe_tbl_header.rdl" 
+!
+   CHAR $sc_$cpu_DS_PF_TBL_Description[DS_DESCRIPTOR_BUFSIZE]  DESC="$sc $cpu DS Packet Filter Table Description"
+   $sc_$cpu_DS_PKT_ENTRY_TYPE $sc_$cpu_DS_PF_TBL[0 .. DS_PACKETS_IN_FILTER_TABLE-1]  DESC="$sc $cpu DS Packet Filter Table Entries"
+!
+END

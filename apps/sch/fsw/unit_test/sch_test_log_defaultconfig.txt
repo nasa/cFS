@@ -1,0 +1,1086 @@
+##############################################################################
+## $Id: sch_test_log_defaultconfig.txt 1.3 2017/06/21 16:39:46EDT mdeschu Exp  $
+##
+## Purpose: CFS SCH application unit test baseline output log
+##
+## Author: Charles Zogby
+##
+##############################################################################
+
+SCH 2.2.1.0 Unit Test Output (default case of SCH_LIB_PRESENCE = 1):
+
+
+./sch_testrunner.exe
+
+Running Test: SCH_LibInit_Test
+PASS: SCH_LibData.ProcessingDisabledCtr == SCH_LIB_DIS_CTR
+PASS: Result == OS_SUCCESS
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: SCH_EnableProcessing_Test
+PASS: SCH_LibData.ProcessingDisabledCtr == 0
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: SCH_DisableProcessing_Test
+PASS: SCH_LibData.ProcessingDisabledCtr == 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: SCH_GetProcessingState_Test_True
+PASS: Result == TRUE
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: SCH_GetProcessingState_Test_False
+PASS: Result == FALSE
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: SCH_AppMain_Test_RegisterAppError
+CRITICAL EVENT ID=2 SCH App: terminating, err = 0xFFFFFFFF
+SYSTEM LOG: SCH App terminating, err = 0xFFFFFFFF
+
+PASS: SCH App: terminating, err = 0xFFFFFFFF
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+PASS: SCH App terminating, err = 0xFFFFFFFF
+PASS: SCH_AppData.AppID == 99
+PASS: Ut_CFE_ES_GetSysLogQueueDepth() == 1
+
+Running Test: SCH_AppMain_Test_AppInitError
+SYSTEM LOG: SCH App: Unable to obtain own AppID, RC=0xFFFFFFFF
+
+CRITICAL EVENT ID=2 SCH App: terminating, err = 0xFFFFFFFF
+SYSTEM LOG: SCH App terminating, err = 0xFFFFFFFF
+
+PASS: SCH App: terminating, err = 0xFFFFFFFF
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+PASS: SCH App terminating, err = 0xFFFFFFFF
+PASS: SCH_AppData.AppID == 99
+PASS: Ut_CFE_ES_GetSysLogQueueDepth() == 2
+
+Running Test: SCH_AppMain_Test_CustomLateInitError
+INFO EVENT ID=1 SCH Initialized. Version 2.2.1.0
+ERROR EVENT ID=14 Error initializing Timers (RC=0xFFFFFFFF)
+CRITICAL EVENT ID=2 SCH App: terminating, err = 0xFFFFFFFF
+SYSTEM LOG: SCH App terminating, err = 0xFFFFFFFF
+
+PASS: Error initializing Timers (RC=0xFFFFFFFF)
+PASS: SCH App: terminating, err = 0xFFFFFFFF
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 3
+PASS: SCH App terminating, err = 0xFFFFFFFF
+PASS: SCH_AppData.AppID == 99
+PASS: Ut_CFE_ES_GetSysLogQueueDepth() == 1
+
+Running Test: SCH_AppMain_Test_NoisyMajorFrameError
+INFO EVENT ID=1 SCH Initialized. Version 2.2.1.0
+ERROR EVENT ID=21 Major Frame Sync too noisy (Slot 1). Disabling synchronization.
+PASS: Major Frame Sync too noisy (Slot 1). Disabling synchronization.
+PASS: SCH_AppData.IgnoreMajorFrameMsgSent == TRUE
+PASS: SCH_AppData.AppID == 99
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 2
+
+Running Test: SCH_AppMain_Test_NominalIgnoreMajorFrameFalse
+INFO EVENT ID=1 SCH Initialized. Version 2.2.1.0
+PASS: SCH_AppData.IgnoreMajorFrameMsgSent == FALSE
+PASS: SCH_AppData.AppID == 99
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_AppMain_Test_ProcessScheduleTableError
+INFO EVENT ID=1 SCH Initialized. Version 2.2.1.0
+ERROR EVENT ID=17 Slots skipped: slot = 10, count = 89
+CRITICAL EVENT ID=2 SCH App: terminating, err = 0xFFFFFFFF
+SYSTEM LOG: SCH App terminating, err = 0xFFFFFFFF
+
+PASS: SCH_AppData.AppID == 99
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 3
+
+Running Test: SCH_AppMain_Test_Nominal
+INFO EVENT ID=1 SCH Initialized. Version 2.2.1.0
+PASS: SCH_AppData.AppID == 99
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_AppInit_Test_GetAppIDError
+SYSTEM LOG: SCH App: Unable to obtain own AppID, RC=0xFFFFFFFF
+
+PASS: SCH_AppData.SlotsProcessedCount == 0
+PASS: SCH_AppData.SkippedSlotsCount   == 0
+PASS: SCH_AppData.MultipleSlotsCount  == 0
+PASS: SCH_AppData.SameSlotCount       == 0
+PASS: SCH_AppData.ScheduleActivitySuccessCount == 0
+PASS: SCH_AppData.ScheduleActivityFailureCount == 0
+PASS: SCH_AppData.CmdCounter == 0
+PASS: SCH_AppData.ErrCounter == 0
+PASS: SCH App: Unable to obtain own AppID, RC=0xFFFFFFFF
+PASS: Result == -1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+PASS: Ut_CFE_ES_GetSysLogQueueDepth() == 1
+
+Running Test: SCH_AppInit_Test_EvsInitError
+SYSTEM LOG: SCH App: Error Registering For Event Services, RC=0xFFFFFFFF
+
+PASS: SCH_AppData.SlotsProcessedCount == 0
+PASS: SCH_AppData.SkippedSlotsCount   == 0
+PASS: SCH_AppData.MultipleSlotsCount  == 0
+PASS: SCH_AppData.SameSlotCount       == 0
+PASS: SCH_AppData.ScheduleActivitySuccessCount == 0
+PASS: SCH_AppData.ScheduleActivityFailureCount == 0
+PASS: SCH_AppData.CmdCounter == 0
+PASS: SCH_AppData.ErrCounter == 0
+PASS: Result == -1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: SCH_AppInit_Test_SbInitError
+ERROR EVENT ID=3 Error Creating SB Pipe, RC=0xFFFFFFFF
+PASS: SCH_AppData.SlotsProcessedCount == 0
+PASS: SCH_AppData.SkippedSlotsCount   == 0
+PASS: SCH_AppData.MultipleSlotsCount  == 0
+PASS: SCH_AppData.SameSlotCount       == 0
+PASS: SCH_AppData.ScheduleActivitySuccessCount == 0
+PASS: SCH_AppData.ScheduleActivityFailureCount == 0
+PASS: SCH_AppData.CmdCounter == 0
+PASS: SCH_AppData.ErrCounter == 0
+PASS: Result == -1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_AppInit_Test_TblInitError
+ERROR EVENT ID=7 Error Registering SDT, RC=0xFFFFFFFF
+PASS: SCH_AppData.SlotsProcessedCount == 0
+PASS: SCH_AppData.SkippedSlotsCount   == 0
+PASS: SCH_AppData.MultipleSlotsCount  == 0
+PASS: SCH_AppData.SameSlotCount       == 0
+PASS: SCH_AppData.ScheduleActivitySuccessCount == 0
+PASS: SCH_AppData.ScheduleActivityFailureCount == 0
+PASS: SCH_AppData.CmdCounter == 0
+PASS: SCH_AppData.ErrCounter == 0
+PASS: Result == -1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_AppInit_Test_TimerInitError
+ERROR EVENT ID=15 Error creating Main Loop Timing Semaphore (RC=0xFFFFFFFF)
+PASS: SCH_AppData.SlotsProcessedCount == 0
+PASS: SCH_AppData.SkippedSlotsCount   == 0
+PASS: SCH_AppData.MultipleSlotsCount  == 0
+PASS: SCH_AppData.SameSlotCount       == 0
+PASS: SCH_AppData.ScheduleActivitySuccessCount == 0
+PASS: SCH_AppData.ScheduleActivityFailureCount == 0
+PASS: SCH_AppData.CmdCounter == 0
+PASS: SCH_AppData.ErrCounter == 0
+PASS: Result == -1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_AppInit_Test_Nominal
+INFO EVENT ID=1 SCH Initialized. Version 2.2.1.0
+PASS: SCH_AppData.SlotsProcessedCount == 0
+PASS: SCH_AppData.SkippedSlotsCount   == 0
+PASS: SCH_AppData.MultipleSlotsCount  == 0
+PASS: SCH_AppData.SameSlotCount       == 0
+PASS: SCH_AppData.ScheduleActivitySuccessCount == 0
+PASS: SCH_AppData.ScheduleActivityFailureCount == 0
+PASS: SCH_AppData.CmdCounter == 0
+PASS: SCH_AppData.ErrCounter == 0
+PASS: SCH Initialized. Version 2.2.1.0
+PASS: Result == CFE_SUCCESS
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_EvsInit_Test_RegisterError
+SYSTEM LOG: SCH App: Error Registering For Event Services, RC=0xFFFFFFFF
+
+PASS: SCH_AppData.EventFilters[0].EventID == SCH_SAME_SLOT_EID
+PASS: SCH_AppData.EventFilters[0].Mask    == CFE_EVS_FIRST_ONE_STOP
+PASS: SCH_AppData.EventFilters[1].EventID == SCH_MULTI_SLOTS_EID
+PASS: SCH_AppData.EventFilters[1].Mask    == CFE_EVS_FIRST_ONE_STOP
+PASS: SCH_AppData.EventFilters[2].EventID == SCH_SKIPPED_SLOTS_EID
+PASS: SCH_AppData.EventFilters[2].Mask    == CFE_EVS_FIRST_ONE_STOP
+PASS: SCH_AppData.EventFilters[3].EventID == SCH_CORRUPTION_EID
+PASS: SCH_AppData.EventFilters[3].Mask    == CFE_EVS_FIRST_TWO_STOP
+PASS: SCH_AppData.EventFilters[4].EventID == SCH_PACKET_SEND_EID
+PASS: SCH_AppData.EventFilters[4].Mask    == CFE_EVS_FIRST_ONE_STOP
+PASS: SCH App: Error Registering For Event Services, RC=0xFFFFFFFF
+PASS: Result == -1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+PASS: Ut_CFE_ES_GetSysLogQueueDepth() == 1
+
+Running Test: SCH_EvsInit_Test_Nominal
+PASS: SCH_AppData.EventFilters[0].EventID == SCH_SAME_SLOT_EID
+PASS: SCH_AppData.EventFilters[0].Mask    == CFE_EVS_FIRST_ONE_STOP
+PASS: SCH_AppData.EventFilters[1].EventID == SCH_MULTI_SLOTS_EID
+PASS: SCH_AppData.EventFilters[1].Mask    == CFE_EVS_FIRST_ONE_STOP
+PASS: SCH_AppData.EventFilters[2].EventID == SCH_SKIPPED_SLOTS_EID
+PASS: SCH_AppData.EventFilters[2].Mask    == CFE_EVS_FIRST_ONE_STOP
+PASS: SCH_AppData.EventFilters[3].EventID == SCH_CORRUPTION_EID
+PASS: SCH_AppData.EventFilters[3].Mask    == CFE_EVS_FIRST_TWO_STOP
+PASS: SCH_AppData.EventFilters[4].EventID == SCH_PACKET_SEND_EID
+PASS: SCH_AppData.EventFilters[4].Mask    == CFE_EVS_FIRST_ONE_STOP
+PASS: Result == CFE_SUCCESS
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+PASS: Ut_CFE_ES_GetSysLogQueueDepth() == 0
+
+Running Test: SCH_SbInit_Test_CreatePipeError
+ERROR EVENT ID=3 Error Creating SB Pipe, RC=0xFFFFFFFF
+PASS: SCH_AppData.MsgPtr  == (CFE_SB_MsgPtr_t) 0
+PASS: SCH_AppData.CmdPipe == 0
+PASS: Error Creating SB Pipe, RC=0xFFFFFFFF
+PASS: Result == -1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_SbInit_Test_SubscribeHKError
+ERROR EVENT ID=4 Error Subscribing to HK Request(MID=0x1896), RC=0xFFFFFFFF
+PASS: SCH_AppData.MsgPtr  == (CFE_SB_MsgPtr_t) 0
+PASS: SCH_AppData.CmdPipe == 0
+PASS: Error Subscribing to HK Request(MID=0x1896), RC=0xFFFFFFFF
+PASS: Result == -1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_SbInit_Test_SubscribeGNDError
+ERROR EVENT ID=5 Error Subscribing to GND CMD(MID=0x1895), RC=0xFFFFFFFF
+PASS: SCH_AppData.MsgPtr  == (CFE_SB_MsgPtr_t) 0
+PASS: SCH_AppData.CmdPipe == 0
+PASS: Error Subscribing to GND CMD(MID=0x1895), RC=0xFFFFFFFF
+PASS: Result == -1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_SbInit_Test_Nominal
+PASS: SCH_AppData.MsgPtr  == (CFE_SB_MsgPtr_t) 0
+PASS: SCH_AppData.CmdPipe == 0
+PASS: Result == CFE_SUCCESS
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: SCH_TblInit_Test_RegisterSdtError
+ERROR EVENT ID=7 Error Registering SDT, RC=0xFFFFFFFF
+PASS: SCH_AppData.ScheduleTable == (SCH_ScheduleEntry_t *) NULL
+PASS: SCH_AppData.MessageTable  == (SCH_MessageEntry_t  *) NULL
+PASS: SCH_AppData.ScheduleTableHandle == CFE_TBL_BAD_TABLE_HANDLE
+PASS: SCH_AppData.MessageTableHandle  == CFE_TBL_BAD_TABLE_HANDLE
+PASS: SCH_AppData.BadTableDataCount       == 0
+PASS: SCH_AppData.TableVerifySuccessCount == 0
+PASS: SCH_AppData.TableVerifyFailureCount == 0
+PASS: SCH_AppData.TablePassCount          == 0
+PASS: Error Registering SDT, RC=0xFFFFFFFF
+PASS: Result == -1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_TblInit_Test_RegisterMdtError
+ERROR EVENT ID=8 Error Registering MDT, RC=0xFFFFFFFF
+PASS: SCH_AppData.ScheduleTable == (SCH_ScheduleEntry_t *) NULL
+PASS: SCH_AppData.MessageTable  == (SCH_MessageEntry_t  *) NULL
+PASS: SCH_AppData.MessageTableHandle  == CFE_TBL_BAD_TABLE_HANDLE
+PASS: SCH_AppData.BadTableDataCount       == 0
+PASS: SCH_AppData.TableVerifySuccessCount == 0
+PASS: SCH_AppData.TableVerifyFailureCount == 0
+PASS: SCH_AppData.TablePassCount          == 0
+PASS: Error Registering MDT, RC=0xFFFFFFFF
+PASS: Result == -1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_TblInit_Test_LoadSdtError
+ERROR EVENT ID=9 Error (RC=0xFFFFFFFF) Loading SDT with /cf/apps/sch_def_schtbl.tbl
+PASS: SCH_AppData.ScheduleTable == (SCH_ScheduleEntry_t *) NULL
+PASS: SCH_AppData.MessageTable  == (SCH_MessageEntry_t  *) NULL
+PASS: SCH_AppData.BadTableDataCount       == 0
+PASS: SCH_AppData.TableVerifySuccessCount == 0
+PASS: SCH_AppData.TableVerifyFailureCount == 0
+PASS: SCH_AppData.TablePassCount          == 0
+PASS: Error (RC=0xFFFFFFFF) Loading SDT with /cf/apps/sch_def_schtbl.tbl
+PASS: Result == -1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_TblInit_Test_LoadMdtError
+ERROR EVENT ID=10 Error (RC=0xCC000013) Loading MDT with /cf/apps/sch_def_msgtbl.tbl
+PASS: SCH_AppData.ScheduleTable == (SCH_ScheduleEntry_t *) NULL
+PASS: SCH_AppData.MessageTable  == (SCH_MessageEntry_t  *) NULL
+PASS: SCH_AppData.BadTableDataCount       == 0
+PASS: SCH_AppData.TableVerifySuccessCount == 0
+PASS: SCH_AppData.TableVerifyFailureCount == 0
+PASS: SCH_AppData.TablePassCount          == 0
+PASS: Error (RC=0xCC000013) Loading MDT with /cf/apps/sch_def_msgtbl.tbl
+PASS: Result == 0xCC000013
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_TblInit_Test_AcquirePointersError
+ERROR EVENT ID=11 Error Acquiring Tbl Ptrs (RC=0xFFFFFFFF)
+PASS: SCH_AppData.ScheduleTable == (SCH_ScheduleEntry_t *) NULL
+PASS: SCH_AppData.MessageTable  == (SCH_MessageEntry_t  *) NULL
+PASS: SCH_AppData.BadTableDataCount       == 0
+PASS: SCH_AppData.TableVerifySuccessCount == 0
+PASS: SCH_AppData.TableVerifyFailureCount == 0
+PASS: SCH_AppData.TablePassCount          == 0
+PASS: Error Acquiring Tbl Ptrs (RC=0xFFFFFFFF)
+PASS: Result == -1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_TblInit_Test_Nominal
+PASS: SCH_AppData.BadTableDataCount       == 0
+PASS: SCH_AppData.TableVerifySuccessCount == 0
+PASS: SCH_AppData.TableVerifyFailureCount == 0
+PASS: SCH_AppData.TablePassCount          == 0
+PASS: Result == CFE_SUCCESS
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: SCH_TimerInit_Test_CustomEarlyInitError
+ERROR EVENT ID=12 Error creating Timer (RC=0xFFFFFFFF)
+PASS: SCH_AppData.IgnoreMajorFrame     == FALSE
+PASS: SCH_AppData.IgnoreMajorFrameMsgSent == FALSE
+PASS: SCH_AppData.UnexpectedMajorFrame == FALSE
+PASS: SCH_AppData.SyncToMET            == SCH_NOT_SYNCHRONIZED
+PASS: SCH_AppData.MajorFrameSource     == SCH_MAJOR_FS_NONE
+PASS: SCH_AppData.NextSlotNumber       == 0
+PASS: SCH_AppData.MinorFramesSinceTone == SCH_TIME_SYNC_SLOT
+PASS: SCH_AppData.LastSyncMETSlot      == 0
+PASS: SCH_AppData.SyncAttemptsLeft     == 0
+PASS: SCH_AppData.UnexpectedMajorFrameCount   == 0
+PASS: SCH_AppData.MissedMajorFrameCount       == 0
+PASS: SCH_AppData.ValidMajorFrameCount        == 0
+PASS: SCH_AppData.WorstCaseSlotsPerMinorFrame == 1
+PASS: SCH_AppData.ClockAccuracy = SCH_WORST_CLOCK_ACCURACY
+PASS: Error creating Timer (RC=0xFFFFFFFF)
+PASS: Result == -1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_TimerInit_Test_TimerAccuracyWarning
+INFO EVENT ID=13 OS Timer Accuracy (102 > reqd 101 usec) requires Minor Frame MET sync
+PASS: SCH_AppData.IgnoreMajorFrame     == FALSE
+PASS: SCH_AppData.IgnoreMajorFrameMsgSent == FALSE
+PASS: SCH_AppData.UnexpectedMajorFrame == FALSE
+PASS: SCH_AppData.MajorFrameSource     == SCH_MAJOR_FS_NONE
+PASS: SCH_AppData.NextSlotNumber       == 0
+PASS: SCH_AppData.MinorFramesSinceTone == SCH_TIME_SYNC_SLOT
+PASS: SCH_AppData.LastSyncMETSlot      == 0
+PASS: SCH_AppData.SyncAttemptsLeft     == 0
+PASS: SCH_AppData.UnexpectedMajorFrameCount   == 0
+PASS: SCH_AppData.MissedMajorFrameCount       == 0
+PASS: SCH_AppData.ValidMajorFrameCount        == 0
+PASS: SCH_AppData.ClockAccuracy = SCH_WORST_CLOCK_ACCURACY
+PASS: OS Timer Accuracy (102 > reqd 101 usec) requires Minor Frame MET sync
+PASS: SCH_AppData.SyncToMET == SCH_MINOR_SYNCHRONIZED
+PASS: SCH_AppData.WorstCaseSlotsPerMinorFrame == ((SCH_AppData.ClockAccuracy * 2) / SCH_NORMAL_SLOT_PERIOD) + 1
+PASS: Result == CFE_SUCCESS
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_TimerInit_Test_BinSemCreateError
+ERROR EVENT ID=15 Error creating Main Loop Timing Semaphore (RC=0xFFFFFFFF)
+PASS: SCH_AppData.IgnoreMajorFrame     == FALSE
+PASS: SCH_AppData.IgnoreMajorFrameMsgSent == FALSE
+PASS: SCH_AppData.UnexpectedMajorFrame == FALSE
+PASS: SCH_AppData.SyncToMET            == SCH_NOT_SYNCHRONIZED
+PASS: SCH_AppData.MajorFrameSource     == SCH_MAJOR_FS_NONE
+PASS: SCH_AppData.NextSlotNumber       == 0
+PASS: SCH_AppData.MinorFramesSinceTone == SCH_TIME_SYNC_SLOT
+PASS: SCH_AppData.LastSyncMETSlot      == 0
+PASS: SCH_AppData.SyncAttemptsLeft     == 0
+PASS: SCH_AppData.UnexpectedMajorFrameCount   == 0
+PASS: SCH_AppData.MissedMajorFrameCount       == 0
+PASS: SCH_AppData.ValidMajorFrameCount        == 0
+PASS: SCH_AppData.WorstCaseSlotsPerMinorFrame == 1
+PASS: SCH_AppData.ClockAccuracy = SCH_WORST_CLOCK_ACCURACY
+PASS: Error creating Main Loop Timing Semaphore (RC=0xFFFFFFFF)
+PASS: Result == -1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_TimerInit_Test_Nominal
+PASS: SCH_AppData.IgnoreMajorFrame     == FALSE
+PASS: SCH_AppData.IgnoreMajorFrameMsgSent == FALSE
+PASS: SCH_AppData.UnexpectedMajorFrame == FALSE
+PASS: SCH_AppData.SyncToMET            == SCH_NOT_SYNCHRONIZED
+PASS: SCH_AppData.MajorFrameSource     == SCH_MAJOR_FS_NONE
+PASS: SCH_AppData.NextSlotNumber       == 0
+PASS: SCH_AppData.MinorFramesSinceTone == SCH_TIME_SYNC_SLOT
+PASS: SCH_AppData.LastSyncMETSlot      == 0
+PASS: SCH_AppData.SyncAttemptsLeft     == 0
+PASS: SCH_AppData.UnexpectedMajorFrameCount   == 0
+PASS: SCH_AppData.MissedMajorFrameCount       == 0
+PASS: SCH_AppData.ValidMajorFrameCount        == 0
+PASS: SCH_AppData.WorstCaseSlotsPerMinorFrame == 1
+PASS: SCH_AppData.ClockAccuracy = SCH_WORST_CLOCK_ACCURACY
+PASS: Result == CFE_SUCCESS
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: SCH_ProcessScheduleTable_Test_ProcessCount2LastProcessCount1
+PASS: SCH_AppData.LastProcessCount == 2
+PASS: Result == CFE_SUCCESS
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: SCH_ProcessScheduleTable_Test_ProcessCountTotalSlotsLastProcessCountNotSame
+PASS: SCH_AppData.LastProcessCount == SCH_TOTAL_SLOTS
+PASS: Result == CFE_SUCCESS
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: SCH_ProcessScheduleTable_Test_ProcessCountTotalSlotsLastProcessCountSame
+DEBUG EVENT ID=16 Slot did not increment: slot = 99
+PASS: SCH_AppData.LastProcessCount == SCH_TOTAL_SLOTS
+PASS: SCH_AppData.SameSlotCount == 1
+PASS: Slot did not increment: slot = 99
+PASS: Result == CFE_SUCCESS
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_ProcessScheduleTable_Test_ProcessCountOtherAndNoRollover
+PASS: SCH_AppData.LastProcessCount == 1
+PASS: Result == CFE_SUCCESS
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: SCH_ProcessScheduleTable_Test_SkippedSlotsErrorIncrementTablePassCountAndCallProcessCommands
+ERROR EVENT ID=17 Slots skipped: slot = 53, count = 98
+PASS: SCH_AppData.LastProcessCount == SCH_TOTAL_SLOTS - 1
+PASS: SCH_AppData.SkippedSlotsCount == 1
+PASS: Slots skipped: slot = 53, count = 98
+PASS: SCH_AppData.TablePassCount == 1
+PASS: SCH_AppData.NextSlotNumber == SCH_MAX_LAG_COUNT + 2
+PASS: Result == CFE_SUCCESS
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_ProcessScheduleTable_Test_MultiSlotsProcessCountTooLargeSynchronizedProcessCountGreaterThanMaxSlotsPerWakeup
+INFO EVENT ID=18 Multiple slots processed: slot = 51, count = 5
+PASS: SCH_AppData.LastProcessCount == SCH_MAX_LAG_COUNT
+PASS: SCH_AppData.MultipleSlotsCount == 1
+PASS: Multiple slots processed: slot = 51, count = 5
+PASS: Result == CFE_SUCCESS
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_ProcessScheduleTable_Test_MultiSlotsNotSynchronizedProcessCountGreaterThanMaxSlotsPerWakeup
+INFO EVENT ID=18 Multiple slots processed: slot = 100, count = 5
+PASS: SCH_AppData.LastProcessCount == SCH_MAX_LAG_COUNT
+PASS: SCH_AppData.MultipleSlotsCount == 1
+PASS: Multiple slots processed: slot = 100, count = 5
+PASS: Result == CFE_SUCCESS
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_ProcessNextSlot_Test_ProcessCommandsRollover
+ERROR EVENT ID=19 Corrupt data error (1): slot = 99, entry = 0
+ERROR EVENT ID=19 Corrupt data error (2): msg = 0, freq = 0, type = 0, rem = 0
+PASS: SCH_AppData.NextSlotNumber == 0
+PASS: SCH_AppData.TablePassCount == 1
+PASS: SCH_AppData.SlotsProcessedCount == 1
+PASS: Result == CFE_SUCCESS
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 2
+
+Running Test: SCH_ProcessNextSlot_Test_DoNotProcessCommandsNoRollover
+ERROR EVENT ID=19 Corrupt data error (1): slot = 1, entry = 0
+ERROR EVENT ID=19 Corrupt data error (2): msg = 0, freq = 0, type = 0, rem = 0
+PASS: SCH_AppData.NextSlotNumber == 2
+PASS: SCH_AppData.SlotsProcessedCount == 1
+PASS: Result == CFE_SUCCESS
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 2
+
+Running Test: SCH_ProcessNextEntry_Test_CorruptMessageIndex
+ERROR EVENT ID=19 Corrupt data error (1): slot = 2, entry = 1
+ERROR EVENT ID=19 Corrupt data error (2): msg = 128, freq = 99, type = 1, rem = 1
+PASS: SCH_AppData.BadTableDataCount == 1
+PASS: Corrupt data error (1): slot = 2, entry = 1
+PASS: Corrupt data error (2): msg = 128, freq = 99, type = 1, rem = 1
+PASS: SCH_AppData.ScheduleTable[EntryNumber].EnableState == SCH_DISABLED
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 2
+
+Running Test: SCH_ProcessNextEntry_Test_CorruptFrequency
+ERROR EVENT ID=19 Corrupt data error (1): slot = 2, entry = 1
+ERROR EVENT ID=19 Corrupt data error (2): msg = 127, freq = 0, type = 1, rem = 1
+PASS: SCH_AppData.BadTableDataCount == 1
+PASS: Corrupt data error (1): slot = 2, entry = 1
+PASS: Corrupt data error (2): msg = 127, freq = 0, type = 1, rem = 1
+PASS: SCH_AppData.ScheduleTable[EntryNumber].EnableState == SCH_DISABLED
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 2
+
+Running Test: SCH_ProcessNextEntry_Test_CorruptType
+ERROR EVENT ID=19 Corrupt data error (1): slot = 2, entry = 1
+ERROR EVENT ID=19 Corrupt data error (2): msg = 127, freq = 99, type = 99, rem = 1
+PASS: SCH_AppData.BadTableDataCount == 1
+PASS: Corrupt data error (1): slot = 2, entry = 1
+PASS: Corrupt data error (2): msg = 127, freq = 99, type = 99, rem = 1
+PASS: SCH_AppData.ScheduleTable[EntryNumber].EnableState == SCH_DISABLED
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 2
+
+Running Test: SCH_ProcessNextEntry_Test_CorruptRemainder
+ERROR EVENT ID=19 Corrupt data error (1): slot = 2, entry = 1
+ERROR EVENT ID=19 Corrupt data error (2): msg = 127, freq = 99, type = 1, rem = 99
+PASS: SCH_AppData.BadTableDataCount == 1
+PASS: Corrupt data error (1): slot = 2, entry = 1
+PASS: Corrupt data error (2): msg = 127, freq = 99, type = 1, rem = 99
+PASS: SCH_AppData.ScheduleTable[EntryNumber].EnableState == SCH_DISABLED
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 2
+
+Running Test: SCH_ProcessNextEntry_Test_Success
+PASS: SCH_AppData.ScheduleActivitySuccessCount == 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: SCH_ProcessNextEntry_Test_PacketSendError
+ERROR EVENT ID=20 Activity error: slot = 2, entry = 1, err = 0xFFFFFFFF
+PASS: SCH_AppData.ScheduleActivityFailureCount == 1
+PASS: Activity error: slot = 2, entry = 1, err = 0xFFFFFFFF
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_ProcessCommands_Test_OneMessage
+PKT: 00 00 00 00 00 00 00 
+PASS: Result == CFE_SUCCESS
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: SCH_ProcessCommands_Test_NoMessage
+PASS: Result == CFE_SUCCESS
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: SCH_ProcessCommands_Test_RcvMsgError
+PASS: Result == -1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: SCH_ProcessCommands_Test_AppPipeError
+PKT: 00 00 00 00 00 00 00 
+PASS: Result == -1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: SCH_ValidateScheduleData_Test_GarbageFrequency
+ERROR EVENT ID=30 Schedule tbl verify error - idx[0] ena[0] typ[0] fre[99] rem[0] msg[0] grp[0x00000000]
+DEBUG EVENT ID=31 Schedule table verify results -- good[0] bad[500] unused[0]
+PASS: Schedule tbl verify error - idx[0] ena[0] typ[0] fre[99] rem[0] msg[0] grp[0x00000000]
+PASS: Schedule table verify results -- good[0] bad[500] unused[0]
+PASS: SCH_AppData.TableVerifyFailureCount == 1
+PASS: Result == SCH_SDT_GARBAGE_ENTRY
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 2
+
+Running Test: SCH_ValidateScheduleData_Test_GarbageRemainder
+ERROR EVENT ID=30 Schedule tbl verify error - idx[0] ena[0] typ[0] fre[0] rem[99] msg[0] grp[0x00000000]
+DEBUG EVENT ID=31 Schedule table verify results -- good[0] bad[500] unused[0]
+PASS: Schedule tbl verify error - idx[0] ena[0] typ[0] fre[0] rem[99] msg[0] grp[0x00000000]
+PASS: Schedule table verify results -- good[0] bad[500] unused[0]
+PASS: SCH_AppData.TableVerifyFailureCount == 1
+PASS: Result == SCH_SDT_GARBAGE_ENTRY
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 2
+
+Running Test: SCH_ValidateScheduleData_Test_GarbageGroupData
+ERROR EVENT ID=30 Schedule tbl verify error - idx[0] ena[0] typ[0] fre[0] rem[0] msg[0] grp[0x0000000F]
+DEBUG EVENT ID=31 Schedule table verify results -- good[0] bad[500] unused[0]
+PASS: Schedule tbl verify error - idx[0] ena[0] typ[0] fre[0] rem[0] msg[0] grp[0x0000000F]
+PASS: Schedule table verify results -- good[0] bad[500] unused[0]
+PASS: SCH_AppData.TableVerifyFailureCount == 1
+PASS: Result == SCH_SDT_GARBAGE_ENTRY
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 2
+
+Running Test: SCH_ValidateScheduleData_Test_GarbageType
+ERROR EVENT ID=30 Schedule tbl verify error - idx[0] ena[0] typ[99] fre[0] rem[0] msg[0] grp[0x00000000]
+DEBUG EVENT ID=31 Schedule table verify results -- good[0] bad[500] unused[0]
+PASS: Schedule tbl verify error - idx[0] ena[0] typ[99] fre[0] rem[0] msg[0] grp[0x00000000]
+PASS: Schedule table verify results -- good[0] bad[500] unused[0]
+PASS: SCH_AppData.TableVerifyFailureCount == 1
+PASS: Result == SCH_SDT_GARBAGE_ENTRY
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 2
+
+Running Test: SCH_ValidateScheduleData_Test_GarbageMessageIndex
+ERROR EVENT ID=30 Schedule tbl verify error - idx[0] ena[0] typ[0] fre[0] rem[0] msg[99] grp[0x00000000]
+DEBUG EVENT ID=31 Schedule table verify results -- good[0] bad[500] unused[0]
+PASS: Schedule tbl verify error - idx[0] ena[0] typ[0] fre[0] rem[0] msg[99] grp[0x00000000]
+PASS: Schedule table verify results -- good[0] bad[500] unused[0]
+PASS: SCH_AppData.TableVerifyFailureCount == 1
+PASS: Result == SCH_SDT_GARBAGE_ENTRY
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 2
+
+Running Test: SCH_ValidateScheduleData_Test_EnableStateUnusedAllFieldsUnused
+DEBUG EVENT ID=31 Schedule table verify results -- good[0] bad[0] unused[500]
+PASS: Schedule table verify results -- good[0] bad[0] unused[500]
+PASS: SCH_AppData.TableVerifySuccessCount == 1
+PASS: Result == CFE_SUCCESS
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_ValidateScheduleData_Test_EnableStateEnabledFrequencyUnused
+ERROR EVENT ID=30 Schedule tbl verify error - idx[0] ena[1] typ[0] fre[0] rem[0] msg[0] grp[0x00000000]
+DEBUG EVENT ID=31 Schedule table verify results -- good[0] bad[500] unused[0]
+PASS: Schedule tbl verify error - idx[0] ena[1] typ[0] fre[0] rem[0] msg[0] grp[0x00000000]
+PASS: Schedule table verify results -- good[0] bad[500] unused[0]
+PASS: SCH_AppData.TableVerifyFailureCount == 1
+PASS: Result == SCH_SDT_NO_FREQUENCY
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 2
+
+Running Test: SCH_ValidateScheduleData_Test_EnableStateDisabledFrequencyUnused
+ERROR EVENT ID=30 Schedule tbl verify error - idx[0] ena[2] typ[0] fre[0] rem[0] msg[0] grp[0x00000000]
+DEBUG EVENT ID=31 Schedule table verify results -- good[0] bad[500] unused[0]
+PASS: Schedule tbl verify error - idx[0] ena[2] typ[0] fre[0] rem[0] msg[0] grp[0x00000000]
+PASS: Schedule table verify results -- good[0] bad[500] unused[0]
+PASS: SCH_AppData.TableVerifyFailureCount == 1
+PASS: Result == SCH_SDT_NO_FREQUENCY
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 2
+
+Running Test: SCH_ValidateScheduleData_Test_BadRemainder
+ERROR EVENT ID=30 Schedule tbl verify error - idx[0] ena[2] typ[0] fre[99] rem[100] msg[0] grp[0x00000000]
+DEBUG EVENT ID=31 Schedule table verify results -- good[0] bad[500] unused[0]
+PASS: Schedule tbl verify error - idx[0] ena[2] typ[0] fre[99] rem[100] msg[0] grp[0x00000000]
+PASS: Schedule table verify results -- good[0] bad[500] unused[0]
+PASS: SCH_AppData.TableVerifyFailureCount == 1
+PASS: Result == SCH_SDT_BAD_REMAINDER
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 2
+
+Running Test: SCH_ValidateScheduleData_Test_BadActivity
+ERROR EVENT ID=30 Schedule tbl verify error - idx[0] ena[2] typ[99] fre[99] rem[1] msg[0] grp[0x00000000]
+DEBUG EVENT ID=31 Schedule table verify results -- good[0] bad[500] unused[0]
+PASS: Schedule tbl verify error - idx[0] ena[2] typ[99] fre[99] rem[1] msg[0] grp[0x00000000]
+PASS: Schedule table verify results -- good[0] bad[500] unused[0]
+PASS: SCH_AppData.TableVerifyFailureCount == 1
+PASS: Result == SCH_SDT_BAD_ACTIVITY
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 2
+
+Running Test: SCH_ValidateScheduleData_Test_MsgIndexZero
+ERROR EVENT ID=30 Schedule tbl verify error - idx[0] ena[2] typ[1] fre[99] rem[1] msg[0] grp[0x00000000]
+DEBUG EVENT ID=31 Schedule table verify results -- good[0] bad[500] unused[0]
+PASS: Schedule tbl verify error - idx[0] ena[2] typ[1] fre[99] rem[1] msg[0] grp[0x00000000]
+PASS: Schedule table verify results -- good[0] bad[500] unused[0]
+PASS: SCH_AppData.TableVerifyFailureCount == 1
+PASS: Result == SCH_SDT_BAD_MSG_INDEX
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 2
+
+Running Test: SCH_ValidateScheduleData_Test_MsgIndexTooHigh
+ERROR EVENT ID=30 Schedule tbl verify error - idx[0] ena[2] typ[1] fre[99] rem[1] msg[128] grp[0x00000000]
+DEBUG EVENT ID=31 Schedule table verify results -- good[0] bad[500] unused[0]
+PASS: Schedule tbl verify error - idx[0] ena[2] typ[1] fre[99] rem[1] msg[128] grp[0x00000000]
+PASS: Schedule table verify results -- good[0] bad[500] unused[0]
+PASS: SCH_AppData.TableVerifyFailureCount == 1
+PASS: Result == SCH_SDT_BAD_MSG_INDEX
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 2
+
+Running Test: SCH_ValidateScheduleData_Test_ValidEntryResult
+DEBUG EVENT ID=31 Schedule table verify results -- good[500] bad[0] unused[0]
+PASS: Schedule table verify results -- good[500] bad[0] unused[0]
+PASS: SCH_AppData.TableVerifySuccessCount == 1
+PASS: Result == CFE_SUCCESS
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_ValidateScheduleData_Test_EnableStateOther
+ERROR EVENT ID=30 Schedule tbl verify error - idx[0] ena[99] typ[1] fre[99] rem[1] msg[0] grp[0x00000000]
+DEBUG EVENT ID=31 Schedule table verify results -- good[0] bad[500] unused[0]
+PASS: Schedule tbl verify error - idx[0] ena[99] typ[1] fre[99] rem[1] msg[0] grp[0x00000000]
+PASS: Schedule table verify results -- good[0] bad[500] unused[0]
+PASS: SCH_AppData.TableVerifyFailureCount == 1
+PASS: Result == SCH_SDT_BAD_ENABLE_STATE
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 2
+
+Running Test: SCH_ValidateMessageData_Test_MessageIdUnusedGarbageEntry
+ERROR EVENT ID=32 Message tbl verify err - idx[0] mid[0x1897] len[10] buf[0]
+DEBUG EVENT ID=33 Message tbl verify results - good[0] bad[1] unused[127]
+PASS: Message tbl verify err - idx[0] mid[0x1897] len[10] buf[0]
+PASS: Message tbl verify results - good[0] bad[1] unused[127]
+PASS: SCH_AppData.TableVerifyFailureCount == 1
+PASS: Result == SCH_MDT_GARBAGE_ENTRY
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 2
+
+Running Test: SCH_ValidateMessageData_Test_MessageIdUnusedValid
+DEBUG EVENT ID=33 Message tbl verify results - good[0] bad[0] unused[128]
+PASS: Message tbl verify results - good[0] bad[0] unused[128]
+PASS: SCH_AppData.TableVerifySuccessCount == 1
+PASS: Result == CFE_SUCCESS
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_ValidateMessageData_Test_MessageIdValidRangeLengthTooHigh
+ERROR EVENT ID=32 Message tbl verify err - idx[0] mid[0x1FFF] len[130] buf[0]
+DEBUG EVENT ID=33 Message tbl verify results - good[0] bad[128] unused[0]
+PASS: Message tbl verify err - idx[0] mid[0x1FFF] len[130] buf[0]
+PASS: Message tbl verify results - good[0] bad[128] unused[0]
+PASS: SCH_AppData.TableVerifyFailureCount == 1
+PASS: Result == SCH_MDT_INVALID_LENGTH
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 2
+
+Running Test: SCH_ValidateMessageData_Test_MessageIdValidRangeLengthTooLow
+ERROR EVENT ID=32 Message tbl verify err - idx[0] mid[0x1FFF] len[6] buf[0]
+DEBUG EVENT ID=33 Message tbl verify results - good[0] bad[128] unused[0]
+PASS: Message tbl verify err - idx[0] mid[0x1FFF] len[6] buf[0]
+PASS: Message tbl verify results - good[0] bad[128] unused[0]
+PASS: SCH_AppData.TableVerifyFailureCount == 1
+PASS: Result == SCH_MDT_INVALID_LENGTH
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 2
+
+Running Test: SCH_ValidateMessageData_Test_MessageIdValidRangeLengthOdd
+ERROR EVENT ID=32 Message tbl verify err - idx[0] mid[0x1FFF] len[19] buf[0]
+DEBUG EVENT ID=33 Message tbl verify results - good[0] bad[128] unused[0]
+PASS: Message tbl verify err - idx[0] mid[0x1FFF] len[19] buf[0]
+PASS: Message tbl verify results - good[0] bad[128] unused[0]
+PASS: SCH_AppData.TableVerifyFailureCount == 1
+PASS: Result == SCH_MDT_INVALID_LENGTH
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 2
+
+Running Test: SCH_ValidateMessageData_Test_MessageIdValidRangeLengthValid
+DEBUG EVENT ID=33 Message tbl verify results - good[128] bad[0] unused[0]
+PASS: Message tbl verify results - good[128] bad[0] unused[0]
+PASS: SCH_AppData.TableVerifySuccessCount == 1
+PASS: Result == CFE_SUCCESS
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_ValidateMessageData_Test_MessageIdOther
+ERROR EVENT ID=32 Message tbl verify err - idx[0] mid[0x2000] len[18] buf[0]
+DEBUG EVENT ID=33 Message tbl verify results - good[0] bad[128] unused[0]
+PASS: Message tbl verify err - idx[0] mid[0x2000] len[18] buf[0]
+PASS: Message tbl verify results - good[0] bad[128] unused[0]
+PASS: SCH_AppData.TableVerifyFailureCount == 1
+PASS: Result == SCH_MDT_BAD_MSG_ID
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 2
+
+Running Test: SCH_AppPipe_Test_SendHK
+PKT: 00 00 00 00 00 00 00 
+PASS: Result == CFE_SUCCESS
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: SCH_AppPipe_Test_Noop
+INFO EVENT ID=40 NO-op command. Version 2.2.1.0
+PASS: Result == CFE_SUCCESS
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_AppPipe_Test_Reset
+DEBUG EVENT ID=41 RESET command
+PASS: Result == CFE_SUCCESS
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_AppPipe_Test_Enable
+ERROR EVENT ID=50 ENABLE cmd: invalid argument, slot=99 (<100), entry=99 (<5)
+PASS: Result == CFE_SUCCESS
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_AppPipe_Test_Disable
+ERROR EVENT ID=52 DISABLE cmd: invalid argument, slot=99 (<100), entry=99 (<5)
+PASS: Result == CFE_SUCCESS
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_AppPipe_Test_EnableGroupCmd
+ERROR EVENT ID=54 ENABLE GROUP command: invalid argument, no groups selected
+PASS: Result == CFE_SUCCESS
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_AppPipe_Test_DisableGroupCmd
+ERROR EVENT ID=56 DISABLE GROUP command: invalid argument, no groups selected
+PASS: Result == CFE_SUCCESS
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_AppPipe_Test_EnableSyncCmd
+DEBUG EVENT ID=46 Major Frame Synchronization Enabled
+PASS: Result == CFE_SUCCESS
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_AppPipe_Test_SendDiagTlmCmd
+ERROR EVENT ID=60 Cmd Msg with Bad length Rcvd: ID = 0x1895, CC = 7, Exp Len = 8, Len = 12
+PASS: Result == CFE_SUCCESS
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_AppPipe_Test_InvalidCommandCode
+ERROR EVENT ID=58 Invalid command code: ID = 0x1895, CC = 99
+PASS: Invalid command code: ID = 0x1895, CC = 99
+PASS: SCH_AppData.ErrCounter == 1
+PASS: Result == CFE_SUCCESS
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_AppPipe_Test_InvalidMessageID
+ERROR EVENT ID=59 Msg with Invalid message ID Rcvd -- ID = 0x0099
+PASS: Msg with Invalid message ID Rcvd -- ID = 0x0099
+PASS: Result == CFE_SUCCESS
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_HousekeepingCmd_Test
+PKT: 00 00 00 00 00 00 00 
+PASS: SCH_AppData.HkPacket.CmdCounter == 1
+PASS: SCH_AppData.HkPacket.ErrCounter == 2
+PASS: SCH_AppData.HkPacket.ScheduleActivitySuccessCount == 3
+PASS: SCH_AppData.HkPacket.ScheduleActivityFailureCount == 4
+PASS: SCH_AppData.HkPacket.SlotsProcessedCount == 5
+PASS: SCH_AppData.HkPacket.SkippedSlotsCount == 6
+PASS: SCH_AppData.HkPacket.MultipleSlotsCount == 7
+PASS: SCH_AppData.HkPacket.SameSlotCount == 8
+PASS: SCH_AppData.HkPacket.BadTableDataCount == 9
+PASS: SCH_AppData.HkPacket.TableVerifySuccessCount == 10
+PASS: SCH_AppData.HkPacket.TableVerifyFailureCount == 11
+PASS: SCH_AppData.HkPacket.TablePassCount == 12
+PASS: SCH_AppData.HkPacket.ValidMajorFrameCount == 13
+PASS: SCH_AppData.HkPacket.MissedMajorFrameCount == 14
+PASS: SCH_AppData.HkPacket.UnexpectedMajorFrameCount == 15
+PASS: SCH_AppData.HkPacket.MinorFramesSinceTone == 16
+PASS: SCH_AppData.HkPacket.NextSlotNumber == 17
+PASS: SCH_AppData.HkPacket.LastSyncMETSlot == 18
+PASS: SCH_AppData.HkPacket.IgnoreMajorFrame == 19
+PASS: SCH_AppData.HkPacket.UnexpectedMajorFrame == 20
+PASS: SCH_AppData.HkPacket.SyncToMET == 21
+PASS: SCH_AppData.HkPacket.MajorFrameSource == 22
+PASS: Result == CFE_SUCCESS
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: SCH_NoopCmd_Test_Error
+ERROR EVENT ID=60 Cmd Msg with Bad length Rcvd: ID = 0x1895, CC = 8, Exp Len = 8, Len = 1
+PASS: SCH_AppData.ErrCounter == 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_NoopCmd_Test_Nominal
+INFO EVENT ID=40 NO-op command. Version 2.2.1.0
+PASS: NO-op command. Version 2.2.1.0
+PASS: SCH_AppData.CmdCounter == 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_ResetCmd_Test_Error
+ERROR EVENT ID=60 Cmd Msg with Bad length Rcvd: ID = 0x1895, CC = 8, Exp Len = 8, Len = 1
+PASS: SCH_AppData.ErrCounter == 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_NoopCmd_Test_Nominal
+INFO EVENT ID=40 NO-op command. Version 2.2.1.0
+PASS: NO-op command. Version 2.2.1.0
+PASS: SCH_AppData.CmdCounter == 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_EnableCmd_Test_InvalidCmdLength
+ERROR EVENT ID=60 Cmd Msg with Bad length Rcvd: ID = 0x1895, CC = 0, Exp Len = 12, Len = 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_EnableCmd_Test_InvalidArgumentSlotNumber
+ERROR EVENT ID=50 ENABLE cmd: invalid argument, slot=100 (<100), entry=1 (<5)
+PASS: ENABLE cmd: invalid argument, slot=100 (<100), entry=1 (<5)
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_EnableCmd_Test_InvalidArgumentEntryNumber
+ERROR EVENT ID=50 ENABLE cmd: invalid argument, slot=1 (<100), entry=5 (<5)
+PASS: ENABLE cmd: invalid argument, slot=1 (<100), entry=5 (<5)
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_EnableCmd_Test_InvalidState
+ERROR EVENT ID=51 ENABLE command: invalid state = 99, slot = 0, entry = 0
+PASS: ENABLE command: invalid state = 99, slot = 0, entry = 0
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_EnableCmd_Test_Nominal
+DEBUG EVENT ID=42 ENABLE command: slot = 0, entry = 0
+PASS: SCH_AppData.ScheduleTable[0].EnableState == SCH_ENABLED
+PASS: ENABLE command: invalid state = 99, slot = 0, entry = 0
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_DisableCmd_Test_InvalidCmdLength
+ERROR EVENT ID=60 Cmd Msg with Bad length Rcvd: ID = 0x1895, CC = 0, Exp Len = 12, Len = 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_DisableCmd_Test_InvalidArgumentSlotNumber
+ERROR EVENT ID=52 DISABLE cmd: invalid argument, slot=100 (<100), entry=1 (<5)
+PASS: DISABLE cmd: invalid argument, slot=100 (<100), entry=1 (<5)
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_DisableCmd_Test_InvalidArgumentEntryNumber
+ERROR EVENT ID=52 DISABLE cmd: invalid argument, slot=1 (<100), entry=5 (<5)
+PASS: DISABLE cmd: invalid argument, slot=1 (<100), entry=5 (<5)
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_DisableCmd_Test_InvalidState
+ERROR EVENT ID=53 DISABLE command: invalid state = 99, slot = 0, entry = 0
+PASS: DISABLE command: invalid state = 99, slot = 0, entry = 0
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_DisableCmd_Test_Nominal
+DEBUG EVENT ID=43 DISABLE command: slot = 0, entry = 0
+PASS: SCH_AppData.ScheduleTable[0].EnableState == SCH_DISABLED
+PASS: DISABLE command: invalid state = 99, slot = 0, entry = 0
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_EnableGroupCmd_Test_InvalidCmdLength
+ERROR EVENT ID=60 Cmd Msg with Bad length Rcvd: ID = 0x1895, CC = 0, Exp Len = 12, Len = 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_EnableGroupCmd_Test_InvalidArgument
+ERROR EVENT ID=54 ENABLE GROUP command: invalid argument, no groups selected
+PASS: ENABLE GROUP command: invalid argument, no groups selected
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_EnableGroupCmd_Test_NominalCmdGroupNumberNotUnused
+DEBUG EVENT ID=44 ENABLE GROUP command: match count = 1
+PASS: SCH_AppData.ScheduleTable[0].EnableState == SCH_ENABLED
+PASS: ENABLE GROUP command: match count = 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_EnableGroupCmd_Test_NominalCmdMultiGroupBitwiseAndTblMultiGroupNotUnused
+DEBUG EVENT ID=44 ENABLE GROUP command: match count = 1
+PASS: SCH_AppData.ScheduleTable[0].EnableState == SCH_ENABLED
+PASS: ENABLE GROUP command: match count = 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_EnableGroupCmd_Test_GroupNotFound
+ERROR EVENT ID=55 ENABLE GROUP command: Neither Group 255 nor Multi-Group 0xFFFFFF found
+PASS: ENABLE GROUP command: Neither Group 255 nor Multi-Group 0xFFFFFF found
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_DisableGroupCmd_Test_InvalidCmdLength
+ERROR EVENT ID=60 Cmd Msg with Bad length Rcvd: ID = 0x1895, CC = 0, Exp Len = 12, Len = 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_DisableGroupCmd_Test_InvalidArgument
+ERROR EVENT ID=56 DISABLE GROUP command: invalid argument, no groups selected
+PASS: DISABLE GROUP command: invalid argument, no groups selected
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_DisableGroupCmd_Test_NominalCmdGroupNumberNotUnused
+DEBUG EVENT ID=45 DISABLE GROUP command: match count = 1
+PASS: SCH_AppData.ScheduleTable[0].EnableState == SCH_DISABLED
+PASS: DISABLE GROUP command: match count = 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_DisableGroupCmd_Test_NominalCmdMultiGroupBitwiseAndTblMultiGroupNotUnused
+DEBUG EVENT ID=45 DISABLE GROUP command: match count = 1
+PASS: SCH_AppData.ScheduleTable[0].EnableState == SCH_DISABLED
+PASS: DISABLE GROUP command: match count = 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_DisableGroupCmd_Test_GroupNotFound
+ERROR EVENT ID=57 DISABLE GROUP command: Neither Group 255 nor Multi-Group 0xFFFFFF found
+PASS: DISABLE GROUP command: Neither Group 255 nor Multi-Group 0xFFFFFF found
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_EnableSyncCmd_Test_InvalidCmdLength
+ERROR EVENT ID=60 Cmd Msg with Bad length Rcvd: ID = 0x1895, CC = 8, Exp Len = 8, Len = 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_EnableSyncCmd_Test_Nominal
+DEBUG EVENT ID=46 Major Frame Synchronization Enabled
+PASS: SCH_AppData.IgnoreMajorFrame == FALSE
+PASS: SCH_AppData.UnexpectedMajorFrame == FALSE
+PASS: SCH_AppData.ConsecutiveNoisyFrameCounter == 0
+PASS: Major Frame Synchronization Enabled
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_SendDiagTlmCmd_Test_InvalidCmdLength
+ERROR EVENT ID=60 Cmd Msg with Bad length Rcvd: ID = 0x1895, CC = 8, Exp Len = 8, Len = 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_SendDiagTlmCmd_Test_Enabled
+PKT: 00 00 00 00 00 00 00 
+DEBUG EVENT ID=47 Transmitting Diagnostic Message
+PASS: SCH_AppData.DiagPacket.EntryStates[0] == (1 << 14)
+PASS: Transmitting Diagnostic Message
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_SendDiagTlmCmd_Test_Disabled
+PKT: 00 00 00 00 00 00 00 
+DEBUG EVENT ID=47 Transmitting Diagnostic Message
+PASS: SCH_AppData.DiagPacket.EntryStates[0] == (2 << 14)
+PASS: Transmitting Diagnostic Message
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_SendDiagTlmCmd_Test_Other
+PKT: 00 00 00 00 00 00 00 
+DEBUG EVENT ID=47 Transmitting Diagnostic Message
+PASS: SCH_AppData.DiagPacket.MsgIDs[0] == 0x0000
+PASS: Transmitting Diagnostic Message
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_AcquirePointers_Test_AllResultsGreaterThanSuccess
+PASS: Result == CFE_SUCCESS
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: SCH_AcquirePointers_Test_AllResultsSuccess
+PASS: Result == CFE_SUCCESS
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: SCH_AcquirePointers_Test_Result1LessThanSuccess
+PASS: Result == -1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: SCH_VerifyCmdLength_Test_LengthError
+ERROR EVENT ID=60 Cmd Msg with Bad length Rcvd: ID = 0x1895, CC = 1, Exp Len = 99, Len = 8
+PASS: Cmd Msg with Bad length Rcvd: ID = 0x1895, CC = 1, Exp Len = 99, Len = 8
+PASS: Result == SCH_BAD_MSG_LENGTH_RC
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 1
+
+Running Test: SCH_VerifyCmdLength_Test_Success
+PASS: Result == SCH_SUCCESS
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: SCH_PostCommandResult_Test_GoodCommand
+PASS: SCH_AppData.CmdCounter == 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: SCH_PostCommandResult_Test_Error
+PASS: SCH_AppData.ErrCounter == 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: SCH_CustomEarlyInit_Test
+PASS: Result == CFE_SUCCESS
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: SCH_CustomLateInit_Test_Nominal
+PASS: Result == CFE_SUCCESS
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: SCH_CustomLateInit_Test_RegisterSynchCallbackError
+PASS: Result == -1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: SCH_CustomLateInit_Test_TimerSetError
+PASS: Result == -1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: SCH_CustomGetCurrentSlotNumber_Test_LowCurrentSlot
+PASS: Result == SCH_TOTAL_SLOTS - 10
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: SCH_CustomGetCurrentSlotNumber_Test_HighCurrentSlot
+PASS: Result == 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: SCH_CustomGetCurrentSlotNumber_Test_NotSynchronized
+PASS: Result == 10
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: SCH_CustomCleanup_Test
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: SCH_GetMETSlotNumber_Test_Rollover
+PASS: Result == 0
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: SCH_GetMETSlotNumber_Test_NoRollover
+PASS: Result == 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: SCH_MajorFrameCallback_Test_NoisyNotSynchronized
+PASS: SCH_AppData.UnexpectedMajorFrame == TRUE
+PASS: SCH_AppData.UnexpectedMajorFrameCount == 1
+PASS: SCH_AppData.ConsecutiveNoisyFrameCounter == SCH_MAX_NOISY_MAJORF
+PASS: SCH_AppData.IgnoreMajorFrame == TRUE
+PASS: SCH_AppData.LastSyncMETSlot == 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: SCH_MajorFrameCallback_Test_NoisySynchronized
+PASS: SCH_AppData.UnexpectedMajorFrame == TRUE
+PASS: SCH_AppData.UnexpectedMajorFrameCount == 1
+PASS: SCH_AppData.ConsecutiveNoisyFrameCounter == SCH_MAX_NOISY_MAJORF
+PASS: SCH_AppData.IgnoreMajorFrame == TRUE
+PASS: SCH_AppData.LastSyncMETSlot == 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: SCH_MajorFrameCallback_Test_FrameOccurredWhenExpected
+PASS: SCH_AppData.UnexpectedMajorFrame == FALSE
+PASS: SCH_AppData.ConsecutiveNoisyFrameCounter == 0
+PASS: SCH_AppData.ValidMajorFrameCount == 1
+PASS: SCH_AppData.MinorFramesSinceTone == 0
+PASS: MajorFrameSource == SCH_MAJOR_FS_CFE_TIME
+PASS: SCH_AppData.SyncToMET == (SCH_AppData.SyncToMET & SCH_MINOR_SYNCHRONIZED)
+PASS: SCH_AppData.LastSyncMETSlot == 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: SCH_MajorFrameCallback_Test_FlywheelMode
+PASS: SCH_AppData.LastSyncMETSlot == 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: SCH_MinorFrameCallback_Test_SyncAttemptsLeft
+PASS: SCH_AppData.MajorFrameSource == SCH_MAJOR_FS_MINOR_FRAME_TIMER
+PASS: SCH_AppData.SyncToMET == SCH_PENDING_MAJOR_SYNCH
+PASS: SCH_AppData.SyncAttemptsLeft == SCH_MAX_SYNC_ATTEMPTS - 1
+PASS: SCH_AppData.LastSyncMETSlot == 0
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: SCH_MinorFrameCallback_Test_SynchronizationAchievedNominal
+PASS: SCH_AppData.MajorFrameSource == SCH_MAJOR_FS_MINOR_FRAME_TIMER
+PASS: SCH_AppData.SyncAttemptsLeft == SCH_MAX_SYNC_ATTEMPTS - 1
+PASS: SCH_AppData.SyncToMET == SCH_MAJOR_SYNCHRONIZED
+PASS: SCH_AppData.MinorFramesSinceTone == 0
+PASS: SCH_AppData.LastSyncMETSlot == 0
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: SCH_MinorFrameCallback_Test_AlreadySynchronizedNominal
+PASS: SCH_AppData.MinorFramesSinceTone == 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: SCH_MinorFrameCallback_Test_AlreadySynchronizedRollover
+PASS: SCH_AppData.MinorFramesSinceTone == 0
+PASS: SCH_AppData.MissedMajorFrameCount == 1
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Running Test: SCH_MinorFrameCallback_Test_AlreadySynchronizedStartTimer
+PASS: SCH_AppData.MinorFramesSinceTone == SCH_TIME_SYNC_SLOT
+PASS: Ut_CFE_EVS_GetEventQueueDepth() == 0
+
+Tests Executed:    142
+Assert Pass Count: 633
+Assert Fail Count: 0
+
+gcov: '../src/sch_cmds.c' 100.00%  269
+gcov: '../src/sch_api.c' 100.00%  12
+gcov: '../src/sch_app.c' 100.00%  337
+gcov: '../src/sch_custom.c' 100.00%  85
+

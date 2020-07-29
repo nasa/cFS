@@ -1,0 +1,453 @@
+        -:    0:Source:../src/sch_custom.c
+        -:    0:Programs:4
+        -:    1:/*
+        -:    2:** $Id: sch_custom.c.gcov 1.2 2017/06/21 16:39:47EDT mdeschu Exp  $
+        -:    3:**
+        -:    4:**  Copyright (c) 2007-2014 United States Government as represented by the 
+        -:    5:**  Administrator of the National Aeronautics and Space Administration. 
+        -:    6:**  All Other Rights Reserved.  
+        -:    7:**
+        -:    8:**  This software was created at NASA's Goddard Space Flight Center.
+        -:    9:**  This software is governed by the NASA Open Source Agreement and may be 
+        -:   10:**  used, distributed and modified only pursuant to the terms of that 
+        -:   11:**  agreement.
+        -:   12:**
+        -:   13:** Purpose: Scheduler (SCH) application custom component
+        -:   14:**
+        -:   15:** Author:
+        -:   16:**
+        -:   17:** Notes:
+        -:   18:**
+        -:   19:*/
+        -:   20:
+        -:   21:/*************************************************************************
+        -:   22:**
+        -:   23:** Include section
+        -:   24:**
+        -:   25:**************************************************************************/
+        -:   26:
+        -:   27:#include "cfe.h"
+        -:   28:#include "sch_platform_cfg.h"
+        -:   29:
+        -:   30:#include "sch_app.h"
+        -:   31:#include "sch_custom.h"
+        -:   32:
+        -:   33:#include "cfe_time_msg.h"
+        -:   34:
+        -:   35:
+        -:   36:/*************************************************************************
+        -:   37:**
+        -:   38:** Macro definitions
+        -:   39:**
+        -:   40:**************************************************************************/
+        -:   41:
+        -:   42:/*************************************************************************
+        -:   43:** Local function prototypes
+        -:   44:**************************************************************************/
+        -:   45:
+        -:   46:
+        -:   47:/*************************************************************************
+        -:   48:**
+        -:   49:** Function definitions
+        -:   50:**
+        -:   51:**************************************************************************/
+        -:   52:
+        -:   53:
+        -:   54:
+        -:   55:
+        -:   56:/*******************************************************************
+        -:   57:**
+        -:   58:** SCH_CustomEarlyInit
+        -:   59:**
+        -:   60:** NOTE: For complete prolog information, see 'sch_custom.h'
+        -:   61:**
+        -:   62:** This function MUST update SCH_AppData.ClockAccuracy to the
+        -:   63:** resolution of the minor frame timer.
+        -:   64:********************************************************************/
+        -:   65:
+       12:   66:int32 SCH_CustomEarlyInit(void)
+        -:   67:{
+       12:   68:    int32             Status = CFE_SUCCESS;
+        -:   69:    
+       12:   70:    Status = OS_TimerCreate(&SCH_AppData.TimerId,
+        -:   71:                             SCH_TIMER_NAME,
+        -:   72:                            &SCH_AppData.ClockAccuracy,
+        -:   73:                             SCH_MinorFrameCallback);
+        -:   74:    
+       12:   75:    return Status;
+        -:   76:
+        -:   77:} /* End of CustomEarlyInit() */
+        -:   78:
+        -:   79:
+        -:   80:/*******************************************************************
+        -:   81:**
+        -:   82:** SCH_CustomLateInit
+        -:   83:**
+        -:   84:** NOTE: For complete prolog information, see 'sch_custom.h'
+        -:   85:**
+        -:   86:** This function MUST perform any startup synchronization required,
+        -:   87:** and MUST finish setting up the major and minor frame timers. 
+        -:   88:********************************************************************/
+        -:   89:
+        8:   90:int32 SCH_CustomLateInit(void)
+        -:   91:{
+        8:   92:    int32  Status    = CFE_SUCCESS;
+        -:   93:    
+        8:   94:    CFE_ES_WaitForStartupSync(SCH_STARTUP_SYNC_TIMEOUT);
+        -:   95:
+        -:   96:    /*
+        -:   97:    ** Connect to cFE TIME's time reference marker (typically 1 Hz)
+        -:   98:    ** to use it as the Major Frame synchronization source
+        -:   99:    */
+        8:  100:    Status = CFE_TIME_RegisterSynchCallback((CFE_TIME_SynchCallbackPtr_t)&SCH_MajorFrameCallback);
+        8:  101:    if (Status == CFE_SUCCESS)
+        -:  102:    {
+        -:  103:        /*
+        -:  104:        ** Start the Minor Frame Timer with an extended delay to allow a Major Frame Sync
+        -:  105:        ** to start processing.  If the Major Frame Sync fails to arrive, then we will
+        -:  106:        ** start when this timer expires and synch ourselves to the MET clock.
+        -:  107:        */
+        6:  108:        Status = OS_TimerSet(SCH_AppData.TimerId, SCH_STARTUP_PERIOD, 0);
+        -:  109:    }
+        -:  110:
+        8:  111:    return Status;
+        -:  112:
+        -:  113:} /* End of SH_CustomLateInit() */
+        -:  114:
+        -:  115:
+        -:  116:/*******************************************************************
+        -:  117:**
+        -:  118:** SCH_CustomGetCurrentSlotNumber
+        -:  119:**
+        -:  120:** NOTE: For complete prolog information, see 'sch_custom.h'
+        -:  121:********************************************************************/
+        -:  122:
+       12:  123:uint32 SCH_CustomGetCurrentSlotNumber(void)
+        -:  124:{
+        -:  125:    uint32  CurrentSlot;
+        -:  126:    
+       12:  127:    if (SCH_AppData.SyncToMET != SCH_NOT_SYNCHRONIZED)
+        -:  128:    {
+        3:  129:        CurrentSlot = SCH_GetMETSlotNumber();
+        -:  130:        
+        -:  131:        /* 
+        -:  132:        ** If we are only concerned with synchronizing the minor frames to an MET,
+        -:  133:        ** then we need to adjust the current slot by whatever MET time is prevalent
+        -:  134:        ** when the Major Frame Signal is received.
+        -:  135:        ** If we are synchronizing the Major Frame, then, by definition, LastSyncMETSlot
+        -:  136:        ** would be a zero and the current slot would be appropriate.
+        -:  137:        */
+        3:  138:        if (CurrentSlot < SCH_AppData.LastSyncMETSlot)
+        -:  139:        {
+        1:  140:            CurrentSlot = CurrentSlot + SCH_TOTAL_SLOTS - SCH_AppData.LastSyncMETSlot;
+        -:  141:        }
+        -:  142:        else
+        -:  143:        {
+        2:  144:            CurrentSlot = CurrentSlot - SCH_AppData.LastSyncMETSlot;
+        -:  145:        }
+        -:  146:    }
+        -:  147:    else
+        -:  148:    {
+        9:  149:        CurrentSlot = SCH_AppData.MinorFramesSinceTone;
+        -:  150:    }
+        -:  151:    
+       12:  152:    return CurrentSlot;
+        -:  153:} /* End of SH_CustomGetCurrentSlotNumber() */
+        -:  154:
+        -:  155:/*******************************************************************
+        -:  156:**
+        -:  157:** SCH_CustomCleanup
+        -:  158:**
+        -:  159:** NOTE: For complete prolog information, see 'sch_custom.h'
+        -:  160:********************************************************************/
+        -:  161:
+        8:  162:void SCH_CustomCleanup(void)
+        -:  163:{
+        -:  164:    /* unregister the TIME callback for the major frame */
+        8:  165:    CFE_TIME_UnregisterSynchCallback((CFE_TIME_SynchCallbackPtr_t)&SCH_MajorFrameCallback);
+        -:  166:
+        8:  167:} /* End of SH_CustomCleanup() */
+        -:  168:
+        -:  169:
+        -:  170:/*******************************************************************
+        -:  171:**
+        -:  172:** SCH_GetMETSlotNumber
+        -:  173:**
+        -:  174:** NOTE: For complete prolog information, see above
+        -:  175:********************************************************************/
+        -:  176:
+       11:  177:uint32 SCH_GetMETSlotNumber(void)
+        -:  178:{
+       11:  179:    uint32 SubSeconds = 0;
+        -:  180:    uint32 MicroSeconds;
+        -:  181:    uint32 Remainder;
+        -:  182:    uint32 METSlot;
+        -:  183:    
+        -:  184:    /*
+        -:  185:    ** Use MET rather than current time to avoid time changes
+        -:  186:    */
+       11:  187:    SubSeconds = CFE_TIME_GetMETsubsecs();
+        -:  188:
+        -:  189:    /*
+        -:  190:    ** Convert sub-seconds to micro-seconds
+        -:  191:    */
+       11:  192:    MicroSeconds = CFE_TIME_Sub2MicroSecs(SubSeconds);
+        -:  193:
+        -:  194:    /*
+        -:  195:    ** Calculate schedule table slot number
+        -:  196:    */
+       11:  197:    METSlot = (MicroSeconds / SCH_NORMAL_SLOT_PERIOD);
+        -:  198:
+        -:  199:    /*
+        -:  200:    ** Check to see if close enough to round up to next slot
+        -:  201:    */
+       11:  202:    Remainder = MicroSeconds - (METSlot * SCH_NORMAL_SLOT_PERIOD);
+        -:  203:    
+        -:  204:    /*
+        -:  205:    ** Add one more microsecond and see if it is sufficient to add another slot
+        -:  206:    */
+       11:  207:    Remainder += 1;
+       11:  208:    METSlot += (Remainder / SCH_NORMAL_SLOT_PERIOD);
+        -:  209:    
+        -:  210:    /*
+        -:  211:    ** Check to see if the Current Slot number needs to roll over
+        -:  212:    */
+       11:  213:    if (METSlot == SCH_TOTAL_SLOTS)
+        -:  214:    {
+        1:  215:        METSlot = 0;
+        -:  216:    }
+        -:  217:    
+       11:  218:    return METSlot;
+        -:  219:    
+        -:  220:}
+        -:  221:
+        -:  222:
+        -:  223:/*******************************************************************
+        -:  224:**
+        -:  225:** SCH_MajorFrameCallback
+        -:  226:**
+        -:  227:** NOTE: For complete prolog information, see above
+        -:  228:********************************************************************/
+        -:  229:
+        4:  230:void SCH_MajorFrameCallback(void)
+        -:  231:{
+        -:  232:    /*
+        -:  233:    ** Synchronize slot zero to the external tone signal
+        -:  234:    */
+        -:  235:    uint16 StateFlags;
+        -:  236:
+        -:  237:    /*
+        -:  238:    ** If cFE TIME is in FLYWHEEL mode, then ignore all synchronization signals
+        -:  239:    */
+        4:  240:    StateFlags = CFE_TIME_GetClockInfo();
+        -:  241:    
+        4:  242:    if ((StateFlags & CFE_TIME_FLAG_FLYING) == 0)
+        -:  243:    {
+        -:  244:        /*
+        -:  245:        ** Determine whether the major frame is noisy or not
+        -:  246:        **
+        -:  247:        ** Conditions below are as follows:
+        -:  248:        **    If we are NOT synchronized to the MET (i.e. - the Minor Frame timer
+        -:  249:        **    has an acceptable resolution), then the Major Frame signal should
+        -:  250:        **    only occur in the last slot of the schedule table.
+        -:  251:        **
+        -:  252:        **    If we ARE synchronized to the MET (i.e. - the Minor Frame timer is
+        -:  253:        **    not as good as we would like), then the Major Frame signal should
+        -:  254:        **    occur within a window of slots at the end of the table.
+        -:  255:        */
+       13:  256:        if (((SCH_AppData.SyncToMET == SCH_NOT_SYNCHRONIZED) && 
+        2:  257:             (SCH_AppData.MinorFramesSinceTone != SCH_TIME_SYNC_SLOT)) ||
+        2:  258:            ((SCH_AppData.SyncToMET == SCH_MINOR_SYNCHRONIZED) && 
+        1:  259:             (SCH_AppData.NextSlotNumber != 0) && 
+        1:  260:             (SCH_AppData.NextSlotNumber < 
+        1:  261:              (SCH_TOTAL_SLOTS - SCH_AppData.WorstCaseSlotsPerMinorFrame - 1))))
+        -:  262:        {
+        -:  263:            /*
+        -:  264:            ** Count the number of consecutive noisy major frames and the Total number
+        -:  265:            ** of noisy major frames.  Also, indicate in telemetry that this particular
+        -:  266:            ** Major Frame signal is considered noisy.
+        -:  267:            */
+        3:  268:            SCH_AppData.UnexpectedMajorFrame = TRUE;
+        3:  269:            SCH_AppData.UnexpectedMajorFrameCount++;
+        -:  270:
+        -:  271:            /*
+        -:  272:            ** If the Major Frame is not being ignored yet, then increment the consecutive noisy
+        -:  273:            ** Major Frame counter.
+        -:  274:            */
+        3:  275:            if (!SCH_AppData.IgnoreMajorFrame)
+        -:  276:            {
+        3:  277:                SCH_AppData.ConsecutiveNoisyFrameCounter++;
+        -:  278:                
+        -:  279:                /*
+        -:  280:                ** If the major frame is too "noisy", then send event message and ignore future signals
+        -:  281:                */
+        3:  282:                if (SCH_AppData.ConsecutiveNoisyFrameCounter >= SCH_MAX_NOISY_MAJORF)
+        -:  283:                {
+        2:  284:                    SCH_AppData.IgnoreMajorFrame = TRUE;
+        -:  285:                }
+        -:  286:            }
+        -:  287:        }
+        -:  288:        else /* Major Frame occurred when expected */
+        -:  289:        {
+        1:  290:            SCH_AppData.UnexpectedMajorFrame = FALSE;
+        1:  291:            SCH_AppData.ConsecutiveNoisyFrameCounter = 0;
+        -:  292:        }
+        -:  293:        
+        -:  294:        /*
+        -:  295:        ** Ignore this callback if SCH has detected a noisy Major Frame Synch signal
+        -:  296:        */
+        4:  297:        if (SCH_AppData.IgnoreMajorFrame == FALSE)
+        -:  298:        {
+        -:  299:            /*
+        -:  300:            ** Stop Minor Frame Timer (which should be waiting for an unusually long
+        -:  301:            ** time to allow the Major Frame source to resynchronize timing) and start
+        -:  302:            ** it again with nominal Minor Frame timing
+        -:  303:            */
+        2:  304:            OS_TimerSet(SCH_AppData.TimerId, SCH_NORMAL_SLOT_PERIOD, SCH_NORMAL_SLOT_PERIOD);
+        -:  305:    
+        -:  306:            /*
+        -:  307:            ** Increment Major Frame process counter
+        -:  308:            */
+        2:  309:            SCH_AppData.ValidMajorFrameCount++;
+        -:  310:    
+        -:  311:            /*
+        -:  312:            ** Set current slot = zero to synchronize activities
+        -:  313:            */
+        2:  314:            SCH_AppData.MinorFramesSinceTone = 0;
+        -:  315:            
+        -:  316:            /*
+        -:  317:            ** Major Frame Source is now from CFE TIME
+        -:  318:            */
+        2:  319:            SCH_AppData.MajorFrameSource = SCH_MAJOR_FS_CFE_TIME;
+        -:  320:            
+        -:  321:            /* Clear any Major Frame In Sync with MET flags */
+        -:  322:            /* But keep the Minor Frame In Sync with MET flag if it is set */
+        2:  323:            SCH_AppData.SyncToMET &= SCH_MINOR_SYNCHRONIZED;
+        -:  324:            
+        -:  325:            /*
+        -:  326:            ** Give "wakeup SCH" semaphore
+        -:  327:            */
+        2:  328:            OS_BinSemGive(SCH_AppData.TimeSemaphore);
+        -:  329:        }
+        -:  330:    }
+        -:  331:
+        -:  332:    /*
+        -:  333:    ** We should assume that the next Major Frame will be in the same MET slot as this 
+        -:  334:    */
+        4:  335:    SCH_AppData.LastSyncMETSlot = SCH_GetMETSlotNumber();
+        -:  336:
+        4:  337:    return;
+        -:  338:
+        -:  339:} /* End of SCH_MajorFrameCallback() */
+        -:  340:
+        -:  341:
+        -:  342:/*******************************************************************
+        -:  343:**
+        -:  344:** SCH_MinorFrameCallback
+        -:  345:**
+        -:  346:** NOTE: For complete prolog information, see above
+        -:  347:********************************************************************/
+        -:  348:
+        5:  349:void SCH_MinorFrameCallback(uint32 TimerId)
+        -:  350:{
+        -:  351:    uint32  CurrentSlot;
+        -:  352:    
+        -:  353:    /*
+        -:  354:    ** If this is the very first timer interrupt, then the initial 
+        -:  355:    ** Major Frame Synchronization timed out.  This can occur when
+        -:  356:    ** either the signal is not arriving or the clock has gone into
+        -:  357:    ** FLYWHEEL mode.  We should synchronize to the MET time instead.
+        -:  358:    */
+        5:  359:    if (SCH_AppData.MajorFrameSource == SCH_MAJOR_FS_NONE)
+        -:  360:    {
+        2:  361:        SCH_AppData.MajorFrameSource = SCH_MAJOR_FS_MINOR_FRAME_TIMER;
+        -:  362:        
+        -:  363:        /* Synchronize timing to MET */
+        2:  364:        SCH_AppData.SyncToMET |= SCH_PENDING_MAJOR_SYNCH;
+        2:  365:        SCH_AppData.SyncAttemptsLeft = SCH_MAX_SYNC_ATTEMPTS;
+        2:  366:        SCH_AppData.LastSyncMETSlot = 0;
+        -:  367:    }
+        -:  368:    
+        -:  369:    /* If attempting to synchronize the Major Frame with MET, then wait for zero subsecs before starting */
+        8:  370:    if (((SCH_AppData.SyncToMET & SCH_PENDING_MAJOR_SYNCH) != 0) &&
+        2:  371:        (SCH_AppData.MajorFrameSource == SCH_MAJOR_FS_MINOR_FRAME_TIMER))
+        -:  372:    {
+        -:  373:        /* Whether we have found the Major Frame Start or not, wait another slot */
+        2:  374:        OS_TimerSet(SCH_AppData.TimerId, SCH_NORMAL_SLOT_PERIOD, SCH_NORMAL_SLOT_PERIOD);
+        -:  375:
+        -:  376:        /* Determine if this was the last attempt */
+        2:  377:        SCH_AppData.SyncAttemptsLeft--;
+        -:  378:
+        2:  379:        CurrentSlot = SCH_GetMETSlotNumber();
+        2:  380:        if ((CurrentSlot != 0) && (SCH_AppData.SyncAttemptsLeft > 0))
+        -:  381:        {
+        1:  382:            return;
+        -:  383:        }
+        -:  384:        else  /* Synchronization achieved (or at least, aborted) */
+        -:  385:        {
+        -:  386:            /* Clear the pending synchronization flag and set the "Major In Sync" flag */
+        1:  387:            SCH_AppData.SyncToMET &= ~SCH_PENDING_MAJOR_SYNCH;
+        1:  388:            SCH_AppData.SyncToMET |= SCH_MAJOR_SYNCHRONIZED;
+        -:  389:            
+        -:  390:            /* CurrentSlot should be equal to zero.  If not, this is the best estimate we can use */
+        1:  391:            SCH_AppData.MinorFramesSinceTone = CurrentSlot;
+        1:  392:            SCH_AppData.LastSyncMETSlot = 0;
+        -:  393:        }
+        -:  394:    }
+        -:  395:    else
+        -:  396:    {
+        -:  397:        /*
+        -:  398:        ** If we are already synchronized with MET or don't care to be, increment current slot
+        -:  399:        */
+        3:  400:        SCH_AppData.MinorFramesSinceTone++;
+        -:  401:    }
+        -:  402:
+        4:  403:    if (SCH_AppData.MinorFramesSinceTone >= SCH_TOTAL_SLOTS)
+        -:  404:    {
+        -:  405:        /*
+        -:  406:        ** If we just rolled over from the last slot to slot zero,
+        -:  407:        ** It means that the Major Frame Callback did not cancel the
+        -:  408:        ** "long slot" timer that was started in the last slot
+        -:  409:        **
+        -:  410:        ** It also means that we may now need a "short slot"
+        -:  411:        ** timer to make up for the previous long one
+        -:  412:        */
+        1:  413:        OS_TimerSet(SCH_AppData.TimerId, SCH_SHORT_SLOT_PERIOD, SCH_NORMAL_SLOT_PERIOD);
+        -:  414:        
+        1:  415:        SCH_AppData.MinorFramesSinceTone = 0;
+        -:  416:        
+        1:  417:        SCH_AppData.MissedMajorFrameCount++;
+        -:  418:    }
+        -:  419:
+        -:  420:    /*
+        -:  421:    ** Determine the timer delay value for the next slot
+        -:  422:    */
+        4:  423:    if (SCH_AppData.MinorFramesSinceTone == SCH_TIME_SYNC_SLOT)
+        -:  424:    {
+        -:  425:        /*
+        -:  426:        ** Start "long slot" timer (should be stopped by Major Frame Callback)
+        -:  427:        */
+        1:  428:        OS_TimerSet(SCH_AppData.TimerId, SCH_SYNC_SLOT_PERIOD, 0);
+        -:  429:    }
+        -:  430:    
+        -:  431:    /*
+        -:  432:    ** Note that if this is neither the first "short" minor frame nor the
+        -:  433:    ** last "long" minor frame, the timer is not modified.  This should
+        -:  434:    ** provide more stable timing than introducing the dither associated
+        -:  435:    ** with software response times to timer interrupts.
+        -:  436:    */
+        -:  437:
+        -:  438:    /*
+        -:  439:    ** Give "wakeup SCH" semaphore
+        -:  440:    */
+        4:  441:    OS_BinSemGive(SCH_AppData.TimeSemaphore);
+        -:  442:
+        4:  443:    return;
+        -:  444:
+        -:  445:} /* End of SCH_MinorFrameCallback() */
+        -:  446:
+        -:  447:
+        -:  448:/************************/
+        -:  449:/*  End of File Comment */
+        -:  450:/************************/
+        -:  451:
