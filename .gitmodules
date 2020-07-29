@@ -45,6 +45,3 @@
 [submodule "apps/HK"]
 	path = apps/hk
 	url = https://github.com/McMasterNEUDOSE/HK.git
-[submodule "apps/to"]
-	path = apps/to
-	url = https://github.com/McMasterNEUDOSE/CFS_TO.git
