@@ -51,6 +51,3 @@
 [submodule "apps/to"]
 	path = apps/to
 	url = https://github.com/McMasterNEUDOSE/CFS_TO.git
-[submodule "apps/io_lib"]
-	path = apps/io_lib
-	url = https://github.com/McMasterNEUDOSE/CFS_IO_LIB.git
