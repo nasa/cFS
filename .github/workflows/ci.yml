@@ -3,7 +3,7 @@ on: pull_request
 
 jobs:
     lint_test:
-        runs-on ubuntu-latest
+        runs-on: ubuntu-latest
         name: Code check
         steps:
         - uses: actions/checkout@v2
