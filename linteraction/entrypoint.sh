@@ -5,7 +5,7 @@ for folder in  "${folders[@]}"
 do
     echo ${folder}
     if [[ -d ${folder} ]]; then
-	command="cpplint --recursive ${folder}"
+	command="cpplint --filter=-whitespace,-readability,-legal --recursive --exclude=apps/libcsp --exclude=apps/*/fsw/unit_test ${folder}"
 	echo ${command}
 	if ${command} | grep "error"; then
 	    echo "::error ::Review code formatting"
