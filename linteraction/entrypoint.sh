@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-folders={"apps"}
+folders=("apps")
 for folder in  "${folders[@]}"
 do
     echo ${folder}
