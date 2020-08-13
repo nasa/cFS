@@ -40,17 +40,28 @@ See related repositories for current open issues.
 
 ## Major future work
 
+### Caelum (aka 7.0) Major release development plans (Targeting end of 2020 for release candidate)
+
   - Certification framework with automated build verification tests of framework requirements
     - Executable on real/emulated/simulated/ or dockerized targets
-    - Add PSP coverage testing framework
-    - Add PSP and cFE functional testing framework for APIs
-    - Scrub OSAL coverage and functional tests 
+    - Add PSP coverage testing framework (nasa/psp#184, nasa/psp#174)
+    - Add PSP and cFE functional testing framework for APIs  (nasa/cfe#779)
+    - Scrub OSAL coverage and functional tests
+    - Scrub cFE coverage tests
+    - Add cFE API functional tests
+    - NOTE: Command verificaiton pending tool open source release
+  - Documentation (updated traceability, APIs/ICDs, general update)
+  - Framework for mission customization of core services
+    - Header customization support (nasa/cFE#726)
+  - Remove deprecated code
+  - Cmd/Tlm structure scrub for alignment/padding/consistency
+  - Library query and reporting and ES resource management (nasa/cFE#28, nasa/cFE#797)
+
+### Other (may not make 7.0)
   - Open source automated build verification execution framework for emulated targets (likely docker based)
-  - Provide capability for mission customization of core services
   - Deployment quality of life improvements (configuration, transition to CMake source selection vs compiler directives)
   - Update OS support (VxWorks 7, RTEMS 5)
   - Time services refactor
-  - Documentation (updated traceability, APIs/ICDs, general update)
   - Symmetric multi-processing APIs
   - Electronic Data Sheet integration option and improvements to packet layouts for portability/consistency
   - Toolchain updates
