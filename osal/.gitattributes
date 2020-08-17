@@ -1,0 +1,6 @@
+*.h linguist-language=c
+
+*.css linguist-documentation=true
+*.htm linguist-documentation=true
+*.html linguist-documentation=true
+*.prc linguist-documentation=true
