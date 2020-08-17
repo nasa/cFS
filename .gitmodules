@@ -6,10 +6,6 @@
 	path = osal
 	url = https://github.com/nasa/osal.git
 	branch = master
-[submodule "psp"]
-	path = psp
-	url = https://github.com/nasa/PSP.git
-        branch = master
 [submodule "apps/ci_lab"]
 	path = apps/ci_lab
 	url = https://github.com/McMasterNEUDOSE/ci_lab.git
