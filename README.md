@@ -5,7 +5,7 @@
 
 # Core Flight System - BUNDLE
 
-The Core Flight System (cFS) is a generic flight software architcture framework used on flagship spacecraft, human spacecraft, cubesats, and Raspberry Pi.  This repository is a bundle of submodules that make up the cFS framework.  Note the "lab" apps are intended as examples only, and enable this bundle to build, execute, receive commands, and send telemetry.  This is not a flight distribution, which is typically made up of the cFE, OSAL, PSP, and a selection of flight apps that correspond to specific mission requirements.
+The Core Flight System (cFS) is a generic flight software architecture framework used on flagship spacecraft, human spacecraft, cubesats, and Raspberry Pi.  This repository is a bundle of submodules that make up the cFS framework.  Note the "lab" apps are intended as examples only, and enable this bundle to build, execute, receive commands, and send telemetry.  This is not a flight distribution, which is typically made up of the cFE, OSAL, PSP, and a selection of flight apps that correspond to specific mission requirements.
 
 This bundle has not been fully verified as an operational system, and is provided as a starting point vs an end product.  Testing of this bundle consists of building, executing, sending setup commands and verifying receipt of telemetry.  Unit testing is also run, but extensive analysis is not performed.  All verification and validation per mission requirements is the responsibility of the mission (although attempts are made in the cFS Framework to provide a testing framework to facilitate the process).
 
@@ -52,7 +52,7 @@ See related repositories for current open issues.
     - Scrub OSAL coverage and functional tests
     - Scrub cFE coverage tests
     - Add cFE API functional tests
-    - NOTE: Command verificaiton pending tool open source release
+    - NOTE: Command verification pending tool open source release
   - Documentation (updated traceability, APIs/ICDs, general update)
   - Framework for mission customization of core services
     - Header customization support (nasa/cFE#726)
