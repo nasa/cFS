@@ -1,0 +1,165 @@
+name: Documentation and Guides
+
+# Run this workflow every time a new commit pushed to your repository
+on: push
+
+env:
+  SIMULATION: native
+
+jobs:
+
+  build-docs:
+    # Name the Job
+    name: cFE Documentation
+    # Set the type of machine to run on
+    runs-on: ubuntu-18.04
+
+    steps:
+      - name: Install Dependencies
+        run: sudo apt-get install doxygen graphviz -y
+
+      # Checks out a copy of your repository on the ubuntu-latest machine
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      # Setup the build system
+      - name: Copy Files
+        run: |
+          cp ./cfe/cmake/Makefile.sample Makefile
+          cp -r ./cfe/cmake/sample_defs sample_defs
+
+      # Setup the build system
+      - name: Make Prep
+        run: make prep
+
+      - name: Build Docs
+        run: |
+          make doc > make_doc_stdout.txt 2> make_doc_stderr.txt
+
+      - name: Archive Users Guide Build Logs
+        uses: actions/upload-artifact@v2
+        with:
+          name: cFS Docs Artifacts
+          path: |
+            make_doc_stdout.txt
+            make_doc_stderr.txt
+
+      - name: Error Check
+        run: |
+          if [[ -s make_doc_stderr.txt ]]; then
+            cat make_doc_stderr.txt
+            exit -1
+          fi
+
+  build-usersguide:
+    # Name the Job
+    name: Users Guide
+    # Set the type of machine to run on
+    runs-on: ubuntu-18.04
+
+    steps:
+      # Checks out a copy of your repository on the ubuntu-latest machine
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      # Setup the build system
+      - name: Copy Files
+        run: |
+          cp ./cfe/cmake/Makefile.sample Makefile
+          cp -r ./cfe/cmake/sample_defs sample_defs
+
+      # Setup the build system
+      - name: Make Prep
+        run: make prep
+
+      - name: Install Dependencies
+        run: sudo apt-get install doxygen graphviz -y
+
+      - name: Build Usersguide
+        run: |
+          make usersguide > make_usersguide_stdout.txt 2> make_usersguide_stderr.txt
+          mv build/doc/warnings.log usersguide_warnings.log
+
+      - name: Archive Users Guide Build Logs
+        uses: actions/upload-artifact@v2
+        with:
+          name: Users Guide Artifacts
+          path: |
+            make_usersguide_stdout.txt
+            make_usersguide_stderr.txt
+            usersguide_warnings.log
+
+
+      - name: Error Check
+        run: |
+          if [[ -s make_usersguide_stderr.txt ]]; then
+            cat make_usersguide_stderr.txt
+            exit -1
+          fi
+
+      - name: Warning Check
+        run: |
+          if [[ -s build/doc/warnings.log ]]; then
+            cat build/doc/warnings.log
+            exit -1
+          fi
+
+  build-osalguide:
+    # Name the Job
+    name: Osal Guide
+    # Set the type of machine to run on
+    runs-on: ubuntu-18.04
+
+    steps:
+      # Checks out a copy of your repository on the ubuntu-latest machine
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      # Setup the build system
+      - name: Copy Files
+        run: |
+          cp ./cfe/cmake/Makefile.sample Makefile
+          cp -r ./cfe/cmake/sample_defs sample_defs
+
+      # Setup the build system
+      - name: Make Prep
+        run: make prep
+
+      - name: Install Dependencies
+        run: sudo apt-get install doxygen graphviz -y
+
+      - name: Build OSAL Guide
+        run: |
+          make osalguide > make_osalguide_stdout.txt 2> make_osalguide_stderr.txt
+          mv build/doc/warnings.log osalguide_warnings.log
+
+
+      - name: Archive Osal Guide Build Logs
+        uses: actions/upload-artifact@v2
+        with:
+          name: OSAL Guide Artifacts
+          path: |
+            make_osalguide_stdout.txt
+            make_osalguide_stderr.txt
+            osalguide_warnings.log
+
+
+      - name: Error Check
+        run: |
+          if [[ -s make_osalguide_stderr.txt ]]; then
+            cat make_osalguide_stderr.txt
+            exit -1
+          fi
+
+      - name: Warning Check
+        run: |
+          if [[ -s build/doc/warnings.log ]]; then
+            cat build/doc/warnings.log
+            exit -1
+          fi

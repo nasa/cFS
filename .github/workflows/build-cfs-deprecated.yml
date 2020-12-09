@@ -1,0 +1,141 @@
+name: "Deprecated Build, Test, and Run"
+
+# Run this workflow every time a new commit pushed to your repository
+on: push
+
+env:
+  SIMULATION: native
+  ENABLE_UNIT_TESTS: true
+  OMIT_DEPRECATED: false
+
+jobs:
+
+  # Set the job key. The key is displayed as the job name
+  # when a job name is not provided
+
+  build-cfs:
+    name: Build
+    runs-on: ubuntu-18.04
+
+    strategy:
+      matrix:
+        buildtype: [debug, release]
+
+    # Set the type of machine to run on
+    env:
+      BUILDTYPE: ${{ matrix.buildtype }}
+
+    steps:
+      # Checks out a copy of your repository on the ubuntu-latest machine
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      # Setup the build system
+      - name: Copy Files
+        run: |
+          cp ./cfe/cmake/Makefile.sample Makefile
+          cp -r ./cfe/cmake/sample_defs sample_defs
+
+      # Setup the build system
+      - name: Make Prep
+        run: make prep
+
+      - name: Make
+        run: make
+
+  test-cfs:
+    name: Test
+    needs: build-cfs
+    runs-on: ubuntu-18.04
+
+    strategy:
+      matrix:
+        buildtype: [debug, release]
+
+    # Set the type of machine to run on
+    env:
+      BUILDTYPE: ${{ matrix.buildtype }}
+
+    steps:
+      - name: Install Dependencies
+        run: sudo apt-get install lcov -y
+
+      # Checks out a copy of your repository on the ubuntu-latest machine
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      # Setup the build system
+      - name: Copy Files
+        run: |
+          cp ./cfe/cmake/Makefile.sample Makefile
+          cp -r ./cfe/cmake/sample_defs sample_defs
+
+      # Setup the build system
+      - name: Make
+        run: make
+
+      - name: Run Tests
+        run: make test
+
+      - name: Check Coverage
+        run: make lcov
+
+  run-cfs:
+    name: Run
+    needs: build-cfs
+    runs-on: ubuntu-18.04
+
+    strategy:
+      matrix:
+        buildtype: [debug, release]
+
+    # Set the type of machine to run on
+    env:
+      BUILDTYPE: ${{ matrix.buildtype }}
+
+    steps:
+      # Checks out a copy of your repository on the ubuntu-latest machine
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      # Setup the build system
+      - name: Copy sample_defs
+        run: |
+          cp ./cfe/cmake/Makefile.sample Makefile
+          cp -r ./cfe/cmake/sample_defs sample_defs
+
+      # Setup the build system
+      - name: Make Install
+        run: make install
+
+      - name: List cpu1
+        run: ls build/exe/cpu1/
+
+      - name: Run cFS
+        run: |
+          ./core-cpu1 > cFS_startup_cpu1.txt &
+          sleep 30
+          ../host/cmdUtil --endian=LE --pktid=0x1806 --cmdcode=2 --half=0x0002
+        working-directory: ./build/exe/cpu1/
+
+      - name: Archive cFS Startup Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: cFS-startup-log-deprecated-false-${{ matrix.buildtype }}
+          path: ./build/exe/cpu1/cFS_startup_cpu1.txt
+
+      - name: Check for cFS Warnings
+        run: |
+          if [[ -n $(grep -i "warn\|err\|fail" cFS_startup_cpu1.txt) ]]; then
+                  echo "Must resolve warn|err|fail in cFS startup before submitting a pull request"
+                  echo ""
+                  grep -i 'warn\|err\|fail' cFS_startup_cpu1.txt
+                  exit -1
+          fi
+        working-directory: ./build/exe/cpu1/
