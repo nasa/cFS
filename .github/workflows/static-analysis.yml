@@ -1,25 +1,16 @@
 name: Static Analysis
 
 # Run this workflow every time a new commit pushed to your repository
-on: push
-
-env:
-  SIMULATION: native
+on: [push, pull_request]
 
 jobs:
-
-  # Set the job key. The key is displayed as the job name
-  # when a job name is not provided
 
   static-analysis:
     name: Run cppcheck
     runs-on: ubuntu-18.04
 
     strategy:
-<<<<<<< HEAD
-=======
       fail-fast: false
->>>>>>> aeda0dd... remove 'quiet' from cfe, osal, and psp checks
       matrix:
         cppcheck: [bundle, cfe, osal, psp]
 

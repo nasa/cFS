@@ -1,7 +1,7 @@
 name: Build, Test, and Run [OMIT_DEPRECATED=true]
 
-# Run this workflow every time a new commit pushed to your repository
-on: push
+# Run this workflow every time a new commit pushed to your repository or for new pull requests
+on: [push, pull_request]
 
 env:
   SIMULATION: native
@@ -14,6 +14,7 @@ jobs:
     runs-on: ubuntu-18.04
 
     strategy:
+      fail-fast: false
       matrix:
         buildtype: [debug, release]
 
@@ -22,7 +23,7 @@ jobs:
       BUILDTYPE: ${{ matrix.buildtype }}
 
     steps:
-      # Checks out a copy of your repository on the ubuntu-latest machine
+      # Check out the cfs bundle
       - name: Checkout code
         uses: actions/checkout@v2
         with:
@@ -48,6 +49,7 @@ jobs:
     needs: build-cfs
 
     strategy:
+      fail-fast: false
       matrix:
         buildtype: [debug, release]
 
@@ -89,6 +91,7 @@ jobs:
     runs-on: ubuntu-18.04
 
     strategy:
+      fail-fast: false
       matrix:
         buildtype: [debug, release]
 
