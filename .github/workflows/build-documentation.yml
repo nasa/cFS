@@ -103,8 +103,8 @@ jobs:
 
       - name: Warning Check
         run: |
-          if [[ -s build/doc/warnings.log ]]; then
-            cat build/doc/warnings.log
+          if [[ -s usersguide_warnings.log ]]; then
+            cat usersguide_warnings.log
             exit -1
           fi
 
@@ -159,7 +159,7 @@ jobs:
 
       - name: Warning Check
         run: |
-          if [[ -s build/doc/warnings.log ]]; then
-            cat build/doc/warnings.log
+          if [[ -s osalguide_warnings.log ]]; then
+            cat osalguide_warnings.log
             exit -1
           fi
