@@ -1,7 +1,12 @@
 name: Documentation and Guides
 
-# Run this workflow every time a new commit pushed to your repository or for new pull requests
-on: [push, pull_request]
+# Run every time a new commit pushed to main or for pull requests
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
 
 env:
   SIMULATION: native
