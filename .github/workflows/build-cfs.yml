@@ -1,23 +1,25 @@
 name: Build, Test, and Run [OMIT_DEPRECATED=true]
 
-# Run this workflow every time a new commit pushed to your repository
-on: push
+# Run every time a new commit pushed to main or for pull requests
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
 
 env:
   SIMULATION: native
-  ENABLE_UNIT_TESTS: true
   OMIT_DEPRECATED: true
 
 jobs:
-
-  # Set the job key. The key is displayed as the job name
-  # when a job name is not provided
 
   build-cfs:
     name: Build
     runs-on: ubuntu-18.04
 
     strategy:
+      fail-fast: false
       matrix:
         buildtype: [debug, release]
 
@@ -26,7 +28,7 @@ jobs:
       BUILDTYPE: ${{ matrix.buildtype }}
 
     steps:
-      # Checks out a copy of your repository on the ubuntu-latest machine
+      # Check out the cfs bundle
       - name: Checkout code
         uses: actions/checkout@v2
         with:
@@ -47,16 +49,20 @@ jobs:
 
   test-cfs:
     name: Test
-    needs: build-cfs
     runs-on: ubuntu-18.04
 
+    needs: build-cfs
+
     strategy:
+      fail-fast: false
       matrix:
         buildtype: [debug, release]
 
     # Set the type of machine to run on
     env:
       BUILDTYPE: ${{ matrix.buildtype }}
+      ENABLE_UNIT_TESTS: true
+
 
     steps:
       - name: Install Dependencies
@@ -90,6 +96,7 @@ jobs:
     runs-on: ubuntu-18.04
 
     strategy:
+      fail-fast: false
       matrix:
         buildtype: [debug, release]
 
