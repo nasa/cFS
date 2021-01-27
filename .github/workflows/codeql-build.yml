@@ -1,0 +1,59 @@
+name: "CodeQL Analysis"
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+env:
+  SIMULATION: native
+  ENABLE_UNIT_TESTS: true
+  OMIT_DEPRECATED: true
+
+jobs:
+
+  CodeQL-Build:
+
+    strategy:
+      matrix:
+        buildtype: [debug, release]
+
+    runs-on: ubuntu-18.04
+    env:
+        BUILDTYPE: ${{ matrix.buildtype }}
+    steps:
+      # Checks out a copy of your repository on the ubuntu-latest machine
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v1
+        with:
+         languages: c
+         config-file: ./.github/codeql/codeql-config.yml
+
+      # Setup the build system
+      - name: Copy sample_defs
+        run: |
+          cp ./cfe/cmake/Makefile.sample Makefile
+          cp -r ./cfe/cmake/sample_defs sample_defs
+
+      # Setup the build system
+      - name: Make Install
+        run: make install
+
+      - name: List cpu1
+        run: ls build/exe/cpu1/
+
+      - name: Run cFS
+        run: |
+          ./core-cpu1 > cFS_startup_cpu1.txt &
+          sleep 30
+          ../host/cmdUtil --endian=LE --pktid=0x1806 --cmdcode=2 --half=0x0002
+        working-directory: ./build/exe/cpu1/
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v1
