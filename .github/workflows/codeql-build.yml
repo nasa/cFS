@@ -10,23 +10,19 @@ env:
   SIMULATION: native
   ENABLE_UNIT_TESTS: true
   OMIT_DEPRECATED: true
+  BUILDTYPE: release
 
 jobs:
 
   CodeQL-Build:
-
-    strategy:
-      matrix:
-        buildtype: [debug, release]
-
     runs-on: ubuntu-18.04
-    env:
-        BUILDTYPE: ${{ matrix.buildtype }}
+    
     steps:
-      # Checks out a copy of your repository on the ubuntu-latest machine
+      # Checks out a copy of your repository
       - name: Checkout code
         uses: actions/checkout@v2
         with:
+          repository: nasa/cFS
           submodules: true
 
       - name: Initialize CodeQL
@@ -40,7 +36,7 @@ jobs:
         run: |
           cp ./cfe/cmake/Makefile.sample Makefile
           cp -r ./cfe/cmake/sample_defs sample_defs
-
+          
       # Setup the build system
       - name: Make Install
         run: make install
@@ -55,5 +51,6 @@ jobs:
           ../host/cmdUtil --endian=LE --pktid=0x1806 --cmdcode=2 --half=0x0002
         working-directory: ./build/exe/cpu1/
 
+     # Run CodeQL
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v1
