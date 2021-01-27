@@ -1,0 +1,5 @@
+name: "CodeQL Configuration File"
+
+queries:
+  - uses: security-and-quality
+  - uses: security-extended 
