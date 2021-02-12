@@ -2,8 +2,6 @@ name: "CodeQL Analysis"
 
 on:
   push:
-    branches:
-      - main
   pull_request:
 
 env:
@@ -20,6 +18,7 @@ jobs:
         buildtype: [debug, release]
 
     runs-on: ubuntu-18.04
+    timeout-minutes: 15
     env:
         BUILDTYPE: ${{ matrix.buildtype }}
     steps:
@@ -28,6 +27,11 @@ jobs:
         uses: actions/checkout@v2
         with:
           submodules: true
+          
+      - name: Check versions
+        run: |
+           git log -1 --pretty=oneline
+           git submodule
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v1
@@ -43,17 +47,8 @@ jobs:
 
       # Setup the build system
       - name: Make Install
-        run: make install
-
-      - name: List cpu1
-        run: ls build/exe/cpu1/
-
-      - name: Run cFS
-        run: |
-          ./core-cpu1 > cFS_startup_cpu1.txt &
-          sleep 30
-          ../host/cmdUtil --endian=LE --pktid=0x1806 --cmdcode=2 --half=0x0002
-        working-directory: ./build/exe/cpu1/
-
+        run: make 
+        
+      # Run CodeQL   
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v1
