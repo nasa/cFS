@@ -47,6 +47,6 @@ jobs:
       - name: Make Install
         run: make
 
-     # Run CodeQL
+      # Run CodeQL
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v1
