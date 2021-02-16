@@ -5,31 +5,27 @@ on:
   pull_request:
     branches:
       - main
-      
+
 env:
   SIMULATION: native
   ENABLE_UNIT_TESTS: true
   OMIT_DEPRECATED: true
+  BUILDTYPE: release
 
 jobs:
 
   CodeQL-Build:
-
-    strategy:
-      matrix:
-        buildtype: [debug, release]
-
     runs-on: ubuntu-18.04
     timeout-minutes: 15
-    env:
-        BUILDTYPE: ${{ matrix.buildtype }}
+
     steps:
-      # Checks out a copy of your repository on the ubuntu-latest machine
+      # Checks out a copy of your repository
       - name: Checkout code
         uses: actions/checkout@v2
         with:
+          repository: nasa/cFS
           submodules: true
-          
+
       - name: Check versions
         run: |
            git log -1 --pretty=oneline
@@ -38,8 +34,8 @@ jobs:
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v1
         with:
-         languages: c
-         config-file: ./.github/codeql/codeql-config.yml
+          languages: c
+          config-file: ./.github/codeql/codeql-config.yml
 
       # Setup the build system
       - name: Copy sample_defs
@@ -49,8 +45,8 @@ jobs:
 
       # Setup the build system
       - name: Make Install
-        run: make 
-        
-      # Run CodeQL   
+        run: make
+
+     # Run CodeQL
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v1
