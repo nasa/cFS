@@ -69,6 +69,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           submodules: true
+          persist-credentials: false
 
       # Setup the build system
       - name: Copy Files
@@ -112,6 +113,32 @@ jobs:
             exit -1
           fi
 
+      - name: PDF generation installs
+        if: ${{ github.event_name == 'push' }}
+        run: |
+          sudo apt-get install texlive-latex-base texlive-fonts-recommended texlive-fonts-extra texlive-latex-extra
+
+      - name: PDF generation
+        if: ${{ github.event_name == 'push' }}
+        run: |
+          set -x
+          mkdir deploy
+          cd ./build/doc/users_guide/latex
+          make > build.txt
+          mv refman.pdf $GITHUB_WORKSPACE/deploy/cFE_Users_Guide.pdf
+          # Could add pandoc and convert to github markdown
+          # pandoc CFE_Users_Guide.pdf -t gfm
+
+      - name: Deploy
+        if: ${{ github.event_name == 'push' }}
+        uses: JamesIves/github-pages-deploy-action@3.7.1
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: gh-pages
+          FOLDER: deploy
+          CLEAN: false
+          SINGLE_COMMIT: true
+
   build-osalguide:
     # Name the Job
     name: Osal Guide
@@ -124,6 +151,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           submodules: true
+          persist-credentials: false
 
       # Setup the build system
       - name: Copy Files
@@ -167,3 +195,29 @@ jobs:
             cat osalguide_warnings.log
             exit -1
           fi
+
+      - name: PDF generation installs
+        if: ${{ github.event_name == 'push' }}
+        run: |
+          sudo apt-get install texlive-latex-base texlive-fonts-recommended texlive-fonts-extra texlive-latex-extra
+
+      - name: PDF generation
+        if: ${{ github.event_name == 'push' }}
+        run: |
+          mkdir deploy
+          cd ./build/doc/osalguide/latex
+          make > build.txt
+          mv refman.pdf $GITHUB_WORKSPACE/deploy/OSAL_Users_Guide.pdf
+          # Could add pandoc and convert to github markdown
+          # pandoc CFE_Users_Guide.pdf -t gfm
+
+      - name: Deploy
+        if: ${{ github.event_name == 'push' }}
+        uses: JamesIves/github-pages-deploy-action@3.7.1
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: gh-pages
+          FOLDER: deploy
+          CLEAN: false
+          SINGLE_COMMIT: true
+
