@@ -5,8 +5,6 @@ So you'd like to contribute to cFS? Below are some guidelines for contributors t
 ## Table of Contents
 [Code of Conduct](#code-of-conduct)
 
-[Getting Started](#getting-started)
-
 [Ways to Contribute](#ways-to-contribute)
 * [Report Bugs](#report-bugs)
 * [Feature Requests](#feature-requests)
@@ -14,64 +12,10 @@ So you'd like to contribute to cFS? Below are some guidelines for contributors t
 * [Pull Requests](#pull-requests)
 * [Discussions and Questions](#discussions-and-questions)
 
+[Getting Started](#getting-started)
+
 ## Code of Conduct 
-
-### Our Pledge
-In the interest of fostering an open and welcoming environment, we as contributors and maintainers pledge to make participation in our project and our community a harassment-free experience for everyone, regardless of age, body size, disability, ethnicity, sex characteristics, gender identity and expression, level of experience, education, socio-economic status, nationality, personal appearance, race, religion, or sexual identity and orientation.
-
-### Our Standards
-Examples of behavior that contributes to creating a positive environment include:
-* Using welcoming and inclusive language
-* Being respectful of differing viewpoints and experiences
-* Gracefully accepting constructive criticism
-* Focusing on what is best for the community
-* Showing empathy towards other community members
-
-Examples of unacceptable behavior by participants include:
-* The use of sexualized language or imagery and unwelcome sexual attention or advances
-* Trolling, insulting/derogatory comments, and personal or political attacks
-* Public or private harassment
-* Publishing others’ private information, such as a physical or electronic address, without explicit permission
-* Other conduct which could reasonably be considered inappropriate in a professional setting
-
-### Our Responsibilities
-Project maintainers are responsible for clarifying the standards of acceptable behavior and are expected to take appropriate and fair corrective action in response to any instances of unacceptable behavior.
-
-Project maintainers have the right and responsibility to remove, edit, or reject comments, commits, code, wiki edits, issues, and other contributions that are not aligned to this Code of Conduct, or to ban temporarily or permanently any contributor for other behaviors that they deem inappropriate, threatening, offensive, or harmful.
-
-### Scope
-This Code of Conduct applies within all project spaces, and it also applies when an individual is representing the project or its community in public spaces. Examples of representing a project or community include using an official project e-mail address, posting via an official social media account, or acting as an appointed representative at an online or offline event. Representation of a project may be further defined and clarified by project maintainers.
-
-### Enforcement
-Instances of abusive, harassing, or otherwise unacceptable behavior may be reported by contacting the project team at cfs-program@lists.nasa.gov. All complaints will be reviewed and investigated and will result in a response that is deemed necessary and appropriate to the circumstances. The project team is obligated to maintain confidentiality with regard to the reporter of an incident. Further details of specific enforcement policies may be posted separately.
-
-Project maintainers who do not follow or enforce the Code of Conduct in good faith may face temporary or permanent repercussions as determined by other members of the project’s leadership.
-
-### Attribution
-This Code of Conduct is adapted from the Contributor Covenant, version 1.4, available at https://www.contributor-covenant.org/version/1/4/code-of-conduct.html
-
-## Getting Started
-Before you begin, search through the open issues in each submodule to ensure that your ticket is relevant, not redundant, nor in conflict with other tickets:
-* [cFS Bundle Issues](https://github.com/nasa/cfs/issues)
-* [cFE Issues](https://github.com/nasa/cfe/issues)
-* [OSAL Issues](https://github.com/nasa/osal/issues)
-* [PSP Issues](https://github.com/nasa/psp/issues)
-
-### Apps
-* [ci_lab Issues](https://github.com/nasa/ci_lab/tree/296d12cde4f90d112d1578cb584ddae200a2d282)
-* [sample_app Issues](https://github.com/nasa/sample_app/issues)
-* [sample_lib Issues](https://github.com/nasa/sample_lib/issues)
-* [sch_lab Issues](https://github.com/nasa/sch_lab/tree/882846bb778432c8780555b9d4bef45535584174)
-* [to_lab Issues](https://github.com/nasa/to_lab/tree/031de3dde3f5265e98d7cd2bc154d93bee8520b0)
-
-### Tools
-* [cFS-GroundSystem Issues](https://github.com/nasa/cFS-GroundSystem/issues)
-* [elf2cfetbl Issues](https://github.com/nasa/elf2cfetbl/tree/6762b1c3b455665dae57e35f14a50fe327830391)
-* [tblCRCTool Issues](https://github.com/nasa/tblCRCTool/tree/b02864ba56b12e00ab152225e3e8f9d6c039d48c)
-
-If your bug or feature hasn't been reported or requested before, create a new issue in the appropriate repository. If it you find a similar issue, please add a comment on it with your experience or input.
-
-Please ensure that your name is associated with your github profile before contributing.
+This project and everyone participating in it is governed by the [cFS Code of Conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to the project team at cfs-program@lists.nasa.gov.
 
 ## Ways to Contribute
 
@@ -150,3 +94,25 @@ Follow GitHub's fork-branch-pull request pattern.
 4. The project team will label the issue and evaluate the pull request in the weekly configuration control board (CCB) meeting. For more information, visit [The cFS CCB Process.](https://github.com/nasa/cFS/wiki/The-cFS-CCB-Process)
 5. If the pull request is accepted, it will be merged into cFS.
 
+## Getting Started
+Before you begin, search through the open issues in each submodule to ensure that your ticket is relevant, not redundant, nor in conflict with other tickets:
+* [cFS Bundle Issues](https://github.com/nasa/cfs/issues)
+* [cFE Issues](https://github.com/nasa/cfe/issues)
+* [OSAL Issues](https://github.com/nasa/osal/issues)
+* [PSP Issues](https://github.com/nasa/psp/issues)
+
+### Apps
+* [ci_lab Issues](https://github.com/nasa/ci_lab/tree/296d12cde4f90d112d1578cb584ddae200a2d282)
+* [sample_app Issues](https://github.com/nasa/sample_app/issues)
+* [sample_lib Issues](https://github.com/nasa/sample_lib/issues)
+* [sch_lab Issues](https://github.com/nasa/sch_lab/tree/882846bb778432c8780555b9d4bef45535584174)
+* [to_lab Issues](https://github.com/nasa/to_lab/tree/031de3dde3f5265e98d7cd2bc154d93bee8520b0)
+
+### Tools
+* [cFS-GroundSystem Issues](https://github.com/nasa/cFS-GroundSystem/issues)
+* [elf2cfetbl Issues](https://github.com/nasa/elf2cfetbl/tree/6762b1c3b455665dae57e35f14a50fe327830391)
+* [tblCRCTool Issues](https://github.com/nasa/tblCRCTool/tree/b02864ba56b12e00ab152225e3e8f9d6c039d48c)
+
+If your bug or feature hasn't been reported or requested before, create a new issue in the appropriate repository. If it you find a similar issue, please add a comment on it with your experience or input.
+
+Please ensure that your name is associated with your github profile before contributing.
