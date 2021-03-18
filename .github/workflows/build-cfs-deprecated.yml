@@ -1,11 +1,8 @@
 name: "Deprecated Build, Test, and Run"
 
-# Run every time a new commit pushed to main or for pull requests
+# Run every time a new commit pushed or for pull requests
 on:
   push:
-    branches:
-      - main
-
   pull_request:
 
 env:
@@ -13,11 +10,27 @@ env:
   OMIT_DEPRECATED: false
 
 jobs:
-
+  #Checks for duplicate actions. Skips push actions if there is a matching or duplicate pull-request action. 
+  duplicate-job:
+    runs-on: ubuntu-latest
+    # Map a step output to a job output
+    outputs:
+        should_skip: ${{ steps.skip_check.outputs.should_skip }}
+    steps:
+      - id: skip_check
+        uses: fkirc/skip-duplicate-actions@master
+        with:
+          concurrent_skipping: 'same_content'
+          skip_after_successful_duplicate: 'true'
+          do_not_skip: '["pull_request", "workflow_dispatch", "schedule"]'
+          
   # Set the job key. The key is displayed as the job name
   # when a job name is not provided
 
   build-cfs:
+    #Continue if duplicate-job found no duplicates. Always runs for pull-requests.
+    needs: duplicate-job
+    if: ${{ needs.duplicate-job.outputs.should_skip != 'true' }}
     name: Build
     runs-on: ubuntu-18.04
 

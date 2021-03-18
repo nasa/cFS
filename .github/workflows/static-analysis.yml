@@ -1,16 +1,29 @@
 name: Static Analysis
 
-# Run this workflow every time a new commit pushed to your repository
+# Run this workflow every time a new commit pushed to your repository and for pull requests
 on:
   push:
-    branches:
-      - main
-
   pull_request:
 
 jobs:
+  #Checks for duplicate actions. Skips push actions if there is a matching or duplicate pull-request action. 
+  duplicate-job:
+    runs-on: ubuntu-latest
+    # Map a step output to a job output
+    outputs:
+        should_skip: ${{ steps.skip_check.outputs.should_skip }}
+    steps:
+      - id: skip_check
+        uses: fkirc/skip-duplicate-actions@master
+        with:
+          concurrent_skipping: 'same_content'
+          skip_after_successful_duplicate: 'true'
+          do_not_skip: '["pull_request", "workflow_dispatch", "schedule"]'
 
   static-analysis:
+    #Continue if duplicate-job found no duplicates. Always runs for pull-requests.
+    needs: duplicate-job
+    if: ${{ needs.duplicate-job.outputs.should_skip != 'true' }}
     name: Run cppcheck
     runs-on: ubuntu-18.04
 
@@ -19,8 +32,7 @@ jobs:
       matrix:
         cppcheck: [bundle, cfe, osal, psp]
 
-    steps:
-
+    steps:      
       - name: Install cppcheck
         run: sudo apt-get install cppcheck -y
 
