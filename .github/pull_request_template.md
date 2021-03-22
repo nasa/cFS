@@ -1,3 +1,8 @@
+**Checklist (Please check before submitting)**
+
+* [ ] I reviewed the [Contributing Guide](https://github.com/nasa/cFS/blob/main/CONTRIBUTING.md).
+* [ ] I signed and emailed the appropriate Contributor License agreement to GSFC-SoftwareRelease@mail.nasa.gov and copied cfs-program@lists.nasa.gov.
+
 **Describe the contribution**
 A clear and concise description of what the contribution is.
 - Include explicitly what issue it addresses [e.g. Fixes #X]
