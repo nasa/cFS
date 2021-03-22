@@ -7,6 +7,11 @@ assignees: ''
 
 ---
 
+**Checklist (Please check before submitting)**
+
+* [ ] I reviewed the [Contributing Guide](https://github.com/nasa/cFS/blob/main/CONTRIBUTING.md).
+* [ ] I performed a cursory search to see if the bug report is relevant, not redundant, nor in conflict with other tickets.
+
 **Describe the bug**
 A clear and concise description of what the bug is.
 
