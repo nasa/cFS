@@ -1,5 +1,7 @@
 name: "CodeQL Configuration File"
 
+disable-default-queries: true
+
 queries:
-  - uses: security-and-quality
-  - uses: security-extended 
+  - name: Custom - JPL 3
+    uses:  ./.github/codeql/custom/ExitNonterminatingLoop.ql
