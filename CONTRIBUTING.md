@@ -12,6 +12,8 @@ So you'd like to contribute to cFS? Below are some guidelines for contributors t
 * [Pull Requests](#pull-requests)
 * [Discussions and Questions](#discussions-and-questions)
 
+[Writing High-Quality Code](#writing-high-quality-code)
+
 [Getting Started](#getting-started)
 
 ## Code of Conduct 
@@ -93,6 +95,27 @@ Follow GitHub's fork-branch-pull request pattern.
 3. Verify that the PR passes all checks.
 4. The project team will label the issue and evaluate the pull request in the weekly configuration control board (CCB) meeting. For more information, visit [The cFS CCB Process.](https://github.com/nasa/cFS/wiki/The-cFS-CCB-Process)
 5. If the pull request is accepted, it will be merged into cFS.
+
+## Writing High-Quality Code
+
+1. Follow cFS code conventions (formatting, symbol naming, file naming, etc). Do *not* change/reformat existing code, except to address your changes.
+    - The cFS submodules uses the Format Check workflow to ensure users follow the [clang-format-10](https://releases.llvm.org/10.0.0/tools/clang/docs/ClangFormat.html) style. 
+    - The [cFS_IdentifierNamingConvention document](https://github.com/nasa/cFE/blob/main/docs/cFS_IdentifierNamingConvention.md) provides a simple naming convention guide for cFE/cFS for commands and telemetry that simplifies the EDS to ground telemetry and commands database conversion.
+    - The [cFE Application Developers Guide](https://github.com/nasa/cFE/blob/main/docs/cFE%20Application%20Developers%20Guide.md) contains code conventions such as naming conventions for header files. 
+
+2. For any new API's, add unit tests to cover nominal and off-nominal conditions.
+
+3. Add/edit stubs to the unit test codebase for any new/modified functions.
+
+4. For any changes to existing API's, alter the unit tests to cover the changes (and remove tests made irrelevant due to your changes).
+
+5. Review the static code analyses results. 
+    - Push code changes to the appropriate forked repository. 
+    - Go to the Actions tab and enable GitHub Actions Workflow. The CodeQL Analyis and Static Analysis will be triggered for all pushed code. 
+    - Review these workflows for any warnings or errors. 
+    - Once successful, create a pull request. 
+
+For more information on our GitHub Action Workflows, view our [Security Policy](https://github.com/nasa/cFS/security/policy).
 
 ## Getting Started
 Before you begin, search through the open issues in each submodule to ensure that your ticket is relevant, not redundant, nor in conflict with other tickets:
