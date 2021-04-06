@@ -75,7 +75,12 @@ Follow GitHub's fork-branch-pull request pattern.
 1. Fork the relevant cFS component (eg. cfe, osal, psp).
 2. Create a new branch in your fork to work on your fix. We recommend naming your branch `fix-ISSUE_NUMBER-<FIX_SUMMARY>`.
 3. Submit a pull request to the nasa `main` branch. We recommend creating your pull-request as a "draft" and to commit early and often so the community can give you feedback at the beginning of the process as opposed to asking you to change hours of hard work at the end.
-4. Add commits to your branch. Please follow commit message convention: `Fix ISSUE_NUMBER, 50-ish-character-long summary of commit content`.
+4. Add commits to your branch. For information on commit messages, review [How to Write a Git Commit Message](https://chris.beams.io/posts/git-commit/). Please follow commit message convention:
+```
+Fix #XYZ, SHORT_DESCRIPTION
+
+LONG_DESCRIPTION (optional)
+```
 5. Sign and email the appropriate Contributor License agreement down below to GSFC-SoftwareRelease@mail.nasa.gov and copy cfs-program@lists.nasa.gov.
     - Corporate Contributor License agreement : https://github.com/nasa/cFE/blob/main/docs/GSC_18128_Corp_CLA_form_1219.pdf
     - Individual Contributor License agreement : https://github.com/nasa/cFE/blob/main/docs/GSC_18128_Ind_CLA_form_1219.pdf
@@ -90,11 +95,130 @@ Follow GitHub's fork-branch-pull request pattern.
 7. Provide your full name or GitHub username and your company or organization if applicable.
 
 #### Once a Pull Request Ready for Review
-1. Verify the commit message and PR title use the template `Fix #XYZ, SHORT_DESCRIPTION`.
-2. Verify there is only one commit message. Squash or amend the commit messages if necessary.
+1. Verify the commit message and PR title uses the template `Fix #XYZ, SHORT_DESCRIPTION`. For information on commit messages, review [How to Write a Git Commit Message](https://chris.beams.io/posts/git-commit/). The commit message may use the template:
+```
+Fix #XYZ, SHORT_DESCRIPTION
+
+LONG_DESCRIPTION (optional)
+```
+2. Verify there is one commit message per topic. For example, review the [provided pull request](https://github.com/nasa/cFE/pull/1203/commits). 
+3. Squash or amend the commit messages if necessary. For more information, review the sections [How to Squash Commits](#how-to-squash-commits) and [How to Amend Commits](#how-to-amend-commits) .  
 3. Verify that the PR passes all checks.
-4. The project team will label the issue and evaluate the pull request in the weekly configuration control board (CCB) meeting. For more information, visit [The cFS CCB Process.](https://github.com/nasa/cFS/wiki/The-cFS-CCB-Process)
+4. The project team will label the issue and evaluate the pull request in the weekly configuration control board (CCB) meeting. For more information, visit [The cFS CCB Process](https://github.com/nasa/cFS/wiki/The-cFS-CCB-Process).
 5. If the pull request is accepted, it will be merged into cFS.
+
+#### How to Squash Commits
+
+##### Interactive Rebase
+
+1. Switch to the main branch and ensure you are up to date:
+```sh
+git checkout main && git pull
+```
+2. Checkout your feature branch:
+```sh
+git merge feature_branch
+```
+3. Use rebase to open the vi or other editor that lists the commits:
+```sh
+git rebase main -i
+```
+4. A text editor will open with a file that lists all the commits in your branch, and in front of each commit is the word "pick". It looks something like this:
+```sh
+pick 1fc6c95 do something
+pick 6b2481b do something else
+pick dd1475d changed some things
+pick c619268 fixing typos
+```
+5. For every line except the first, you want to replace the word "pick" with the word "squash" or with "f". "squash" merges the commit into previous commit. "f" is like "squash", but discard this commit's log message. So, if you wish to skip the step where you have to update the commit message then use "f". To edit the first commit message, replace "pick" with "r". For example, it should look like this:
+```sh
+pick 1fc6c95 do something
+squash 6b2481b do something else
+squash dd1475d changed some things
+squash c619268 fixing typos
+```
+or 
+```sh
+r 1fc6c95 do something
+f 6b2481b do something else
+f dd1475d changed some things
+f c619268 fixing typos
+```
+6. Save and close the file. If you used "pick" and "squash", a new file should pop up in your editor, combining all the commit messages of all the commits. Reword this commit message as you want, and then save and close that file as well. 
+
+7. Push the commit:
+```sh
+git push --force 
+```
+
+##### Soft Reset
+Use the "soft" method with caution. Ensure that you reset back to the original baseline. If you have switched branches and pulled from the remote since starting the branch originally, you may inadvertently overwrite other changes.
+
+1. To tell Git to reset HEAD to another commit, so index and the working directory will not be altered in any way use a soft reset. All of the files changed between the original HEAD and the commit will be staged. To use a soft reset:
+```sh
+git reset --soft main
+```
+2. Add all changes:
+```sh
+git add -A
+```
+3. Add a commit message:
+```sh
+git commit -m "Fix #XYZ, SHORT_DESCRIPTION
+
+LONG_DESCRIPTION (optional)"
+```
+4. Push the commit:
+```sh
+git push --force 
+```
+
+##### Replace Branch 
+This method had no chances of inadvertently overwriting other stuff.
+
+1. Make a new branch with a new name at the current main:
+```sh
+git checkout -b "fix-ISSUE_NUMBER-<FIX_SUMMARY>".
+```
+2. Merge:
+```sh
+git merge --squash ${old_branch}
+```
+3. Test the result, then commit to write a new commit message summarizing the full change:
+```sh
+git commit
+``` 
+4. Rename your new branch over your old branch to replace it: 
+```sh
+git branch -m -f ${new_branch} ${old_branch}
+```
+5. Push to GitHub:
+```sh
+git push --force 
+```
+
+#### How to Amend Commits
+1. To modify your last commit message:
+```sh
+git commit --amend
+```
+2. The previous commit message will load an editor session, where you can make changes to the message, save those changes and exit. When you save and close the editor, the editor writes a new commit containing that updated commit message and makes it your new last commit. Push the new changes:
+```sh
+git push --force 
+```
+
+1. To change the actual content of your last commit, stage those changes:
+```sh
+git add <file>
+```
+2. Amend the commit:
+```sh
+git commit --amend
+```
+3. Now the last commit is replaced by your new and improved commit. Push the commit:
+```sh
+git push --force 
+```
 
 ## Writing High-Quality Code
 
