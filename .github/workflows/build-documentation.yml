@@ -3,17 +3,30 @@ name: Documentation and Guides
 # Run every time a new commit pushed to main or for pull requests
 on:
   push:
-    branches:
-      - main
-
   pull_request:
 
 env:
   SIMULATION: native
 
 jobs:
+  #Checks for duplicate actions. Skips push actions if there is a matching or duplicate pull-request action. 
+  checks-for-duplicates:
+    runs-on: ubuntu-latest
+    # Map a step output to a job output
+    outputs:
+      should_skip: ${{ steps.skip_check.outputs.should_skip }}
+    steps:
+      - id: skip_check
+        uses: fkirc/skip-duplicate-actions@master
+        with:
+          concurrent_skipping: 'same_content'
+          skip_after_successful_duplicate: 'true'
+          do_not_skip: '["pull_request", "workflow_dispatch", "schedule"]'
 
   build-docs:
+    #Continue if checks-for-duplicates found no duplicates. Always runs for pull-requests.
+    needs: checks-for-duplicates
+    if: ${{ needs.checks-for-duplicates.outputs.should_skip != 'true' }}
     name: cFE Documentation
     runs-on: ubuntu-18.04
 
@@ -220,4 +233,3 @@ jobs:
           FOLDER: deploy
           CLEAN: false
           SINGLE_COMMIT: true
-
