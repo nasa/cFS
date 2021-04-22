@@ -127,12 +127,12 @@ jobs:
           fi
 
       - name: PDF generation installs
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name == 'push' && contains(github.ref, 'main')}}
         run: |
           sudo apt-get install texlive-latex-base texlive-fonts-recommended texlive-fonts-extra texlive-latex-extra
 
       - name: PDF generation
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name == 'push' && contains(github.ref, 'main')}}
         run: |
           set -x
           mkdir deploy
@@ -143,7 +143,7 @@ jobs:
           # pandoc CFE_Users_Guide.pdf -t gfm
 
       - name: Deploy
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name == 'push' && contains(github.ref, 'main')}}
         uses: JamesIves/github-pages-deploy-action@3.7.1
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -210,12 +210,12 @@ jobs:
           fi
 
       - name: PDF generation installs
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name == 'push' && contains(github.ref, 'main')}}
         run: |
           sudo apt-get install texlive-latex-base texlive-fonts-recommended texlive-fonts-extra texlive-latex-extra
 
       - name: PDF generation
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name == 'push' && contains(github.ref, 'main')}}
         run: |
           mkdir deploy
           cd ./build/doc/osalguide/latex
@@ -225,7 +225,7 @@ jobs:
           # pandoc CFE_Users_Guide.pdf -t gfm
 
       - name: Deploy
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name == 'push' && contains(github.ref, 'main')}}
         uses: JamesIves/github-pages-deploy-action@3.7.1
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
