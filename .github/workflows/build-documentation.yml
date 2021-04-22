@@ -72,6 +72,8 @@ jobs:
 
   build-usersguide:
     # Name the Job
+    needs: checks-for-duplicates
+    if: ${{ needs.checks-for-duplicates.outputs.should_skip != 'true' }}
     name: Users Guide
     # Set the type of machine to run on
     runs-on: ubuntu-18.04
@@ -154,6 +156,8 @@ jobs:
 
   build-osalguide:
     # Name the Job
+    needs: checks-for-duplicates
+    if: ${{ needs.checks-for-duplicates.outputs.should_skip != 'true' }}    
     name: Osal Guide
     # Set the type of machine to run on
     runs-on: ubuntu-18.04
