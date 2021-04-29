@@ -14,7 +14,7 @@ So you'd like to contribute to cFS? Below are some guidelines for contributors t
 
 [Writing High-Quality Code](#writing-high-quality-code)
 
-[Getting Started](#getting-started)
+[Quick Links to Submodules](#quick-links-to-submodules)
 
 ## Code of Conduct 
 This project and everyone participating in it is governed by the [cFS Code of Conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to the project team at cfs-program@lists.nasa.gov.
@@ -28,7 +28,7 @@ For questions or help, submit a GitHub isssue or email us at cfs-program@lists.n
 
 ### Report Bugs
 #### Before Submitting a Bug
-1. Perform a cursory search to see if the bug has already been reported. If it has and the issue is still open, add a comment to the existing issue instead of opening a new one.
+1. Perform a cursory search to see if the bug has already been reported. For issues in each submodule, visit the section [Quick Links to Submodules](#quick-links-to-submodules). If a bug has been reported and the issue is still open, add a comment to the existing issue instead of opening a new one.
 2. Determine which repository the bug should be reported in. If you are not sure, place the [issue in NASA/cFS](https://github.com/nasa/cFS/issues/new?assignees=&labels=&template=bug_report.md&title=).
 
 #### Reporting a Bug
@@ -49,7 +49,7 @@ If you run into a bug with the project:
 ### Feature Requests
 #### Before Submitting a Feature Request
 1. Review the cFS README.md file to see if your feature is in the major future work. 
-2. Perform a cursory search to see if the feature has already been requested. If it has and the issue is still open, add a comment to the existing issue instead of opening a new one.
+2. Perform a cursory search to see if the feature has already been requested. For issues in each submodule, visit the section [Quick Links to Submodules](#quick-links-to-submodules). If a feature request has been reported and the issue is still open, add a comment to the existing issue instead of opening a new one.
 3. Determine which repository the feature should be reported in. If you are not sure, [place the issue in NASA/cFS](https://github.com/nasa/cFS/issues/new?assignees=&labels=&template=feature_request.md&title=).
 
 #### Submitting a Feature Request
@@ -237,12 +237,12 @@ git push --force
     - Push code changes to the appropriate forked repository. 
     - Go to the Actions tab and enable GitHub Actions Workflow. The CodeQL Analyis and Static Analysis will be triggered for all pushed code. 
     - Review these workflows for any warnings or errors. 
-    - Once successful, create a pull request. 
+    - Once successful, create a pull request.
 
 For more information on our GitHub Action Workflows, view our [Security Policy](https://github.com/nasa/cFS/security/policy).
 
-## Getting Started
-Before you begin, search through the open issues in each submodule to ensure that your ticket is relevant, not redundant, nor in conflict with other tickets:
+## Quick Links to Submodules
+Before you [report bugs](#report-bugs) or submit [feature requests](#feature-requests), search through the open issues in each submodule to ensure that your ticket is relevant, not redundant, nor in conflict with other tickets:
 * [cFS Bundle Issues](https://github.com/nasa/cfs/issues)
 * [cFE Issues](https://github.com/nasa/cfe/issues)
 * [OSAL Issues](https://github.com/nasa/osal/issues)
