@@ -223,7 +223,7 @@ git push --force
 ## Writing High-Quality Code
 
 1. Follow cFS code conventions (formatting, symbol naming, file naming, etc). Do *not* change/reformat existing code, except to address your changes.
-    - The cFS submodules uses the Format Check workflow to ensure users follow the [clang-format-10](https://releases.llvm.org/10.0.0/tools/clang/docs/ClangFormat.html) style. 
+    - The cFS submodules uses the Format Check workflow to ensure users follow the [clang-format-10](https://github.com/nasa/cFS/blob/main/.clang-format) style. For more information on how to use the Format Check workflow, view [Using GitHub Actions Workflows](#using-github-actions-workflows).  
     - The [cFS_IdentifierNamingConvention document](https://github.com/nasa/cFE/blob/main/docs/cFS_IdentifierNamingConvention.md) provides a simple naming convention guide for cFE/cFS for commands and telemetry that simplifies the EDS to ground telemetry and commands database conversion.
     - The [cFE Application Developers Guide](https://github.com/nasa/cFE/blob/main/docs/cFE%20Application%20Developers%20Guide.md) contains code conventions such as naming conventions for header files. 
 
@@ -233,11 +233,71 @@ git push --force
 
 4. For any changes to existing API's, alter the unit tests to cover the changes (and remove tests made irrelevant due to your changes).
 
-5. Review the static code analyses results. 
+5. Review the static code analyses results from the Static Analysis and CodeQL Analysis workflows. For more information on how to use these workflows, view [Using GitHub Actions Workflows](#using-github-actions-workflows).  
     - Push code changes to the appropriate forked repository. 
     - Go to the Actions tab and enable GitHub Actions Workflow. The CodeQL Analyis and Static Analysis will be triggered for all pushed code. 
     - Review these workflows for any warnings or errors. 
     - Once successful, create a pull request.
+
+### Using GitHub Actions Workflows
+
+Several of our GitHub Actions Workflows are used to ensure pushed code and pull requests do not break cFS, create vulnerabilities, and follow our code conventions. Other workflows are used for documentation purposes. 
+
+Most of the workflows in the NASA/cFS repository will run for all branches when code is pushed and a pull request is created, except for the changelog workflow that runs manually. 
+
+All of our workflows will be available for forked repositories once enabled. To enable workflows, navigate to the Actions tab and click "I understand my workflows, go ahead and enable them".
+
+#### View Failed Workflows
+
+1. Navigate to Actions in the selected repository. For newly forked repositories, enable workflows after clicking on Actions. 
+2. In the left sidebar, click the workflow you want to view.
+3. From the list of workflow runs, click the name of the run you want to see.
+4. Under Jobs or in the visualization graph, click the failed job.
+5. Any failed steps are automatically expanded to display the results.
+
+#### View Workflow Results
+1. Navigate to Actions in the selected repository. For newly forked repositories, enable workflows after clicking on Actions. 
+2. In the left sidebar, click the workflow you want to view.
+3. From the list of workflow runs, click the name of the run you want to see.
+4. Scroll to the bottom of the page and download the artifacts. For CodeQL results, navigate to the Security Tab and click Code scanning alerts. CodeQL results will only be avaiable on your forked repository. 
+
+or 
+
+1. In pull requests, click the Checks tab. 
+2. From the list of workflow runs, click the name of the run you want to see.
+4. Scroll to the bottom of the page and download the artifacts. For CodeQL results, expand Code scanning alerts at the bottom of the list of checks and select CodeQL. 
+
+#### Configure Workflows
+
+1. Workflows are under [.github/workflows](https://github.com/nasa/cFS/tree/main/).
+2. Configure the files as needed. For more information on how to configure GitHub Actions, visit [Workflow syntax for GitHub Actions](https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions).
+
+#### Our Workflows
+##### Format Check 
+[![Format Check](https://github.com/nasa/osal/actions/workflows/format-check.yml/badge.svg)](https://github.com/nasa/osal/actions/workflows/format-check.yml)
+
+##### CodeQL Analysis 
+[![CodeQL Analaysis](https://github.com/nasa/cfs/actions/workflows/codeql-build.yml/badge.svg)](https://github.com/nasa/cfs/actions/workflows/codeql-build.yml)
+
+CodeQL uses a .yml file and a configuration file found at [.github/codeql](https://github.com/nasa/cFS/tree/main/.github/codeql).
+ 
+##### Static Analaysis
+[![Static Analaysis](https://github.com/nasa/cfs/actions/workflows/static-analysis.yml/badge.svg)](https://github.com/nasa/cfs/actions/workflows/static-analysis.yml)
+
+##### Deprecated Build, Test, and Run
+[![Deprecated Build, Test, and Run](https://github.com/nasa/cfs/actions/workflows/build-cfs-deprecated.yml/badge.svg)](https://github.com/nasa/cfs/actions/workflows/build-cfs-deprecated.yml)
+
+##### Build, Test, and Run [OMIT_DEPRECATED=true]
+[![Build, Test, and Run %5B OMIT_DEPRECATED=true %5B](https://github.com/nasa/cfs/actions/workflows/build-cfs.yml/badge.svg)](https://github.com/nasa/cfs/actions/workflows/build-cfs.yml)
+
+##### Documentation and Guides
+[![Documentation and Guides](https://github.com/nasa/cfs/actions/workflows/build-documentation.yml/badge.svg)](https://github.com/nasa/cfs/actions/workflows/build-documentation.yml)
+
+##### Changelog
+[![Changelog](https://github.com/nasa/cfs/actions/workflows/changelog.yml/badge.svg)](https://github.com/nasa/cfs/actions/workflows/changelog.yml)
+
+##### Local Unit Test
+[![Local Unit Test](https://github.com/nasa/osal/actions/workflows/local_unit_test.yml/badge.svg)](https://github.com/nasa/osal/actions/workflows/local_unit_test.yml)
 
 For more information on our GitHub Action Workflows, view our [Security Policy](https://github.com/nasa/cFS/security/policy).
 
