@@ -16,26 +16,29 @@ So you'd like to contribute to cFS? Below are some guidelines for contributors t
 
 [Quick Links to Submodules](#quick-links-to-submodules)
 
-## Code of Conduct 
-This project and everyone participating in it is governed by the [cFS Code of Conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to the project team at cfs-program@lists.nasa.gov.
+## Code of Conduct
+
+This project and everyone participating in it is governed by the [cFS Code of Conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to the [product team](README.md#contact-the-cfs-product-team).
 
 ## Ways to Contribute
 
 ### Discussions and Questions
-For questions or help, submit a GitHub isssue or email us at cfs-program@lists.nasa.gov. 
 
-[Subscribe to our mailing list](https://lists.nasa.gov/mailman/listinfo/cfs-community) that includes all the community members/users of the NASA core Flight Software (cFS) product line. The mailing list is used to communicate any information related to the cFS product such as current releases, bug findings and fixes, enhancement requests, community meeting notifications, sending out meeting minutes, etc.
+For questions or help, submit a GitHub issue, [join the cfs community mailing list](README.md#join-the-mailing-list).
+
 
 ### Report Bugs
+
 #### Before Submitting a Bug
 1. Perform a cursory search to see if the bug has already been reported. For issues in each submodule, visit the section [Quick Links to Submodules](#quick-links-to-submodules). If a bug has been reported and the issue is still open, add a comment to the existing issue instead of opening a new one.
 2. Determine which repository the bug should be reported in. If you are not sure, place the [issue in NASA/cFS](https://github.com/nasa/cFS/issues/new?assignees=&labels=&template=bug_report.md&title=).
 
 #### Reporting a Bug
+
 If you run into a bug with the project:
-1. Open an issue using the bug report template. 
-2. Describe the issue. 
-3. Describe the expected behavior if the bug did not occur. 
+1. Open an issue using the bug report template.
+2. Describe the issue.
+3. Describe the expected behavior if the bug did not occur.
 4. Provide the reproduction steps that someone else can follow to recreate the bug or error on their own.
 5. If applicable, add code snippets or references to the software.
 6. Provide the system the bug was observed on including the hardware, operating system, and versions.
@@ -48,12 +51,12 @@ If you run into a bug with the project:
 
 ### Feature Requests
 #### Before Submitting a Feature Request
-1. Review the cFS README.md file to see if your feature is in the major future work. 
+1. Review the cFS README.md file to see if your feature is in the major future work.
 2. Perform a cursory search to see if the feature has already been requested. For issues in each submodule, visit the section [Quick Links to Submodules](#quick-links-to-submodules). If a feature request has been reported and the issue is still open, add a comment to the existing issue instead of opening a new one.
 3. Determine which repository the feature should be reported in. If you are not sure, [place the issue in NASA/cFS](https://github.com/nasa/cFS/issues/new?assignees=&labels=&template=feature_request.md&title=).
 
 #### Submitting a Feature Request
-1. Open an issue using the feature request template. 
+1. Open an issue using the feature request template.
 2. Describe the feature.
 3. Describe the solution you would like.
 4. Describe alternatives you've considered.
@@ -101,7 +104,7 @@ Fix #XYZ, SHORT_DESCRIPTION
 
 LONG_DESCRIPTION (optional)
 ```
-2. Verify there is one commit message per topic. For example, review the [provided pull request](https://github.com/nasa/cFE/pull/1203/commits). 
+2. Verify there is one commit message per topic. For example, review the [provided pull request](https://github.com/nasa/cFE/pull/1203/commits).
 3. Squash or amend the commit messages if necessary. For more information, review the sections [How to Squash Commits](#how-to-squash-commits) and [How to Amend Commits](#how-to-amend-commits) .  
 3. Verify that the PR passes all checks.
 4. The project team will label the issue and evaluate the pull request in the weekly configuration control board (CCB) meeting. For more information, visit [The cFS CCB Process](https://github.com/nasa/cFS/wiki/The-cFS-CCB-Process).
@@ -137,18 +140,18 @@ squash 6b2481b do something else
 squash dd1475d changed some things
 squash c619268 fixing typos
 ```
-or 
+or
 ```sh
 r 1fc6c95 do something
 f 6b2481b do something else
 f dd1475d changed some things
 f c619268 fixing typos
 ```
-6. Save and close the file. If you used "pick" and "squash", a new file should pop up in your editor, combining all the commit messages of all the commits. Reword this commit message as you want, and then save and close that file as well. 
+6. Save and close the file. If you used "pick" and "squash", a new file should pop up in your editor, combining all the commit messages of all the commits. Reword this commit message as you want, and then save and close that file as well.
 
 7. Push the commit:
 ```sh
-git push --force 
+git push --force
 ```
 
 ##### Soft Reset
@@ -170,10 +173,10 @@ LONG_DESCRIPTION (optional)"
 ```
 4. Push the commit:
 ```sh
-git push --force 
+git push --force
 ```
 
-##### Replace Branch 
+##### Replace Branch
 This method had no chances of inadvertently overwriting other stuff.
 
 1. Make a new branch with a new name at the current main:
@@ -187,14 +190,14 @@ git merge --squash ${old_branch}
 3. Test the result, then commit to write a new commit message summarizing the full change:
 ```sh
 git commit
-``` 
-4. Rename your new branch over your old branch to replace it: 
+```
+4. Rename your new branch over your old branch to replace it:
 ```sh
 git branch -m -f ${new_branch} ${old_branch}
 ```
 5. Push to GitHub:
 ```sh
-git push --force 
+git push --force
 ```
 
 #### How to Amend Commits
@@ -204,7 +207,7 @@ git commit --amend
 ```
 2. The previous commit message will load an editor session, where you can make changes to the message, save those changes and exit. When you save and close the editor, the editor writes a new commit containing that updated commit message and makes it your new last commit. Push the new changes:
 ```sh
-git push --force 
+git push --force
 ```
 
 1. To change the actual content of your last commit, stage those changes:
@@ -217,7 +220,7 @@ git commit --amend
 ```
 3. Now the last commit is replaced by your new and improved commit. Push the commit:
 ```sh
-git push --force 
+git push --force
 ```
 
 ## Writing High-Quality Code
@@ -225,7 +228,7 @@ git push --force
 1. Follow cFS code conventions (formatting, symbol naming, file naming, etc). Do *not* change/reformat existing code, except to address your changes.
     - The cFS submodules uses the Format Check workflow to ensure users follow the [clang-format-10](https://github.com/nasa/cFS/blob/main/.clang-format) style. For more information on how to use the Format Check workflow, view [Using GitHub Actions Workflows](#using-github-actions-workflows).  
     - The [cFS_IdentifierNamingConvention document](https://github.com/nasa/cFE/blob/main/docs/cFS_IdentifierNamingConvention.md) provides a simple naming convention guide for cFE/cFS for commands and telemetry that simplifies the EDS to ground telemetry and commands database conversion.
-    - The [cFE Application Developers Guide](https://github.com/nasa/cFE/blob/main/docs/cFE%20Application%20Developers%20Guide.md) contains code conventions such as naming conventions for header files. 
+    - The [cFE Application Developers Guide](https://github.com/nasa/cFE/blob/main/docs/cFE%20Application%20Developers%20Guide.md) contains code conventions such as naming conventions for header files.
 
 2. For any new API's, add unit tests to cover nominal and off-nominal conditions.
 
@@ -234,38 +237,38 @@ git push --force
 4. For any changes to existing API's, alter the unit tests to cover the changes (and remove tests made irrelevant due to your changes).
 
 5. Review the static code analyses results from the Static Analysis and CodeQL Analysis workflows. For more information on how to use these workflows, view [Using GitHub Actions Workflows](#using-github-actions-workflows).  
-    - Push code changes to the appropriate forked repository. 
-    - Go to the Actions tab and enable GitHub Actions Workflow. The CodeQL Analyis and Static Analysis will be triggered for all pushed code. 
-    - Review these workflows for any warnings or errors. 
+    - Push code changes to the appropriate forked repository.
+    - Go to the Actions tab and enable GitHub Actions Workflow. The CodeQL Analyis and Static Analysis will be triggered for all pushed code.
+    - Review these workflows for any warnings or errors.
     - Once successful, create a pull request.
 
 ### Using GitHub Actions Workflows
 
-Several of our GitHub Actions Workflows are used to ensure pushed code and pull requests do not break cFS, create vulnerabilities, and follow our code conventions. Other workflows are used for documentation purposes. 
+Several of our GitHub Actions Workflows are used to ensure pushed code and pull requests do not break cFS, create vulnerabilities, and follow our code conventions. Other workflows are used for documentation purposes.
 
-Most of the workflows in the NASA/cFS repository will run for all branches when code is pushed and a pull request is created, except for the changelog workflow that runs manually. 
+Most of the workflows in the NASA/cFS repository will run for all branches when code is pushed and a pull request is created, except for the changelog workflow that runs manually.
 
 All of our workflows will be available for forked repositories once enabled. To enable workflows, navigate to the Actions tab and click "I understand my workflows, go ahead and enable them".
 
 #### View Failed Workflows
 
-1. Navigate to Actions in the selected repository. For newly forked repositories, enable workflows after clicking on Actions. 
+1. Navigate to Actions in the selected repository. For newly forked repositories, enable workflows after clicking on Actions.
 2. In the left sidebar, click the workflow you want to view.
 3. From the list of workflow runs, click the name of the run you want to see.
 4. Under Jobs or in the visualization graph, click the failed job.
 5. Any failed steps are automatically expanded to display the results.
 
 #### View Workflow Results
-1. Navigate to Actions in the selected repository. For newly forked repositories, enable workflows after clicking on Actions. 
+1. Navigate to Actions in the selected repository. For newly forked repositories, enable workflows after clicking on Actions.
 2. In the left sidebar, click the workflow you want to view.
 3. From the list of workflow runs, click the name of the run you want to see.
-4. Scroll to the bottom of the page and download the artifacts. For CodeQL results, navigate to the Security Tab and click Code scanning alerts. CodeQL results will only be avaiable on your forked repository. 
+4. Scroll to the bottom of the page and download the artifacts. For CodeQL results, navigate to the Security Tab and click Code scanning alerts. CodeQL results will only be avaiable on your forked repository.
 
-or 
+or
 
-1. In pull requests, click the Checks tab. 
+1. In pull requests, click the Checks tab.
 2. From the list of workflow runs, click the name of the run you want to see.
-4. Scroll to the bottom of the page and download the artifacts. For CodeQL results, expand Code scanning alerts at the bottom of the list of checks and select CodeQL. 
+4. Scroll to the bottom of the page and download the artifacts. For CodeQL results, expand Code scanning alerts at the bottom of the list of checks and select CodeQL.
 
 #### Configure Workflows
 
@@ -276,18 +279,19 @@ or
 
 Additional information on our GitHub Action Workflows can be found in our [Security Policy](https://github.com/nasa/cFS/security/policy).
 
-##### Format Check 
+##### Format Check
 [![Format Check](https://github.com/nasa/osal/actions/workflows/format-check.yml/badge.svg)](https://github.com/nasa/osal/actions/workflows/format-check.yml)
 
-This action uses clang-format-10 to check for format errors. 
+This action uses clang-format-10 to check for format errors.
 
-##### CodeQL Analysis 
+##### CodeQL Analysis
 [![CodeQL Analaysis](https://github.com/nasa/cfs/actions/workflows/codeql-build.yml/badge.svg)](https://github.com/nasa/cfs/actions/workflows/codeql-build.yml)
 
 This action runs GitHub's industry-leading static analysis engine, CodeQL, against our repository's source code to find security vulnerabilities. It then automatically uploads the results to GitHub so they can be displayed in the repository's code scanning alerts found under the security tab. CodeQL runs an extensible set of [queries](https://github.com/github/codeql), which have been developed by the community and the [GitHub Security Lab](https://securitylab.github.com/) to find common vulnerabilities in your code.
 
 Our CodeQL action uses a configuration file to use specific queries, which can be found at [.github/codeql](https://github.com/nasa/cFS/tree/main/.github/codeql).
- 
+
+
 ##### Static Analaysis
 [![Static Analaysis](https://github.com/nasa/cfs/actions/workflows/static-analysis.yml/badge.svg)](https://github.com/nasa/cfs/actions/workflows/static-analysis.yml)
 
@@ -296,22 +300,22 @@ This action runs a static analysis tool for C/C++ code known as cppcheck. Cppche
 ##### Deprecated Build, Test, and Run
 [![Deprecated Build, Test, and Run](https://github.com/nasa/cfs/actions/workflows/build-cfs-deprecated.yml/badge.svg)](https://github.com/nasa/cfs/actions/workflows/build-cfs-deprecated.yml)
 
-This action builds, tests, and runs the cFS bundle using deprecated code. 
+This action builds, tests, and runs the cFS bundle using deprecated code.
 
 ##### Build, Test, and Run [OMIT_DEPRECATED=true]
 [![Build, Test, and Run %5B OMIT_DEPRECATED=true %5B](https://github.com/nasa/cfs/actions/workflows/build-cfs.yml/badge.svg)](https://github.com/nasa/cfs/actions/workflows/build-cfs.yml)
 
-This action builds, tests, and runs the cFS bundle omitting deprecated code. 
+This action builds, tests, and runs the cFS bundle omitting deprecated code.
 
 ##### Documentation and Guides
 [![Documentation and Guides](https://github.com/nasa/cfs/actions/workflows/build-documentation.yml/badge.svg)](https://github.com/nasa/cfs/actions/workflows/build-documentation.yml)
 
-This action creates doxygen documents for cFE, cFS users guide, and osal guide. 
+This action creates doxygen documents for cFE, cFS users guide, and osal guide.
 
 ##### Changelog
 [![Changelog](https://github.com/nasa/cfs/actions/workflows/changelog.yml/badge.svg)](https://github.com/nasa/cfs/actions/workflows/changelog.yml)
 
-This action creates a changelog file which documents all the issues in cFS. 
+This action creates a changelog file which documents all the issues in cFS.
 
 ##### Local Unit Test
 [![Local Unit Test](https://github.com/nasa/osal/actions/workflows/local_unit_test.yml/badge.svg)](https://github.com/nasa/osal/actions/workflows/local_unit_test.yml)
