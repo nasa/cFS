@@ -73,9 +73,19 @@ See related repositories for current open issues.
 
 For best results, submit issues:questions or issues:help wanted requests to this repo.
 
-Official cFS page: http://cfs.gsfc.nasa.gov
 
-Community email list subscription request: https://lists.nasa.gov/mailman/listinfo/cfs-community
+### Join the mailing list
+
+To **subscribe to our mailing list,** send an email to cfs-community-join@lists.nasa.gov with the word *subscribe* in the subject line.
+
+The cfs-community mailing list includes cFS users and developers. The cFS Product Team also uses the mailing list to share information on current and future releases, bug findings and fixes, enhancement requests, community meetings, etc.
+
+If you'd like to unsubscribe, send an email with the word *unsubscribe* to cfs-community-leave@lists.nasa.gov. Mailing list requests are typically processed within 5 minutes.
+
+### Contact the cFS Product Team
+
+You can email the cFS Product Team at cfs-program@lists.nasa.gov to explore partnerships and other arrangements for in-depth support.
+
 
 ## Setup
 
@@ -112,7 +122,7 @@ Note: The steps above are for a debug, permissive mode build and includes deprec
 The cFS-GroundSystem tool can be used to send commands and receive telemetry.  For details on using and setting up the Ground System, see the [Guide-GroundSystem](https://github.com/nasa/cFS-GroundSystem/blob/main/Guide-GroundSystem.md).  Note it depends on PyQt5 and PyZMQ:
 
 1. Install PyQt5 and PyZMQ on your system.  Some systems may also require installing libcanberra-gtk-module.
-       
+
 2. Compile cmdUtil and start the ground system executable
 
        cd tools/cFS-GroundSystem/Subsystems/cmdUtil
@@ -155,7 +165,7 @@ The following list is user submitted, and not CCB controlled.  They are released
     - SCA: Stored Command Absolute application at https://github.com/nasa/SCA
     - SCH: Scheduler application at https://github.com/nasa/SCH
     - TO: Telemetry Output application at https://github.com/nasa/CFS_TO
-    - Skeleton App: A bare-bones application to which you can add your business logic at https://github.com/nasa/skeleton_app 
+    - Skeleton App: A bare-bones application to which you can add your business logic at https://github.com/nasa/skeleton_app
   - Other Interfaces
     - SIL: Simulink Interface Layer at https://github.com/nasa/SIL
     - ECI: External Code Interface at https://github.com/nasa/ECI
@@ -170,4 +180,4 @@ The following list is user submitted, and not CCB controlled.  They are released
     - TBD
   - Other PSPs
     - TBD
-  
+
