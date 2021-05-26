@@ -1,3 +1,4 @@
 Makefile
 build
 /sample_defs
+.DS_Store

@@ -5,15 +5,18 @@
 
 # Core Flight System - BUNDLE
 
-The Core Flight System (cFS) is a generic flight software architcture framework used on flagship spacecraft, human spacecraft, cubesats, and Raspberry Pi.  This repository is a bundle of submodules that make up the cFS framework.  Note the "lab" apps are intended as examples only, and enable this bundle to build, execute, receive commands, and send telemetry.  This is not a flight distribution, which is typically made up of the cFE, OSAL, PSP, and a selection of flight apps that correspond to specific mission requirements.
+The Core Flight System (cFS) is a generic flight software architecture framework used on flagship spacecraft, human spacecraft, cubesats, and Raspberry Pi.  This repository is a bundle of submodules that make up the cFS framework.  Note the "lab" apps are intended as examples only, and enable this bundle to build, execute, receive commands, and send telemetry.  This is not a flight distribution, which is typically made up of the cFE, OSAL, PSP, and a selection of flight apps that correspond to specific mission requirements.
 
 This bundle has not been fully verified as an operational system, and is provided as a starting point vs an end product.  Testing of this bundle consists of building, executing, sending setup commands and verifying receipt of telemetry.  Unit testing is also run, but extensive analysis is not performed.  All verification and validation per mission requirements is the responsibility of the mission (although attempts are made in the cFS Framework to provide a testing framework to facilitate the process).
 
 The cFS Framework is a core subset of cFS.  There are additional OSALs, PSPs, and tools as listed below available from a variety of sources.
 
-## References to Auto-generated Documentation
+## References Documentation
   - cFE User's Guide: https://github.com/nasa/cFS/blob/gh-pages/cFE_Users_Guide.pdf
   - OSAL User's Guide: https://github.com/nasa/cFS/blob/gh-pages/OSAL_Users_Guide.pdf
+  - cFE App Developer's Guide: https://github.com/nasa/cFE/blob/main/docs/cFE%20Application%20Developers%20Guide.md
+  - Training documentation: https://ntrs.nasa.gov/citations/20205000691
+  - cFS Overview: https://cfs.gsfc.nasa.gov/cFS-OviewBGSlideDeck-ExportControl-Final.pdf
 
 ## Release Notes
 
@@ -40,17 +43,28 @@ See related repositories for current open issues.
 
 ## Major future work
 
+### Caelum (aka 7.0) Major release development plans (Targeting end of 2020 for release candidate)
+
   - Certification framework with automated build verification tests of framework requirements
     - Executable on real/emulated/simulated/ or dockerized targets
-    - Add PSP coverage testing framework
-    - Add PSP and cFE functional testing framework for APIs
-    - Scrub OSAL coverage and functional tests 
+    - Add PSP coverage testing framework (nasa/psp#184, nasa/psp#174)
+    - Add PSP and cFE functional testing framework for APIs  (nasa/cfe#779)
+    - Scrub OSAL coverage and functional tests
+    - Scrub cFE coverage tests
+    - Add cFE API functional tests
+    - NOTE: Command verification pending tool open source release
+  - Documentation (updated traceability, APIs/ICDs, general update)
+  - Framework for mission customization of core services
+    - Header customization support (nasa/cFE#726)
+  - Remove deprecated code
+  - Cmd/Tlm structure scrub for alignment/padding/consistency
+  - Library query and reporting and ES resource management (nasa/cFE#28, nasa/cFE#797)
+
+### Other (may not make 7.0)
   - Open source automated build verification execution framework for emulated targets (likely docker based)
-  - Provide capability for mission customization of core services
   - Deployment quality of life improvements (configuration, transition to CMake source selection vs compiler directives)
   - Update OS support (VxWorks 7, RTEMS 5)
   - Time services refactor
-  - Documentation (updated traceability, APIs/ICDs, general update)
   - Symmetric multi-processing APIs
   - Electronic Data Sheet integration option and improvements to packet layouts for portability/consistency
   - Toolchain updates
@@ -59,9 +73,19 @@ See related repositories for current open issues.
 
 For best results, submit issues:questions or issues:help wanted requests to this repo.
 
-Official cFS page: http://cfs.gsfc.nasa.gov
 
-Community email list subscription request: https://lists.nasa.gov/mailman/listinfo/cfs-community
+### Join the mailing list
+
+To **subscribe to our mailing list,** send an email to cfs-community-join@lists.nasa.gov with the word *subscribe* in the subject line.
+
+The cfs-community mailing list includes cFS users and developers. The cFS Product Team also uses the mailing list to share information on current and future releases, bug findings and fixes, enhancement requests, community meetings, etc.
+
+If you'd like to unsubscribe, send an email with the word *unsubscribe* to cfs-community-leave@lists.nasa.gov. Mailing list requests are typically processed within 5 minutes.
+
+### Contact the cFS Product Team
+
+You can email the cFS Product Team at cfs-program@lists.nasa.gov to explore partnerships and other arrangements for in-depth support.
+
 
 ## Setup
 
@@ -98,7 +122,7 @@ Note: The steps above are for a debug, permissive mode build and includes deprec
 The cFS-GroundSystem tool can be used to send commands and receive telemetry.  For details on using and setting up the Ground System, see the [Guide-GroundSystem](https://github.com/nasa/cFS-GroundSystem/blob/main/Guide-GroundSystem.md).  Note it depends on PyQt5 and PyZMQ:
 
 1. Install PyQt5 and PyZMQ on your system.  Some systems may also require installing libcanberra-gtk-module.
-       
+
 2. Compile cmdUtil and start the ground system executable
 
        cd tools/cFS-GroundSystem/Subsystems/cmdUtil
@@ -141,7 +165,7 @@ The following list is user submitted, and not CCB controlled.  They are released
     - SCA: Stored Command Absolute application at https://github.com/nasa/SCA
     - SCH: Scheduler application at https://github.com/nasa/SCH
     - TO: Telemetry Output application at https://github.com/nasa/CFS_TO
-    - Skeleton App: A bare-bones application to which you can add your business logic at https://github.com/nasa/skeleton_app 
+    - Skeleton App: A bare-bones application to which you can add your business logic at https://github.com/nasa/skeleton_app
   - Other Interfaces
     - SIL: Simulink Interface Layer at https://github.com/nasa/SIL
     - ECI: External Code Interface at https://github.com/nasa/ECI
@@ -156,4 +180,4 @@ The following list is user submitted, and not CCB controlled.  They are released
     - TBD
   - Other PSPs
     - TBD
-  
+
