@@ -1,0 +1,19 @@
+name: "CodeQL Coding Standard Configuration File"
+
+disable-default-queries: true
+
+queries:
+  - name: JPL Rules
+    uses: github/codeql/cpp/ql/src/JPL_C@main
+  - name: MISRA Rule 9-5-1
+    uses: github/codeql/cpp/ql/src/jsf/4.20 Unions and Bit Fields/AV Rule 153.ql@main
+  - name: MISRA Rule 5-18-1
+    uses: github/codeql/cpp/ql/src/jsf/4.21 Operators/AV Rule 168.ql@main
+  - name: MISRA 6-2-2
+    uses: github/codeql/cpp/ql/src/jsf/4.25 Expressions/AV Rule 202.ql@main
+  - name: MISRA Rule 5-14-1
+    uses: github/codeql/cpp/ql/src/jsf/4.21 Operators/AV Rule 165.ql@main
+  - name: MISRA Rule 5-3-2
+    uses: github/codeql/cpp/ql/src/jsf/4.21 Operators/AV Rule 165.ql@main
+  - name: MISRA Rule 7-5-2
+    uses: github/codeql/cpp/ql/src/jsf/4.22 Pointers and References/AV Rule 173.ql@main
