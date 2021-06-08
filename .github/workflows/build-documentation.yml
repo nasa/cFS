@@ -9,7 +9,7 @@ env:
   SIMULATION: native
 
 jobs:
-  #Checks for duplicate actions. Skips push actions if there is a matching or duplicate pull-request action. 
+  #Checks for duplicate actions. Skips push actions if there is a matching or duplicate pull-request action.
   checks-for-duplicates:
     runs-on: ubuntu-latest
     # Map a step output to a job output
@@ -157,7 +157,7 @@ jobs:
   build-osalguide:
     # Name the Job
     needs: checks-for-duplicates
-    if: ${{ needs.checks-for-duplicates.outputs.should_skip != 'true' }}    
+    if: ${{ needs.checks-for-duplicates.outputs.should_skip != 'true' }}
     name: Osal Guide
     # Set the type of machine to run on
     runs-on: ubuntu-18.04
@@ -186,7 +186,7 @@ jobs:
       - name: Build OSAL Guide
         run: |
           make osalguide > make_osalguide_stdout.txt 2> make_osalguide_stderr.txt
-          mv build/doc/warnings.log osalguide_warnings.log
+          mv build/doc/osalguide/osal-apiguide-warnings.log osal-apiguide-warnings.log
 
 
       - name: Archive Osal Guide Build Logs
@@ -196,7 +196,7 @@ jobs:
           path: |
             make_osalguide_stdout.txt
             make_osalguide_stderr.txt
-            osalguide_warnings.log
+            osal-apiguide-warnings.log
 
 
       - name: Error Check
@@ -208,8 +208,8 @@ jobs:
 
       - name: Warning Check
         run: |
-          if [[ -s osalguide_warnings.log ]]; then
-            cat osalguide_warnings.log
+          if [[ -s osal-apiguide-warnings.log ]]; then
+            cat osal-apiguide-warnings.log
             exit -1
           fi
 
