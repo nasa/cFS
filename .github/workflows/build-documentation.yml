@@ -102,7 +102,6 @@ jobs:
       - name: Build Usersguide
         run: |
           make usersguide > make_usersguide_stdout.txt 2> make_usersguide_stderr.txt
-          mv build/doc/warnings.log usersguide_warnings.log
 
       - name: Archive Users Guide Build Logs
         uses: actions/upload-artifact@v2
@@ -111,7 +110,7 @@ jobs:
           path: |
             make_usersguide_stdout.txt
             make_usersguide_stderr.txt
-            usersguide_warnings.log
+            cfe-usersguide-warnings.log
 
 
       - name: Error Check
@@ -123,8 +122,8 @@ jobs:
 
       - name: Warning Check
         run: |
-          if [[ -s usersguide_warnings.log ]]; then
-            cat usersguide_warnings.log
+          if [[ -s cfe-usersguide-warnings.log ]]; then
+            cat cfe-usersguide-warnings.log
             exit -1
           fi
 
@@ -138,7 +137,7 @@ jobs:
         run: |
           set -x
           mkdir deploy
-          cd ./build/doc/users_guide/latex
+          cd ./build/docs/users_guide/latex
           make > build.txt
           mv refman.pdf $GITHUB_WORKSPACE/deploy/cFE_Users_Guide.pdf
           # Could add pandoc and convert to github markdown
@@ -186,7 +185,7 @@ jobs:
       - name: Build OSAL Guide
         run: |
           make osalguide > make_osalguide_stdout.txt 2> make_osalguide_stderr.txt
-          mv build/doc/osalguide/osal-apiguide-warnings.log osal-apiguide-warnings.log
+          mv build/docs/osalguide/osal-apiguide-warnings.log osal-apiguide-warnings.log
 
 
       - name: Archive Osal Guide Build Logs
@@ -222,7 +221,7 @@ jobs:
         if: ${{ github.event_name == 'push' && contains(github.ref, 'main')}}
         run: |
           mkdir deploy
-          cd ./build/doc/osalguide/latex
+          cd ./build/docs/osalguide/latex
           make > build.txt
           mv refman.pdf $GITHUB_WORKSPACE/deploy/OSAL_Users_Guide.pdf
           # Could add pandoc and convert to github markdown
