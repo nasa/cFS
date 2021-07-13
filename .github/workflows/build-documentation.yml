@@ -71,9 +71,9 @@ jobs:
           fi
 
   build-usersguide:
-    # Name the Job
     needs: checks-for-duplicates
     if: ${{ needs.checks-for-duplicates.outputs.should_skip != 'true' }}
+    # Name the Job
     name: Users Guide
     # Set the type of machine to run on
     runs-on: ubuntu-18.04
@@ -92,7 +92,7 @@ jobs:
           cp ./cfe/cmake/Makefile.sample Makefile
           cp -r ./cfe/cmake/sample_defs sample_defs
 
-      # Setup the build system
+      # Setup the build system   
       - name: Make Prep
         run: make prep
 
@@ -112,7 +112,6 @@ jobs:
             make_usersguide_stderr.txt
             cfe-usersguide-warnings.log
 
-
       - name: Error Check
         run: |
           if [[ -s make_usersguide_stderr.txt ]]; then
@@ -127,6 +126,15 @@ jobs:
             exit -1
           fi
 
+  pdf-usersguide:  
+    needs: build-usersguide
+    # Name the Job
+    name: PDF Users Guide
+    # Set the type of machine to run on
+    runs-on: ubuntu-18.04
+
+    steps:
+    
       - name: PDF generation installs
         if: ${{ github.event_name == 'push' && contains(github.ref, 'main')}}
         run: |
@@ -154,9 +162,9 @@ jobs:
           SINGLE_COMMIT: true
 
   build-osalguide:
-    # Name the Job
     needs: checks-for-duplicates
     if: ${{ needs.checks-for-duplicates.outputs.should_skip != 'true' }}
+    # Name the Job
     name: Osal Guide
     # Set the type of machine to run on
     runs-on: ubuntu-18.04
@@ -175,7 +183,7 @@ jobs:
           cp ./cfe/cmake/Makefile.sample Makefile
           cp -r ./cfe/cmake/sample_defs sample_defs
 
-      # Setup the build system
+      # Setup the build system 
       - name: Make Prep
         run: make prep
 
@@ -187,7 +195,6 @@ jobs:
           make osalguide > make_osalguide_stdout.txt 2> make_osalguide_stderr.txt
           mv build/docs/osalguide/osal-apiguide-warnings.log osal-apiguide-warnings.log
 
-
       - name: Archive Osal Guide Build Logs
         uses: actions/upload-artifact@v2
         with:
@@ -196,7 +203,6 @@ jobs:
             make_osalguide_stdout.txt
             make_osalguide_stderr.txt
             osal-apiguide-warnings.log
-
 
       - name: Error Check
         run: |
@@ -212,6 +218,13 @@ jobs:
             exit -1
           fi
 
+  pdf-osalguide:    
+    needs: build-osalguide
+    # Name the Job
+    name: PDF Osal Guide
+    # Set the type of machine to run on
+    runs-on: ubuntu-18.04
+    steps:
       - name: PDF generation installs
         if: ${{ github.event_name == 'push' && contains(github.ref, 'main')}}
         run: |
