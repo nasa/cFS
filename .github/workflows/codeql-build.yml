@@ -1,16 +1,19 @@
 name: "CodeQL Analysis"
 
+# Only trigger, when the build workflow succeeded
 on:
-  push:
-  pull_request:
-    branches:
-      - main
-
+  workflow_run:
+    workflows: ["Build, Test, and Run \\[OMIT_DEPRECATED=true\\]"]
+    types:
+      - completed
+    branches: 
+      - '**'
 env:
   SIMULATION: native
   ENABLE_UNIT_TESTS: true
   OMIT_DEPRECATED: true
   BUILDTYPE: release
+
 
 jobs:
   #Checks for duplicate actions. Skips push actions if there is a matching or duplicate pull-request action. 
@@ -19,6 +22,7 @@ jobs:
     # Map a step output to a job output
     outputs:
       should_skip: ${{ steps.skip_check.outputs.should_skip }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - id: skip_check
         uses: fkirc/skip-duplicate-actions@master
@@ -117,7 +121,7 @@ jobs:
         run: |
           cp ./cfe/cmake/Makefile.sample Makefile
           cp -r ./cfe/cmake/sample_defs sample_defs
-
+ 
       # Setup the build system
       - name: Make Install
         if: ${{ !steps.skip-workflow.outputs.skip }}
@@ -127,3 +131,10 @@ jobs:
       - name: Perform CodeQL Analysis
         if: ${{ !steps.skip-workflow.outputs.skip }}
         uses: github/codeql-action/analyze@v1
+        
+  on-failure:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+    steps:
+      - name: Fail workflow
+        run: exit 1
