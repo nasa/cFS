@@ -51,7 +51,7 @@ jobs:
         if: ${{matrix.cppcheck =='cfe'}}
         run: |
           cd ${{matrix.cppcheck}}
-          cppcheck --force --inline-suppr --std=c99 --language=c --enable=warning,performance,portability,style --suppress=variableScope --inconclusive ./modules/core_api/fsw ./modules/core_private/fsw ./modules/es/fsw ./modules/evs/fsw ./modules/fs/fsw ./modules/msg/fsw ./modules/resourceid/fsw ./modules/sb/fsw ./modules/sbr/fsw ./modules/tbl/fsw ./modules/time/fsw -UCFE_PLATFORM_TIME_CFG_CLIENT -DCFE_PLATFORM_TIME_CFG_SERVER 2> ../${{matrix.cppcheck}}_cppcheck_err.txt
+          cppcheck --force --inline-suppr --std=c99 --language=c --enable=warning,performance,portability,style --suppress=variableScope --inconclusive ./fsw -UCFE_PLATFORM_TIME_CFG_CLIENT -DCFE_PLATFORM_TIME_CFG_SERVER 2> ../${{matrix.cppcheck}}_cppcheck_err.txt
 
       - name: osal strict cppcheck
         if: ${{matrix.cppcheck =='osal'}}
