@@ -3,6 +3,7 @@ queries:
 - exclude: "cpp/class-many-fields"
 - exclude: "cpp/long-switch"
 - exclude: "cpp/trivial-switch"
+- exclude: "cpp/string-copy-return-value-as-boolean"
 
 path_classifiers:
   generated:
