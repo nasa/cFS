@@ -7,9 +7,11 @@ on:
 
 env:
   SIMULATION: native
+  REPO_NAME: ${{ github.event.repository.name }}
 
 jobs:
-  #Checks for duplicate actions. Skips push actions if there is a matching or duplicate pull-request action.
+  # Checks for duplicate actions. Skips push actions if there is a matching or
+  # duplicate pull-request action.
   checks-for-duplicates:
     runs-on: ubuntu-latest
     # Map a step output to a job output
@@ -24,7 +26,8 @@ jobs:
           do_not_skip: '["push", "workflow_dispatch", "schedule"]'
 
   build-docs:
-    #Continue if checks-for-duplicates found no duplicates. Always runs for pull-requests.
+    # Continue if checks-for-duplicates found no duplicates. Always runs for
+    # pull-requests.
     needs: checks-for-duplicates
     if: ${{ needs.checks-for-duplicates.outputs.should_skip != 'true' }}
     name: cFE Documentation
@@ -92,7 +95,7 @@ jobs:
           cp ./cfe/cmake/Makefile.sample Makefile
           cp -r ./cfe/cmake/sample_defs sample_defs
 
-      # Setup the build system   
+      # Setup the build system
       - name: Make Prep
         run: make prep
 
@@ -126,21 +129,34 @@ jobs:
             exit -1
           fi
 
-  pdf-usersguide:  
+      - name: Cache cFS Build Environment for usersguide
+        id: cache-bundle
+        uses: actions/cache@v2
+        with:
+          path: /home/runner/work/${{ env.REPO_NAME }}/${{ env.REPO_NAME }}/build/*
+          key: usersguide-buildnum-${{ github.run_number }}
+
+  deploy-usersguide:
     needs: build-usersguide
     # Name the Job
-    name: PDF Users Guide
+    name: Deploy Users Guide
     # Set the type of machine to run on
     runs-on: ubuntu-18.04
 
     steps:
-    
-      - name: PDF generation installs
+      - name: Install Dependencies
         if: ${{ github.event_name == 'push' && contains(github.ref, 'main')}}
         run: |
           sudo apt-get install texlive-latex-base texlive-fonts-recommended texlive-fonts-extra texlive-latex-extra
 
-      - name: PDF generation
+      - name: Cache cFS Build Environment for usersguide
+        id: cache-bundle
+        uses: actions/cache@v2
+        with:
+          path: /home/runner/work/${{ env.REPO_NAME }}/${{ env.REPO_NAME }}/build/*
+          key: usersguide-buildnum-${{ github.run_number }}
+
+      - name: Generate PDF
         if: ${{ github.event_name == 'push' && contains(github.ref, 'main')}}
         run: |
           set -x
@@ -151,7 +167,7 @@ jobs:
           # Could add pandoc and convert to github markdown
           # pandoc CFE_Users_Guide.pdf -t gfm
 
-      - name: Deploy
+      - name: Deploy to GitHub
         if: ${{ github.event_name == 'push' && contains(github.ref, 'main')}}
         uses: JamesIves/github-pages-deploy-action@3.7.1
         with:
@@ -164,9 +180,7 @@ jobs:
   build-osalguide:
     needs: checks-for-duplicates
     if: ${{ needs.checks-for-duplicates.outputs.should_skip != 'true' }}
-    # Name the Job
     name: Osal Guide
-    # Set the type of machine to run on
     runs-on: ubuntu-18.04
 
     steps:
@@ -183,7 +197,7 @@ jobs:
           cp ./cfe/cmake/Makefile.sample Makefile
           cp -r ./cfe/cmake/sample_defs sample_defs
 
-      # Setup the build system 
+      # Setup the build system
       - name: Make Prep
         run: make prep
 
@@ -204,33 +218,46 @@ jobs:
             make_osalguide_stderr.txt
             osal-apiguide-warnings.log
 
-      - name: Error Check
+      - name: Check for Errors
         run: |
           if [[ -s make_osalguide_stderr.txt ]]; then
             cat make_osalguide_stderr.txt
             exit -1
           fi
 
-      - name: Warning Check
+      - name: Check for Warnings
         run: |
           if [[ -s osal-apiguide-warnings.log ]]; then
             cat osal-apiguide-warnings.log
             exit -1
           fi
 
-  pdf-osalguide:    
+      - name: Cache cFS Build Environment for osalguide
+        id: cache-bundle
+        uses: actions/cache@v2
+        with:
+          path: /home/runner/work/${{ env.REPO_NAME }}/${{ env.REPO_NAME }}/build/*
+          key: osalguide-buildnum-${{ github.run_number }}
+
+  deploy-osalguide:
     needs: build-osalguide
-    # Name the Job
-    name: PDF Osal Guide
-    # Set the type of machine to run on
+    name: Deploy Osal Guide
     runs-on: ubuntu-18.04
+
     steps:
-      - name: PDF generation installs
+      - name: Install Dependencies
         if: ${{ github.event_name == 'push' && contains(github.ref, 'main')}}
         run: |
           sudo apt-get install texlive-latex-base texlive-fonts-recommended texlive-fonts-extra texlive-latex-extra
 
-      - name: PDF generation
+      - name: Cache cFS Build Environment for osalguide
+        id: cache-bundle
+        uses: actions/cache@v2
+        with:
+          path: /home/runner/work/${{ env.REPO_NAME }}/${{ env.REPO_NAME }}/build/*
+          key: osalguide-buildnum-${{ github.run_number }}
+
+      - name: Generate PDF
         if: ${{ github.event_name == 'push' && contains(github.ref, 'main')}}
         run: |
           mkdir deploy
@@ -240,7 +267,7 @@ jobs:
           # Could add pandoc and convert to github markdown
           # pandoc CFE_Users_Guide.pdf -t gfm
 
-      - name: Deploy
+      - name: Deploy to GitHub
         if: ${{ github.event_name == 'push' && contains(github.ref, 'main')}}
         uses: JamesIves/github-pages-deploy-action@3.7.1
         with:
