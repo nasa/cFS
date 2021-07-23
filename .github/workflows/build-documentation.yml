@@ -129,32 +129,10 @@ jobs:
             exit -1
           fi
 
-      - name: Cache cFS Build Environment for usersguide
-        id: cache-bundle
-        uses: actions/cache@v2
-        with:
-          path: /home/runner/work/${{ env.REPO_NAME }}/${{ env.REPO_NAME }}/build/*
-          key: usersguide-buildnum-${{ github.run_number }}
-
-  deploy-usersguide:
-    needs: build-usersguide
-    # Name the Job
-    name: Deploy Users Guide
-    # Set the type of machine to run on
-    runs-on: ubuntu-18.04
-
-    steps:
       - name: Install Dependencies
         if: ${{ github.event_name == 'push' && contains(github.ref, 'main')}}
         run: |
           sudo apt-get install texlive-latex-base texlive-fonts-recommended texlive-fonts-extra texlive-latex-extra
-
-      - name: Cache cFS Build Environment for usersguide
-        id: cache-bundle
-        uses: actions/cache@v2
-        with:
-          path: /home/runner/work/${{ env.REPO_NAME }}/${{ env.REPO_NAME }}/build/*
-          key: usersguide-buildnum-${{ github.run_number }}
 
       - name: Generate PDF
         if: ${{ github.event_name == 'push' && contains(github.ref, 'main')}}
@@ -166,6 +144,28 @@ jobs:
           mv refman.pdf $GITHUB_WORKSPACE/deploy/cFE_Users_Guide.pdf
           # Could add pandoc and convert to github markdown
           # pandoc CFE_Users_Guide.pdf -t gfm
+
+      - name: Cache cFS Build Environment for osalguide
+        id: cache-usersguide
+        uses: actions/cache@v2
+        with:
+          path: /home/runner/work/${{ env.REPO_NAME }}/${{ env.REPO_NAME }}/deploy/*
+          key: usersguide-buildnum-${{ github.run_number }}
+          
+  deploy-usersguide:
+    needs: build-usersguide
+    # Name the Job
+    name: Deploy Users Guide
+    # Set the type of machine to run on
+    runs-on: ubuntu-18.04
+
+    steps:
+      - name: Cache cFS Build Environment for usersguide
+        id: cache-usersguide
+        uses: actions/cache@v2
+        with:
+          path: /home/runner/work/${{ env.REPO_NAME }}/${{ env.REPO_NAME }}/deploy/*
+          key: usersguide-buildnum-${{ github.run_number }}
 
       - name: Deploy to GitHub
         if: ${{ github.event_name == 'push' && contains(github.ref, 'main')}}
@@ -232,30 +232,10 @@ jobs:
             exit -1
           fi
 
-      - name: Cache cFS Build Environment for osalguide
-        id: cache-bundle
-        uses: actions/cache@v2
-        with:
-          path: /home/runner/work/${{ env.REPO_NAME }}/${{ env.REPO_NAME }}/build/*
-          key: osalguide-buildnum-${{ github.run_number }}
-
-  deploy-osalguide:
-    needs: build-osalguide
-    name: Deploy Osal Guide
-    runs-on: ubuntu-18.04
-
-    steps:
       - name: Install Dependencies
         if: ${{ github.event_name == 'push' && contains(github.ref, 'main')}}
         run: |
           sudo apt-get install texlive-latex-base texlive-fonts-recommended texlive-fonts-extra texlive-latex-extra
-
-      - name: Cache cFS Build Environment for osalguide
-        id: cache-bundle
-        uses: actions/cache@v2
-        with:
-          path: /home/runner/work/${{ env.REPO_NAME }}/${{ env.REPO_NAME }}/build/*
-          key: osalguide-buildnum-${{ github.run_number }}
 
       - name: Generate PDF
         if: ${{ github.event_name == 'push' && contains(github.ref, 'main')}}
@@ -267,6 +247,26 @@ jobs:
           # Could add pandoc and convert to github markdown
           # pandoc CFE_Users_Guide.pdf -t gfm
 
+      - name: Cache cFS Build Environment for osalguide
+        id: cache-osalguide
+        uses: actions/cache@v2
+        with:
+          path: /home/runner/work/${{ env.REPO_NAME }}/${{ env.REPO_NAME }}/deploy/*
+          key: osalguide-buildnum-${{ github.run_number }}
+  
+  deploy-osalguide:
+    needs: build-osalguide
+    name: Deploy Osal Guide
+    runs-on: ubuntu-18.04
+
+    steps:
+      - name: Cache cFS Build Environment for osalguide
+        id: cache-osalguide
+        uses: actions/cache@v2
+        with:
+          path: /home/runner/work/${{ env.REPO_NAME }}/${{ env.REPO_NAME }}/deploy/*
+          key: osalguide-buildnum-${{ github.run_number }}
+          
       - name: Deploy to GitHub
         if: ${{ github.event_name == 'push' && contains(github.ref, 'main')}}
         uses: JamesIves/github-pages-deploy-action@3.7.1
