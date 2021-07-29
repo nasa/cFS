@@ -14,6 +14,14 @@ This action builds, tests, and runs the cFS bundle omitting deprecated code.
 
 Build, Test, and Run [OMIT_DEPRECATED=true] runs for every push and every pull request on all branches of cFS in Github Actions. For more information on the OMIT_DEPRECATED flag, see [global_build_options.cmake](https://github.com/nasa/cFE/blob/063b4d8a9c4a7e822af5f3e4017599159b985bb0/cmake/sample_defs/global_build_options.cmake). 
 
+## Build and Test in RTEMS [OMIT_DEPRECATED=true]
+[![Build and Test rtems 4.11 [OMIT_DEPRECATED=true]](https://github.com/nasa/cFS/actions/workflows/build-cfs-rtems4.11.yml/badge.svg)](https://github.com/nasa/cFS/actions/workflows/build-cfs-rtems4.11.yml)
+[![Build and Test rtems 5 [OMIT_DEPRECATED=true]](https://github.com/nasa/cFS/actions/workflows/build-cfs-rtems5.yml/badge.svg)](https://github.com/nasa/cFS/actions/workflows/build-cfs-rtems5.yml)
+
+This action builds and tests the cFS bundle omitting deprecated code in both RTEMS 4.11 and RTEMS 5.
+
+Build and Test in RTEMS 4.11 and 5 runs for every push and every pull request on all branches of cFS in Github Actions.
+
 ## CodeQL Analysis
 [![CodeQL Analaysis](https://github.com/nasa/cfs/actions/workflows/codeql-build.yml/badge.svg)](https://github.com/nasa/cfs/actions/workflows/codeql-build.yml)
 
