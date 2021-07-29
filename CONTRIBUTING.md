@@ -24,7 +24,9 @@ This project and everyone participating in it is governed by the [cFS Code of Co
 
 ### Discussions and Questions
 
-For questions or help, submit a GitHub issue, [join the cfs community mailing list](README.md#join-the-mailing-list).
+For discussions, questions, or ideas, [start a new discussion](https://github.com/nasa/cFS/discussions/new) in the cFS repository under the Discussions tab. 
+
+[Join the cfs community mailing list](README.md#join-the-mailing-list).
 
 
 ### Report Bugs
