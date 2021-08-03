@@ -1,0 +1,125 @@
+name: Build and Test rtems 5 [OMIT_DEPRECATED=true]
+
+# Run every time a new commit pushed or for pull requests
+on:
+  push:
+  pull_request:
+
+env:
+  OMIT_DEPRECATED: true
+
+jobs:
+  #Checks for duplicate actions. Skips push actions if there is a matching or duplicate pull-request action. 
+  check-for-duplicates:
+    runs-on: ubuntu-latest
+    # Map a step output to a job output
+    outputs:
+        should_skip: ${{ steps.skip_check.outputs.should_skip }}
+    steps:
+      - id: skip_check
+        uses: fkirc/skip-duplicate-actions@master
+        with:
+          concurrent_skipping: 'same_content'
+          skip_after_successful_duplicate: 'true'
+          do_not_skip: '["pull_request", "workflow_dispatch", "schedule"]'
+          
+  build-cfs:
+    #Continue if check-for-duplicates found no duplicates. Always runs for pull-requests.
+    needs: check-for-duplicates
+    if: ${{ needs.check-for-duplicates.outputs.should_skip != 'true' }}
+    name: Build
+    runs-on: ubuntu-18.04
+    container: nmullane/qemu_rtems:5
+
+    strategy:
+      fail-fast: false
+      matrix:
+        buildtype: [debug, release]
+
+    # Set the type of machine to run on
+    env:
+      BUILDTYPE: ${{ matrix.buildtype }}
+      # Set home to where rtems is located
+      HOME: /root
+
+    steps:
+      # Check out the cfs bundle
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      # Setup the build system
+      - name: Copy Files
+        run: |
+          cp ./cfe/cmake/Makefile.sample Makefile
+          cp -r ./cfe/cmake/sample_defs sample_defs
+
+      # Setup the build system
+      - name: Make Prep
+        run: make SIMULATION=i686-rtems5 prep
+
+      - name: Make
+        run: make
+
+  test-cfs:
+    name: Test
+    runs-on: ubuntu-18.04
+    container: nmullane/qemu_rtems:5
+
+    needs: build-cfs
+
+    strategy:
+      fail-fast: false
+      matrix:
+        buildtype: [debug, release]
+
+    # Set the type of machine to run on
+    env:
+      BUILDTYPE: ${{ matrix.buildtype }}
+      ENABLE_UNIT_TESTS: true
+      # Set home to where rtems is located
+      HOME: /root
+      # Disable mcopy check otherwise disk image build fails
+      MTOOLS_SKIP_CHECK: 1
+
+
+    steps:
+      # Checks out a copy of your repository on the ubuntu-latest machine
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      # Setup the build system
+      - name: Copy Files
+        run: |
+          cp ./cfe/cmake/Makefile.sample Makefile
+          cp -r ./cfe/cmake/sample_defs sample_defs
+
+      # Setup the build system
+      - name: Make
+        run: |
+          make SIMULATION=i686-rtems5 prep
+          make install
+
+      - name: Test
+        #run: .github/scripts/qemu_test.sh && .github/scripts/log_failed_tests.sh
+        run: make O=build SKIP_NET_TESTS=true RTEMS_VERSION=i686-rtems5 -f .github/scripts/rtems-test.mk all_tests -k
+
+      - name: Output Failed Tests
+        run: |
+          # Check if failed-tests is empty or not
+          if [ -s ./build/exe/cpu1/failed-tests.log ]; then
+            echo "Failing tests found:"
+            cat ./build/exe/cpu1/failed-tests.log
+          fi
+
+      # Always archive test logs
+      - name: Archive cFS Test Artifacts
+        uses: actions/upload-artifact@v2
+        # Runs even if previous steps have failed
+        if: always()
+        with:
+          name: cFS-rtems-log-summary-${{ matrix.buildtype }}
+          path: ./build/exe/cpu1/*.log
