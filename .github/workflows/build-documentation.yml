@@ -153,11 +153,10 @@ jobs:
           key: usersguide-buildnum-${{ github.run_number }}
           
   deploy-usersguide:
-    needs: build-usersguide
-    # Name the Job
     name: Deploy Users Guide
-    # Set the type of machine to run on
     runs-on: ubuntu-18.04
+    needs: build-usersguide    
+    if: ${{ github.event_name == 'push' && contains(github.ref, 'main')}}
 
     steps:
       - name: Cache cFS Build Environment for usersguide
@@ -258,6 +257,7 @@ jobs:
     needs: build-osalguide
     name: Deploy Osal Guide
     runs-on: ubuntu-18.04
+    if: ${{ github.event_name == 'push' && contains(github.ref, 'main')}}
 
     steps:
       - name: Cache cFS Build Environment for osalguide
@@ -268,7 +268,6 @@ jobs:
           key: osalguide-buildnum-${{ github.run_number }}
           
       - name: Deploy to GitHub
-        if: ${{ github.event_name == 'push' && contains(github.ref, 'main')}}
         uses: JamesIves/github-pages-deploy-action@3.7.1
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -276,3 +275,4 @@ jobs:
           FOLDER: deploy
           CLEAN: false
           SINGLE_COMMIT: true
+          
