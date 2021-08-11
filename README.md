@@ -71,8 +71,9 @@ See related repositories for current open issues.
 
 ## Getting Help
 
-For best results, submit issues:questions or issues:help wanted requests to this repo.
+### Discussions 
 
+You can [start a new discussion](https://github.com/nasa/cFS/discussions/new) for discussions, questions, or ideas, in the cFS repository under the Discussions tab.
 
 ### Join the mailing list
 
@@ -85,7 +86,6 @@ If you'd like to unsubscribe, send an email with the word *unsubscribe* to cfs-c
 ### Contact the cFS Product Team
 
 You can email the cFS Product Team at cfs-program@lists.nasa.gov to explore partnerships and other arrangements for in-depth support.
-
 
 ## Setup
 
