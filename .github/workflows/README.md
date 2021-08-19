@@ -23,7 +23,7 @@ This action builds and tests the cFS bundle omitting deprecated code in both RTE
 Build and Test in RTEMS 4.11 and 5 runs for every push and every pull request on all branches of cFS in Github Actions.
 
 ## CodeQL Analysis
-[![CodeQL Analaysis](https://github.com/nasa/cfs/actions/workflows/codeql-build.yml/badge.svg)](https://github.com/nasa/cfs/actions/workflows/codeql-build.yml)
+[![CodeQL Analysis](https://github.com/nasa/cfs/actions/workflows/codeql-build.yml/badge.svg)](https://github.com/nasa/cfs/actions/workflows/codeql-build.yml)
 
 This action runs GitHub's static analysis engine, CodeQL, against our repository's source code to find security vulnerabilities. It then automatically uploads the results to GitHub so they can be displayed in the repository's code scanning alerts found under the security tab. CodeQL runs an extensible set of [queries](https://github.com/github/codeql), which have been developed by the community and the [GitHub Security Lab](https://securitylab.github.com/) to find common vulnerabilities in your code.
 
@@ -33,8 +33,8 @@ For the CodeQL GitHub Actions setup, visit https://github.com/github/codeql-acti
 
 Our CodeQL action uses a configuration file to use specific queries, which can be found at [.github/codeql](https://github.com/nasa/cFS/tree/main/.github/codeql).
 
-## Static Analaysis
-[![Static Analaysis](https://github.com/nasa/cfs/actions/workflows/static-analysis.yml/badge.svg)](https://github.com/nasa/cfs/actions/workflows/static-analysis.yml)
+## Static Analysis
+[![Static Analysis](https://github.com/nasa/cfs/actions/workflows/static-analysis.yml/badge.svg)](https://github.com/nasa/cfs/actions/workflows/static-analysis.yml)
 
 This action runs a static analysis tool for C/C++ code known as cppcheck. Cppcheck is designed to be able to analyze C/C++ code even if it has non-standard syntax, which is common in embedded projects.
 
