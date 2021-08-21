@@ -228,7 +228,7 @@ git push --force
 ## Writing High-Quality Code
 
 1. Follow cFS code conventions (formatting, symbol naming, file naming, etc). Do *not* change/reformat existing code, except to address your changes.
-    - The cFS submodules uses the Format Check workflow to ensure users follow the [clang-format-10](https://github.com/nasa/cFS/blob/main/.clang-format) style. For more information on how to use the Format Check workflow, view [Using GitHub Actions Workflows](#using-github-actions-workflows).  
+    - The cFS submodules use the Format Check workflow to ensure users follow the [clang-format-10](https://github.com/nasa/cFS/blob/main/.clang-format) style. For more information on how to use the Format Check workflow, view [Using GitHub Actions Workflows](#using-github-actions-workflows).  
     - The [cFS_IdentifierNamingConvention document](https://github.com/nasa/cFE/blob/main/docs/cFS_IdentifierNamingConvention.md) provides a simple naming convention guide for cFE/cFS for commands and telemetry that simplifies the EDS to ground telemetry and commands database conversion.
     - The [cFE Application Developers Guide](https://github.com/nasa/cFE/blob/main/docs/cFE%20Application%20Developers%20Guide.md) contains code conventions such as naming conventions for header files.
 
@@ -240,7 +240,7 @@ git push --force
 
 5. Review the static code analyses results from the Static Analysis and CodeQL Analysis workflows. For more information on how to use these workflows, view [Using GitHub Actions Workflows](#using-github-actions-workflows).  
     - Push code changes to the appropriate forked repository.
-    - Go to the Actions tab and enable GitHub Actions Workflow. The CodeQL Analyis and Static Analysis will be triggered for all pushed code.
+    - Go to the Actions tab and enable GitHub Actions Workflow. The CodeQL Analysis and Static Analysis will be triggered for all pushed code.
     - Review these workflows for any warnings or errors.
     - Once successful, create a pull request.
 
@@ -264,7 +264,7 @@ All of our workflows will be available for forked repositories once enabled. To 
 1. Navigate to Actions in the selected repository. For newly forked repositories, enable workflows after clicking on Actions.
 2. In the left sidebar, click the workflow you want to view.
 3. From the list of workflow runs, click the name of the run you want to see.
-4. Scroll to the bottom of the page and download the artifacts. For CodeQL results, navigate to the Security Tab and click Code scanning alerts. CodeQL results will only be avaiable on your forked repository.
+4. Scroll to the bottom of the page and download the artifacts. For CodeQL results, navigate to the Security Tab and click Code scanning alerts. CodeQL results will only be available on your forked repository.
 
 or
 
@@ -300,6 +300,6 @@ Before you [report bugs](#report-bugs) or submit [feature requests](#feature-req
 * [elf2cfetbl Issues](https://github.com/nasa/elf2cfetbl/tree/6762b1c3b455665dae57e35f14a50fe327830391)
 * [tblCRCTool Issues](https://github.com/nasa/tblCRCTool/tree/b02864ba56b12e00ab152225e3e8f9d6c039d48c)
 
-If your bug or feature hasn't been reported or requested before, create a new issue in the appropriate repository. If it you find a similar issue, please add a comment on it with your experience or input.
+If your bug or feature hasn't been reported or requested before, create a new issue in the appropriate repository. If you find a similar issue, please add a comment on it with your experience or input.
 
 Please ensure that your name is associated with your github profile before contributing.

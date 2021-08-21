@@ -1,0 +1,88 @@
+name: Static Analysis with MISRA
+
+# Run this workflow manually from the Actions tab
+on:
+  workflow_dispatch:
+
+jobs:
+  #Checks for duplicate actions. Skips push actions if there is a matching or duplicate pull-request action.
+  check-for-duplicates:
+    runs-on: ubuntu-latest
+    # Map a step output to a job output
+    outputs:
+        should_skip: ${{ steps.skip_check.outputs.should_skip }}
+    steps:
+      - id: skip_check
+        uses: fkirc/skip-duplicate-actions@master
+        with:
+          concurrent_skipping: 'same_content'
+          skip_after_successful_duplicate: 'true'
+          do_not_skip: '["pull_request", "workflow_dispatch", "schedule"]'
+          
+  misra-analysis:
+    #Continue if check-for-duplicates found no duplicates. Always runs for pull-requests.
+    needs: check-for-duplicates
+    if: ${{ needs.check-for-duplicates.outputs.should_skip != 'true' }}
+    name: Run cppcheck with misra
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        cppcheck: [bundle, cfe, osal, psp]
+
+    steps:
+      - name: Install cppcheck
+        run: sudo apt-get install cppcheck -y
+
+        # Checks out a copy of the cfs bundle
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      - name: get MISRA addon
+        run: |
+            sudo apt-get install git -y
+            git clone https://github.com/danmar/cppcheck.git
+            cp cppcheck/addons/misra.py misra.py
+            cp cppcheck/addons/cppcheckdata.py cppcheckdata.py
+            cp cppcheck/addons/misra_9.py misra_9.py
+  
+      - name: Run bundle cppcheck
+        if: ${{matrix.cppcheck =='bundle'}}
+        run: |
+          cppcheck --addon=misra --force --inline-suppr --quiet . 2> ${{matrix.cppcheck}}_cppcheck_err.txt
+          
+        # Run strict static analysis for embedded portions of cfe, osal, and psp
+      - name: cfe strict cppcheck
+        if: ${{matrix.cppcheck =='cfe'}}
+        run: |
+          cd ${{matrix.cppcheck}}
+          cppcheck --addon=misra --force --inline-suppr --std=c99 --language=c --enable=warning,performance,portability,style --suppress=variableScope --inconclusive ./modules/core_api/fsw ./modules/core_private/fsw ./modules/es/fsw ./modules/evs/fsw ./modules/fs/fsw ./modules/msg/fsw ./modules/resourceid/fsw ./modules/sb/fsw ./modules/sbr/fsw ./modules/tbl/fsw ./modules/time/fsw -UCFE_PLATFORM_TIME_CFG_CLIENT -DCFE_PLATFORM_TIME_CFG_SERVER 2> ../${{matrix.cppcheck}}_cppcheck_err.txt
+          
+      - name: osal strict cppcheck
+        if: ${{matrix.cppcheck =='osal'}}
+        run: |
+          cd ${{matrix.cppcheck}}
+          cppcheck --addon=misra --force --inline-suppr --std=c99 --language=c --enable=warning,performance,portability,style --suppress=variableScope --inconclusive ./src/bsp ./src/os 2> ../${{matrix.cppcheck}}_cppcheck_err.txt
+          
+      - name: psp strict cppcheck
+        if: ${{matrix.cppcheck =='psp'}}
+        run: |
+          cd ${{matrix.cppcheck}}
+          cppcheck --addon=misra --force --inline-suppr --std=c99 --language=c --enable=warning,performance,portability,style --suppress=variableScope --inconclusive ./fsw 2> ../${{matrix.cppcheck}}_cppcheck_err.txt
+          
+      - name: Archive Static Analysis Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{matrix.cppcheck}}-cppcheck-err
+          path: ./*cppcheck_err.txt
+
+      - name: Check for errors
+        run: |
+          if [[ -s ${{matrix.cppcheck}}_cppcheck_err.txt ]];
+          then
+            cat ${{matrix.cppcheck}}_cppcheck_err.txt
+            exit -1
+          fi
