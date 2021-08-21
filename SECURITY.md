@@ -4,7 +4,7 @@
 
 For general cFS vulnerabilities, please [open a cFS framework issue](https://github.com/nasa/cfs/issues/new/choose). Please use the "Bug Report" template and provide as much information as possible. Apply appropriate labels for each report.  
 
-For security related vulnerabilities, follow the general cFS vulnerabilites instructions and tag the issue with the "security" label.
+For security related vulnerabilities, follow the general cFS vulnerabilities instructions and tag the issue with the "security" label.
 
 ## Security Reports
 
