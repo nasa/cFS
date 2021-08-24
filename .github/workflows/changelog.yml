@@ -1,0 +1,34 @@
+name: Changelog
+
+# Controls when the action will run. 
+on:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+    
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Run Changelog
+        uses: heinrichreimer/github-changelog-generator-action@v2.1.1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          issuesLabel: "### Closed issues" 
+          breakingLabel: "### Breaking changes" 
+          enhancementLabel: "### Implemented enhancements" 
+          bugsLabel: "### Fixed bugs" 
+          deprecatedLabel: "### Deprecated" 
+          removedLabel: "### Removed" 
+          securityLabel: "### Security fixes"
+          pullRequests: false
+          author: false
+        
+      - name: "Upload changelog"
+        uses: actions/upload-artifact@v1.0.0
+        with:
+          name: "Changelog"
+          path: CHANGELOG.md
+          
