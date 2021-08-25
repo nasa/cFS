@@ -37,7 +37,7 @@ jobs:
 
     steps:
       # Checks out a copy of your repository
-      - name: Checkout code
+      - name: Checkout cFS bundle
         if: ${{ !steps.skip-workflow.outputs.skip }}
         uses: actions/checkout@v2
         with:
@@ -45,7 +45,7 @@ jobs:
           submodules: true
           ref: bootes.x
 
-      - name: Check versions
+      - name: Check submodule git SHAs
         if: ${{ !steps.skip-workflow.outputs.skip }}
         run: |
            git log -1 --pretty=oneline
@@ -84,7 +84,7 @@ jobs:
 
     steps:
       # Checks out a copy of your repository
-      - name: Checkout code
+      - name: Checkout cFS bundle
         if: ${{ !steps.skip-workflow.outputs.skip }}
         uses: actions/checkout@v2
         with:
@@ -92,20 +92,19 @@ jobs:
           submodules: true
           ref: bootes.x
 
-      - name: Check versions
+      - name: Check submodule git SHAs
         if: ${{ !steps.skip-workflow.outputs.skip }}
         run: |
            git log -1 --pretty=oneline
            git submodule
 
-      - name: Checkout codeql code      
+      - name: Checkout CodeQL repo      
         if: ${{ !steps.skip-workflow.outputs.skip }}
         uses: actions/checkout@v2
         with:
           repository: github/codeql 
           submodules: true 
-          path: codeql
-          ref: bootes.x
+          path: codeql          
 
       - name: Initialize CodeQL
         if: ${{ !steps.skip-workflow.outputs.skip }}
