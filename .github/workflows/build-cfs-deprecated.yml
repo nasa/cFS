@@ -8,6 +8,8 @@ on:
 env:
   SIMULATION: native
   OMIT_DEPRECATED: false
+  ENABLE_UNIT_TESTS: true
+  REPO_NAME: ${{ github.event.repository.name }}
 
 jobs:
   #Checks for duplicate actions. Skips push actions if there is a matching or duplicate pull-request action. 
@@ -24,14 +26,40 @@ jobs:
           skip_after_successful_duplicate: 'true'
           do_not_skip: '["pull_request", "workflow_dispatch", "schedule"]'
           
-  # Set the job key. The key is displayed as the job name
-  # when a job name is not provided
-
-  build-cfs:
+  prep-env:
+    name: Prepare Environment
     #Continue if check-for-duplicates found no duplicates. Always runs for pull-requests.
     needs: check-for-duplicates
-    if: ${{ needs.check-for-duplicates.outputs.should_skip != 'true' }}
+    runs-on: ubuntu-18.04
+
+    steps:
+      - name: Cache Source and proto-build
+        id: cache-src-proto-bld
+        uses: actions/cache@v2
+        with:
+          path: /home/runner/work/${{ env.REPO_NAME }}/${{ env.REPO_NAME }}/*
+          key: proto-build-${{ github.run_number }}  
+          
+      - name: Checkout cFS
+        if: steps.cache-src-proto-bld.outputs.cache-hit != 'true'
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+          
+      - name: Check versions
+        run: git submodule
+        
+      - name: Copy Makefile
+        run: |
+          cp ./cfe/cmake/Makefile.sample Makefile
+          cp -r ./cfe/cmake/sample_defs sample_defs
+
+      - name: Prep Build
+        run: make prep 
+        
+  build-cfs:
     name: Build
+    needs: prep-env
     runs-on: ubuntu-18.04
 
     strategy:
@@ -44,25 +72,16 @@ jobs:
       BUILDTYPE: ${{ matrix.buildtype }}
 
     steps:
-      # Checks out a copy of your repository on the ubuntu-latest machine
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - name: Cache Source and proto-build
+        id: cache-src-proto-bld
+        uses: actions/cache@v2
         with:
-          submodules: true
-
-      # Setup the build system
-      - name: Copy Files
-        run: |
-          cp ./cfe/cmake/Makefile.sample Makefile
-          cp -r ./cfe/cmake/sample_defs sample_defs
-
-      # Setup the build system
-      - name: Make Prep
-        run: make prep
-
+          path: /home/runner/work/${{ env.REPO_NAME }}/${{ env.REPO_NAME }}/*
+          key: proto-build-${{ github.run_number }}
+          
       - name: Make
         run: make
-
+        
   test-cfs:
     name: Test
     needs: build-cfs
@@ -78,27 +97,23 @@ jobs:
       BUILDTYPE: ${{ matrix.buildtype }}
       ENABLE_UNIT_TESTS: true
 
-
     steps:
       - name: Install Dependencies
         run: sudo apt-get install lcov -y
-
-      # Checks out a copy of your repository on the ubuntu-latest machine
-      - name: Checkout code
-        uses: actions/checkout@v2
+        
+      - name: Cache Source and proto-build
+        id: cache-src-proto-bld
+        uses: actions/cache@v2
         with:
-          submodules: true
+          path: /home/runner/work/${{ env.REPO_NAME }}/${{ env.REPO_NAME }}/*
+          key: proto-build-${{ github.run_number }}
 
-      # Setup the build system
-      - name: Copy Files
-        run: |
-          cp ./cfe/cmake/Makefile.sample Makefile
-          cp -r ./cfe/cmake/sample_defs sample_defs
-
-      # Setup the build system
+      - name: Prep Build
+        run: make prep 
+        
       - name: Make
         run: make
-
+        
       - name: Run Tests
         run: make test
 
@@ -120,17 +135,12 @@ jobs:
       BUILDTYPE: ${{ matrix.buildtype }}
 
     steps:
-      # Checks out a copy of your repository on the ubuntu-latest machine
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - name: Cache Source and proto-build
+        id: cache-src-proto-bld
+        uses: actions/cache@v2
         with:
-          submodules: true
-
-      # Setup the build system
-      - name: Copy sample_defs
-        run: |
-          cp ./cfe/cmake/Makefile.sample Makefile
-          cp -r ./cfe/cmake/sample_defs sample_defs
+          path: /home/runner/work/${{ env.REPO_NAME }}/${{ env.REPO_NAME }}/*
+          key: proto-build-${{ github.run_number }}
 
       # Setup the build system
       - name: Make Install
@@ -149,7 +159,7 @@ jobs:
       - name: Archive cFS Startup Artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: cFS-startup-log-deprecated-false-${{ matrix.buildtype }}
+          name: cFS-startup-log-deprecate-true-${{ matrix.buildtype }}
           path: ./build/exe/cpu1/cFS_startup_cpu1.txt
 
       - name: Check for cFS Warnings
@@ -161,3 +171,66 @@ jobs:
                   exit -1
           fi
         working-directory: ./build/exe/cpu1/
+
+
+  Functional-Test-Build:
+    #Continue if check-for-duplicates found no duplicates. Always runs for pull-requests.
+    needs: build-cfs
+    runs-on: ubuntu-18.04
+    timeout-minutes: 15
+
+    steps:      
+      - name: Cache Source and proto-build
+        id: cache-src-proto-bld
+        uses: actions/cache@v2
+        with:
+          path: /home/runner/work/${{ env.REPO_NAME }}/${{ env.REPO_NAME }}/*
+          key: proto-build-${{ github.run_number }}
+          
+      # Setup the build system
+      - name: Make Install
+        run: make install
+
+      - name: List cpu1
+        run: ls build/exe/cpu1/
+
+      # Run cFS, send commands to set perf trigger and start perf data, and run functional tests
+      - name: Run cFS Functional
+        run: |
+          ./core-cpu1 &
+          sleep 10
+          ../host/cmdUtil --pktid=0x1806 --cmdcode=17 --endian=LE --uint32=3 --uint32=0x40000000
+          ../host/cmdUtil --pktid=0x1806 --cmdcode=14 --endian=LE --uint32=2
+          ../host/cmdUtil --pktid=0x1806 --cmdcode=4 --endian=LE --string="20:CFE_TEST_APP" --string="20:CFE_TestMain" --string="64:cfe_testcase" --uint32=16384 --uint8=0 --uint8=0 --uint16=100
+          sleep 30
+          counter=0 
+          while [[ ! -f cf/cfe_test.log ]]; do 
+            temp=$(grep -c "BEGIN" cf/cfe_test.tmp) 
+              
+            if [ $temp -eq $counter ]; then
+              echo "Test is frozen. Quiting"
+              break
+            fi
+            counter=$(grep -c "BEGIN" cf/cfe_test.tmp)            
+            echo "Waiting for CFE Tests"
+            sleep 60
+          done
+          
+          ../host/cmdUtil --endian=LE --pktid=0x1806 --cmdcode=2 --half=0x0002
+        working-directory: ./build/exe/cpu1/
+
+      - name: Archive cFS Startup Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: cFS-functional-log-deprecate-true-${{ matrix.buildtype }}
+          path: ./build/exe/cpu1/cf/cfe_test.log
+
+      - name: Check for cFS Warnings
+        run: |  
+          if [[ -z $(grep -i "SUMMARY.*FAIL::0.*TSF::0.*TTF::0" cf/cfe_test.log) ]]; then
+                  echo "Must resolve Test Failures in cFS Test App before submitting a pull request"
+                  echo ""
+                  grep -i '\[ FAIL]\|\[  TSF]\|\[  TTF]' cf/cfe_test.log
+                  exit -1
+          fi
+        working-directory: ./build/exe/cpu1/  
