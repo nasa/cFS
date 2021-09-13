@@ -1,0 +1,52 @@
+name: Manage Issues and Pull Requests
+
+# Run on main push and pull requests
+on:
+  push: 
+
+jobs:
+
+  commit-checker: 
+    name: Commit Format Checker
+    
+    runs-on: ubuntu-latest
+    
+    steps:                 
+      - name: Check Issue Reference
+        uses: gsactions/commit-message-checker@v1
+        with:
+          pattern: 'Fix \#\d+,'
+          flags: 'gm'
+          error: 'Your first line has to contain a commit type like "[BUGFIX]".'
+      - name: Check Line Length
+        uses: gsactions/commit-message-checker@v1
+        with:
+          pattern: '^[^#].{74}'
+          error: 'The maximum line length of 74 characters is exceeded.'
+          excludeDescription: 'true' # optional: this excludes the description body of a pull request
+          excludeTitle: 'true' # optional: this excludes the title of a pull request
+          checkAllCommitMessages: 'true' # optional: this checks all commits associated with a pull request
+          accessToken: ${{ secrets.GITHUB_TOKEN }} # github access token is only required if checkAllCommitMessages is true
+   
+  spellcheck:
+    name: Typo CI (GitHub Action)
+    
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    if: "!contains(github.event.head_commit.message, '[ci skip]')"
+    
+    steps:
+      - name: TypoCheck
+        uses: typoci/spellcheck-action@master
+        env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
+  labeler: 
+    name: "Pull Request Labeler
+    
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/labeler@v3
+      with:
+        repo-token: "${{ secrets.GITHUB_TOKEN }}"
