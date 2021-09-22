@@ -1,4 +1,4 @@
-name: Build, Test, and Run [OMIT_DEPRECATED=true]
+name: Build, Test, and Run [OMIT_DEPRECATED = true]
 
 # Run every time a new commit pushed or for pull requests
 on:
@@ -8,6 +8,8 @@ on:
 env:
   SIMULATION: native
   OMIT_DEPRECATED: true
+  ENABLE_UNIT_TESTS: true
+  REPO_NAME: ${{ github.event.repository.name }}
 
 jobs:
   #Checks for duplicate actions. Skips push actions if there is a matching or duplicate pull-request action. 
@@ -23,12 +25,10 @@ jobs:
           concurrent_skipping: 'same_content'
           skip_after_successful_duplicate: 'true'
           do_not_skip: '["pull_request", "workflow_dispatch", "schedule"]'
-          
-  build-cfs:
-    #Continue if check-for-duplicates found no duplicates. Always runs for pull-requests.
+                  
+  build-cfs-omit-deprecated-true:
+    name: Build    
     needs: check-for-duplicates
-    if: ${{ needs.check-for-duplicates.outputs.should_skip != 'true' }}
-    name: Build
     runs-on: ubuntu-18.04
 
     strategy:
@@ -38,33 +38,39 @@ jobs:
 
     # Set the type of machine to run on
     env:
-      BUILDTYPE: ${{ matrix.buildtype }}
+      BUILDTYPE: ${{ matrix.buildtype }}    
 
     steps:
-      # Check out the cfs bundle
-      - name: Checkout code
+      - name: Cache Source and Build
+        id: cache-src-bld
+        uses: actions/cache@v2
+        with:
+          path: /home/runner/work/${{ env.REPO_NAME }}/${{ env.REPO_NAME }}/*
+          key: build-${{ github.run_number }}-${{ matrix.buildtype }}
+          
+      - name: Checkout cFS
+        if: steps.cache-src-bld.outputs.cache-hit != 'true'
         uses: actions/checkout@v2
         with:
           submodules: true
-
-      # Setup the build system
-      - name: Copy Files
+          
+      - name: Check versions
+        run: git submodule
+        
+      - name: Copy Makefile
         run: |
           cp ./cfe/cmake/Makefile.sample Makefile
           cp -r ./cfe/cmake/sample_defs sample_defs
-
-      # Setup the build system
-      - name: Make Prep
-        run: make prep
-
+      - name: Prep Build
+        run: make prep 
+          
       - name: Make
-        run: make
-
-  test-cfs:
-    name: Test
+        run: make install
+        
+  tests-and-coverage-omit-deprecated-true:
+    name: Run Unit Tests and Check Coverage
+    needs: build-cfs-omit-deprecated-true
     runs-on: ubuntu-18.04
-
-    needs: build-cfs
 
     strategy:
       fail-fast: false
@@ -76,36 +82,26 @@ jobs:
       BUILDTYPE: ${{ matrix.buildtype }}
       ENABLE_UNIT_TESTS: true
 
-
     steps:
       - name: Install Dependencies
         run: sudo apt-get install lcov -y
-
-      # Checks out a copy of your repository on the ubuntu-latest machine
-      - name: Checkout code
-        uses: actions/checkout@v2
+        
+      - name: Cache Source and Build
+        id: cache-src-bld
+        uses: actions/cache@v2
         with:
-          submodules: true
-
-      # Setup the build system
-      - name: Copy Files
-        run: |
-          cp ./cfe/cmake/Makefile.sample Makefile
-          cp -r ./cfe/cmake/sample_defs sample_defs
-
-      # Setup the build system
-      - name: Make
-        run: make
-
+          path: /home/runner/work/${{ env.REPO_NAME }}/${{ env.REPO_NAME }}/*
+          key: build-${{ github.run_number }}-${{ matrix.buildtype }}          
+      
       - name: Run Tests
         run: make test
 
       - name: Check Coverage
         run: make lcov
 
-  run-cfs:
+  run-cfs-omit-deprecated-true:
     name: Run
-    needs: build-cfs
+    needs: build-cfs-omit-deprecated-true
     runs-on: ubuntu-18.04
 
     strategy:
@@ -118,21 +114,13 @@ jobs:
       BUILDTYPE: ${{ matrix.buildtype }}
 
     steps:
-      # Checks out a copy of your repository on the ubuntu-latest machine
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - name: Cache Source and Build
+        id: cache-src-bld
+        uses: actions/cache@v2
         with:
-          submodules: true
+          path: /home/runner/work/${{ env.REPO_NAME }}/${{ env.REPO_NAME }}/*
+          key: build-${{ github.run_number }}-${{ matrix.buildtype }}
 
-      # Setup the build system
-      - name: Copy sample_defs
-        run: |
-          cp ./cfe/cmake/Makefile.sample Makefile
-          cp -r ./cfe/cmake/sample_defs sample_defs
-
-      # Setup the build system
-      - name: Make Install
-        run: make install
 
       - name: List cpu1
         run: ls build/exe/cpu1/
@@ -147,7 +135,7 @@ jobs:
       - name: Archive cFS Startup Artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: cFS-startup-log-deprecate-true-${{ matrix.buildtype }}
+          name: cFS-startup-log-omit-deprecate-true-${{ matrix.buildtype }}
           path: ./build/exe/cpu1/cFS_startup_cpu1.txt
 
       - name: Check for cFS Warnings
@@ -159,3 +147,66 @@ jobs:
                   exit -1
           fi
         working-directory: ./build/exe/cpu1/
+
+  run-functional-test-app-omit-deprecated-true:
+    #Continue if check-for-duplicates found no duplicates. Always runs for pull-requests.
+    needs: run-cfs-omit-deprecated-true
+    runs-on: ubuntu-18.04
+    timeout-minutes: 15
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        buildtype: [debug, release]
+
+    steps:      
+      - name: Cache Source and Build
+        id: cache-src-bld
+        uses: actions/cache@v2
+        with:
+          path: /home/runner/work/${{ env.REPO_NAME }}/${{ env.REPO_NAME }}/*
+          key: build-${{ github.run_number }}-${{ matrix.buildtype }}
+
+      - name: List cpu1
+        run: ls build/exe/cpu1/
+
+      # Run cFS, send commands to set perf trigger and start perf data, and run functional tests
+      - name: Run cFS Functional Tests
+        run: |
+          ./core-cpu1 &
+          sleep 10
+          ../host/cmdUtil --pktid=0x1806 --cmdcode=17 --endian=LE --uint32=3 --uint32=0x40000000
+          ../host/cmdUtil --pktid=0x1806 --cmdcode=14 --endian=LE --uint32=2
+          ../host/cmdUtil --pktid=0x1806 --cmdcode=4 --endian=LE --string="20:CFE_TEST_APP" --string="20:CFE_TestMain" --string="64:cfe_testcase" --uint32=16384 --uint8=0 --uint8=0 --uint16=100
+          sleep 30
+          counter=0 
+          while [[ ! -f cf/cfe_test.log ]]; do 
+            temp=$(grep -c "BEGIN" cf/cfe_test.tmp) 
+              
+            if [ $temp -eq $counter ]; then
+              echo "Test is frozen. Quiting"
+              break
+            fi
+            counter=$(grep -c "BEGIN" cf/cfe_test.tmp)            
+            echo "Waiting for CFE Tests"
+            sleep 60
+          done
+          
+          ../host/cmdUtil --endian=LE --pktid=0x1806 --cmdcode=2 --half=0x0002
+        working-directory: ./build/exe/cpu1/
+
+      - name: Archive cFS Startup Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: cFS-functional-test-log-omit-deprecate-true-${{ matrix.buildtype }}
+          path: ./build/exe/cpu1/cf/cfe_test.log
+
+      - name: Check for cFS Warnings
+        run: |  
+          if [[ -z $(grep -i "SUMMARY.*FAIL::0.*TSF::0.*TTF::0" cf/cfe_test.log) ]]; then
+                  echo "Must resolve Test Failures in cFS Test App before submitting a pull request"
+                  echo ""
+                  grep -i '\[ FAIL]\|\[  TSF]\|\[  TTF]' cf/cfe_test.log
+                  exit -1
+          fi
+        working-directory: ./build/exe/cpu1/  
