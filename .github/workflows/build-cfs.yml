@@ -1,4 +1,4 @@
-name: Build, Test, and Run [OMIT_DEPRECATED=true]
+name: Build, Test, and Run [OMIT_DEPRECATED = true]
 
 # Run every time a new commit pushed or for pull requests
 on:
@@ -25,23 +25,31 @@ jobs:
           concurrent_skipping: 'same_content'
           skip_after_successful_duplicate: 'true'
           do_not_skip: '["pull_request", "workflow_dispatch", "schedule"]'
-          
-  prep-env:
-    name: Prepare Environment
-    #Continue if check-for-duplicates found no duplicates. Always runs for pull-requests.
+                  
+  build-cfs-omit-deprecated-true:
+    name: Build    
     needs: check-for-duplicates
     runs-on: ubuntu-18.04
 
+    strategy:
+      fail-fast: false
+      matrix:
+        buildtype: [debug, release]
+
+    # Set the type of machine to run on
+    env:
+      BUILDTYPE: ${{ matrix.buildtype }}    
+
     steps:
-      - name: Cache Source and proto-build
-        id: cache-src-proto-bld
+      - name: Cache Source and Build
+        id: cache-src-bld
         uses: actions/cache@v2
         with:
           path: /home/runner/work/${{ env.REPO_NAME }}/${{ env.REPO_NAME }}/*
-          key: proto-build-${{ github.run_number }}  
+          key: build-${{ github.run_number }}-${{ matrix.buildtype }}
           
       - name: Checkout cFS
-        if: steps.cache-src-proto-bld.outputs.cache-hit != 'true'
+        if: steps.cache-src-bld.outputs.cache-hit != 'true'
         uses: actions/checkout@v2
         with:
           submodules: true
@@ -55,35 +63,13 @@ jobs:
           cp -r ./cfe/cmake/sample_defs sample_defs
       - name: Prep Build
         run: make prep 
-        
-  build-cfs:
-    name: Build
-    needs: prep-env
-    runs-on: ubuntu-18.04
-
-    strategy:
-      fail-fast: false
-      matrix:
-        buildtype: [debug, release]
-
-    # Set the type of machine to run on
-    env:
-      BUILDTYPE: ${{ matrix.buildtype }}
-
-    steps:
-      - name: Cache Source and proto-build
-        id: cache-src-proto-bld
-        uses: actions/cache@v2
-        with:
-          path: /home/runner/work/${{ env.REPO_NAME }}/${{ env.REPO_NAME }}/*
-          key: proto-build-${{ github.run_number }}
           
       - name: Make
-        run: make
+        run: make install
         
-  test-cfs:
-    name: Test
-    needs: build-cfs
+  tests-and-coverage-omit-deprecated-true:
+    name: Run Unit Tests and Check Coverage
+    needs: build-cfs-omit-deprecated-true
     runs-on: ubuntu-18.04
 
     strategy:
@@ -100,28 +86,22 @@ jobs:
       - name: Install Dependencies
         run: sudo apt-get install lcov -y
         
-      - name: Cache Source and proto-build
-        id: cache-src-proto-bld
+      - name: Cache Source and Build
+        id: cache-src-bld
         uses: actions/cache@v2
         with:
           path: /home/runner/work/${{ env.REPO_NAME }}/${{ env.REPO_NAME }}/*
-          key: proto-build-${{ github.run_number }}
-
-      - name: Prep Build
-        run: make prep 
-        
-      - name: Make
-        run: make
-        
+          key: build-${{ github.run_number }}-${{ matrix.buildtype }}          
+      
       - name: Run Tests
         run: make test
 
       - name: Check Coverage
         run: make lcov
 
-  run-cfs:
+  run-cfs-omit-deprecated-true:
     name: Run
-    needs: build-cfs
+    needs: build-cfs-omit-deprecated-true
     runs-on: ubuntu-18.04
 
     strategy:
@@ -134,16 +114,13 @@ jobs:
       BUILDTYPE: ${{ matrix.buildtype }}
 
     steps:
-      - name: Cache Source and proto-build
-        id: cache-src-proto-bld
+      - name: Cache Source and Build
+        id: cache-src-bld
         uses: actions/cache@v2
         with:
           path: /home/runner/work/${{ env.REPO_NAME }}/${{ env.REPO_NAME }}/*
-          key: proto-build-${{ github.run_number }}
+          key: build-${{ github.run_number }}-${{ matrix.buildtype }}
 
-      # Setup the build system
-      - name: Make Install
-        run: make install
 
       - name: List cpu1
         run: ls build/exe/cpu1/
@@ -158,7 +135,7 @@ jobs:
       - name: Archive cFS Startup Artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: cFS-startup-log-deprecate-true-${{ matrix.buildtype }}
+          name: cFS-startup-log-omit-deprecate-true-${{ matrix.buildtype }}
           path: ./build/exe/cpu1/cFS_startup_cpu1.txt
 
       - name: Check for cFS Warnings
@@ -171,30 +148,30 @@ jobs:
           fi
         working-directory: ./build/exe/cpu1/
 
-
-  Functional-Test-Build:
+  run-functional-test-app-omit-deprecated-true:
     #Continue if check-for-duplicates found no duplicates. Always runs for pull-requests.
-    needs: build-cfs
+    needs: run-cfs-omit-deprecated-true
     runs-on: ubuntu-18.04
     timeout-minutes: 15
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        buildtype: [debug, release]
 
     steps:      
-      - name: Cache Source and proto-build
-        id: cache-src-proto-bld
+      - name: Cache Source and Build
+        id: cache-src-bld
         uses: actions/cache@v2
         with:
           path: /home/runner/work/${{ env.REPO_NAME }}/${{ env.REPO_NAME }}/*
-          key: proto-build-${{ github.run_number }}
-          
-      # Setup the build system
-      - name: Make Install
-        run: make install
+          key: build-${{ github.run_number }}-${{ matrix.buildtype }}
 
       - name: List cpu1
         run: ls build/exe/cpu1/
 
       # Run cFS, send commands to set perf trigger and start perf data, and run functional tests
-      - name: Run cFS Functional
+      - name: Run cFS Functional Tests
         run: |
           ./core-cpu1 &
           sleep 10
@@ -221,7 +198,7 @@ jobs:
       - name: Archive cFS Startup Artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: cFS-functional-log-deprecate-true-${{ matrix.buildtype }}
+          name: cFS-functional-test-log-omit-deprecate-true-${{ matrix.buildtype }}
           path: ./build/exe/cpu1/cf/cfe_test.log
 
       - name: Check for cFS Warnings
