@@ -100,14 +100,6 @@ jobs:
            git log -1 --pretty=oneline
            git submodule
 
-      - name: Checkout codeql code      
-        if: ${{ !steps.skip-workflow.outputs.skip }}
-        uses: actions/checkout@v2
-        with:
-          repository: github/codeql 
-          submodules: true 
-          path: codeql
-
       - name: Initialize CodeQL
         if: ${{ !steps.skip-workflow.outputs.skip }}
         uses: github/codeql-action/init@v1
