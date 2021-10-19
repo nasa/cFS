@@ -1,7 +1,8 @@
-[![Build Status](https://travis-ci.com/nasa/cFS.svg)](https://travis-ci.com/nasa/cFS)
-[![LGTM Alerts](https://img.shields.io/lgtm/alerts/github/nasa/cFS)](https://lgtm.com/projects/g/nasa/cFS/alerts/?mode=list)
-[![LGTM Grade](https://img.shields.io/lgtm/grade/python/github/nasa/cFS)](https://lgtm.com/projects/g/nasa/cFS/alerts/?mode=list)
-[![LGTM Grade](https://img.shields.io/lgtm/grade/cpp/github/nasa/cFS)](https://lgtm.com/projects/g/nasa/cFS/alerts/?mode=list)
+[![Build Linux](https://github.com/nasa/cfs/actions/workflows/build-cfs.yml/badge.svg)](https://github.com/nasa/cfs/actions/workflows/build-cfs.yml)
+[![Build RTEMS 5](https://github.com/nasa/cFS/actions/workflows/build-cfs-rtems5.yml/badge.svg)](https://github.com/nasa/cFS/actions/workflows/build-cfs-rtems5.yml)
+[![LGTM Alerts](https://img.shields.io/lgtm/alerts/github/nasa/cFS.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/nasa/cFS/alerts/?mode=list)
+[![LGTM Grade](https://img.shields.io/lgtm/grade/cpp/g/nasa/cFS.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/nasa/cFS/context:cpp)
+[![LGTM Grade](https://img.shields.io/lgtm/grade/python/g/nasa/cFS.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/nasa/cFS/context:python)
 
 # Core Flight System - BUNDLE
 
@@ -15,7 +16,7 @@ The cFS Framework is a core subset of cFS.  There are additional OSALs, PSPs, an
   - cFE User's Guide: https://github.com/nasa/cFS/blob/gh-pages/cFE_Users_Guide.pdf
   - OSAL User's Guide: https://github.com/nasa/cFS/blob/gh-pages/OSAL_Users_Guide.pdf
   - cFE App Developer's Guide: https://github.com/nasa/cFE/blob/main/docs/cFE%20Application%20Developers%20Guide.md
-  - Training documentation: https://ntrs.nasa.gov/citations/20205000691
+  - Training documentation: https://ntrs.nasa.gov/citations/20210022378
   - cFS Overview: https://cfs.gsfc.nasa.gov/cFS-OviewBGSlideDeck-ExportControl-Final.pdf
 
 ## Release Notes
