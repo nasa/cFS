@@ -1,24 +1,10 @@
-name: CodeQL Analysis
+name: "CodeQL Analysis"
 
 on:
-  workflow_call:
-    inputs:
-      sample-defs:
-        description: 'Build Prep'
-        type: string
-        default: 'cp ./cfe/cmake/Makefile.sample Makefile && cp -r ./cfe/cmake/sample_defs sample_defs'
-      make-prep:
-        description: 'Make Prep'
-        type: string
-        default: ''
-      make:
-        description: 'Make Code'
-        type: string
-        default: 'make'      
-      tests: 
-        description: 'Tests'
-        type: string
-        default: ''  
+  push:
+  pull_request:
+    branches:
+      - main
 
 env:
   SIMULATION: native
@@ -40,7 +26,8 @@ jobs:
           concurrent_skipping: 'same_content'
           skip_after_successful_duplicate: 'true'
           do_not_skip: '["pull_request", "workflow_dispatch", "schedule"]'
-          
+
+      
   CodeQL-Security-Build:
     #Continue if check-for-duplicates found no duplicates. Always runs for pull-requests.
     needs: check-for-duplicates
@@ -51,37 +38,42 @@ jobs:
     steps:
       # Checks out a copy of your repository
       - name: Checkout code
+        if: ${{ !steps.skip-workflow.outputs.skip }}
         uses: actions/checkout@v2
         with:
           repository: nasa/cFS
           submodules: true
 
       - name: Check versions
+        if: ${{ !steps.skip-workflow.outputs.skip }}
         run: |
            git log -1 --pretty=oneline
            git submodule
 
       - name: Initialize CodeQL
+        if: ${{ !steps.skip-workflow.outputs.skip }}
         uses: github/codeql-action/init@v1
         with:
           languages: c
-          config-file: nasa/cFS/.github/codeql/codeql-security.yml@main
+          config-file: ./.github/codeql/codeql-security.yml
 
+      # Setup the build system
       - name: Copy sample_defs
-        run: ${{ inputs.sample-defs }}
+        if: ${{ !steps.skip-workflow.outputs.skip }}
+        run: |
+          cp ./cfe/cmake/Makefile.sample Makefile
+          cp -r ./cfe/cmake/sample_defs sample_defs
 
-      - name: Make prep
-        run: ${{ inputs.make-prep }}
-
+      # Setup the build system
       - name: Make Install
-        run: ${{ inputs.make }}
+        if: ${{ !steps.skip-workflow.outputs.skip }}
+        run: make
 
-      - name: Run tests
-        run: ${{ inputs.tests }}
-
+      # Run CodeQL
       - name: Perform CodeQL Analysis
+        if: ${{ !steps.skip-workflow.outputs.skip }}
         uses: github/codeql-action/analyze@v1
-        
+
   CodeQL-Coding-Standard-Build:
     #Continue if check-for-duplicates found no duplicates. Always runs for pull-requests.
     needs: check-for-duplicates
@@ -92,17 +84,20 @@ jobs:
     steps:
       # Checks out a copy of your repository
       - name: Checkout code
+        if: ${{ !steps.skip-workflow.outputs.skip }}
         uses: actions/checkout@v2
         with:
           repository: nasa/cFS
           submodules: true
 
       - name: Check versions
+        if: ${{ !steps.skip-workflow.outputs.skip }}
         run: |
            git log -1 --pretty=oneline
            git submodule
 
       - name: Checkout codeql code      
+        if: ${{ !steps.skip-workflow.outputs.skip }}
         uses: actions/checkout@v2
         with:
           repository: github/codeql 
@@ -110,22 +105,25 @@ jobs:
           path: codeql
 
       - name: Initialize CodeQL
+        if: ${{ !steps.skip-workflow.outputs.skip }}
         uses: github/codeql-action/init@v1
         with:
           languages: c
-          config-file: nasa/cFS/.github/codeql/codeql-coding-standard.yml@main
+          config-file: ./.github/codeql/codeql-coding-standard.yml
 
+      # Setup the build system
       - name: Copy sample_defs
-        run: ${{ inputs.sample-defs }}
+        if: ${{ !steps.skip-workflow.outputs.skip }}
+        run: |
+          cp ./cfe/cmake/Makefile.sample Makefile
+          cp -r ./cfe/cmake/sample_defs sample_defs
 
-      - name: Make prep
-        run: ${{ inputs.make-prep }}
-
+      # Setup the build system
       - name: Make Install
-        run: ${{ inputs.make }}
+        if: ${{ !steps.skip-workflow.outputs.skip }}
+        run: make
 
-      - name: Run tests
-        run: ${{ inputs.tests }}
-
+      # Run CodeQL
       - name: Perform CodeQL Analysis
+        if: ${{ !steps.skip-workflow.outputs.skip }}
         uses: github/codeql-action/analyze@v1

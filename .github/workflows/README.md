@@ -1,15 +1,5 @@
 # Our Workflows
 
-## Reusable Workflows
-
-To reduce duplication, CodeQL Analysis, Static Analysis, and Format Checker are placed in cFS to be reused in the subrepositories. 
-
-CodeQL Analysis and Static Analysis require inputs, therefore, they are called in an additional workflow in cFS to be utilized. Format checker does not need to be reused in cFS because it does not require inputs. 
-
-Provided is a diagram of the architecture of the reusable workflows.
-
-![Reusable Workflows Architecture](cFS-Reusable-Workflows.PNG)
-
 ## Deprecated Build, Test, and Run
 [![Deprecated Build, Test, and Run](https://github.com/nasa/cfs/actions/workflows/build-cfs-deprecated.yml/badge.svg)](https://github.com/nasa/cfs/actions/workflows/build-cfs-deprecated.yml)
 
@@ -35,8 +25,8 @@ For the CodeQL GitHub Actions setup, visit https://github.com/github/codeql-acti
 
 Our CodeQL action uses a configuration file to use specific queries, which can be found at [.github/codeql](https://github.com/nasa/cFS/tree/main/.github/codeql).
 
-## Static Analysis
-[![Static Analysis](https://github.com/nasa/cfs/actions/workflows/static-analysis.yml/badge.svg)](https://github.com/nasa/cfs/actions/workflows/static-analysis.yml)
+## Static Analaysis
+[![Static Analaysis](https://github.com/nasa/cfs/actions/workflows/static-analysis.yml/badge.svg)](https://github.com/nasa/cfs/actions/workflows/static-analysis.yml)
 
 This action runs a static analysis tool for C/C++ code known as cppcheck. Cppcheck is designed to be able to analyze C/C++ code even if it has non-standard syntax, which is common in embedded projects.
 
@@ -68,6 +58,6 @@ This action creates a changelog file which documents all the issues in cFS.
 The Changelog action runs manually. 
 
 ## Format Check
-[![Format Check](https://github.com/nasa/cfs/actions/workflows/format-check.yml/badge.svg)](https://github.com/nasa/cfs/actions/workflows/format-check.yml)
+[![Format Check](https://github.com/nasa/osal/actions/workflows/format-check.yml/badge.svg)](https://github.com/nasa/osal/actions/workflows/format-check.yml)
 
 This action uses [clang-format-10](https://github.com/nasa/cFS/blob/main/.clang-format) to check for format errors.
