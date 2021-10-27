@@ -1,0 +1,67 @@
+name: Format Check
+
+# Run on all push and pull requests
+on:
+  push:
+  pull_request:
+  workflow_call:
+
+jobs:
+  #Checks for duplicate actions. Skips push actions if there is a matching or duplicate pull-request action. 
+  check-for-duplicates:
+    runs-on: ubuntu-latest
+    # Map a step output to a job output
+    outputs:
+      should_skip: ${{ steps.skip_check.outputs.should_skip }}
+    steps:
+      - id: skip_check
+        uses: fkirc/skip-duplicate-actions@master
+        with:
+          concurrent_skipping: 'same_content'
+          skip_after_successful_duplicate: 'true'
+          do_not_skip: '["pull_request", "workflow_dispatch", "schedule"]'
+          
+  format-checker:
+    name: Run format check
+    #Continue if check-for-duplicates found no duplicates. Always runs for pull-requests.
+    needs: check-for-duplicates
+    if: ${{ needs.check-for-duplicates.outputs.should_skip != 'true' }}
+    runs-on: ubuntu-18.04
+    timeout-minutes: 15
+
+    steps:
+      - name: Install format checker
+        run: |
+          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
+          sudo add-apt-repository 'deb http://apt.llvm.org/bionic/   llvm-toolchain-bionic-10 main'
+          sudo apt-get update && sudo apt-get install clang-format-10
+
+      - name: Checkout bundle
+        uses: actions/checkout@v2
+        with:
+          repository: nasa/cFS
+
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          path: repo
+
+      - name: Generate format differences
+        run: |
+          cd repo
+          find . -name "*.[ch]" -exec clang-format-10 -i -style=file {} +
+          git diff > $GITHUB_WORKSPACE/style_differences.txt
+
+      - name: Archive Static Analysis Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: style_differences
+          path: style_differences.txt
+
+      - name: Error on differences
+        run: |
+          if [[ -s style_differences.txt ]];
+          then
+            cat style_differences.txt
+            exit -1
+          fi
