@@ -9,6 +9,7 @@ env:
   SIMULATION: native
   OMIT_DEPRECATED: false
   ENABLE_UNIT_TESTS: true
+  CTEST_OUTPUT_ON_FAILURE: true
   REPO_NAME: ${{ github.event.repository.name }}
 
 jobs:
