@@ -7,6 +7,8 @@ on:
 
 env:
   OMIT_DEPRECATED: true
+  CTEST_OUTPUT_ON_FAILURE: true
+
 
 jobs:
   #Checks for duplicate actions. Skips push actions if there is a matching or duplicate pull-request action. 
@@ -29,7 +31,7 @@ jobs:
     if: ${{ needs.check-for-duplicates.outputs.should_skip != 'true' }}
     name: Build
     runs-on: ubuntu-18.04
-    container: nmullane/qemu_rtems:4.11
+    container: ghcr.io/core-flight-system/qemu-rtems-4-11:latest
 
     strategy:
       fail-fast: false
@@ -65,7 +67,7 @@ jobs:
   test-cfs:
     name: Test
     runs-on: ubuntu-18.04
-    container: nmullane/qemu_rtems:4.11
+    container: ghcr.io/core-flight-system/qemu-rtems-4-11:latest
 
     needs: build-cfs
 
@@ -82,7 +84,6 @@ jobs:
       HOME: /root
       # Disable mcopy check otherwise disk image build fails
       MTOOLS_SKIP_CHECK: 1
-
 
     steps:
       # Checks out a copy of your repository on the ubuntu-latest machine
