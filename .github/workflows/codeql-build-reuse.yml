@@ -1,0 +1,10 @@
+name: Reuse CodeQl Analysis
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  codeql:
+    name: CodeQL Analysis
+    uses: nasa/cFS/.github/workflows/codeql-build.yml@main
