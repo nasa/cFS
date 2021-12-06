@@ -1,0 +1,10 @@
+name: Reuse Static Analysis
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  static-analysis:
+    name: Static Analysis
+    uses: nasa/cFS/.github/workflows/static-analysis.yml@main
