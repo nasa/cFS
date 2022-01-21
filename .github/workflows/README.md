@@ -8,7 +8,7 @@ CodeQL Analysis and Static Analysis require inputs, therefore, they are called i
 
 Provided is a diagram of the architecture of the reusable workflows.
 
-![Reusable Workflows Architecture](Reusable-Workflows-Architecture.PNG)
+![Reusable Workflows Architecture](./Reusable-Workflows-Architecture.svg)
 
 ## Deprecated Build, Test, and Run
 [![Deprecated Build, Test, and Run](https://github.com/nasa/cfs/actions/workflows/build-cfs-deprecated.yml/badge.svg)](https://github.com/nasa/cfs/actions/workflows/build-cfs-deprecated.yml)
