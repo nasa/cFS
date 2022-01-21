@@ -30,6 +30,7 @@ jobs:
   build-cfs-omit-deprecated-false:
     name: "[Deprecated] Build"
     needs: check-for-duplicates
+    if: ${{ needs.check-for-duplicates.outputs.should_skip != 'true' }}
     runs-on: ubuntu-18.04
 
     strategy:
