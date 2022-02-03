@@ -1,0 +1,22 @@
+name: "CodeQL Analysis: cFS-Bundle"
+
+on:
+  push:
+    paths-ignore: 
+    - '**/*.md'
+    - '**/*.txt'
+    - '**/*.dox'
+
+  pull_request:
+    paths-ignore: 
+    - '**/*.md'
+    - '**/*.txt'
+    - '**/*.dox'
+
+jobs:
+  codeql:
+    uses: nasa/cFS/.github/workflows/codeql-reusable.yml@main
+    with: 
+      component-path: cFS
+      make: make -j8
+      test: true
