@@ -55,6 +55,8 @@ jobs:
       - name: Build Docs
         run: |
           make doc > make_doc_stdout.txt 2> make_doc_stderr.txt
+          mv build/docs/detaildesign-warnings.log detaildesign-warnings.log
+
       # Upload documentation logs as artifacts
       - name: Archive Documentation Build Logs
         uses: actions/upload-artifact@v2
@@ -63,10 +65,19 @@ jobs:
           path: |
             make_doc_stdout.txt
             make_doc_stderr.txt
+            detaildesign-warnings.log
+
       - name: Error Check
         run: |
           if [[ -s make_doc_stderr.txt ]]; then
             cat make_doc_stderr.txt
+            exit -1
+          fi
+
+      - name: Warning Check
+        run: |
+          if [[ -s detaildesign-warnings.log ]]; then
+            cat detaildesign-warnings.log
             exit -1
           fi
 
@@ -134,7 +145,7 @@ jobs:
         if: ${{ github.event_name == 'push' && contains(github.ref, 'main')}}
         run: |
           mkdir deploy
-          cd ./build/docs/osalguide/apiguide/latex
+          cd ./build/docs/osalguide/latex
           make > build.txt
           mv refman.pdf $GITHUB_WORKSPACE/deploy/OSAL_Users_Guide.pdf
           # Could add pandoc and convert to github markdown
@@ -143,7 +154,8 @@ jobs:
       - name: Build Usersguide
         run: |
           make usersguide > make_usersguide_stdout.txt 2> make_usersguide_stderr.txt
-          
+          mv build/docs/users_guide/cfe-usersguide-warnings.log cfe-usersguide-warnings.log
+
       - name: Archive Users Guide Build Logs
         uses: actions/upload-artifact@v2
         with:
