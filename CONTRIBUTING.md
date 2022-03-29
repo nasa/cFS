@@ -87,8 +87,8 @@ Fix #XYZ, SHORT_DESCRIPTION
 LONG_DESCRIPTION (optional)
 ```
 5. Sign and email the appropriate Contributor License agreement down below to GSFC-SoftwareRelease@mail.nasa.gov and copy cfs-program@lists.nasa.gov.
-    - Corporate Contributor License agreement : https://github.com/nasa/cFE/blob/main/docs/GSC_18128_Corp_CLA_form_1219.pdf
-    - Individual Contributor License agreement : https://github.com/nasa/cFE/blob/main/docs/GSC_18128_Ind_CLA_form_1219.pdf
+    - Corporate Contributor License agreement : https://github.com/nasa/cFS/blob/main/Corp_CLA_GSC-18719-1%20cFS%20Bootes.pdf
+    - Individual Contributor License agreement : https://github.com/nasa/cFS/blob/main/Individual_CLA_GSC-18719-1%20cFS%20Bootes.pdf
 
 #### Create a Pull Request
 1. For the title, use the title convention `Fix #XYZ, SHORT_DESCRIPTION`.
