@@ -1,7 +1,7 @@
 **Checklist (Please check before submitting)**
 
 * [ ] I reviewed the [Contributing Guide](https://github.com/nasa/cFS/blob/main/CONTRIBUTING.md).
-* [ ] I signed and emailed the appropriate Contributor License agreement to GSFC-SoftwareRelease@mail.nasa.gov and copied cfs-program@lists.nasa.gov.
+* [ ] I signed and emailed the appropriate [Contributor License Agreement](https://github.com/nasa/cFS/blob/main/CONTRIBUTING.md#contributor-license-agreement-cla) to GSFC-SoftwareRelease@mail.nasa.gov and copied cfs-program@lists.nasa.gov.
 
 **Describe the contribution**
 A clear and concise description of what the contribution is.
@@ -31,4 +31,4 @@ The cFS repository is provided to bundle the cFS Framework.  It is utilized for 
 
 **Contributor Info - All information REQUIRED for consideration of pull request**
 Full name and company/organization/center of all contributors ("Personal" if individual work)
- - Note CLA's apply to software contributions.
+ - Note CLAs apply to only software contributions.
