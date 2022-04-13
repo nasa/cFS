@@ -1,0 +1,153 @@
+name: Build Document
+
+on:
+  workflow_call:
+    inputs:
+      # Required
+      target:
+        description: Document target name(s) as stringified JSON matrix list # Matrix example "[\"x\", \"y\"]"
+        type: string
+        required: true
+      # Optional
+      app-name:
+        description: Application name, leave blank if using cache
+        type: string
+        required: false
+        default: ''
+      cache-key:
+        description: Cache key to use
+        type: string
+        required: false
+        default: ''
+      buildpdf:
+        description: Build the PDF
+        type: boolean
+        required: false
+        default: true
+      deploy:
+        description: Deploy archived PDF to gh-pages
+        type: boolean
+        required: false
+        default: true
+
+jobs:
+  # Checks for duplicate actions. Skips push actions if there is a matching or
+  # duplicate pull-request action.
+  checks-for-duplicates:
+    runs-on: ubuntu-latest
+    # Map a step output to a job output
+    outputs:
+      should_skip: ${{ steps.skip_check.outputs.should_skip }}
+    steps:
+      - id: skip_check
+        uses: fkirc/skip-duplicate-actions@master
+        with:
+          concurrent_skipping: 'same_content'
+          skip_after_successful_duplicate: 'true'
+          do_not_skip: '["push", "workflow_dispatch", "schedule"]'
+
+  build-doc:
+    needs: checks-for-duplicates
+    if: ${{ needs.checks-for-duplicates.outputs.should_skip != 'true' }}
+    name: Build Documentation
+    runs-on: ubuntu-18.04
+
+    strategy:
+      fail-fast: false
+      matrix:
+        target: ${{ fromJson(inputs.target) }}
+
+    steps:
+      - name: Get cache if supplied
+        id: cache-src-bld
+        if: ${{ inputs.cache-key != '' }}
+        uses: actions/cache@v2
+        with:
+          path: /home/runner/work/${{ github.event.repository.name }}/${{ github.event.repository.name }}/*
+          key: ${{ inputs.cache-key }}
+
+      - name: Checkout Bundle Main
+        if: ${{ inputs.app-name != '' }}
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+          repository: nasa/cFS
+
+      - name: Checkout Repo
+        if: ${{ inputs.app-name != '' }}
+        uses: actions/checkout@v2
+        with:
+          path: apps/${{ inputs.app-name }}
+
+      - name: Copy Files
+        run: |
+          cp ./cfe/cmake/Makefile.sample Makefile
+          cp -r ./cfe/cmake/sample_defs sample_defs
+
+      - name: Add Repo To Build
+        if: ${{ inputs.app-name != '' }}
+        run: sed -i '/list(APPEND MISSION_GLOBAL_APPLIST/a list(APPEND MISSION_GLOBAL_APPLIST ${{ inputs.app-name }})' sample_defs/targets.cmake 
+
+      - name: Make Prep
+        run: make prep
+
+      - name: Install Doxygen Dependencies
+        run: sudo apt-get install doxygen graphviz -y
+
+      - name: Install PDF Generation Dependencies
+        if: ${{ inputs.buildpdf == true }}
+        run: |
+          sudo apt-get install texlive-latex-base texlive-fonts-recommended texlive-fonts-extra texlive-latex-extra
+
+      - name: Build Document
+        run: |
+          make -C build ${{ matrix.target }} > ${{ matrix.target }}_stdout.txt 2> ${{ matrix.target }}_stderr.txt
+          mv build/docs/${{ matrix.target }}/${{ matrix.target }}-warnings.log .
+
+      - name: Archive Document Build Logs
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.target }}_doc_build_logs
+          path: |
+            ${{ matrix.target }}_stdout.txt
+            ${{ matrix.target }}_stderr.txt
+            ${{ matrix.target }}-warnings.log
+            
+      - name: Check For Document Build Errors
+        run: |
+          if [[ -s ${{ matrix.target }}_stderr.txt ]]; then
+            cat ${{ matrix.target }}_stderr.txt
+            exit -1
+          fi
+          
+      - name: Check For Document Warnings
+        run: |
+          if [[ -s ${{ matrix.target }}-warnings.log ]]; then
+            cat ${{ matrix.target }}-warnings.log
+            exit -1
+          fi
+          
+      - name: Generate PDF
+        if: ${{ inputs.buildpdf == true }}
+        run: |
+          make -C ./build/docs/${{ matrix.target }}/latex
+          mkdir deploy
+          mv ./build/docs/${{ matrix.target }}/latex/refman.pdf ./deploy/${{ matrix.target }}.pdf
+          # Could add pandoc and convert to github markdown
+          # pandoc ${{ matrix.target }}.pdf -t gfm
+
+      - name: Archive PDF
+        if: ${{ inputs.buildpdf == true }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.target }}_pdf
+          path: ./deploy/${{ matrix.target }}.pdf
+
+      - name: Deploy to GitHub
+        if: ${{ inputs.deploy == true }}
+        uses: JamesIves/github-pages-deploy-action@3.7.1
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: gh-pages
+          FOLDER: deploy
+          SINGLE_COMMIT: true
