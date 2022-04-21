@@ -34,11 +34,11 @@ jobs:
         with:
           concurrent_skipping: 'same_content'
           skip_after_successful_duplicate: 'true'
-          do_not_skip: '["push", "workflow_dispatch", "schedule"]'
+          do_not_skip: '["pull_request", "workflow_dispatch", "schedule"]'
 
   unit-test-coverage:
     needs: checks-for-duplicates
-    if: ${{ needs.checks-for-duplicates.outputs.should_skip != 'true' }}
+    if: ${{ needs.checks-for-duplicates.outputs.should_skip != 'true' || contains(github.ref, 'main') }}
     name: Build, run unit tests and enforce coverage
     runs-on: ubuntu-18.04
 
