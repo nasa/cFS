@@ -58,6 +58,12 @@ jobs:
         target: ${{ fromJson(inputs.target) }}
 
     steps:
+      - name: Reject non-compatible deployment settings
+        if: ${{ inputs.deploy == true && inputs.cache-key != '' }}
+        run: |
+          echo "Deployment when using cache not supported due to password fail issue"
+          exit -1
+
       - name: Get cache if supplied
         id: cache-src-bld
         if: ${{ inputs.cache-key != '' }}
