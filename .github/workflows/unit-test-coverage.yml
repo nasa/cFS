@@ -1,0 +1,119 @@
+name: Build Document
+
+on:
+  workflow_call:
+    inputs:
+      # Optional inputs
+      app-name:
+        description: Application name, if different from repo name
+        type: string
+        required: false
+        default: ${{ github.event.repository.name }}
+      max-missed-branches:
+        description: Maximum number of missed branches
+        type: number
+        required: false
+        default: 0
+      max-missed-lines:
+        description: Maximum number of missed lines
+        type: number
+        required: false
+        default: 0
+
+jobs:
+  # Checks for duplicate actions. Skips push actions if there is a matching or
+  # duplicate pull-request action.
+  checks-for-duplicates:
+    runs-on: ubuntu-latest
+    # Map a step output to a job output
+    outputs:
+      should_skip: ${{ steps.skip_check.outputs.should_skip }}
+    steps:
+      - id: skip_check
+        uses: fkirc/skip-duplicate-actions@master
+        with:
+          concurrent_skipping: 'same_content'
+          skip_after_successful_duplicate: 'true'
+          do_not_skip: '["pull_request", "workflow_dispatch", "schedule"]'
+
+  unit-test-coverage:
+    needs: checks-for-duplicates
+    if: ${{ needs.checks-for-duplicates.outputs.should_skip != 'true' || contains(github.ref, 'main') }}
+    name: Build, run unit tests and enforce coverage
+    runs-on: ubuntu-18.04
+
+    steps:
+      - name: Install coverage tools
+        run: sudo apt-get install lcov -y
+
+      - name: Set up environment variables
+        # Apps typically use lowercase targets and uppercase names, this logic is fragile but works
+        run: |
+          echo "APP_UPPER=$(echo ${{ inputs.app-name }} | sed 's/[a-z]/\U&/g')" >> $GITHUB_ENV
+          echo "APP_LOWER=$(echo ${{ inputs.app-name }} | sed 's/[A-Z]/\L&/g')" >> $GITHUB_ENV
+
+      - name: Checkout Bundle Main
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+          repository: nasa/cFS
+
+      - name: Checkout Repo
+        uses: actions/checkout@v2
+        with:
+          path: apps/${{  env.APP_LOWER  }}
+
+      - name: Copy Files
+        run: |
+          cp ./cfe/cmake/Makefile.sample Makefile
+          cp -r ./cfe/cmake/sample_defs sample_defs
+
+      - name: Add Repo To Build
+        run: |
+          sed -i "/list(APPEND MISSION_GLOBAL_APPLIST/a list(APPEND MISSION_GLOBAL_APPLIST $APP_LOWER)" sample_defs/targets.cmake
+
+      - name: Make Prep
+        run: make SIMULATION=native ENABLE_UNIT_TESTS=true OMIT_DEPRECATED=true prep
+
+      - name: Build app build dependencies
+        run: make -C build/tools/elf2cfetbl
+
+      - name: Build app target
+        run: |
+          make -C build/native/default_cpu1/apps/$APP_LOWER
+
+      - name: Capture initial lcov and run test
+        run: |
+          lcov --capture --initial --directory build --output-file coverage_base.info
+          (cd build/native/default_cpu1/apps/$APP_LOWER; ctest --verbose) | tee test_results.txt
+
+      - name: Calculate coverage
+        run: |
+          lcov --capture --rc lcov_branch_coverage=1 --directory build --output-file coverage_test.info
+          lcov --rc lcov_branch_coverage=1 --add-tracefile coverage_base.info --add-tracefile coverage_test.info --output-file coverage_total.info
+          genhtml coverage_total.info --branch-coverage --output-directory lcov | tee lcov_out.txt
+
+      - name: Confirm minimum coverage
+        run: |
+          branch_nums=$(grep -A 3 "Overall coverage rate" lcov_out.txt | grep branches | grep -oP "[0-9]+[0-9]*")
+          line_nums=$(grep -A 3 "Overall coverage rate" lcov_out.txt | grep lines | grep -oP "[0-9]+[0-9]*")
+
+          branch_diff=$(echo $branch_nums | awk '{ print $4 - $3 }')
+          line_diff=$(echo $line_nums | awk '{ print $4 - $3 }')
+          if [ $branch_diff -gt ${{ inputs.max-missed-branches }} ] || [ $line_diff -gt ${{ inputs.max-missed-lines }} ]
+          then
+            grep -A 3 "Overall coverage rate" lcov_out.txt
+            echo "$branch_diff branches missed, ${{ inputs.max-missed-branches }} allowed"
+            echo "$line_diff lines missed, ${{ inputs.max-missed-lines }} allowed"
+            exit -1
+          fi
+
+      - name: Archive results
+        # Upload if success or failure which supports skipping, unlike always()
+        if: success() || failure()
+        uses: actions/upload-artifact@v2
+        with:
+          name: Unit test and coverage results
+          path: |
+            test_results.txt
+            lcov_out.txt
