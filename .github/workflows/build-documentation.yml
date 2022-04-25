@@ -23,7 +23,7 @@ jobs:
   checkout-and-cache:
     name: Custom checkout and cache for cFS documents
     needs: checks-for-duplicates
-    if: ${{ needs.checks-for-duplicates.outputs.should_skip != 'true' }}
+    if: ${{ needs.checks-for-duplicates.outputs.should_skip != 'true' || contains(github.ref, 'main') }}
     runs-on: ubuntu-latest
 
     steps:
@@ -50,7 +50,7 @@ jobs:
 
   deploy-documentation:
     needs: build-cfs-documentation
-    if: ${{ github.event_name == 'push' && contains(github.ref, 'main')}}
+    if: ${{ github.event_name == 'push' && contains(github.ref, 'main') }}
     name: Deploy documentation to gh-pages
     runs-on: ubuntu-latest
 

@@ -48,7 +48,7 @@ jobs:
 
   build-doc:
     needs: checks-for-duplicates
-    if: ${{ needs.checks-for-duplicates.outputs.should_skip != 'true' }}
+    if: ${{ needs.checks-for-duplicates.outputs.should_skip != 'true' || contains(github.ref, 'main') }}
     name: Build Documentation
     runs-on: ubuntu-18.04
 
@@ -58,6 +58,12 @@ jobs:
         target: ${{ fromJson(inputs.target) }}
 
     steps:
+      - name: Reject non-compatible deployment settings
+        if: ${{ inputs.deploy == true && inputs.cache-key != '' }}
+        run: |
+          echo "Deployment when using cache not supported due to password fail issue"
+          exit -1
+
       - name: Get cache if supplied
         id: cache-src-bld
         if: ${{ inputs.cache-key != '' }}
