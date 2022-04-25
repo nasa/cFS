@@ -1,0 +1,114 @@
+name: Build And Run
+
+on:
+  workflow_call:
+    inputs:
+      # Optional inputs
+      app-name:
+        description: Application name, if different from repo name
+        type: string
+        required: false
+        default: ${{ github.event.repository.name }}
+      startup-string:
+        description: Startup string to confirm, default will use "<APP> Initialized."
+        type: string
+        required: false
+        default: ''
+
+jobs:
+  # Checks for duplicate actions. Skips push actions if there is a matching or
+  # duplicate pull-request action.
+  checks-for-duplicates:
+    runs-on: ubuntu-latest
+    # Map a step output to a job output
+    outputs:
+      should_skip: ${{ steps.skip_check.outputs.should_skip }}
+    steps:
+      - id: skip_check
+        uses: fkirc/skip-duplicate-actions@master
+        with:
+          concurrent_skipping: 'same_content'
+          skip_after_successful_duplicate: 'true'
+          do_not_skip: '["pull_request", "workflow_dispatch", "schedule"]'
+
+  build-and-run:
+    needs: checks-for-duplicates
+    if: ${{ needs.checks-for-duplicates.outputs.should_skip != 'true' || contains(github.ref, 'main') }}
+    name: Build and run app, confirm startup message
+    runs-on: ubuntu-18.04
+
+    steps:
+      - name: Set up environment variables
+        # Apps typically use lowercase targets and uppercase names, this logic is fragile but works
+        run: |
+          echo "APP_UPPER=$(echo ${{ inputs.app-name }} | sed 's/[a-z]/\U&/g')" >> $GITHUB_ENV
+          echo "APP_LOWER=$(echo ${{ inputs.app-name }} | sed 's/[A-Z]/\L&/g')" >> $GITHUB_ENV
+
+      - name: Set up start string for verificaiton
+        run: |
+          if [[ "${{ inputs.startup-string }}" == '' ]]; then
+            echo "START_STRING=$APP_UPPER Initialized." >> $GITHUB_ENV
+          else
+            echo "START_STRING=${{ inputs.startup-string }}" >> $GITHUB_ENV
+          fi
+
+      - name: Checkout Bundle Main
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+          repository: nasa/cFS
+
+      - name: Checkout Repo
+        uses: actions/checkout@v2
+        with:
+          path: apps/${{  env.APP_LOWER  }}
+
+      - name: Copy Files
+        run: |
+          cp ./cfe/cmake/Makefile.sample Makefile
+          cp -r ./cfe/cmake/sample_defs sample_defs
+
+      - name: Add To Build
+        run: |
+          sed -i "/list(APPEND MISSION_GLOBAL_APPLIST/a list(APPEND MISSION_GLOBAL_APPLIST $APP_LOWER)" sample_defs/targets.cmake
+
+      - name: Add To Startup
+        run: |
+          sed -i "1i CFE_APP, $APP_LOWER, ${APP_UPPER}_AppMain, $APP_UPPER, 80, 16384, 0x0, 0;" sample_defs/cpu1_cfe_es_startup.scr
+          cat sample_defs/cpu1_cfe_es_startup.scr
+
+      - name: Make install
+        run: make SIMULATION=native BUILDTYPE=release OMIT_DEPRECATED=true install
+
+      - name: Run cFS
+        working-directory: ./build/exe/cpu1
+        run: |
+          ./core-cpu1 > ../../../cFS_startup_cpu1.txt &
+          sleep 30
+          ../host/cmdUtil --endian=LE --pktid=0x1806 --cmdcode=2 --half=0x0002
+
+      - name: Archive results
+        uses: actions/upload-artifact@v2
+        with:
+          name: cFS_startup_log
+          path: cFS_startup_cpu1.txt
+
+      - name: Confirm startup string
+        run: |
+          if [[ -z $(grep "$START_STRING" cFS_startup_cpu1.txt) ]]; then
+            echo "Startup verification string not found in log: $START_STRING"
+            echo ""
+            echo "Possible related event messages:"
+            grep "/$APP_UPPER " cFS_startup_cpu1.txt
+            exit -1
+          fi
+
+      - name: Check for cFS Warnings
+        if: success() || failure()
+        run: |
+          if [[ -n $(grep -i "warn\|err\|fail" cFS_startup_cpu1.txt) ]]; then
+                  echo "cFS startup warn|err|fail:"
+                  echo ""
+                  grep -i 'warn\|err\|fail' cFS_startup_cpu1.txt
+                  exit -1
+          fi
