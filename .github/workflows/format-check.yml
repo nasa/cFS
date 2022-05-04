@@ -72,4 +72,4 @@ jobs:
           pattern: '^((Fix|HotFix|Partial)\s\#[0-9]+,\s[a-zA-Z0-9]+|Merge\spull\srequest\s\#[0-9]+\s[a-zA-Z0-9]+|IC:\s[a-zA-Z0-9]+)'
           error: 'You need at least one "Fix #<issue number>, <short description>" line. "HotFix" and "Partial" are also acceptable.'
           checkAllCommitMessages: 'true'
- 
+  
