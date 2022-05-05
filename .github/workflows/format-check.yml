@@ -67,15 +67,15 @@ jobs:
           fi
 
   check-commit-message:
-      name: Check Commit Message
-      needs: check-for-duplicates
-      # Only run for pull-requests.
-      if: ${{ github.event_name == 'pull_request' }}
-      runs-on: ubuntu-18.04
-      timeout-minutes: 15
-      steps:
-        - name: Check for Fix / HotFix / Partial
-          uses: gsactions/commit-message-checker@v1
-          with:
-            pattern: '^((Fix|HotFix|Partial)\s\#[0-9]+,\s[a-zA-Z0-9]+|Merge\spull\srequest\s\#[0-9]+\s[a-zA-Z0-9]+|IC:\s[a-zA-Z0-9]+)'
-            error: 'You need at least one "Fix #<issue number>, <short description>" line. "HotFix" and "Partial" are also acceptable.'
+    name: Check Commit Message
+    needs: check-for-duplicates
+    # Only run for pull-requests.
+    if: ${{ github.event_name == 'pull_request' }}
+    runs-on: ubuntu-18.04
+    timeout-minutes: 15
+    steps:
+      - name: Check for Fix / HotFix / Partial
+        uses: gsactions/commit-message-checker@v1
+        with:
+          pattern: '^((Fix|HotFix|Partial)\s\#[0-9]+,\s[a-zA-Z0-9]+|Merge\spull\srequest\s\#[0-9]+\s[a-zA-Z0-9]+|IC:\s[a-zA-Z0-9]+)'
+          error: 'You need at least one "Fix #<issue number>, <short description>" line. "HotFix" and "Partial" are also acceptable.'
