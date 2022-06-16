@@ -94,7 +94,7 @@ jobs:
           git log -1 --pretty=oneline
           git submodule 
           rm -r .git
-          rm -r ${{ inputs.component-path }} 
+          rm -rf ${{ inputs.component-path }} 
           ln -s ${{github.workspace}} ${{ inputs.component-path }} 
 
       
