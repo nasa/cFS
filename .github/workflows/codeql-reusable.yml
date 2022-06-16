@@ -125,9 +125,21 @@ jobs:
         with:
           add-snippets: true
           category: ${{matrix.scan-type}}
-
+          upload: false
+          output: CodeQL-Sarif-${{ matrix.scan-type }}
+          
+      - name: Rename Sarif
+        run: |
+          mv CodeQL-Sarif-${{ matrix.scan-type }}/cpp.sarif CodeQL-Sarif-${{ matrix.scan-type }}/Codeql-${{ matrix.scan-type }}.sarif
+          sed -i 's/"name" : "CodeQL"/"name" : "CodeQL-${{ matrix.scan-type }}"/g' CodeQL-Sarif-${{ matrix.scan-type }}/Codeql-${{ matrix.scan-type }}.sarif
+          
       - name: Archive Sarif
         uses: actions/upload-artifact@v2
         with:
           name: CodeQL-Sarif-${{ matrix.scan-type }}
-          path: /home/runner/work/${{env.REPO}}/results/cpp.sarif
+          path: CodeQL-Sarif-${{ matrix.scan-type }}
+
+      - name: Upload SARIF
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          sarif_file: CodeQL-Sarif-${{ matrix.scan-type }}/Codeql-${{ matrix.scan-type }}.sarif
