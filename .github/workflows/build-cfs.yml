@@ -12,6 +12,11 @@ env:
   CTEST_OUTPUT_ON_FAILURE: true
   REPO_NAME: ${{ github.event.repository.name }}
 
+# Force bash to apply pipefail option so pipeline failures aren't masked
+defaults:
+  run:
+    shell: bash
+
 jobs:
   #Checks for duplicate actions. Skips push actions if there is a matching or duplicate pull-request action. 
   check-for-duplicates:
