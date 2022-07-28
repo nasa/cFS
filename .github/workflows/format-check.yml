@@ -5,6 +5,11 @@ on:
   push:
   pull_request:
   workflow_call:
+
+# Force bash to apply pipefail option so pipeline failures aren't masked
+defaults:
+  run:
+    shell: bash
   
 jobs:
   #Checks for duplicate actions. Skips push actions if there is a matching or duplicate pull-request action. 
