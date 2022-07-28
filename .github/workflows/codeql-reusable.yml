@@ -40,6 +40,11 @@ on:
         default: false 
         required: false
 
+# Force bash to apply pipefail option so pipeline failures aren't masked
+defaults:
+  run:
+    shell: bash
+
 env:
   SIMULATION: native
   ENABLE_UNIT_TESTS: ${{inputs.test}}
