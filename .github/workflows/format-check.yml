@@ -31,15 +31,13 @@ jobs:
     #Continue if check-for-duplicates found no duplicates. Always runs for pull-requests.
     needs: check-for-duplicates
     if: ${{ needs.check-for-duplicates.outputs.should_skip != 'true' }}
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     timeout-minutes: 15
 
     steps:
       - name: Install format checker
         run: |
-          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-          sudo add-apt-repository 'deb http://apt.llvm.org/bionic/   llvm-toolchain-bionic-10 main'
-          sudo apt-get update && sudo apt-get install clang-format-10
+          sudo apt-get update && sudo apt-get install clang-format
 
       - name: Checkout bundle
         uses: actions/checkout@v2
@@ -54,7 +52,7 @@ jobs:
       - name: Generate format differences
         run: |
           cd repo
-          find . -name "*.[ch]" -exec clang-format-10 -i -style=file {} +
+          find . -name "*.[ch]" -exec clang-format -i -style=file {} +
           git diff > $GITHUB_WORKSPACE/style_differences.txt
 
       - name: Archive Static Analysis Artifacts
@@ -76,7 +74,7 @@ jobs:
     needs: check-for-duplicates
     # Only run for pull-requests.
     if: ${{ github.event_name == 'pull_request' }}
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     timeout-minutes: 15
     steps:
       # Check github pull-request title against the pattern.
