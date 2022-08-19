@@ -122,3 +122,4 @@ jobs:
           path: |
             test_results.txt
             lcov_out.txt
+            lcov
