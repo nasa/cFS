@@ -83,7 +83,7 @@ jobs:
       - name: Check pull-request title
         uses: gsactions/commit-message-checker@v1
         with:
-          pattern: '^((Fix|HotFix|Part)\s\#[0-9]+,\s[a-zA-Z0-9]+|Merge\spull\srequest\s\#[0-9]+\s[a-zA-Z0-9]+|IC:\s[a-zA-Z0-9]+)'
+          pattern: '^((Fix|HotFix|Part)\s\(\w+)?#[0-9]+,\s[a-zA-Z0-9]+|Merge\spull\srequest\s\#[0-9]+\s[a-zA-Z0-9]+|IC:\s[a-zA-Z0-9]+)'
           error: 'You need at least one "Fix|HotFix|Part #<issue number>, <short description>" line in the pull-request title.'
           excludeDescription: 'true'
           excludeTitle: 'false'
@@ -92,7 +92,7 @@ jobs:
       - name: Check each commit message
         uses: gsactions/commit-message-checker@v1
         with:
-          pattern: '^((Fix|HotFix|Part)\s\#[0-9]+,\s[a-zA-Z0-9]+|Merge\spull\srequest\s\#[0-9]+\s[a-zA-Z0-9]+|IC:\s[a-zA-Z0-9]+)'
+          pattern: '^((Fix|HotFix|Part)\s\(\w+)?#[0-9]+,\s[a-zA-Z0-9]+|Merge\spull\srequest\s\#[0-9]+\s[a-zA-Z0-9]+|IC:\s[a-zA-Z0-9]+)'
           error: 'You need at least one "Fix|HotFix|Part #<issue number>, <short description>" line in the commit message.'
           excludeDescription: 'true'
           excludeTitle: 'true'
