@@ -91,6 +91,7 @@ jobs:
       # Check each commit message associated with the pull-request against the pattern.
       - name: Check each commit message
         uses: gsactions/commit-message-checker@v1
+        if: always()
         with:
           pattern: '^((Fix|HotFix|Part)\s\#[0-9]+,\s[a-zA-Z0-9]+|Merge\spull\srequest\s\#[0-9]+\s[a-zA-Z0-9]+|IC:\s[a-zA-Z0-9]+)'
           error: 'You need at least one "Fix|HotFix|Part #<issue number>, <short description>" line in the commit message.'
