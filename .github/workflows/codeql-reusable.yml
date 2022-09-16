@@ -138,6 +138,16 @@ jobs:
           mv CodeQL-Sarif-${{ matrix.scan-type }}/cpp.sarif CodeQL-Sarif-${{ matrix.scan-type }}/Codeql-${{ matrix.scan-type }}.sarif
           sed -i 's/"name" : "CodeQL"/"name" : "CodeQL-${{ matrix.scan-type }}"/g' CodeQL-Sarif-${{ matrix.scan-type }}/Codeql-${{ matrix.scan-type }}.sarif
           
+      - name: filter-sarif
+        uses: zbazztian/filter-sarif@master
+        with:
+            patterns: |
+                -**/*.md
+                -**/*.txt
+                -**/*.dox
+            input: CodeQL-Sarif-${{ matrix.scan-type }}/Codeql-${{ matrix.scan-type }}.sarif
+            output: CodeQL-Sarif-${{ matrix.scan-type }}/Codeql-${{ matrix.scan-type }}.sarif
+            
       - name: Archive Sarif
         uses: actions/upload-artifact@v2
         with:
