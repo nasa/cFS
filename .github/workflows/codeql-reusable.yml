@@ -118,7 +118,7 @@ jobs:
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v2
         with:
-          languages: c
+          languages: cpp
           config-file: nasa/cFS/.github/codeql/codeql-${{matrix.scan-type}}.yml@main
 
       - name: Build
