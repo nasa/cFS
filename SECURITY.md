@@ -24,14 +24,6 @@ CodeQL is ran for every push and pull-request on all branches of cFS in GitHub A
 
 For the CodeQL GitHub Actions setup, visit https://github.com/github/codeql-action.
 
-### LGTM
-
-LGTM [results](https://lgtm.com/projects/g/nasa/cFS?mode=list) are available to the public. Since suppression comments are not used, many warnings and errors may not be accurate. Therefore, the results may contain false positives and other inapplicable warnings and errors.
-
-LGTM is ran for every pull-request on all branches of cFS.
-
-For more information about LGTM, visit https://lgtm.com/.
-
 ### Cppcheck
 
 The [cFS Cppcheck GitHub Actions workflow and results](https://github.com/nasa/cFS/actions/workflows/static-analysis.yml) are available to the public. To view the results, select a workflow and download the artifacts.

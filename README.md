@@ -1,8 +1,5 @@
 [![Build Linux](https://github.com/nasa/cfs/actions/workflows/build-cfs.yml/badge.svg)](https://github.com/nasa/cfs/actions/workflows/build-cfs.yml)
 [![Build RTEMS 5](https://github.com/nasa/cFS/actions/workflows/build-cfs-rtems5.yml/badge.svg)](https://github.com/nasa/cFS/actions/workflows/build-cfs-rtems5.yml)
-[![LGTM Alerts](https://img.shields.io/lgtm/alerts/github/nasa/cFS.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/nasa/cFS/alerts/?mode=list)
-[![LGTM Grade](https://img.shields.io/lgtm/grade/cpp/g/nasa/cFS.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/nasa/cFS/context:cpp)
-[![LGTM Grade](https://img.shields.io/lgtm/grade/python/g/nasa/cFS.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/nasa/cFS/context:python)
 
 # Core Flight System - BUNDLE
 
