@@ -103,7 +103,7 @@ jobs:
         run: make prep
 
       - name: Install Doxygen Dependencies
-        run: sudo apt-get install doxygen graphviz -y
+        run: sudo apt-get update && sudo apt-get install doxygen graphviz -y
 
       - name: Install PDF Generation Dependencies
         if: ${{ inputs.buildpdf == true }}
