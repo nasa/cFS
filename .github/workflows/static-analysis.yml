@@ -69,6 +69,7 @@ jobs:
         with:
           sarif_file: 'general_cppcheck_err.sarif'
           checkout_path: ${{ env.CONTAINER_WORKSPACE }}
+          category: 'General-cppcheck'
           
         # Run strict static analysis for embedded portions of cfe, osal, and psp
       - name: Strict cppcheck
@@ -97,6 +98,7 @@ jobs:
         with:
           sarif_file: 'strict_cppcheck_err.sarif'
           checkout_path: ${{ env.CONTAINER_WORKSPACE }}
+          category: 'Strict-cppcheck'
   
       - name: Check for general errors
         run: |
