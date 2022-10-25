@@ -34,7 +34,7 @@ jobs:
     needs: check-for-duplicates
     if: ${{ needs.check-for-duplicates.outputs.should_skip != 'true' }}
     name: Build
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     container: ghcr.io/core-flight-system/qemu-rtems-4-11:latest
 
     strategy:
@@ -70,7 +70,7 @@ jobs:
 
   test-cfs:
     name: Test
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     container: ghcr.io/core-flight-system/qemu-rtems-4-11:latest
 
     needs: build-cfs
