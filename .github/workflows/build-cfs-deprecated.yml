@@ -36,7 +36,7 @@ jobs:
     name: "[Deprecated] Build"
     needs: check-for-duplicates
     if: ${{ needs.check-for-duplicates.outputs.should_skip != 'true' }}
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
 
     strategy:
       fail-fast: false
@@ -78,7 +78,7 @@ jobs:
   tests-and-coverage-omit-deprecated-false:
     name: "[Deprecated] Run Unit Tests and Check Coverage"
     needs: build-cfs-omit-deprecated-false
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
 
     strategy:
       fail-fast: false
@@ -110,7 +110,7 @@ jobs:
   run-cfs-omit-deprecated-false:
     name: "[Deprecated] Run cFS"
     needs: build-cfs-omit-deprecated-false
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
 
     strategy:
       fail-fast: false
@@ -160,7 +160,7 @@ jobs:
     #Continue if check-for-duplicates found no duplicates. Always runs for pull-requests.
     needs: run-cfs-omit-deprecated-false
     name: "[DEPRECATED] cFS Functional Tests"
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     timeout-minutes: 15
     
     strategy:
