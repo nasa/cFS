@@ -1,8 +1,7 @@
-name: Reuse Static Analysis
+name: Bundle Static Analysis
 
 on:
-  push:
-  pull_request:
+  workflow_dispatch:
 
 jobs:
   static-analysis:

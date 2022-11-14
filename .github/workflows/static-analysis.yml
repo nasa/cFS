@@ -7,6 +7,14 @@ on:
         description: 'Directory List'
         type: string
         default: ''
+      cmake-project-options:
+        description: 'Command line options to pass to CMake'
+        type: string
+        default: ''
+      cppcheck-xslt-path:
+        description: 'Path to XSLT file for translating cppcheck XML output'
+        type: string
+        default: 'nasa/cFS/main/.github/scripts'
 
 # Force bash to apply pipefail option so pipeline failures aren't masked
 defaults:
@@ -14,8 +22,9 @@ defaults:
     shell: bash
 
 jobs:
-  #Checks for duplicate actions. Skips push actions if there is a matching or duplicate pull-request action. 
+  #Checks for duplicate actions. Skips push actions if there is a matching or duplicate pull-request action.
   check-for-duplicates:
+    name: Check for Duplicates
     runs-on: ubuntu-latest
     # Map a step output to a job output
     outputs:
@@ -33,58 +42,73 @@ jobs:
     needs: check-for-duplicates
     if: ${{ needs.check-for-duplicates.outputs.should_skip != 'true' }}
     name: Run cppcheck
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     strategy:
       fail-fast: false
 
-    steps:      
+    steps:
       - name: Install cppcheck
-        run: sudo apt-get install cppcheck -y
+        run: sudo apt-get install cppcheck xsltproc -y
 
-        # Checks out a copy of the cfs bundle
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - name: Install sarif tool
+        run: npm install @microsoft/sarif-multitool
+
+      - name: Fetch conversion XSLT
+        run: |
+          wget -O cppcheck-xml2text.xslt https://raw.githubusercontent.com/${{ inputs.cppcheck-xslt-path }}/cppcheck-xml2text.xslt
+          wget -O cppcheck-merge.xslt https://raw.githubusercontent.com/${{ inputs.cppcheck-xslt-path }}/cppcheck-merge.xslt
+
+        # Checks out a copy of the reference repository
+      - name: Checkout subject repository
+        uses: actions/checkout@v3
         with:
+          path: source
           submodules: true
 
-      - name: Run general cppcheck 
+        # For a CMake-based project, get the list of files by setting up a build with CMAKE_EXPORT_COMPILE_COMMANDS=ON and
+        # referencing the compile_commands.json file produced by the tool.  This will capture the correct include paths and
+        # compile definitions based on how the source is actually compiled.
+      - name: CMake Setup
+        if: ${{ inputs.cmake-project-options != '' }}
         run: |
-          cppcheck --force --inline-suppr . --xml 2> general_cppcheck_err.xml  
-          cppcheck --force --inline-suppr . 2> general_cppcheck_err.txt
-          
-      - name: Convert general cppcheck
-        uses: airtower-luna/convert-to-sarif@v0.2.0
-        with:
-          tool: 'CppCheck'
-          input_file: 'general_cppcheck_err.xml'
-          sarif_file: 'general_cppcheck_err.sarif'
-          
-      - name: Define workspace
+          cmake -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/staging -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_BUILD_TYPE=debug ${{ inputs.cmake-project-options }} -S source -B build
+          echo CPPCHECK_OPTS=--project="$GITHUB_WORKSPACE/build/compile_commands.json" >> $GITHUB_ENV
+
+        # For a Non-CMake project, just pass the base source directory of the repo.  This will examine all .c files in the repo,
+        # but it will not see the macro definitions, and thus may not correctly interpret macro usage.
+      - name: Non-CMake Setup
+        if: ${{ inputs.cmake-project-options == '' }}
         run: |
-          echo "CONTAINER_WORKSPACE=${PWD}" >> ${GITHUB_ENV}
-          
-      - name: Upload general SARIF results
+          echo CPPCHECK_OPTS="$GITHUB_WORKSPACE/source" >> $GITHUB_ENV
+
+      - name: Run general cppcheck
+        run: cppcheck --force --inline-suppr --xml $CPPCHECK_OPTS 2> cppcheck_err.xml
+
+        # Run strict static analysis for selected portions of source code
+      - name: Run Strict cppcheck
+        if: ${{ inputs.strict-dir-list !='' }}
+        working-directory: ${{ github.workspace }}/source
+        run: cppcheck --force --inline-suppr --std=c99 --language=c --enable=warning,performance,portability,style --suppress=variableScope --inconclusive --xml ${{ inputs.strict-dir-list }} 2> ../strict_cppcheck_err.xml
+
+      - name: Merge cppcheck results
+        if: ${{ inputs.strict-dir-list !='' }}
+        run: |
+          mv cppcheck_err.xml general_cppcheck_err.xml
+          xsltproc --stringparam merge_file strict_cppcheck_err.xml cppcheck-merge.xslt general_cppcheck_err.xml > cppcheck_err.xml
+
+      - name: Convert cppcheck results to SARIF
+        run: npx "@microsoft/sarif-multitool" convert "cppcheck_err.xml" --tool "CppCheck" --output "cppcheck_err.sarif" --force
+
+      - name: Convert cppcheck results to Markdown
+        run: xsltproc cppcheck-xml2text.xslt cppcheck_err.xml | tee $GITHUB_STEP_SUMMARY cppcheck_err.txt
+
+      - name: Upload SARIF results
         uses: github/codeql-action/upload-sarif@v2
         with:
-          sarif_file: 'general_cppcheck_err.sarif'
-          checkout_path: ${{ env.CONTAINER_WORKSPACE }}
-          category: 'General-cppcheck'
-          
-        # Run strict static analysis for embedded portions of cfe, osal, and psp
-      - name: Strict cppcheck
-        if: ${{ inputs.strict-dir-list !='' }}
-        run: |
-          cppcheck --force --inline-suppr --std=c99 --language=c --enable=warning,performance,portability,style --suppress=variableScope --inconclusive ${{ inputs.strict-dir-list }} --xml 2> strict_cppcheck_err.xml 
-          cppcheck --force --inline-suppr --std=c99 --language=c --enable=warning,performance,portability,style --suppress=variableScope --inconclusive ${{ inputs.strict-dir-list }} 2> strict_cppcheck_err.txt
- 
-      - name: Convert strict cppcheck
-        uses: airtower-luna/convert-to-sarif@v0.2.0
-        if: ${{ inputs.strict-dir-list !='' }}
-        with:
-          tool: 'CppCheck'
-          input_file: 'strict_cppcheck_err.xml'
-          sarif_file: 'strict_cppcheck_err.sarif'
+          sarif_file: ${{ github.workspace }}/cppcheck_err.sarif
+          checkout_path: ${{ github.workspace }}/source
+          category: 'cppcheck'
 
       - name: Archive static analysis artifacts
         uses: actions/upload-artifact@v3
@@ -92,26 +116,5 @@ jobs:
           name: cppcheck-errors
           path: ./*cppcheck_err.*
 
-      - name: Upload strict SARIF results
-        uses: github/codeql-action/upload-sarif@v2
-        if: ${{ inputs.strict-dir-list !='' }}
-        with:
-          sarif_file: 'strict_cppcheck_err.sarif'
-          checkout_path: ${{ env.CONTAINER_WORKSPACE }}
-          category: 'Strict-cppcheck'
-  
-      - name: Check for general errors
-        run: |
-          if [[ -s general_cppcheck_err.txt ]];
-          then
-            cat general_cppcheck_err.txt
-            exit -1
-          fi
-      - name: Check for strict errors
-        if: ${{ inputs.strict-dir-list !='' }}
-        run: |
-          if [[ -s strict_cppcheck_err.txt ]];
-          then
-            cat strict_cppcheck_err.txt
-            exit -1
-          fi
+      - name: Check for reported errors
+        run: tail -n 1 cppcheck_err.txt | grep -q '^\*\*0 error(s) reported\*\*$'
