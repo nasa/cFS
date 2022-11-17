@@ -12,8 +12,6 @@
       - cpp/jsf/av-rule-168
       # MISRA 6-2-2
       - cpp/jsf/av-rule-202
-      # MISRA Rule 9-5-1
-      - cpp/jsf/av-rule-153
       # JPL Rules
       - /cpp/jpl-c/*/
 # Exclude queries with too many results
@@ -28,3 +26,6 @@
       # JPL 24
       - cpp/jpl-c/multiple-stmts-per-line
       - cpp/jpl-c/multiple-var-decls-per-line
+      # Excluded since cFS use unions judiciously
+      # MISRA Rule 9-5-1
+      - cpp/jsf/av-rule-153
