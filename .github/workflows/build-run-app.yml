@@ -58,13 +58,13 @@ jobs:
           fi
 
       - name: Checkout Bundle Main
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           submodules: true
           repository: nasa/cFS
 
       - name: Checkout Repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           path: apps/${{  env.APP_LOWER  }}
 
@@ -93,7 +93,7 @@ jobs:
           ../host/cmdUtil --endian=LE --pktid=0x1806 --cmdcode=2 --half=0x0002
 
       - name: Archive results
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: cFS_startup_log
           path: cFS_startup_cpu1.txt

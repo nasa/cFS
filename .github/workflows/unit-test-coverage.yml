@@ -58,13 +58,13 @@ jobs:
           echo "APP_LOWER=$(echo ${{ inputs.app-name }} | sed 's/[A-Z]/\L&/g')" >> $GITHUB_ENV
 
       - name: Checkout Bundle Main
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           submodules: true
           repository: nasa/cFS
 
       - name: Checkout Repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           path: apps/${{  env.APP_LOWER  }}
 
@@ -116,7 +116,7 @@ jobs:
       - name: Archive results
         # Upload if success or failure which supports skipping, unlike always()
         if: success() || failure()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: Unit test and coverage results
           path: |

@@ -34,10 +34,10 @@ on:
         default: cp ./cfe/cmake/Makefile.sample Makefile && cp -r ./cfe/cmake/sample_defs sample_defs
         required: false
 
-      test: 
+      test:
         description: 'Value for ENABLE_UNIT_TESTS flag'
         type: string
-        default: false 
+        default: false
         required: false
 
 # Force bash to apply pipefail option so pipeline failures aren't masked
@@ -53,7 +53,7 @@ env:
   REPO: ${{github.event.repository.name}}
 
 jobs:
-  #Checks for duplicate actions. Skips push actions if there is a matching or duplicate pull-request action. 
+  #Checks for duplicate actions. Skips push actions if there is a matching or duplicate pull-request action.
   check-for-duplicates:
     runs-on: ubuntu-20.04
     # Map a step output to a job output
@@ -97,20 +97,20 @@ jobs:
           cd cFS
           echo "BUILD_DIRECTORY=$(pwd)" >> $GITHUB_ENV
           git log -1 --pretty=oneline
-          git submodule 
+          git submodule
           rm -r .git
-          rm -rf ${{ inputs.component-path }} 
-          ln -s ${{github.workspace}} ${{ inputs.component-path }} 
+          rm -rf ${{ inputs.component-path }}
+          ln -s ${{github.workspace}} ${{ inputs.component-path }}
 
-      
+
       - name: Checkout ${{ github.repository }}
-        uses: actions/checkout@v2
-        with: 
+        uses: actions/checkout@v3
+        with:
            submodules: recursive
 
         # Setup the build system
-      - name: cFS Build Setup    
-        run: | 
+      - name: cFS Build Setup
+        run: |
           ${{ inputs.setup }}
           ${{ inputs.prep }}
         working-directory: ${{env.BUILD_DIRECTORY}}
@@ -132,12 +132,12 @@ jobs:
           category: ${{matrix.scan-type}}
           upload: false
           output: CodeQL-Sarif-${{ matrix.scan-type }}
-          
+
       - name: Rename Sarif
         run: |
           mv CodeQL-Sarif-${{ matrix.scan-type }}/cpp.sarif CodeQL-Sarif-${{ matrix.scan-type }}/Codeql-${{ matrix.scan-type }}.sarif
           sed -i 's/"name" : "CodeQL"/"name" : "CodeQL-${{ matrix.scan-type }}"/g' CodeQL-Sarif-${{ matrix.scan-type }}/Codeql-${{ matrix.scan-type }}.sarif
-          
+
       - name: filter-sarif
         uses: zbazztian/filter-sarif@master
         with:
@@ -147,9 +147,9 @@ jobs:
                 -**/*.dox
             input: CodeQL-Sarif-${{ matrix.scan-type }}/Codeql-${{ matrix.scan-type }}.sarif
             output: CodeQL-Sarif-${{ matrix.scan-type }}/Codeql-${{ matrix.scan-type }}.sarif
-            
+
       - name: Archive Sarif
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: CodeQL-Sarif-${{ matrix.scan-type }}
           path: CodeQL-Sarif-${{ matrix.scan-type }}

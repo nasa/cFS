@@ -15,7 +15,7 @@ defaults:
     shell: bash
 
 jobs:
-  #Checks for duplicate actions. Skips push actions if there is a matching or duplicate pull-request action. 
+  #Checks for duplicate actions. Skips push actions if there is a matching or duplicate pull-request action.
   check-for-duplicates:
     runs-on: ubuntu-latest
     # Map a step output to a job output
@@ -28,7 +28,7 @@ jobs:
           concurrent_skipping: 'same_content'
           skip_after_successful_duplicate: 'true'
           do_not_skip: '["pull_request", "workflow_dispatch", "schedule"]'
-          
+
   build-cfs:
     #Continue if check-for-duplicates found no duplicates. Always runs for pull-requests.
     needs: check-for-duplicates
@@ -51,7 +51,7 @@ jobs:
     steps:
       # Check out the cfs bundle
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           submodules: true
 
@@ -92,7 +92,7 @@ jobs:
     steps:
       # Checks out a copy of your repository on the ubuntu-latest machine
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           submodules: true
 
@@ -122,7 +122,7 @@ jobs:
 
       # Always archive test logs
       - name: Archive cFS Test Artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         # Runs even if previous steps have failed
         if: always()
         with:

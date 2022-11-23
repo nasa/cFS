@@ -72,21 +72,21 @@ jobs:
       - name: Get cache if supplied
         id: cache-src-bld
         if: ${{ inputs.cache-key != '' }}
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: /home/runner/work/${{ github.event.repository.name }}/${{ github.event.repository.name }}/*
           key: ${{ inputs.cache-key }}
 
       - name: Checkout Bundle Main
         if: ${{ inputs.app-name != '' }}
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           submodules: true
           repository: nasa/cFS
 
       - name: Checkout Repo
         if: ${{ inputs.app-name != '' }}
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           path: apps/${{ inputs.app-name }}
 
@@ -116,28 +116,28 @@ jobs:
           mv build/docs/${{ matrix.target }}/${{ matrix.target }}-warnings.log .
 
       - name: Archive Document Build Logs
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.target }}_doc_build_logs
           path: |
             ${{ matrix.target }}_stdout.txt
             ${{ matrix.target }}_stderr.txt
             ${{ matrix.target }}-warnings.log
-            
+
       - name: Check For Document Build Errors
         run: |
           if [[ -s ${{ matrix.target }}_stderr.txt ]]; then
             cat ${{ matrix.target }}_stderr.txt
             exit -1
           fi
-          
+
       - name: Check For Document Warnings
         run: |
           if [[ -s ${{ matrix.target }}-warnings.log ]]; then
             cat ${{ matrix.target }}-warnings.log
             exit -1
           fi
-          
+
       - name: Generate PDF
         if: ${{ inputs.buildpdf == true }}
         run: |
@@ -149,7 +149,7 @@ jobs:
 
       - name: Archive PDF
         if: ${{ inputs.buildpdf == true }}
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.target }}_pdf
           path: ./deploy/${{ matrix.target }}.pdf
