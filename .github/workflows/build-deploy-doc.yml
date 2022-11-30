@@ -97,7 +97,7 @@ jobs:
 
       - name: Add Repo To Build
         if: ${{ inputs.app-name != '' }}
-        run: sed -i '/list(APPEND MISSION_GLOBAL_APPLIST/a list(APPEND MISSION_GLOBAL_APPLIST ${{ inputs.app-name }})' sample_defs/targets.cmake 
+        run: echo 'set(MISSION_GLOBAL_APPLIST ${{ inputs.app-name }})' >> sample_defs/targets.cmake
 
       - name: Make Prep
         run: make prep
@@ -112,7 +112,7 @@ jobs:
 
       - name: Build Document
         run: |
-          make -C build ${{ matrix.target }} > ${{ matrix.target }}_stdout.txt 2> ${{ matrix.target }}_stderr.txt
+          make -C build ${{ matrix.target }} 2>&1 > ${{ matrix.target }}_stdout.txt | tee ${{ matrix.target }}_stderr.txt
           mv build/docs/${{ matrix.target }}/${{ matrix.target }}-warnings.log .
 
       - name: Archive Document Build Logs
