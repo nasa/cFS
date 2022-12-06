@@ -23,7 +23,7 @@ jobs:
           concurrent_skipping: 'same_content'
           skip_after_successful_duplicate: 'true'
           do_not_skip: '["pull_request", "workflow_dispatch", "schedule"]'
-          
+
   misra-analysis:
     #Continue if check-for-duplicates found no duplicates. Always runs for pull-requests.
     needs: check-for-duplicates
@@ -42,7 +42,7 @@ jobs:
 
         # Checks out a copy of the cfs bundle
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           submodules: true
 
@@ -53,11 +53,11 @@ jobs:
             cp cppcheck/addons/misra.py misra.py
             cp cppcheck/addons/cppcheckdata.py cppcheckdata.py
             cp cppcheck/addons/misra_9.py misra_9.py
-  
+
       - name: Run bundle cppcheck
         if: ${{matrix.cppcheck =='bundle'}}
         run: |
-          cppcheck --addon=misra --force --inline-suppr --quiet . --xml 2> ${{matrix.cppcheck}}_cppcheck_err.xml 
+          cppcheck --addon=misra --force --inline-suppr --quiet . --xml 2> ${{matrix.cppcheck}}_cppcheck_err.xml
           cppcheck --addon=misra --force --inline-suppr --quiet . 2> ${{matrix.cppcheck}}_cppcheck_err.txt
 
         # Run strict static analysis for embedded portions of cfe, osal, and psp
@@ -67,14 +67,14 @@ jobs:
           cd ${{matrix.cppcheck}}
           cppcheck --addon=misra --force --inline-suppr --std=c99 --language=c --enable=warning,performance,portability,style --suppress=variableScope --inconclusive ./modules/core_api/fsw ./modules/core_private/fsw ./modules/es/fsw ./modules/evs/fsw ./modules/fs/fsw ./modules/msg/fsw ./modules/resourceid/fsw ./modules/sb/fsw ./modules/sbr/fsw ./modules/tbl/fsw ./modules/time/fsw -UCFE_PLATFORM_TIME_CFG_CLIENT -DCFE_PLATFORM_TIME_CFG_SERVER --xml 2> ${{matrix.cppcheck}}_cppcheck_err.xml
           cppcheck --addon=misra --force --inline-suppr --std=c99 --language=c --enable=warning,performance,portability,style --suppress=variableScope --inconclusive ./modules/core_api/fsw ./modules/core_private/fsw ./modules/es/fsw ./modules/evs/fsw ./modules/fs/fsw ./modules/msg/fsw ./modules/resourceid/fsw ./modules/sb/fsw ./modules/sbr/fsw ./modules/tbl/fsw ./modules/time/fsw -UCFE_PLATFORM_TIME_CFG_CLIENT -DCFE_PLATFORM_TIME_CFG_SERVER 2> ${{matrix.cppcheck}}_cppcheck_err.txt
-          
+
       - name: osal strict cppcheck
         if: ${{matrix.cppcheck =='osal'}}
         run: |
           cd ${{matrix.cppcheck}}
           cppcheck --addon=misra --force --inline-suppr --std=c99 --language=c --enable=warning,performance,portability,style --suppress=variableScope --inconclusive ./src/bsp ./src/os --xml 2> ${{matrix.cppcheck}}_cppcheck_err.xml
           cppcheck --addon=misra --force --inline-suppr --std=c99 --language=c --enable=warning,performance,portability,style --suppress=variableScope --inconclusive ./src/bsp ./src/os 2> ${{matrix.cppcheck}}_cppcheck_err.txt
-          
+
       - name: psp strict cppcheck
         if: ${{matrix.cppcheck =='psp'}}
         run: |
@@ -82,22 +82,22 @@ jobs:
           cppcheck --addon=misra --force --inline-suppr --std=c99 --language=c --enable=warning,performance,portability,style --suppress=variableScope --inconclusive ./fsw --xml 2> ${{matrix.cppcheck}}_cppcheck_err.xml
           cppcheck --addon=misra --force --inline-suppr --std=c99 --language=c --enable=warning,performance,portability,style --suppress=variableScope --inconclusive ./fsw 2> ${{matrix.cppcheck}}_cppcheck_err.txt
 
-      - name: Convert bundle cppcheck to sarif 
+      - name: Convert bundle cppcheck to sarif
         uses: airtower-luna/convert-to-sarif@v0.2.0
         if: ${{matrix.cppcheck =='bundle'}}
         with:
           tool: 'CppCheck'
           input_file: '${{matrix.cppcheck}}_cppcheck_err.xml'
           sarif_file: '${{matrix.cppcheck}}_cppcheck_err.sarif'
-          
-      - name: Convert cfe, osal, psp cppcheck to sarif 
+
+      - name: Convert cfe, osal, psp cppcheck to sarif
         uses: airtower-luna/convert-to-sarif@v0.2.0
         if: ${{matrix.cppcheck !='bundle'}}
         with:
           tool: 'CppCheck'
           input_file: '${{matrix.cppcheck}}/${{matrix.cppcheck}}_cppcheck_err.xml'
           sarif_file: '${{matrix.cppcheck}}_cppcheck_err.sarif'
-          
+
       - name: Define workspace
         run: |
           echo "CONTAINER_WORKSPACE=${PWD}" >> ${GITHUB_ENV}
@@ -115,7 +115,7 @@ jobs:
         with:
           name: ${{matrix.cppcheck}}-cppcheck-err
           path: ./${{matrix.cppcheck}}/*cppcheck_err.*
-          
+
       - name: Upload sarif results
         uses: github/codeql-action/upload-sarif@v2
         with:
