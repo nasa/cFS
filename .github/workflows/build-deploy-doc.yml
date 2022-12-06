@@ -29,6 +29,11 @@ on:
         type: boolean
         required: false
         default: true
+      needs_osal_api:
+        description: Whether this depends on the osal public api (compatibility bridge)
+        type: boolean
+        required: false
+        default: true
 
 # Force bash to apply pipefail option so pipeline failures aren't masked
 defaults:
@@ -109,6 +114,10 @@ jobs:
         if: ${{ inputs.buildpdf == true }}
         run: |
           sudo apt-get install texlive-latex-base texlive-fonts-recommended texlive-fonts-extra texlive-latex-extra
+
+      - name: Generate OSAL header list
+        if: ${{ inputs.needs_osal_api == true }}
+        run: make -C build osal_public_api_headerlist
 
       - name: Build Document
         run: |
