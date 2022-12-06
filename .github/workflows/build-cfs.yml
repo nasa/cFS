@@ -18,7 +18,7 @@ defaults:
     shell: bash
 
 jobs:
-  #Checks for duplicate actions. Skips push actions if there is a matching or duplicate pull-request action. 
+  #Checks for duplicate actions. Skips push actions if there is a matching or duplicate pull-request action.
   check-for-duplicates:
     runs-on: ubuntu-latest
     # Map a step output to a job output
@@ -31,9 +31,9 @@ jobs:
           concurrent_skipping: 'same_content'
           skip_after_successful_duplicate: 'true'
           do_not_skip: '["pull_request", "workflow_dispatch", "schedule"]'
-                  
+
   build-cfs-omit-deprecated-true:
-    name: Build    
+    name: Build
     needs: check-for-duplicates
     if: ${{ needs.check-for-duplicates.outputs.should_skip != 'true' }}
     runs-on: ubuntu-20.04
@@ -45,35 +45,35 @@ jobs:
 
     # Set the type of machine to run on
     env:
-      BUILDTYPE: ${{ matrix.buildtype }}    
+      BUILDTYPE: ${{ matrix.buildtype }}
 
     steps:
       - name: Cache Source and Build
         id: cache-src-bld
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: /home/runner/work/${{ env.REPO_NAME }}/${{ env.REPO_NAME }}/*
           key: build-${{ github.run_number }}-${{ matrix.buildtype }}
-          
+
       - name: Checkout cFS
         if: steps.cache-src-bld.outputs.cache-hit != 'true'
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           submodules: true
-          
+
       - name: Check versions
         run: git submodule
-        
+
       - name: Copy Makefile
         run: |
           cp ./cfe/cmake/Makefile.sample Makefile
           cp -r ./cfe/cmake/sample_defs sample_defs
       - name: Prep Build
-        run: make prep 
-          
+        run: make prep
+
       - name: Make
         run: make install
-        
+
   tests-and-coverage-omit-deprecated-true:
     name: Run Unit Tests and Check Coverage
     needs: build-cfs-omit-deprecated-true
@@ -92,14 +92,14 @@ jobs:
     steps:
       - name: Install Dependencies
         run: sudo apt-get install lcov -y
-        
+
       - name: Cache Source and Build
         id: cache-src-bld
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: /home/runner/work/${{ env.REPO_NAME }}/${{ env.REPO_NAME }}/*
-          key: build-${{ github.run_number }}-${{ matrix.buildtype }}          
-      
+          key: build-${{ github.run_number }}-${{ matrix.buildtype }}
+
       - name: Run Tests
         run: make test
 
@@ -123,7 +123,7 @@ jobs:
     steps:
       - name: Cache Source and Build
         id: cache-src-bld
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: /home/runner/work/${{ env.REPO_NAME }}/${{ env.REPO_NAME }}/*
           key: build-${{ github.run_number }}-${{ matrix.buildtype }}
@@ -140,7 +140,7 @@ jobs:
         working-directory: ./build/exe/cpu1/
 
       - name: Archive cFS Startup Artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: cFS-startup-log-omit-deprecate-true-${{ matrix.buildtype }}
           path: ./build/exe/cpu1/cFS_startup_cpu1.txt
@@ -160,16 +160,16 @@ jobs:
     needs: run-cfs-omit-deprecated-true
     runs-on: ubuntu-20.04
     timeout-minutes: 15
-    
+
     strategy:
       fail-fast: false
       matrix:
         buildtype: [debug, release]
 
-    steps:      
+    steps:
       - name: Cache Source and Build
         id: cache-src-bld
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: /home/runner/work/${{ env.REPO_NAME }}/${{ env.REPO_NAME }}/*
           key: build-${{ github.run_number }}-${{ matrix.buildtype }}
@@ -186,34 +186,34 @@ jobs:
           ../host/cmdUtil --pktid=0x1806 --cmdcode=14 --endian=LE --uint32=2
           ../host/cmdUtil --pktid=0x1806 --cmdcode=4 --endian=LE --string="20:CFE_TEST_APP" --string="20:CFE_TestMain" --string="64:cfe_testcase" --uint32=16384 --uint8=0 --uint8=0 --uint16=100
           sleep 30
-          counter=0 
-          while [[ ! -f cf/cfe_test.log ]]; do 
-            temp=$(grep -c "BEGIN" cf/cfe_test.tmp) 
-              
+          counter=0
+          while [[ ! -f cf/cfe_test.log ]]; do
+            temp=$(grep -c "BEGIN" cf/cfe_test.tmp)
+
             if [ $temp -eq $counter ]; then
               echo "Test is frozen. Quiting"
               break
             fi
-            counter=$(grep -c "BEGIN" cf/cfe_test.tmp)            
+            counter=$(grep -c "BEGIN" cf/cfe_test.tmp)
             echo "Waiting for CFE Tests"
             sleep 60
           done
-          
+
           ../host/cmdUtil --endian=LE --pktid=0x1806 --cmdcode=2 --half=0x0002
         working-directory: ./build/exe/cpu1/
 
       - name: Archive cFS Startup Artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: cFS-functional-test-log-omit-deprecate-true-${{ matrix.buildtype }}
           path: ./build/exe/cpu1/cf/cfe_test.log
 
       - name: Check for cFS Warnings
-        run: |  
+        run: |
           if [[ -z $(grep -i "SUMMARY.*FAIL::0.*TSF::0.*TTF::0" cf/cfe_test.log) ]]; then
                   echo "Must resolve Test Failures in cFS Test App before submitting a pull request"
                   echo ""
                   grep -i '\[ FAIL]\|\[  TSF]\|\[  TTF]' cf/cfe_test.log
                   exit -1
           fi
-        working-directory: ./build/exe/cpu1/  
+        working-directory: ./build/exe/cpu1/

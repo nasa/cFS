@@ -10,9 +10,9 @@ on:
 defaults:
   run:
     shell: bash
-  
+
 jobs:
-  #Checks for duplicate actions. Skips push actions if there is a matching or duplicate pull-request action. 
+  #Checks for duplicate actions. Skips push actions if there is a matching or duplicate pull-request action.
   check-for-duplicates:
     runs-on: ubuntu-latest
     # Map a step output to a job output
@@ -25,7 +25,7 @@ jobs:
           concurrent_skipping: 'same_content'
           skip_after_successful_duplicate: 'true'
           do_not_skip: '["pull_request", "workflow_dispatch", "schedule"]'
-          
+
   format-checker:
     name: Run format check
     #Continue if check-for-duplicates found no duplicates. Always runs for pull-requests.
@@ -40,12 +40,12 @@ jobs:
           sudo apt-get update && sudo apt-get install clang-format
 
       - name: Checkout bundle
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: nasa/cFS
 
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           path: repo
 
@@ -56,7 +56,7 @@ jobs:
           git diff > $GITHUB_WORKSPACE/style_differences.txt
 
       - name: Archive Static Analysis Artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: style_differences
           path: style_differences.txt
@@ -79,7 +79,7 @@ jobs:
     steps:
       # Check github pull-request title against the pattern.
       - name: Check pull-request title
-        uses: gsactions/commit-message-checker@v1
+        uses: gsactions/commit-message-checker@v2
         with:
           pattern: '^((Fix|HotFix|Part)\s\#[0-9]+,\s[a-zA-Z0-9]+|Merge\spull\srequest\s\#[0-9]+\s[a-zA-Z0-9]+|IC:\s[a-zA-Z0-9]+)'
           error: 'You need at least one "Fix|HotFix|Part #<issue number>, <short description>" line in the pull-request title.'
@@ -88,7 +88,7 @@ jobs:
           checkAllCommitMessages: 'false'
       # Check each commit message associated with the pull-request against the pattern.
       - name: Check each commit message
-        uses: gsactions/commit-message-checker@v1
+        uses: gsactions/commit-message-checker@v2
         if: always()
         with:
           pattern: '^((Fix|HotFix|Part)\s\#[0-9]+,\s[a-zA-Z0-9]+|Merge\spull\srequest\s\#[0-9]+\s[a-zA-Z0-9]+|IC:\s[a-zA-Z0-9]+)'

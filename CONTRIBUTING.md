@@ -57,7 +57,7 @@ Please view our [Security Policy](https://github.com/nasa/cFS/security/policy) f
 ### <a name='BugReports'></a>Bug Reports
 
 #### <a name='BeforeReportingaBug'></a>Before Reporting a Bug
-1. Perform a cursory search to see if the bug has already been reported. For issues in each submodule, visit the section [Quick Links to Submodules](#quick-links-to-submodules). If a bug has been reported and the issue is still open, add a comment to the existing issue instead of opening a new one.
+1. Perform a cursory search to see if the bug has already been reported. For issues in each submodule, check the issue trackers in the relevant [cFS component/submodule](#IssueTrackersforcFSComponents). If a bug has been reported and the issue is still open, add a comment to the existing issue instead of opening a new one.
 2. Determine which repository the bug should be reported in. If you are not sure, place the [issue in NASA/cFS](https://github.com/nasa/cFS/issues/new?assignees=&labels=&template=bug_report.md&title=).
 
 #### <a name='ReportingaBug'></a>Reporting a Bug
@@ -85,7 +85,7 @@ cFS has a multitude of users from different fields and backgrounds. We appreciat
 #### <a name='BeforeRequestingaNewFeature'></a>Before Requesting a New Feature
 
 1. Review the [cFS README](README.md) to see if your feature is in the major future work.
-2. Perform a cursory search to see if the feature has already been requested. For issues in each submodule, visit the section [Quick Links to Submodules](#quick-links-to-submodules). If a feature request has been reported and the issue is still open, add a comment to the existing issue instead of opening a new one.
+2. Perform a cursory search to see if the feature has already been requested. For issues in each submodule, check the issue trackers in the relevant [cFS component/submodule](#IssueTrackersforcFSComponents). If a feature request has been reported and the issue is still open, add a comment to the existing issue instead of opening a new one.
 3. Determine which repository the feature should be reported in. If you are not sure, [place the issue in NASA/cFS](https://github.com/nasa/cFS/issues/new?assignees=&labels=&template=feature_request.md&title=).
 
 #### <a name='RequestingaNewFeature'></a>Requesting a New Feature
@@ -132,22 +132,23 @@ For issues related to continuous testing workflows or multi-component "epics" st
 #### <a name='Tools'></a>Tools
 
 - [cFS-GroundSystem](https://github.com/nasa/cFS-GroundSystem/issues)
-- [elf2cfetbl](https://github.com/nasa/elf2cfetbl/tree/6762b1c3b455665dae57e35f14a50fe327830391)
-- [tblCRCTool](https://github.com/nasa/tblCRCTool/tree/b02864ba56b12e00ab152225e3e8f9d6c039d48c)
+- [elf2cfetbl](https://github.com/nasa/elf2cfetbl/issues)
+- [tblCRCTool](https://github.com/nasa/tblCRCTool/issues)
 
 #### <a name='OthercFSApps'></a>Other cFS Apps
 
-- [BP](https://github.com/nasa/bp/issues)
-- [CF](https://github.com/nasa/cf/issues)
-- [CS](https://github.com/nasa/cs/issues)
-- [DS](https://github.com/nasa/ds/issues)
-- [FM](https://github.com/nasa/fm/issues)
-- [HK](https://github.com/nasa/HK//issues)
-- [HS](https://github.com/nasa/HS//issues)
-- [LC](https://github.com/nasa/LC//issues)
-- [MD](https://github.com/nasa/MD//issues)
-- [MM](https://github.com/nasa/MM//issues)
+- [BP](https://github.com/nasa/BP/issues)
+- [CF](https://github.com/nasa/CF/issues)
+- [CS](https://github.com/nasa/CS/issues)
+- [DS](https://github.com/nasa/DS/issues)
+- [FM](https://github.com/nasa/FM/issues)
+- [HK](https://github.com/nasa/HK/issues)
+- [HS](https://github.com/nasa/HS/issues)
+- [LC](https://github.com/nasa/LC/issues)
+- [MD](https://github.com/nasa/MD/issues)
+- [MM](https://github.com/nasa/MM/issues)
 - [SC](https://github.com/nasa/SC/issues)
+- [SCH](https://github.com/nasa/SCH/issues)
 
 
 ### <a name='PullRequests'></a>Pull Requests
@@ -168,7 +169,7 @@ For contributions to the cFS-Framework repositories: [cFE](https://github.com/na
 
 ##### <a name='cFS-AppsCLA'></a>cFS-Apps CLA
 
-For contributions to the cFS Apps repositories [BP](https://github.com/nasa/bp), [CF](https://github.com/nasa/cf), [CS](https://github.com/nasa/cs), [DS](https://github.com/nasa/ds), [FM](https://github.com/nasa/fm), [HK](https://github.com/nasa/HK/), [HS](https://github.com/nasa/HS/), [LC](https://github.com/nasa/LC/), [MD](https://github.com/nasa/MD/), [MM](https://github.com/nasa/MM/), [SC](https://github.com/nasa/SC)
+For contributions to the cFS Apps repositories [BP](https://github.com/nasa/bp), [CF](https://github.com/nasa/cf), [CS](https://github.com/nasa/cs), [DS](https://github.com/nasa/ds), [FM](https://github.com/nasa/fm), [HK](https://github.com/nasa/HK/), [HS](https://github.com/nasa/HS/), [LC](https://github.com/nasa/LC/), [MD](https://github.com/nasa/MD/), [MM](https://github.com/nasa/MM/), [SC](https://github.com/nasa/SC), [SCH](https://github.com/nasa/SCH)
 
 - [cFS-Apps Corporate CLA](cFS_Apps_Corporate_CLA.pdf)
 
@@ -184,7 +185,7 @@ Ready to Add Your Code? Follow GitHub's fork-branch-pull request pattern.
 
 3. Create a new branch in your fork to work on your fix. We recommend naming your branch `fix-ISSUE_NUMBER-<FIX_SUMMARY>`.
 
-3. Add commits to your branch. For information on commit messages, review [How to Write a Git Commit Message](https://chris.beams.io/posts/git-commit/) and our [git commit guidelines]().
+3. Add commits to your branch. For information on commit messages, review [How to Write a Git Commit Message](https://chris.beams.io/posts/git-commit/) and our [git commit guidelines](#GitCommitGuidelines).
 
 #### <a name='CreatingaPullRequest'></a>Creating a Pull Request
 
@@ -254,7 +255,7 @@ or
 
 #### <a name='ConfigureWorkflows'></a>Configure Workflows
 
-1. Workflows are under [.github/workflows](https://github.com/nasa/cFS/tree/main/).
+1. Workflows are under [.github/workflows](.github/workflows).
 2. Configure the files as needed. For more information on how to configure GitHub Actions, visit [Workflow syntax for GitHub Actions](https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions).
 
 #### <a name='cFSWorkflows'></a>cFS Workflows

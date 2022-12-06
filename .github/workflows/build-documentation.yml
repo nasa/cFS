@@ -33,13 +33,13 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           submodules: true
 
       - name: Cache Source and Build
         id: cache-src-bld
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: /home/runner/work/${{ github.event.repository.name }}/${{ github.event.repository.name }}/*
           key: cfs-doc-${{ github.run_number }}
@@ -50,7 +50,7 @@ jobs:
     uses: nasa/cFS/.github/workflows/build-deploy-doc.yml@main
     with:
       target: "[\"cfe-usersguide\", \"osal-apiguide\", \"mission-doc\"]"
-      cache-key: cfs-doc-${{ github.run_number }}      
+      cache-key: cfs-doc-${{ github.run_number }}
       deploy: false
 
   deploy-documentation:
@@ -60,7 +60,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - uses: actions/download-artifact@v3
 
