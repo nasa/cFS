@@ -174,7 +174,6 @@ The following list is user submitted, and not CCB controlled.  They are released
     - cFS_IO_LIB: IO library at https://github.com/nasa/CFS_IO_LIB
     - cFS_LIB: at https://github.com/nasa/cfs_lib
     - EdsLib: CCSDS SOIS Electronic Data Sheet Tool and Library at https://github.com/nasa/EdsLib
-    - fs_lib: File services library at https://github.com/nasa/fs_lib
   - Other Tools
     - CTF: cFS Test Framework at https://github.com/nasa/CTF
     - CCDD: Command and Data Dictionary Tool at https://github.com/nasa/CCDD
