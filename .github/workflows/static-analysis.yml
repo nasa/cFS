@@ -98,7 +98,7 @@ jobs:
           xsltproc --stringparam merge_file strict_cppcheck_err.xml cppcheck-merge.xslt general_cppcheck_err.xml > cppcheck_err.xml
 
       - name: Convert cppcheck results to SARIF
-        run: npx "@microsoft/sarif-multitool" convert "cppcheck_err.xml" --tool "CppCheck" --output "cppcheck_err.sarif" --force
+        run: npx "@microsoft/sarif-multitool" convert "cppcheck_err.xml" --tool "CppCheck" --output "cppcheck_err.sarif"
 
       - name: Convert cppcheck results to Markdown
         run: xsltproc cppcheck-xml2text.xslt cppcheck_err.xml | tee $GITHUB_STEP_SUMMARY cppcheck_err.txt
