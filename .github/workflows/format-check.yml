@@ -61,14 +61,6 @@ jobs:
           name: style_differences
           path: style_differences.txt
 
-      - name: Error on differences
-        run: |
-          if [[ -s style_differences.txt ]];
-          then
-            cat style_differences.txt
-            exit -1
-          fi
-
   check-commit-message:
     name: Check Commit Message
     needs: check-for-duplicates

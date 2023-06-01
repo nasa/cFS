@@ -198,7 +198,7 @@ jobs:
             fi
             counter=$(grep -c "BEGIN" cf/cfe_test.tmp)
             echo "Waiting for CFE Tests"
-            sleep 60
+            sleep 120
           done
 
           ../host/cmdUtil --endian=LE --pktid=0x1806 --cmdcode=2 --half=0x0002
