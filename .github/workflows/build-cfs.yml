@@ -50,14 +50,14 @@ jobs:
     steps:
       - name: Cache Source and Build
         id: cache-src-bld
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: /home/runner/work/${{ env.REPO_NAME }}/${{ env.REPO_NAME }}/*
           key: build-${{ github.run_number }}-${{ matrix.buildtype }}
 
       - name: Checkout cFS
         if: steps.cache-src-bld.outputs.cache-hit != 'true'
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: true
 
@@ -95,7 +95,7 @@ jobs:
 
       - name: Cache Source and Build
         id: cache-src-bld
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: /home/runner/work/${{ env.REPO_NAME }}/${{ env.REPO_NAME }}/*
           key: build-${{ github.run_number }}-${{ matrix.buildtype }}
@@ -123,7 +123,7 @@ jobs:
     steps:
       - name: Cache Source and Build
         id: cache-src-bld
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: /home/runner/work/${{ env.REPO_NAME }}/${{ env.REPO_NAME }}/*
           key: build-${{ github.run_number }}-${{ matrix.buildtype }}
@@ -140,7 +140,7 @@ jobs:
         working-directory: ./build/exe/cpu1/
 
       - name: Archive cFS Startup Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: cFS-startup-log-omit-deprecate-true-${{ matrix.buildtype }}
           path: ./build/exe/cpu1/cFS_startup_cpu1.txt
@@ -169,7 +169,7 @@ jobs:
     steps:
       - name: Cache Source and Build
         id: cache-src-bld
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: /home/runner/work/${{ env.REPO_NAME }}/${{ env.REPO_NAME }}/*
           key: build-${{ github.run_number }}-${{ matrix.buildtype }}
@@ -203,7 +203,7 @@ jobs:
         working-directory: ./build/exe/cpu1/
 
       - name: Archive cFS Startup Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: cFS-functional-test-log-omit-deprecate-true-${{ matrix.buildtype }}
           path: ./build/exe/cpu1/cf/cfe_test.log

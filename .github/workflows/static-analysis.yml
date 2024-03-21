@@ -61,7 +61,7 @@ jobs:
 
         # Checks out a copy of the reference repository
       - name: Checkout subject repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           path: source
           submodules: true
@@ -104,14 +104,14 @@ jobs:
         run: xsltproc cppcheck-xml2text.xslt cppcheck_err.xml | tee $GITHUB_STEP_SUMMARY cppcheck_err.txt
 
       - name: Upload SARIF results
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: ${{ github.workspace }}/cppcheck_err.sarif
           checkout_path: ${{ github.workspace }}/source
           category: 'cppcheck'
 
       - name: Archive static analysis artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: cppcheck-errors
           path: ./*cppcheck_err.*
