@@ -42,7 +42,7 @@ jobs:
 
         # Checks out a copy of the cfs bundle
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: true
 
@@ -103,21 +103,21 @@ jobs:
           echo "CONTAINER_WORKSPACE=${PWD}" >> ${GITHUB_ENV}
 
       - name: Archive bundle static analysis artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: ${{matrix.cppcheck =='bundle'}}
         with:
           name: ${{matrix.cppcheck}}-cppcheck-err
           path: ./*cppcheck_err.*
 
       - name: Archive osal, cfe, and psp static analysis artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: ${{matrix.cppcheck !='bundle'}}
         with:
           name: ${{matrix.cppcheck}}-cppcheck-err
           path: ./${{matrix.cppcheck}}/*cppcheck_err.*
 
       - name: Upload sarif results
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: '${{matrix.cppcheck}}_cppcheck_err.sarif'
           checkout_path: ${{ env.CONTAINER_WORKSPACE }}

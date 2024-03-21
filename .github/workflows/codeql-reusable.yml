@@ -104,7 +104,7 @@ jobs:
 
 
       - name: Checkout ${{ github.repository }}
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
            submodules: recursive
 
@@ -116,7 +116,7 @@ jobs:
         working-directory: ${{env.BUILD_DIRECTORY}}
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v2
+        uses: github/codeql-action/init@v3
         with:
           languages: cpp
           config-file: nasa/cFS/.github/codeql/codeql-${{matrix.scan-type}}.yml@main
@@ -126,7 +126,7 @@ jobs:
         working-directory: ${{env.BUILD_DIRECTORY}}
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v2
+        uses: github/codeql-action/analyze@v3
         with:
           add-snippets: true
           category: ${{matrix.scan-type}}
@@ -149,12 +149,12 @@ jobs:
             output: CodeQL-Sarif-${{ matrix.scan-type }}/Codeql-${{ matrix.scan-type }}.sarif
 
       - name: Archive Sarif
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: CodeQL-Sarif-${{ matrix.scan-type }}
           path: CodeQL-Sarif-${{ matrix.scan-type }}
 
       - name: Upload SARIF
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: CodeQL-Sarif-${{ matrix.scan-type }}/Codeql-${{ matrix.scan-type }}.sarif
