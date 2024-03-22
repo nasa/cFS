@@ -10,7 +10,7 @@ A clear and concise description of what the contribution is.
 **Testing performed**
 Steps taken to test the contribution:
 1. Build steps '...'
-1. Execution steps '...'
+2. Execution steps '...'
 
 **Expected behavior changes**
 A clear and concise description of how this contribution will change behavior and level of impact.
