@@ -1,4 +1,4 @@
-name: Build Document
+name: Unit Test and Coverage
 
 on:
   workflow_call:
