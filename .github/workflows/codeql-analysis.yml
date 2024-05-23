@@ -7,7 +7,7 @@ on:
 jobs:
   codeql:
     uses: nasa/cFS/.github/workflows/codeql-reusable.yml@main
-    with: 
+    with:
       component-path: cFS
       make: make -j8
       test: true
