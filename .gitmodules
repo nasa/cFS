@@ -42,9 +42,6 @@
 	path = tools/tblCRCTool
 	url = https://github.com/nasa/tblCRCTool.git
   branch = main
-[submodule "apps/sbn"]
-	path = apps/sbn
-	url = https://github.com/nasa/SBN.git
 [submodule "apps/sbn_client"]
 	path = apps/sbn_client
 	url = https://github.com/nasa/SBN-Client.git
