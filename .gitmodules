@@ -45,3 +45,9 @@
 [submodule "apps/sbn_client"]
 	path = apps/sbn_client
 	url = https://github.com/nasa/SBN-Client.git
+[submodule "apps/sbn"]
+	path = apps/sbn
+	url = https://github.com/the-other-james/SBN.git
+[submodule "apps/onair_app/onair"]
+	path = apps/onair_app/onair
+	url = https://github.com/nasa/OnAIR.git
