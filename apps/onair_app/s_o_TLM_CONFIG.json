@@ -1,0 +1,39 @@
+{
+    "subsystems": {
+        "NONE":{
+            "SAMPLE_APP.Payload.CommandErrorCounter":{
+                "conversion": "",
+                "tests": {
+                    "NOOP": "[]"
+                },
+                "description": "Command Error Counter"
+            },
+            "SAMPLE_APP.Payload.CommandCounter":{
+                "conversion": "",
+                "tests": {
+                    "NOOP": "[]"
+                },
+                "description": "Command Counter"
+            },
+            "SAMPLE_APP.Payload.Spare":{
+                "conversion": "",
+                "tests": {
+                    "NOOP": "[]"
+                },
+                "description": "Spare"
+            }
+        },
+        "CDH":{},
+        "GNC":{},
+        "POWER":{},
+        "THERMAL":{}
+    },
+    "order":[
+        "SAMPLE_APP.Payload.CommandErrorCounter",
+        "SAMPLE_APP.Payload.CommandCounter",
+        "SAMPLE_APP.Payload.Spare"
+    ],
+    "channels":{
+        "0x0883": ["SAMPLE_APP", "SAMPLE_APP_HkTlm_t"]
+    }
+}
