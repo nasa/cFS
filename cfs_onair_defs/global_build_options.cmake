@@ -25,3 +25,5 @@ else()
   message (STATUS "OMIT_DEPRECATED=false: Deprecated elements included in build")
   set(MISSION_RESOURCEID_MODE "SIMPLE") # less type safe, but more backward compatible
 endif (OMIT_DEPRECATED)
+
+SET(ENV{CFS_APP_PATH} "apps/sbn/modules/protocol")
