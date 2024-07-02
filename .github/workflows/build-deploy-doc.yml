@@ -125,7 +125,7 @@ jobs:
           mv build/docs/${{ matrix.target }}/${{ matrix.target }}-warnings.log .
 
       - name: Archive Document Build Logs
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.target }}_doc_build_logs
           path: |
@@ -165,9 +165,9 @@ jobs:
 
       - name: Deploy to GitHub
         if: ${{ inputs.deploy == true }}
-        uses: JamesIves/github-pages-deploy-action@3.7.1
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BRANCH: gh-pages
-          FOLDER: deploy
-          SINGLE_COMMIT: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: gh-pages
+          folder: deploy
+          single-commit: true
