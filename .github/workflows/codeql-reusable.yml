@@ -1,0 +1,160 @@
+name: "CodeQL Reusable Workflow"
+
+on:
+  workflow_call:
+    inputs:
+      # REQUIRED Inputs
+      component-path:
+        description: 'Path to repo being tested in a cFS bundle setup'
+        type: string
+        required: true
+        default: cFS
+
+      # Optional inputs
+      category:
+        description: 'Analysis Category'
+        required: false
+        type: string
+
+      make:
+        description: 'Build Command'
+        default: '' #Typically `make` or `make install`. Default is blank for workflows that don't need to build source
+        required: false
+        type: string
+
+      prep:
+        description: 'Make Prep'
+        default: make prep
+        required: false
+        type: string
+
+      setup:
+        description: 'Build Prep Commands'
+        type: string
+        default: cp ./cfe/cmake/Makefile.sample Makefile && cp -r ./cfe/cmake/sample_defs sample_defs
+        required: false
+
+      test:
+        description: 'Value for ENABLE_UNIT_TESTS flag'
+        type: string
+        default: false
+        required: false
+
+# Force bash to apply pipefail option so pipeline failures aren't masked
+defaults:
+  run:
+    shell: bash
+
+env:
+  SIMULATION: native
+  ENABLE_UNIT_TESTS: ${{inputs.test}}
+  OMIT_DEPRECATED: true
+  BUILDTYPE: release
+  REPO: ${{github.event.repository.name}}
+
+jobs:
+  #Checks for duplicate actions. Skips push actions if there is a matching or duplicate pull-request action.
+  check-for-duplicates:
+    runs-on: ubuntu-20.04
+    # Map a step output to a job output
+    outputs:
+      should_skip: ${{ steps.skip_check.outputs.should_skip }}
+    steps:
+      - id: skip_check
+        uses: fkirc/skip-duplicate-actions@master
+        with:
+          concurrent_skipping: 'same_content'
+          skip_after_successful_duplicate: 'true'
+          do_not_skip: '["pull_request", "workflow_dispatch", "schedule"]'
+
+  Analysis:
+    #Continue if check-for-duplicates found no duplicates. Always runs for pull-requests.
+    needs: check-for-duplicates
+    if: ${{ needs.check-for-duplicates.outputs.should_skip != 'true' }}
+    runs-on: ubuntu-20.04
+    timeout-minutes: 15
+
+    strategy:
+      fail-fast: false
+      matrix:
+        scan-type: [security, coding-standard]
+
+    permissions:
+      security-events: write
+
+    steps:
+      # Setup Bundle directory
+      - name: Setup cFS-Bundle directory (component-path = cFS)
+        if: inputs.component-path == 'cFS'
+        run:
+          echo "BUILD_DIRECTORY=${{github.workspace}}" >> $GITHUB_ENV
+
+      - name: Setup cFS-Bundle directory (component-path != cFS)
+        if: inputs.component-path != 'cFS'
+        run: |
+          cd ..
+          git clone https://github.com/nasa/cFS.git --recurse-submodules
+          cd cFS
+          echo "BUILD_DIRECTORY=$(pwd)" >> $GITHUB_ENV
+          git log -1 --pretty=oneline
+          git submodule
+          rm -r .git
+          rm -rf ${{ inputs.component-path }}
+          ln -s ${{github.workspace}} ${{ inputs.component-path }}
+
+
+      - name: Checkout ${{ github.repository }}
+        uses: actions/checkout@v4
+        with:
+           submodules: recursive
+
+        # Setup the build system
+      - name: cFS Build Setup
+        run: |
+          ${{ inputs.setup }}
+          ${{ inputs.prep }}
+        working-directory: ${{env.BUILD_DIRECTORY}}
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: cpp
+          config-file: nasa/cFS/.github/codeql/codeql-${{matrix.scan-type}}.yml@main
+
+      - name: Build
+        run: ${{ inputs.make }}
+        working-directory: ${{env.BUILD_DIRECTORY}}
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          add-snippets: true
+          category: ${{matrix.scan-type}}
+          upload: false
+          output: CodeQL-Sarif-${{ matrix.scan-type }}
+
+      - name: Rename Sarif
+        run: |
+          mv CodeQL-Sarif-${{ matrix.scan-type }}/cpp.sarif CodeQL-Sarif-${{ matrix.scan-type }}/Codeql-${{ matrix.scan-type }}.sarif
+          sed -i 's/"name" : "CodeQL"/"name" : "CodeQL-${{ matrix.scan-type }}"/g' CodeQL-Sarif-${{ matrix.scan-type }}/Codeql-${{ matrix.scan-type }}.sarif
+
+      - name: filter-sarif
+        uses: zbazztian/filter-sarif@master
+        with:
+            patterns: |
+                -**/*.md
+                -**/*.txt
+                -**/*.dox
+            input: CodeQL-Sarif-${{ matrix.scan-type }}/Codeql-${{ matrix.scan-type }}.sarif
+            output: CodeQL-Sarif-${{ matrix.scan-type }}/Codeql-${{ matrix.scan-type }}.sarif
+
+      - name: Archive Sarif
+        uses: actions/upload-artifact@v4
+        with:
+          name: CodeQL-Sarif-${{ matrix.scan-type }}
+          path: CodeQL-Sarif-${{ matrix.scan-type }}
+
+      - name: Upload SARIF
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: CodeQL-Sarif-${{ matrix.scan-type }}/Codeql-${{ matrix.scan-type }}.sarif

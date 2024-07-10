@@ -1,13 +1,30 @@
 name: Static Analysis
 
-# Run this workflow every time a new commit pushed to your repository and for pull requests
 on:
-  push:
-  pull_request:
+  workflow_call:
+    inputs:
+      strict-dir-list:
+        description: 'Directory List'
+        type: string
+        default: ''
+      cmake-project-options:
+        description: 'Command line options to pass to CMake'
+        type: string
+        default: ''
+      cppcheck-xslt-path:
+        description: 'Path to XSLT file for translating cppcheck XML output'
+        type: string
+        default: 'nasa/cFS/main/.github/scripts'
+
+# Force bash to apply pipefail option so pipeline failures aren't masked
+defaults:
+  run:
+    shell: bash
 
 jobs:
-  #Checks for duplicate actions. Skips push actions if there is a matching or duplicate pull-request action. 
+  #Checks for duplicate actions. Skips push actions if there is a matching or duplicate pull-request action.
   check-for-duplicates:
+    name: Check for Duplicates
     runs-on: ubuntu-latest
     # Map a step output to a job output
     outputs:
@@ -25,56 +42,79 @@ jobs:
     needs: check-for-duplicates
     if: ${{ needs.check-for-duplicates.outputs.should_skip != 'true' }}
     name: Run cppcheck
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
 
     strategy:
       fail-fast: false
-      matrix:
-        cppcheck: [bundle, cfe, osal, psp]
 
-    steps:      
+    steps:
       - name: Install cppcheck
-        run: sudo apt-get install cppcheck -y
+        run: sudo apt-get install cppcheck xsltproc -y
 
-        # Checks out a copy of the cfs bundle
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - name: Install sarif tool
+        run: npm install @microsoft/sarif-multitool
+
+      - name: Fetch conversion XSLT
+        run: |
+          wget -O cppcheck-xml2text.xslt https://raw.githubusercontent.com/${{ inputs.cppcheck-xslt-path }}/cppcheck-xml2text.xslt
+          wget -O cppcheck-merge.xslt https://raw.githubusercontent.com/${{ inputs.cppcheck-xslt-path }}/cppcheck-merge.xslt
+
+        # Checks out a copy of the reference repository
+      - name: Checkout subject repository
+        uses: actions/checkout@v4
         with:
+          path: source
           submodules: true
 
-      - name: Run bundle cppcheck
-        if: ${{matrix.cppcheck =='bundle'}}
-        run: cppcheck --force --inline-suppr --quiet . 2> ${{matrix.cppcheck}}_cppcheck_err.txt
-
-        # Run strict static analysis for embedded portions of cfe, osal, and psp
-      - name: cfe strict cppcheck
-        if: ${{matrix.cppcheck =='cfe'}}
+        # For a CMake-based project, get the list of files by setting up a build with CMAKE_EXPORT_COMPILE_COMMANDS=ON and
+        # referencing the compile_commands.json file produced by the tool.  This will capture the correct include paths and
+        # compile definitions based on how the source is actually compiled.
+      - name: CMake Setup
+        if: ${{ inputs.cmake-project-options != '' }}
         run: |
-          cd ${{matrix.cppcheck}}
-          cppcheck --force --inline-suppr --std=c99 --language=c --enable=warning,performance,portability,style --suppress=variableScope --inconclusive ./modules/core_api/fsw ./modules/core_private/fsw ./modules/es/fsw ./modules/evs/fsw ./modules/fs/fsw ./modules/msg/fsw ./modules/resourceid/fsw ./modules/sb/fsw ./modules/sbr/fsw ./modules/tbl/fsw ./modules/time/fsw -UCFE_PLATFORM_TIME_CFG_CLIENT -DCFE_PLATFORM_TIME_CFG_SERVER 2> ../${{matrix.cppcheck}}_cppcheck_err.txt
+          cmake -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/staging -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_BUILD_TYPE=debug ${{ inputs.cmake-project-options }} -S source -B build
+          echo CPPCHECK_OPTS=--project="$GITHUB_WORKSPACE/build/compile_commands.json" >> $GITHUB_ENV
 
-      - name: osal strict cppcheck
-        if: ${{matrix.cppcheck =='osal'}}
+        # For a Non-CMake project, just pass the base source directory of the repo.  This will examine all .c files in the repo,
+        # but it will not see the macro definitions, and thus may not correctly interpret macro usage.
+      - name: Non-CMake Setup
+        if: ${{ inputs.cmake-project-options == '' }}
         run: |
-          cd ${{matrix.cppcheck}}
-          cppcheck --force --inline-suppr --std=c99 --language=c --enable=warning,performance,portability,style --suppress=variableScope --inconclusive ./src/bsp ./src/os 2> ../${{matrix.cppcheck}}_cppcheck_err.txt
+          echo CPPCHECK_OPTS="$GITHUB_WORKSPACE/source" >> $GITHUB_ENV
 
-      - name: psp strict cppcheck
-        if: ${{matrix.cppcheck =='psp'}}
+      - name: Run general cppcheck
+        run: cppcheck --force --inline-suppr --xml $CPPCHECK_OPTS 2> cppcheck_err.xml
+
+        # Run strict static analysis for selected portions of source code
+      - name: Run Strict cppcheck
+        if: ${{ inputs.strict-dir-list !='' }}
+        working-directory: ${{ github.workspace }}/source
+        run: cppcheck --force --inline-suppr --std=c99 --language=c --enable=warning,performance,portability,style --suppress=variableScope --inconclusive --xml ${{ inputs.strict-dir-list }} 2> ../strict_cppcheck_err.xml
+
+      - name: Merge cppcheck results
+        if: ${{ inputs.strict-dir-list !='' }}
         run: |
-          cd ${{matrix.cppcheck}}
-          cppcheck --force --inline-suppr --std=c99 --language=c --enable=warning,performance,portability,style --suppress=variableScope --inconclusive ./fsw 2> ../${{matrix.cppcheck}}_cppcheck_err.txt
+          mv cppcheck_err.xml general_cppcheck_err.xml
+          xsltproc --stringparam merge_file strict_cppcheck_err.xml cppcheck-merge.xslt general_cppcheck_err.xml > cppcheck_err.xml
 
-      - name: Archive Static Analysis Artifacts
-        uses: actions/upload-artifact@v2
+      - name: Convert cppcheck results to SARIF
+        run: npx "@microsoft/sarif-multitool" convert "cppcheck_err.xml" --tool "CppCheck" --output "cppcheck_err.sarif"
+
+      - name: Convert cppcheck results to Markdown
+        run: xsltproc cppcheck-xml2text.xslt cppcheck_err.xml | tee $GITHUB_STEP_SUMMARY cppcheck_err.txt
+
+      - name: Upload SARIF results
+        uses: github/codeql-action/upload-sarif@v3
         with:
-          name: ${{matrix.cppcheck}}-cppcheck-err
-          path: ./*cppcheck_err.txt
+          sarif_file: ${{ github.workspace }}/cppcheck_err.sarif
+          checkout_path: ${{ github.workspace }}/source
+          category: 'cppcheck'
 
-      - name: Check for errors
-        run: |
-          if [[ -s ${{matrix.cppcheck}}_cppcheck_err.txt ]];
-          then
-            cat ${{matrix.cppcheck}}_cppcheck_err.txt
-            exit -1
-          fi
+      - name: Archive static analysis artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: cppcheck-errors
+          path: ./*cppcheck_err.*
+
+      - name: Check for reported errors
+        run: tail -n 1 cppcheck_err.txt | grep -q '^\*\*0 error(s) reported\*\*$'

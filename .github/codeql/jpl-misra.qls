@@ -1,0 +1,31 @@
+# Start with all the queries in the codeql/cpp-queries pack.
+- queries: .
+  from: codeql/cpp-queries
+# Restrict to only the queries with the following ID patterns.
+- include:
+    id:
+      # MISRA Rule 5-3-2
+      - cpp/jsf/av-rule-173
+      # MISRA Rule 5-14-1
+      - cpp/jsf/av-rule-165
+      # MISRA Rule 5-18-1
+      - cpp/jsf/av-rule-168
+      # MISRA 6-2-2
+      - cpp/jsf/av-rule-202
+      # JPL Rules
+      - /cpp/jpl-c/*/
+# Exclude queries with too many results
+- exclude: 
+    id: 
+      # JPL 14
+      - cpp/jpl-c/checking-return-values
+      # JPL 15
+      - cpp/jpl-c/checking-parameter-values
+      # JPL 17
+      - cpp/jpl-c/basic-int-types
+      # JPL 24
+      - cpp/jpl-c/multiple-stmts-per-line
+      - cpp/jpl-c/multiple-var-decls-per-line
+      # Excluded since cFS use unions judiciously
+      # MISRA Rule 9-5-1
+      - cpp/jsf/av-rule-153

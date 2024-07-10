@@ -1,0 +1,13 @@
+name: "CodeQL Analysis: cFS-Bundle"
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  codeql:
+    uses: nasa/cFS/.github/workflows/codeql-reusable.yml@main
+    with: 
+      component-path: cFS
+      make: make -j8
+      test: true

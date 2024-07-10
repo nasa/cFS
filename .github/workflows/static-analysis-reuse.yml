@@ -1,0 +1,9 @@
+name: Bundle Static Analysis
+
+on:
+  workflow_dispatch:
+
+jobs:
+  static-analysis:
+    name: Static Analysis
+    uses: nasa/cFS/.github/workflows/static-analysis.yml@main

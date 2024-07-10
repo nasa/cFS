@@ -1,7 +1,5 @@
-[![Build Status](https://travis-ci.com/nasa/cFS.svg)](https://travis-ci.com/nasa/cFS)
-[![LGTM Alerts](https://img.shields.io/lgtm/alerts/github/nasa/cFS)](https://lgtm.com/projects/g/nasa/cFS/alerts/?mode=list)
-[![LGTM Grade](https://img.shields.io/lgtm/grade/python/github/nasa/cFS)](https://lgtm.com/projects/g/nasa/cFS/alerts/?mode=list)
-[![LGTM Grade](https://img.shields.io/lgtm/grade/cpp/github/nasa/cFS)](https://lgtm.com/projects/g/nasa/cFS/alerts/?mode=list)
+[![Build Linux](https://github.com/nasa/cfs/actions/workflows/build-cfs.yml/badge.svg)](https://github.com/nasa/cfs/actions/workflows/build-cfs.yml)
+[![Build RTEMS 5](https://github.com/nasa/cFS/actions/workflows/build-cfs-rtems5.yml/badge.svg)](https://github.com/nasa/cFS/actions/workflows/build-cfs-rtems5.yml)
 
 # Core Flight System - BUNDLE
 
@@ -12,10 +10,11 @@ This bundle has not been fully verified as an operational system, and is provide
 The cFS Framework is a core subset of cFS.  There are additional OSALs, PSPs, and tools as listed below available from a variety of sources.
 
 ## References Documentation
-  - cFE User's Guide: https://github.com/nasa/cFS/blob/gh-pages/cFE_Users_Guide.pdf
-  - OSAL User's Guide: https://github.com/nasa/cFS/blob/gh-pages/OSAL_Users_Guide.pdf
+  - cFE User's Guide: https://github.com/nasa/cFS/blob/gh-pages/cfe-usersguide.pdf
+  - OSAL User's Guide: https://github.com/nasa/cFS/blob/gh-pages/osal-apiguide.pdf
+  - Combined Mission documentation: https://github.com/nasa/cFS/blob/gh-pages/mission-doc.pdf
   - cFE App Developer's Guide: https://github.com/nasa/cFE/blob/main/docs/cFE%20Application%20Developers%20Guide.md
-  - Training documentation: https://ntrs.nasa.gov/citations/20205000691
+  - Training documentation: https://ntrs.nasa.gov/citations/20210022378
   - cFS Overview: https://cfs.gsfc.nasa.gov/cFS-OviewBGSlideDeck-ExportControl-Final.pdf
 
 ## Release Notes
@@ -149,7 +148,7 @@ The following list is user submitted, and not CCB controlled.  They are released
     - cFS-101: Virtual machine distribution at https://github.com/nasa/CFS-101
     - OpenSatKit: Open source kit for satellite software at https://github.com/OpenSatKit/OpenSatKit
   - Other Ground station software
-    - TBD
+    - cFS-EDS-GroundStation: Ground station implemented via EDS at https://github.com/nasa/cFS-EDS-GroundStation
   - Other Apps
     - CS: Checksum application at https://github.com/nasa/CS
     - CF: CFDP application at https://github.com/nasa/CF
@@ -161,6 +160,7 @@ The following list is user submitted, and not CCB controlled.  They are released
     - LC: Limit Checker application at https://github.com/nasa/LC
     - MD: Memory Dwell application at https://github.com/nasa/MD
     - MM: Memory Manager application at https://github.com/nasa/MM
+    - SBN: Software Bus Network application at https://github.com/nasa/SBN
     - SC: Stored Commands application at https://github.com/nasa/SC
     - SCA: Stored Command Absolute application at https://github.com/nasa/SCA
     - SCH: Scheduler application at https://github.com/nasa/SCH
@@ -169,13 +169,18 @@ The following list is user submitted, and not CCB controlled.  They are released
   - Other Interfaces
     - SIL: Simulink Interface Layer at https://github.com/nasa/SIL
     - ECI: External Code Interface at https://github.com/nasa/ECI
+    - SBN-Client: External code interface to SBN at https://github.com/nasa/SBN-Client
   - Other Libraries
     - cFS_IO_LIB: IO library at https://github.com/nasa/CFS_IO_LIB
     - cFS_LIB: at https://github.com/nasa/cfs_lib
+    - EdsLib: CCSDS SOIS Electronic Data Sheet Tool and Library at https://github.com/nasa/EdsLib
+    - fs_lib: File services library at https://github.com/nasa/fs_lib
   - Other Tools
+    - CTF: cFS Test Framework at https://github.com/nasa/CTF
     - CCDD: Command and Data Dictionary Tool at https://github.com/nasa/CCDD
     - Perfutils-java: Java based performance analyzer for cFS at https://github.com/nasa/perfutils-java
-    - gen_sch_tbl: Tool to generated SCH app tables
+    - gen_sch_tbl: Tool to generated SCH app tables at https://github.com/nasa/gen_sch_tbl
+    - CryptoLib: Software-only CCSDS Space Data Link Security Protocol - Extended Procedures (SDLS-EP) at https://github.com/nasa/CryptoLib
   - Other OSALs
     - TBD
   - Other PSPs
