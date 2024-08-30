@@ -4,8 +4,7 @@
 cff-version: 1.2.0
 title: core Flight System (cFS)
 message: >-
-  If you use this software, please cite it using the
-  metadata from this file.
+  If you'd like to cite this software, please feel free to use the metadata from this file.
 type: software
 authors:
   - name: NASA's Goddard Space Flight Center
