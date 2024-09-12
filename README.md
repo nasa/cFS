@@ -42,7 +42,7 @@ More information is available on the [cFS Website](<https://cfs.gsfc.nasa.gov>).
 - [OSAL User's Guide](<https://github.com/nasa/cFS/blob/gh-pages/osal-apiguide.pdf>)
 - [Combined Mission documentation](<https://github.com/nasa/cFS/blob/gh-pages/mission-doc.pdf>)
 - [cFE App Developer's Guide](<https://github.com/nasa/cFE/blob/main/docs/cFE%20Application%20Developers%20Guide.md>)
-- [Training documentation](<https://ntrs.nasa.gov/citations/20210022378>)
+- [Training documentation](<https://ntrs.nasa.gov/citations/20240000217>)
 - [cFS Overview](<https://cfs.gsfc.nasa.gov/cFS-OviewBGSlideDeck-ExportControl-Final.pdf>)
 
 ## Release Notes
