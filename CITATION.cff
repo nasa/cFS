@@ -1,0 +1,36 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: core Flight System (cFS)
+message: >-
+  If you'd like to cite this software, please feel free to use the metadata from this file.
+type: software
+authors:
+  - name: NASA's Goddard Space Flight Center
+    address: 8800 Greenbelt Road
+    city: Greenbelt
+    country: US
+    post-code: '20771'
+    alias: NASA/GSFC
+repository-code: 'https://github.com/nasa/cFS'
+url: 'https://cfs.gsfc.nasa.gov/'
+abstract: >-
+  The Core Flight System (cFS) is a generic flight software
+  architecture framework used on flagship spacecraft, human
+  spacecraft, cubesats, and Raspberry Pi. This repository is
+  a bundle of submodules that make up the cFS framework.
+  Note the "lab" apps are intended as examples only, and
+  enable this bundle to build, execute, receive commands,
+  and send telemetry. This is not a flight distribution,
+  which is typically made up of the cFE, OSAL, PSP, and a
+  selection of flight apps that correspond to specific
+  mission requirements.
+keywords:
+  - Flight Software
+  - core Flight Executable (cFE)
+  - Operating System Abstraction Layer (OSAL)
+  - Platform Support Package (PSP)
+  - Framework
+  - System
+license: Apache-2.0
