@@ -5,7 +5,7 @@ on:
     inputs:
       # Optional inputs
       app-name:
-        description: Application name, if different from repo name
+        description: Application or library name, if different from repo name
         type: string
         required: false
         default: ${{ github.event.repository.name }}
@@ -53,9 +53,11 @@ jobs:
 
       - name: Set up environment variables
         # Apps typically use lowercase targets and uppercase names, this logic is fragile but works
+        # Mark the sample app/lib and lab apps as we don't need to add them to the build or startup file (they're already part of the bundle)
         run: |
           echo "APP_UPPER=$(echo ${{ inputs.app-name }} | sed 's/[a-z]/\U&/g')" >> $GITHUB_ENV
           echo "APP_LOWER=$(echo ${{ inputs.app-name }} | sed 's/[A-Z]/\L&/g')" >> $GITHUB_ENV
+          echo "IS_SAMPLE_OR_LAB=$(echo ${{ inputs.app-name }} | grep -iqE 'sample|lab' && echo true || echo false)" >> $GITHUB_ENV
 
       - name: Checkout Bundle Main
         uses: actions/checkout@v4
@@ -75,7 +77,9 @@ jobs:
 
       - name: Add Repo To Build
         run: |
-          sed -i "/list(APPEND MISSION_GLOBAL_APPLIST/a list(APPEND MISSION_GLOBAL_APPLIST $APP_LOWER)" sample_defs/targets.cmake
+          if [[ "$IS_SAMPLE_OR_LAB" == "false" ]]; then
+            sed -i "/list(APPEND MISSION_GLOBAL_APPLIST/a list(APPEND MISSION_GLOBAL_APPLIST $APP_LOWER)" sample_defs/targets.cmake
+          fi
 
       - name: Make Prep
         run: make SIMULATION=native ENABLE_UNIT_TESTS=true OMIT_DEPRECATED=true prep
@@ -83,7 +87,7 @@ jobs:
       - name: Build app build dependencies
         run: make -C build/tools/elf2cfetbl
 
-      - name: Build app target
+      - name: Build app/library target
         run: |
           make -C build/native/default_cpu1/apps/$APP_LOWER
 
