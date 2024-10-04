@@ -124,21 +124,27 @@ You can email the cFS Product Team at [cfs-program@lists.nasa.gov](<mailto:cfs-p
 
 Ensure the following software are installed: Make, CMake, GCC, and Git.  To setup the cFS BUNDLE directly from the latest set of interoperable repositories (with your working directory set to where you want to put cFS):
 
+```bash
     git clone https://github.com/nasa/cFS.git
     cd cFS
     git submodule init
     git submodule update
+```
 
 Copy in the default makefile and definitions:
 
+```bash
     cp cfe/cmake/Makefile.sample Makefile
     cp -r cfe/cmake/sample_defs sample_defs
+```
 
 ## Build and Run
 
 The cFS Framework including sample applications will build and run on the pc-linux platform support package (should run on most Linux distributions), via the steps described in [the cFE cmake readme](<https://github.com/nasa/cFE/tree/master/cmake/README.md>).  Quick-start is below:
 
 To prep, compile, and run on the host (from cFS directory above) as a normal user (best effort message queue depth and task priorities):
+
+```bash
     make distclean
         (For a clean build on subsequent runs)
     make SIMULATION=native prep
@@ -146,6 +152,7 @@ To prep, compile, and run on the host (from cFS directory above) as a normal use
     make install
     cd build/exe/cpu1/
     ./core-cpu1
+```
 
 Should see startup messages, and CFE_ES_Main entering OPERATIONAL state.  Note the code must be executed from the build/exe/cpu1 directory to find the startup script and shared objects.
 
@@ -159,10 +166,12 @@ The cFS-GroundSystem tool can be used to send commands and receive telemetry.  F
 
 2. Compile cmdUtil and start the ground system executable
 
+```bash
        cd tools/cFS-GroundSystem/Subsystems/cmdUtil
        make
        cd ../..
        python3 GroundSystem.py
+```
 
 3. Select "Start Command System" from main window
 4. Select "Enable Tlm"
