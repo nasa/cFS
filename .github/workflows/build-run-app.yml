@@ -45,9 +45,11 @@ jobs:
     steps:
       - name: Set up environment variables
         # Apps typically use lowercase targets and uppercase names, this logic is fragile but works
+        # Mark the sample app/lib and lab apps as we don't need to add them to the build or startup file (they're already part of the bundle)
         run: |
           echo "APP_UPPER=$(echo ${{ inputs.app-name }} | sed 's/[a-z]/\U&/g')" >> $GITHUB_ENV
           echo "APP_LOWER=$(echo ${{ inputs.app-name }} | sed 's/[A-Z]/\L&/g')" >> $GITHUB_ENV
+          echo "IS_SAMPLE_OR_LAB=$(echo ${{ inputs.app-name }} | grep -iqE 'sample|lab' && echo true || echo false)" >> $GITHUB_ENV
 
       - name: Set up start string for verification
         run: |
@@ -75,12 +77,16 @@ jobs:
 
       - name: Add To Build
         run: |
-          sed -i "/list(APPEND MISSION_GLOBAL_APPLIST/a list(APPEND MISSION_GLOBAL_APPLIST $APP_LOWER)" sample_defs/targets.cmake
+          if [[ "$IS_SAMPLE_OR_LAB" == "false" ]]; then
+            sed -i "/list(APPEND MISSION_GLOBAL_APPLIST/a list(APPEND MISSION_GLOBAL_APPLIST $APP_LOWER)" sample_defs/targets.cmake
+          fi
 
       - name: Add To Startup
         run: |
-          sed -i "1i CFE_APP, $APP_LOWER, ${APP_UPPER}_AppMain, $APP_UPPER, 80, 16384, 0x0, 0;" sample_defs/cpu1_cfe_es_startup.scr
-          cat sample_defs/cpu1_cfe_es_startup.scr
+          if [[ "$IS_SAMPLE_OR_LAB" == "false" ]]; then
+            sed -i "1i CFE_APP, $APP_LOWER, ${APP_UPPER}_AppMain, $APP_UPPER, 80, 16384, 0x0, 0;" sample_defs/cpu1_cfe_es_startup.scr
+            cat sample_defs/cpu1_cfe_es_startup.scr
+          fi
 
       - name: Make install
         run: make SIMULATION=native BUILDTYPE=release OMIT_DEPRECATED=true install
