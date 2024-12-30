@@ -38,7 +38,7 @@ CodeSonar results are not available to the public.
 
 CodeSonar is typically ran on a “once per release” sort of schedule.  
 
-For more information about CodeSonar, visit https://www.grammatech.com/codesonar-cc.
+For more information about CodeSonar, visit https://codesecure.com/our-products/codesonar.
 
 ### Fuzz Testing
 
