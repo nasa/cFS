@@ -139,6 +139,7 @@ Copy in the default makefile and definitions:
 The cFS Framework including sample applications will build and run on the pc-linux platform support package (should run on most Linux distributions), via the steps described in [the cFE cmake readme](<https://github.com/nasa/cFE/tree/master/cmake/README.md>).  Quick-start is below:
 
 To prep, compile, and run on the host (from cFS directory above) as a normal user (best effort message queue depth and task priorities):
+
     make distclean
         (For a clean build on subsequent runs)
     make SIMULATION=native prep
