@@ -14,6 +14,11 @@ on:
         type: string
         required: false
         default: ''
+      is_framework_app:
+        description: Whether this is a framework app (TO/CI/SCH Lab, Sample App)
+        type: boolean
+        required: false
+        default: false
 
 # Force bash to apply pipefail option so pipeline failures aren't masked
 defaults:
@@ -75,12 +80,16 @@ jobs:
 
       - name: Add To Build
         run: |
-          sed -i "/list(APPEND MISSION_GLOBAL_APPLIST/a list(APPEND MISSION_GLOBAL_APPLIST $APP_LOWER)" sample_defs/targets.cmake
+          if [[ "${{ inputs.is_framework_app }}" == "false" ]]; then
+            sed -i "/list(APPEND MISSION_GLOBAL_APPLIST/a list(APPEND MISSION_GLOBAL_APPLIST $APP_LOWER)" sample_defs/targets.cmake
+          fi
 
       - name: Add To Startup
         run: |
-          sed -i "1i CFE_APP, $APP_LOWER, ${APP_UPPER}_AppMain, $APP_UPPER, 80, 16384, 0x0, 0;" sample_defs/cpu1_cfe_es_startup.scr
-          cat sample_defs/cpu1_cfe_es_startup.scr
+          if [[ "${{ inputs.is_framework_app }}" == "false" ]]; then
+            sed -i "1i CFE_APP, $APP_LOWER, ${APP_UPPER}_AppMain, $APP_UPPER, 80, 16384, 0x0, 0;" sample_defs/cpu1_cfe_es_startup.scr
+            cat sample_defs/cpu1_cfe_es_startup.scr
+          fi
 
       - name: Make install
         run: make SIMULATION=native BUILDTYPE=release OMIT_DEPRECATED=true install
