@@ -53,7 +53,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /home/runner/work/${{ env.REPO_NAME }}/${{ env.REPO_NAME }}/*
-          key: build-${{ github.run_number }}-${{ matrix.buildtype }}
+          key: build-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.buildtype }}
 
       - name: Checkout cFS
         if: steps.cache-src-bld.outputs.cache-hit != 'true'
@@ -98,7 +98,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /home/runner/work/${{ env.REPO_NAME }}/${{ env.REPO_NAME }}/*
-          key: build-${{ github.run_number }}-${{ matrix.buildtype }}
+          key: build-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.buildtype }}
 
       - name: Run Tests
         run: make test
@@ -126,7 +126,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /home/runner/work/${{ env.REPO_NAME }}/${{ env.REPO_NAME }}/*
-          key: build-${{ github.run_number }}-${{ matrix.buildtype }}
+          key: build-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.buildtype }}
 
 
       - name: List cpu1
@@ -172,7 +172,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /home/runner/work/${{ env.REPO_NAME }}/${{ env.REPO_NAME }}/*
-          key: build-${{ github.run_number }}-${{ matrix.buildtype }}
+          key: build-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.buildtype }}
 
       - name: List cpu1
         run: ls build/exe/cpu1/
