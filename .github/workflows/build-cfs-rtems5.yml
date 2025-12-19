@@ -45,10 +45,20 @@ jobs:
     # Set the type of machine to run on
     env:
       BUILDTYPE: ${{ matrix.buildtype }}
+      ENABLE_UNIT_TESTS: true
       # Set home to where rtems is located
       HOME: /root
+      # Disable mcopy check otherwise disk image build fails
+      MTOOLS_SKIP_CHECK: 1
 
     steps:
+      - name: Cache Source and Build
+        id: cache-src-bld
+        uses: actions/cache@v4
+        with:
+          path: ./
+          key: rtems5-build-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.buildtype }}
+
       # Check out the cfs bundle
       - name: Checkout code
         uses: actions/checkout@v4
@@ -66,7 +76,7 @@ jobs:
         run: make SIMULATION=i686-rtems5 prep
 
       - name: Make
-        run: make
+        run: make install
 
   test-cfs:
     name: Test
@@ -80,33 +90,13 @@ jobs:
       matrix:
         buildtype: [debug, release]
 
-    # Set the type of machine to run on
-    env:
-      BUILDTYPE: ${{ matrix.buildtype }}
-      ENABLE_UNIT_TESTS: true
-      # Set home to where rtems is located
-      HOME: /root
-      # Disable mcopy check otherwise disk image build fails
-      MTOOLS_SKIP_CHECK: 1
-
     steps:
-      # Checks out a copy of your repository on the ubuntu-latest machine
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Cache Source and Build
+        id: cache-src-bld
+        uses: actions/cache@v4
         with:
-          submodules: true
-
-      # Setup the build system
-      - name: Copy Files
-        run: |
-          cp ./cfe/cmake/Makefile.sample Makefile
-          cp -r ./cfe/cmake/sample_defs sample_defs
-
-      # Setup the build system
-      - name: Make
-        run: |
-          make SIMULATION=i686-rtems5 prep
-          make install
+          path: ./
+          key: rtems5-build-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.buildtype }}
 
       - name: Test
         #run: .github/scripts/qemu_test.sh && .github/scripts/log_failed_tests.sh
