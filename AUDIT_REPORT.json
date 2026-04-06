@@ -1,0 +1,113 @@
+{
+  "project": "/home/curly/projects/cFS",
+  "timestamp": "2026-04-06",
+  "languages_detected": [
+    "c",
+    "python"
+  ],
+  "files_scanned": 500,
+  "candidates_found": 7,
+  "confirmed_findings": 7,
+  "false_positives": 0,
+  "findings": [
+    {
+      "pattern_id": "cpp-006-strcpy-family",
+      "pattern_title": "Use of unbounded string function (strcpy/strcat/sprintf/gets)",
+      "severity": "high",
+      "file": "/home/curly/projects/cFS/tools/elf2cfetbl/elf2cfetbl.c",
+      "line": 457,
+      "matched_text": "sprintf(",
+      "context": "455:     char VerboseStr[60];\n456: \n457:     sprintf(VerboseStr, \"/\");\n458:     if (TargetWordsizeIs32Bit)\n459:     {\n460:         if ((SectionHeader->Shdr32.sh_flags & SHF_WRITE) == SHF_WRITE)",
+      "verification": {
+        "verdict": "confirmed",
+        "reasoning": "Verification skipped — static-only mode (+41 more matches of this pattern in the same file)"
+      },
+      "cwe": "CWE-120"
+    },
+    {
+      "pattern_id": "cpp-006-strcpy-family",
+      "pattern_title": "Use of unbounded string function (strcpy/strcat/sprintf/gets)",
+      "severity": "high",
+      "file": "/home/curly/projects/cFS/tools/cFS-GroundSystem/Subsystems/cmdUtil/cmdUtil.c",
+      "line": 190,
+      "matched_text": "strcpy(",
+      "context": "188: \n189:     if (DEFAULT_BIGENDIAN)\n190:         strcpy(endian, ENDIAN_BIG);\n191: \n192:     printf(\"%s -- Command Client.\\n\", Name);\n193:     printf(\"  - General options:\\n\");",
+      "verification": {
+        "verdict": "confirmed",
+        "reasoning": "Verification skipped — static-only mode (+2 more matches of this pattern in the same file)"
+      },
+      "cwe": "CWE-120"
+    },
+    {
+      "pattern_id": "cpp-012-loop-unvalidated-bound",
+      "pattern_title": "Loop bound from external input without validation",
+      "severity": "high",
+      "file": "/home/curly/projects/cFS/psp/fsw/modules/linux_sysmon/linux_sysmon.c",
+      "line": 390,
+      "matched_text": "for (cpu = 0; cpu < state->num_cpus;",
+      "context": "388: \n389:     sum = 0;\n390:     for (cpu = 0; cpu < state->num_cpus; ++cpu)\n391:     {\n392:         sum += state->per_core[cpu].avg_load;\n393:     }",
+      "verification": {
+        "verdict": "confirmed",
+        "reasoning": "Verification skipped — static-only mode"
+      },
+      "cwe": "CWE-606"
+    },
+    {
+      "pattern_id": "cpp-003-unchecked-data-index",
+      "pattern_title": "Buffer access with fixed index, no size validation",
+      "severity": "high",
+      "file": "/home/curly/projects/cFS/osal/src/bsp/generic-linux/src/bsp_start.c",
+      "line": 51,
+      "matched_text": "buffer[32]",
+      "context": "49: {\n50:     FILE *              fp;\n51:     char                buffer[32];\n52:     pthread_mutexattr_t mutex_attr;\n53:     int                 status;\n54: ",
+      "verification": {
+        "verdict": "confirmed",
+        "reasoning": "Verification skipped — static-only mode"
+      },
+      "cwe": "CWE-125"
+    },
+    {
+      "pattern_id": "cpp-006-strcpy-family",
+      "pattern_title": "Use of unbounded string function (strcpy/strcat/sprintf/gets)",
+      "severity": "high",
+      "file": "/home/curly/projects/cFS/libs/sample_lib/fsw/src/sample_lib.c",
+      "line": 51,
+      "matched_text": "strcpy(",
+      "context": "49: \n50:     /*\n51:      * Call a C library function, like strcpy(), and test its result.\n52:      *\n53:      * This is primary for a unit test example, to have more than\n54:      * one code path to exercise.",
+      "verification": {
+        "verdict": "confirmed",
+        "reasoning": "Verification skipped — static-only mode"
+      },
+      "cwe": "CWE-120"
+    },
+    {
+      "pattern_id": "cpp-006-strcpy-family",
+      "pattern_title": "Use of unbounded string function (strcpy/strcat/sprintf/gets)",
+      "severity": "high",
+      "file": "/home/curly/projects/cFS/cfe/modules/tbl/fsw/src/cfe_tbl_internal.c",
+      "line": 878,
+      "matched_text": "strcpy(",
+      "context": "876:     }\n877: \n878:     strcpy(EndPtr, \"(*)\");\n879: }\n880: \n881: /*----------------------------------------------------------------",
+      "verification": {
+        "verdict": "confirmed",
+        "reasoning": "Verification skipped — static-only mode"
+      },
+      "cwe": "CWE-120"
+    },
+    {
+      "pattern_id": "cpp-012-loop-unvalidated-bound",
+      "pattern_title": "Loop bound from external input without validation",
+      "severity": "high",
+      "file": "/home/curly/projects/cFS/cfe/modules/tbl/fsw/src/cfe_tbl_load.c",
+      "line": 112,
+      "matched_text": "for (Idx = 0; Idx < AcceptList.NumElements;",
+      "context": "110:     /* Verify ID contained in table file header [optional] */\n111:     ListPtr = AcceptList.ElementPtr;\n112:     for (Idx = 0; Idx < AcceptList.NumElements; ++Idx)\n113:     {\n114:         if (RefId == *ListPtr)\n115:         {",
+      "verification": {
+        "verdict": "confirmed",
+        "reasoning": "Verification skipped — static-only mode"
+      },
+      "cwe": "CWE-606"
+    }
+  ],
+  "elapsed_ms": 222
+}
