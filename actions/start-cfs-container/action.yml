@@ -1,0 +1,41 @@
+name: Start QEMU cFS Virtual Machine
+description: 'Boots a QEMU virtual machine to execute a CFS build'
+
+inputs:
+  binary-dir:
+    description: 'Directory containing image files'
+    required: true
+  exec-image:
+    description: 'Docker image name to execute CFS'
+    required: false
+    default: ghcr.io/core-flight-system/cfsexec-qemu:latest
+
+outputs:
+  container-id:
+    description: "Docker container ID"
+    value: ${{ steps.start-container.outputs.id }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Pull CFS container
+      shell: bash
+      run: docker pull ${{ inputs.exec-image }}
+
+    - name: Start cFS execution container
+      shell: bash
+      id: start-container
+      run: |
+        DOCKER_ID=$(docker run -d \
+          -v ${{ inputs.binary-dir }}:${{ inputs.binary-dir }} \
+          --sysctl fs.mqueue.msg_max=64 \
+          -w ${{ inputs.binary-dir }} \
+          ${{ inputs.exec-image }} \
+          ./container-start)
+        echo "id=$DOCKER_ID" >> $GITHUB_OUTPUT
+        echo "Started Container: $DOCKER_ID"
+        sleep 2
+
+    - name: List Containers
+      shell: bash
+      run: docker ps -a

@@ -1,0 +1,87 @@
+name: Set up app source Workflow
+description: 'Sets up application source'
+
+inputs:
+  app-name:
+    description: Application name
+    type: string
+    required: false
+    default: ${{ github.event.repository.name }}
+  dependency:
+    description: Additional module/library that this app depends on
+    type: string
+    required: false
+    default: ''
+  cmake-options:
+    description: Options to pass to the cmake command
+    type: string
+    required: false
+    default: '-DENABLE_UNIT_TESTS=TRUE -DSIMULATION=native -DMISSIONCONFIG=sample -DCMAKE_BUILD_TYPE=debug -DCMAKE_INSTALL_PREFIX=/exe'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up environment variables
+      # Apps typically use lowercase targets and uppercase names, this logic is fragile but works
+      shell: bash
+      run: |
+        echo "APP_UPPER=$(echo ${{ inputs.app-name }} | sed 's/[a-z]/\U&/g')" >> $GITHUB_ENV
+        echo "APP_LOWER=$(echo ${{ inputs.app-name }} | sed 's/[A-Z]/\L&/g')" >> $GITHUB_ENV
+        APP_DEP="${{ inputs.dependency }}"
+        echo "APP_DEP_UPPER=$(echo ${APP_DEP##*/} | sed 's/[a-z]/\U&/g')" >> $GITHUB_ENV
+        echo "APP_DEP_LOWER=$(echo ${APP_DEP##*/} | sed 's/[A-Z]/\L&/g')" >> $GITHUB_ENV
+
+    - name: Checkout cFE
+      uses: actions/checkout@v4
+      with:
+        repository: nasa/cFE
+        path: ./cfe
+        ref: dev
+
+    - name: Set up Dependencies
+      uses: ./cfe/.github/actions/setup-cfe
+      with:
+        source-dir: .
+        preferred-ref: ${{ github.head_ref }}
+        org: 'nasa'
+
+    - name: Checkout Dependency
+      if: ${{ inputs.dependency != '' }}
+      uses: actions/checkout@v4
+      with:
+        repository: ${{ inputs.dependency }}
+        path: ./apps/${{ inputs.dependency }}
+        ref: dev
+
+    - name: Checkout App Repo
+      if: inputs.app-name != 'cFS' && inputs.app-name != 'cFE'
+      uses: actions/checkout@v4
+      with:
+        path: ./apps/${{  env.APP_LOWER  }}
+
+    - name: Set up basic targets.cmake config
+      shell: bash
+      run: |
+        cat > ./sample_defs/targets.cmake << EOF
+        SET(MISSION_NAME GithubActions)
+        SET(SPACECRAFT_ID 0x42)
+        SET(MISSION_CPUNAMES cpu1)
+        SET(cpu1_PROCESSORID 1)
+        SET(MISSION_GLOBAL_APPLIST)
+        EOF
+
+    - name: Add Dependencies to targets
+      if: inputs.app-name != 'cFS' && inputs.app-name != 'cFE'
+      shell: bash
+      run: echo "LIST(APPEND MISSION_GLOBAL_APPLIST $APP_DEP_LOWER $APP_LOWER)" >> ./sample_defs/targets.cmake
+
+    - name: Check targets.cmake
+      shell: bash
+      run: cat ./sample_defs/targets.cmake
+
+    - name: Set up build tree
+      shell: bash
+      run: |
+        mkdir -p $GITHUB_WORKSPACE/build
+        echo DESTDIR=$GITHUB_WORKSPACE/build >> $GITHUB_ENV
+        cd $GITHUB_WORKSPACE/build && cmake ${{ inputs.cmake-options }} "$GITHUB_WORKSPACE/cfe"
