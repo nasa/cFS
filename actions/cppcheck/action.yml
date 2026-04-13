@@ -1,0 +1,82 @@
+name: Static Analysis
+description: 'Performs static analysis of source code using cppcheck'
+
+inputs:
+  strict-dir-list:
+    description: 'Directory List'
+    type: string
+    default: ''
+  compile-commands-json:
+    description: 'Reference to compile command JSON file'
+    type: string
+    default: ''
+  source-dir:
+    description: 'List of source directories'
+    type: string
+    default: ''
+  cppcheck-xslt-path:
+    description: 'Path to XSLT file for translating cppcheck XML output'
+    type: string
+    default: 'nasa/cFS/raw/refs/heads/main/.github/scripts'
+  module-path:
+    description: 'Path to subdirectory containing subject source files'
+    type: string
+    default: '/'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Fetch conversion XSLT
+      shell: bash
+      run: |
+        wget -O cppcheck-xml2text.xslt ${{ github.server_url }}/${{ inputs.cppcheck-xslt-path }}/cppcheck-xml2text.xslt
+        wget -O cppcheck-merge.xslt ${{ github.server_url }}/${{ inputs.cppcheck-xslt-path }}/cppcheck-merge.xslt
+
+      # If source dirs are specified, just pass them through.  This will examine all .c files in the repo,
+      # but it will not see the macro definitions, and thus may not correctly interpret macro usage.
+    - name: Source Directory Setup
+      if: ${{ inputs.source-dir != '' }}
+      shell: bash
+      run: |
+        echo CPPCHECK_OPTS=${{ inputs.source-dir }} >> $GITHUB_ENV
+
+      # Get the list of files by setting up a build with CMAKE_EXPORT_COMPILE_COMMANDS=ON and
+      # referencing the compile_commands.json file produced by the tool.  This will capture the
+      # correct include paths and compile definitions based on how the source is actually compiled.
+    - name: Compile Commands Setup
+      if: ${{ inputs.compile-commands-json != '' }}
+      shell: bash
+      run: |
+        MODULE_PATH=$(realpath $GITHUB_WORKSPACE/${{ inputs.module-path }})
+        echo filtering on $MODULE_PATH
+        jq '[.[] | if (.file | startswith("'$MODULE_PATH'")) then . else empty end]' ${{ inputs.compile-commands-json }} > local-cppcheck-compile-commands.json
+        echo CPPCHECK_OPTS=--project=local-cppcheck-compile-commands.json >> $GITHUB_ENV
+
+    - name: Run general cppcheck
+      shell: bash
+      run: |
+        echo Command options: $CPPCHECK_OPTS
+        cppcheck --force --inline-suppr --xml $CPPCHECK_OPTS 2> cppcheck_err.xml
+
+      # Run strict static analysis for selected portions of source code
+    - name: Run Strict cppcheck
+      if: ${{ inputs.strict-dir-list !='' }}
+      shell: bash
+      run: |
+        mv cppcheck_err.xml general_cppcheck_err.xml
+        cppcheck --force --inline-suppr --std=c99 --language=c --enable=warning,performance,portability,style --suppress=variableScope --inconclusive --xml ${{ inputs.strict-dir-list }} 2> strict_cppcheck_err.xml
+        xsltproc --stringparam merge_file strict_cppcheck_err.xml cppcheck-merge.xslt general_cppcheck_err.xml > cppcheck_err.xml
+
+    - name: Convert cppcheck results to Markdown
+      shell: bash
+      run: xsltproc cppcheck-xml2text.xslt cppcheck_err.xml | tee $GITHUB_STEP_SUMMARY cppcheck_err.txt
+
+    - name: Archive static analysis artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: cppcheck-errors
+        path: ./*cppcheck_err.*
+
+    - name: Check for reported errors
+      shell: bash
+      run: tail -n 1 cppcheck_err.txt | grep -q '^\*\*0 error(s) reported\*\*$'

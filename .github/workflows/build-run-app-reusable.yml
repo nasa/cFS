@@ -1,0 +1,186 @@
+name: Build And Run Reusable Workflow
+
+on:
+  workflow_call:
+    inputs:
+      # Optional inputs
+      app-name:
+        description: Application name, if different from repo name
+        type: string
+        required: false
+        default: ${{ github.event.repository.name }}
+      startup-string:
+        description: Startup string to confirm, default will use "<APP> Initialized."
+        type: string
+        required: false
+        default: ''
+      # Currently CFS apps have at most one dependency, so this only handles one for now
+      dependency:
+        description: Additional module/library that this app depends on
+        type: string
+        required: false
+        default: ''
+      app-entrypoint-suffix:
+        description: Symbol suffix to use as app entry point
+        type: string
+        required: false
+        default: 'AppMain'
+
+# Force bash to apply pipefail option so pipeline failures aren't masked
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  # Checks for duplicate actions. Skips push actions if there is a matching or
+  # duplicate pull-request action.
+  checks-for-duplicates:
+    runs-on: ubuntu-latest
+    # Map a step output to a job output
+    outputs:
+      should_skip: ${{ steps.skip_check.outputs.should_skip }}
+    steps:
+      - id: skip_check
+        uses: fkirc/skip-duplicate-actions@master
+        with:
+          concurrent_skipping: 'same_content'
+          skip_after_successful_duplicate: 'true'
+          do_not_skip: '["pull_request", "workflow_dispatch", "schedule"]'
+
+  build-app:
+    needs: checks-for-duplicates
+    if: ${{ needs.checks-for-duplicates.outputs.should_skip != 'true' || contains(github.ref, 'main')  || contains(github.ref, 'dev') }}
+    name: Build CFE with app
+    runs-on: ubuntu-22.04
+    container: ghcr.io/core-flight-system/cfsbuildenv-linux:latest
+
+    steps:
+      # Note this also sets the APP_UPPER and APP_LOWER environment variables
+      - name: Set up app source
+        uses: nasa/cFS/actions/setup-app@dev
+        with:
+          app-name: ${{ inputs.app-name }}
+          dependency: ${{ inputs.dependency }}
+
+      - name: Set up start string for verification
+        run: |
+          if [[ "${{ inputs.startup-string }}" == '' ]]; then
+            echo "START_STRING=$APP_UPPER Initialized." >> $GITHUB_ENV
+          else
+            echo "START_STRING=${{ inputs.startup-string }}" >> $GITHUB_ENV
+          fi
+
+      - name: Make install
+        run: make -C build mission-install
+
+      - name: Generate Startup Link
+        run: ln -s core-cpu1 ./build/exe/cpu1/container-start
+
+      - name: Replace startup script
+        run: |
+          truncate -s 0 ./build/exe/cpu1/cf/cfe_es_startup.scr
+          if [ "x$APP_DEP_LOWER" != "x" ]
+          then
+            echo "CFE_LIB, $APP_DEP_LOWER, ${APP_DEP_UPPER}_Init, $APP_DEP_UPPER, 0, 0, 0x0, 0;" >> ./build/exe/cpu1/cf/cfe_es_startup.scr
+          fi
+          echo "CFE_APP, $APP_LOWER, ${APP_UPPER}_${{ inputs.app-entrypoint-suffix }}, $APP_UPPER, 80, 16384, 0x0, 0;" >> ./build/exe/cpu1/cf/cfe_es_startup.scr
+          cat ./build/exe/cpu1/cf/cfe_es_startup.scr
+
+      - name: Archive binaries
+        run: |
+          cd $GITHUB_WORKSPACE/build/exe
+          find -maxdepth 1 -mindepth 1 -type d | while read dir
+          do
+            inst=$(basename ${dir})
+            tar Jcv -f $GITHUB_WORKSPACE/${inst}-bin.tar.xz -C ${inst} .
+          done
+
+      - name: Upload all artifacts
+        uses: actions/upload-artifact@v4
+        with:
+            name: ${{ inputs.app-name }}-bin
+            path: ./*.tar.xz
+
+  run-app:
+    needs: build-app
+    name: Run CFE with app, check for startup messages
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.app-name }}-bin
+          path: ${{ inputs.app-name }}-bin
+
+      - name: List Files 1
+        run: ls -lR .
+
+      - name: Unpack artifacts
+        run: |
+          for i in cpu1 host
+          do
+            mkdir -p "$i"
+            tar Jxv -C "$i" -f "$GITHUB_WORKSPACE/${{ inputs.app-name }}-bin/$i-bin.tar.xz"
+          done
+
+      - name: List Files 2
+        run: |
+          pwd
+          ls -lR .
+
+      - name: Start CPU1 container
+        id: start-cpu1
+        uses: nasa/cFS/actions/start-cfs-container@dev
+        with:
+          binary-dir: ${{ github.workspace }}/cpu1
+
+      - name: Check CPU1 container
+        id: check-cpu1
+        uses: nasa/cFS/actions/healthcheck-logs@dev
+        with:
+          container-id: ${{ steps.start-cpu1.outputs.container-id }}
+          healthcheck-regex: 'CFE_ES_Main entering OPERATIONAL state$'
+
+      - name: Shut down CFE
+        if: ${{ steps.check-cpu1.outputs.ip-addr != '' }}
+        working-directory: ./host
+        run: |
+          ./cmd_send -v --host=${{ steps.check-cpu1.outputs.ip-addr }} --endian=LE --pktid=0x1806 --cmdcode=2 --half=0x0002
+          sleep 2
+
+      - name: Capture Logs
+        if: ${{ always() && steps.start-cpu1.outputs.container-id != '' }}
+        run: docker logs ${{ steps.start-cpu1.outputs.container-id }} > cFS_startup_cpu1.txt
+
+      - name: Stop CPU1 Container
+        uses: nasa/cFS/actions/stop-cfs-container@dev
+        with:
+          container-id: ${{ steps.start-cpu1.outputs.container-id }}
+
+      - name: Archive results
+        if: success() || failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cFS_startup_log
+          path: cFS_startup_cpu1.txt
+
+      - name: Confirm startup string
+        run: |
+          if [[ -z $(grep "$START_STRING" cFS_startup_cpu1.txt) ]]; then
+            echo "Startup verification string not found in log: $START_STRING"
+            echo ""
+            echo "Possible related event messages:"
+            grep "/$APP_UPPER " cFS_startup_cpu1.txt
+            exit -1
+          fi
+
+      - name: Check for cFS Warnings
+        if: success() || failure()
+        run: |
+          if [[ -n $(grep -i "warn\|err\|fail" cFS_startup_cpu1.txt) ]]; then
+                  echo "cFS startup warn|err|fail:"
+                  echo ""
+                  grep -i 'warn\|err\|fail' cFS_startup_cpu1.txt
+                  exit -1
+          fi

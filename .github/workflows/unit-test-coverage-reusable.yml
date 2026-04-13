@@ -1,4 +1,4 @@
-name: Unit Test and Coverage
+name: Unit Test and Coverage Reusable Workflow
 
 on:
   workflow_call:
@@ -19,6 +19,12 @@ on:
         type: number
         required: false
         default: 0
+      # Currently CFS apps have at most one dependency, so this only handles one for now
+      dependency:
+        description: Additional module/library that this app depends on
+        type: string
+        required: false
+        default: ''
 
 # Force bash to apply pipefail option so pipeline failures aren't masked
 defaults:
@@ -43,45 +49,71 @@ jobs:
 
   unit-test-coverage:
     needs: checks-for-duplicates
-    if: ${{ needs.checks-for-duplicates.outputs.should_skip != 'true' || contains(github.ref, 'main') }}
+    if: ${{ needs.checks-for-duplicates.outputs.should_skip != 'true' || contains(github.ref, 'main') || contains(github.ref, 'dev') }}
     name: Build, run unit tests and enforce coverage
     runs-on: ubuntu-22.04
+    container: ghcr.io/core-flight-system/cfsbuildenv-linux:latest
 
     steps:
-      - name: Install coverage tools
-        run: sudo apt-get install lcov -y
-
       - name: Set up environment variables
         # Apps typically use lowercase targets and uppercase names, this logic is fragile but works
         run: |
           echo "APP_UPPER=$(echo ${{ inputs.app-name }} | sed 's/[a-z]/\U&/g')" >> $GITHUB_ENV
           echo "APP_LOWER=$(echo ${{ inputs.app-name }} | sed 's/[A-Z]/\L&/g')" >> $GITHUB_ENV
+          APP_DEP="${{ inputs.dependency }}"
+          echo "APP_DEP_UPPER=$(echo ${APP_DEP##*/} | sed 's/[a-z]/\U&/g')" >> $GITHUB_ENV
+          echo "APP_DEP_LOWER=$(echo ${APP_DEP##*/} | sed 's/[A-Z]/\L&/g')" >> $GITHUB_ENV
 
-      - name: Checkout Bundle Main
+      - name: Checkout CFE
         uses: actions/checkout@v4
         with:
-          submodules: true
-          repository: nasa/cFS
+          repository: nasa/cFE
+          path: cfe
+          ref: dev
+
+      - name: Set up Dependencies
+        uses: ./cfe/.github/actions/setup-cfe
+        with:
+          source-dir: .
+          preferred-ref: ${{ github.head_ref }}
+          org: nasa
 
       - name: Checkout Repo
         uses: actions/checkout@v4
         with:
           path: apps/${{  env.APP_LOWER  }}
 
-      - name: Copy Files
-        run: |
-          cp ./cfe/cmake/Makefile.sample Makefile
-          cp -r ./cfe/cmake/sample_defs sample_defs
+      - name: Checkout Dependency
+        if: ${{ inputs.dependency != '' }}
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ inputs.dependency }}
+          path: apps/${{ inputs.dependency }}
+          ref: dev
 
-      - name: Add Repo To Build
+      - name: Set up basic targets.cmake config
         run: |
-          sed -i "/list(APPEND MISSION_GLOBAL_APPLIST/a list(APPEND MISSION_GLOBAL_APPLIST $APP_LOWER)" sample_defs/targets.cmake
+          cat > ./sample_defs/targets.cmake << EOF
+          SET(MISSION_NAME GithubActions)
+          SET(SPACECRAFT_ID 0x42)
+          SET(MISSION_CPUNAMES cpu1)
+          SET(cpu1_PROCESSORID 1)
+          SET(MISSION_GLOBAL_APPLIST $APP_LOWER)
+          EOF
+
+      - name: Add Dependencies to targets
+        run: |
+          if [ "x$APP_DEP_LOWER" != "x" ]
+          then
+            echo "LIST(APPEND MISSION_GLOBAL_APPLIST ${APP_DEP_LOWER})" >> ./sample_defs/targets.cmake
+          fi
+          cat ./sample_defs/targets.cmake
 
       - name: Make Prep
-        run: make SIMULATION=native ENABLE_UNIT_TESTS=true OMIT_DEPRECATED=true prep
+        run: make SIMULATION=native ENABLE_UNIT_TESTS=true OMIT_DEPRECATED=false prep
 
       - name: Build app build dependencies
-        run: make -C build/tools/elf2cfetbl
+        run: make -C build mission-prebuild
 
       - name: Build app target
         run: |

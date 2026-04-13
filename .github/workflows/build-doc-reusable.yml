@@ -1,4 +1,4 @@
-name: Build Document
+name: Build Document Reusable Workflow
 
 on:
   workflow_call:
@@ -23,17 +23,20 @@ on:
         description: Build the PDF
         type: boolean
         required: false
-        default: true
-      deploy:
-        description: Deploy archived PDF to gh-pages
-        type: boolean
-        required: false
-        default: true
+        default: false
       needs_osal_api:
         description: Whether this depends on the osal public api (compatibility bridge)
         type: boolean
         required: false
         default: true
+      defs:
+        description: '*_defs directory'
+        type: string
+        required: false
+        default: 'sample_defs'
+
+env:
+  WORK_PATH: ${{ github.workspace }}
 
 # Force bash to apply pipefail option so pipeline failures aren't masked
 defaults:
@@ -58,9 +61,10 @@ jobs:
 
   build-doc:
     needs: checks-for-duplicates
-    if: ${{ needs.checks-for-duplicates.outputs.should_skip != 'true' || contains(github.ref, 'main') }}
+    if: ${{ needs.checks-for-duplicates.outputs.should_skip != 'true' || contains(github.ref, 'main') || contains(github.ref, 'dev') }}
     name: Build Documentation
     runs-on: ubuntu-22.04
+    container: ghcr.io/core-flight-system/cfsbuildenv-doxygen:latest
 
     strategy:
       fail-fast: false
@@ -68,52 +72,17 @@ jobs:
         target: ${{ fromJson(inputs.target) }}
 
     steps:
-      - name: Reject non-compatible deployment settings
-        if: ${{ inputs.deploy == true && inputs.cache-key != '' }}
-        run: |
-          echo "Deployment when using cache not supported due to password fail issue"
-          exit -1
-
       - name: Get cache if supplied
         id: cache-src-bld
         if: ${{ inputs.cache-key != '' }}
         uses: actions/cache@v4
         with:
-          path: /home/runner/work/${{ github.event.repository.name }}/${{ github.event.repository.name }}/*
+          path: ${{ env.WORK_PATH }}/
           key: ${{ inputs.cache-key }}
 
-      - name: Checkout Bundle Main
-        if: ${{ inputs.app-name != '' }}
-        uses: actions/checkout@v4
-        with:
-          submodules: true
-          repository: nasa/cFS
-
-      - name: Checkout Repo
-        if: ${{ inputs.app-name != '' }}
-        uses: actions/checkout@v4
-        with:
-          path: apps/${{ inputs.app-name }}
-
-      - name: Copy Files
-        run: |
-          cp ./cfe/cmake/Makefile.sample Makefile
-          cp -r ./cfe/cmake/sample_defs sample_defs
-
-      - name: Add Repo To Build
-        if: ${{ inputs.app-name != '' }}
-        run: echo 'set(MISSION_GLOBAL_APPLIST ${{ inputs.app-name }})' >> sample_defs/targets.cmake
-
-      - name: Make Prep
-        run: make prep
-
-      - name: Install Doxygen Dependencies
-        run: sudo apt-get update && sudo apt-get install doxygen graphviz -y
-
-      - name: Install PDF Generation Dependencies
-        if: ${{ inputs.buildpdf == true }}
-        run: |
-          sudo apt-get install texlive-latex-base texlive-fonts-recommended texlive-fonts-extra texlive-latex-extra
+      - name: Set up app source
+        if: steps.cache-src-bld.outputs.cache-hit != 'true'
+        uses: nasa/cFS/actions/setup-app@dev
 
       - name: Generate OSAL header list
         if: ${{ inputs.needs_osal_api == true }}
@@ -137,21 +106,25 @@ jobs:
         run: |
           if [[ -s ${{ matrix.target }}_stderr.txt ]]; then
             cat ${{ matrix.target }}_stderr.txt
-            exit -1
+            exit 1
           fi
 
       - name: Check For Document Warnings
         run: |
           if [[ -s ${{ matrix.target }}-warnings.log ]]; then
             cat ${{ matrix.target }}-warnings.log
-            exit -1
+            exit 1
           fi
 
       - name: Generate PDF
         if: ${{ inputs.buildpdf == true }}
         run: |
-          make -C ./build/docs/${{ matrix.target }}/latex
-          mkdir deploy
+          if ! make LATEX_CMD="pdflatex -file-line-error -halt-on-error" -C ./build/docs/${{ matrix.target }}/latex > pdflatex.log; then
+            echo "Errors reported, tail of latex output follows"
+            tail -100 pdflatex.log
+            exit -1
+          fi
+          mkdir -p deploy
           mv ./build/docs/${{ matrix.target }}/latex/refman.pdf ./deploy/${{ matrix.target }}.pdf
           # Could add pandoc and convert to github markdown
           # pandoc ${{ matrix.target }}.pdf -t gfm
@@ -162,12 +135,3 @@ jobs:
         with:
           name: ${{ matrix.target }}_pdf
           path: ./deploy/${{ matrix.target }}.pdf
-
-      - name: Deploy to GitHub
-        if: ${{ inputs.deploy == true }}
-        uses: JamesIves/github-pages-deploy-action@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          branch: gh-pages
-          folder: deploy
-          single-commit: true
