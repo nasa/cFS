@@ -5,7 +5,7 @@ on:
     inputs:
       # Optional inputs
       app-name:
-        description: Application name, if different from repo name
+        description: Application or library name, if different from repo name
         type: string
         required: false
         default: ${{ github.event.repository.name }}
@@ -19,6 +19,11 @@ on:
         type: number
         required: false
         default: 0
+      is_framework_app:
+        description: Whether this is a framework/sample app or library
+        type: boolean
+        required: false
+        default: false
 
 # Force bash to apply pipefail option so pipeline failures aren't masked
 defaults:
@@ -75,7 +80,9 @@ jobs:
 
       - name: Add Repo To Build
         run: |
-          sed -i "/list(APPEND MISSION_GLOBAL_APPLIST/a list(APPEND MISSION_GLOBAL_APPLIST $APP_LOWER)" sample_defs/targets.cmake
+          if [[ "${{ inputs.is_framework_app }}" == "false" ]]; then
+            sed -i "/list(APPEND MISSION_GLOBAL_APPLIST/a list(APPEND MISSION_GLOBAL_APPLIST $APP_LOWER)" sample_defs/targets.cmake
+          fi
 
       - name: Make Prep
         run: make SIMULATION=native ENABLE_UNIT_TESTS=true OMIT_DEPRECATED=true prep
@@ -83,7 +90,7 @@ jobs:
       - name: Build app build dependencies
         run: make -C build/tools/elf2cfetbl
 
-      - name: Build app target
+      - name: Build app/library target
         run: |
           make -C build/native/default_cpu1/apps/$APP_LOWER
 
