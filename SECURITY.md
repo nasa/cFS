@@ -20,7 +20,7 @@ Testing is an important aspect our team values to improve the cFS bundle. Severa
 
 The [cFS CodeQL GitHub Actions workflow](https://github.com/nasa/cFS/actions/workflows/codeql-analysis.yml) is available to the public. To review the results, fork the cFS repository and run the CodeQL workflow.
 
-CodeQL is ran for every push and pull-request on all branches of cFS in GitHub Actions.
+CodeQL is run for every push and pull-request on all branches of cFS in GitHub Actions.
 
 For the CodeQL GitHub Actions setup, visit https://github.com/github/codeql-action.
 
@@ -28,7 +28,7 @@ For the CodeQL GitHub Actions setup, visit https://github.com/github/codeql-acti
 
 The [cFS Cppcheck GitHub Actions workflow and results](https://github.com/nasa/cFS/actions/workflows/static-analysis.yml) are available to the public. To view the results, select a workflow and download the artifacts.
 
-Cppcheck is ran for every push on the main branch and every pull request on all branches of cFS in Github Actions.
+Cppcheck is run for every push on the main branch and every pull request on all branches of cFS in Github Actions.
 
 For more information about Cppcheck, visit http://cppcheck.sourceforge.net/.
 
