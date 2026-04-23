@@ -21,7 +21,7 @@ A clear and concise description of how this contribution will change behavior an
 **System(s) tested on**
  - Hardware: [e.g. PC, SP0, MCP750]
  - OS: [e.g. Ubuntu 18.04, RTEMS 4.11, VxWorks 6.9]
- - Versions: [e.g. cFE 6.6, OSAL 4.2, PSP 1.3 for mcp750, any related apps or tools]
+ - Versions: [e.g. cFE 7.0.0, OSAL 4.2, PSP 1.3 for mcp750, any related apps or tools]
 
 **Additional context**
 Add any other context about the contribution here.
