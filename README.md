@@ -11,7 +11,7 @@ The cFS Framework is a core subset of cFS, with an extensive ecosystem of applic
 
 ## Distributions
 
-This is the open-source version of cFS, released under an Apache 2.0 license. The open source cFS is limited to the framework and common apps, libraries, and tools, which includes and is limited to: cFE, OSAL, PSP, Command Ingest (Lab), Telemetry Output (Lab), Scheduler (Lab), Sample App, Sample Lib, Data Storage, File Manager, HouseKeeping, Health and Safety, Memory Dwell, CFDP File Transfer, CheckSum, Limit Checker, Memory Manager, Stored Command, cFS Ground System, elf2cfetbl, and tblCRCTool. Changes to the open repositories are limited to bug fixes and minor enhancements to those components.
+This is the open-source version of cFS, released under an Apache 2.0 license. The open source cFS is limited to the framework and common apps, libraries, and tools, which includes and is limited to: cFE, OSAL, PSP, Command Ingest (Lab), Telemetry Output (Lab), Scheduler (Lab), Sample App, Sample Lib, Skeleton App, Data Storage, File Manager, HouseKeeping, Health and Safety, Memory Dwell, CFDP File Transfer, CheckSum, Limit Checker, Memory Manager, Stored Command, cFS Ground System, elf2cfetbl, and tblCRCTool. Changes to the open repositories are limited to bug fixes and minor enhancements to those components.
 
 A Government-use (Distro C) version of cFS with features for a full flight mission is available through a Software User Agreement. For more information about government version features or to explore partnerships, please [contact the cFS team](<mailto:cfs-program@lists.nasa.gov>).
 
@@ -42,7 +42,7 @@ More information is available on the [cFS Website](<https://cfs.gsfc.nasa.gov>).
 - [OSAL User's Guide](<https://github.com/nasa/cFS/blob/gh-pages/osal-apiguide.pdf>)
 - [cFE App Developer's Guide](<https://github.com/nasa/cFE/blob/main/docs/cFE%20Application%20Developers%20Guide.md>)
 - [Training documentation](<https://ntrs.nasa.gov/citations/20240000217>)
-- [cFS Overview](<https://cfs.gsfc.nasa.gov/cFS-OviewBGSlideDeck-ExportControl-Final.pdf>)
+- [cFS Overview](<https://cfs.gsfc.nasa.gov>)
 
 ## Release Notes
 
@@ -101,7 +101,7 @@ Copy in the default makefile and definitions:
 
 ## Build and Run
 
-The cFS Framework including sample applications will build and run on the pc-linux platform support package (should run on most Linux distributions), via the steps described in [the cFE cmake readme](<https://github.com/nasa/cFE/tree/master/cmake/README.md>).  Quick-start is below:
+The cFS Framework including sample applications will build and run on the pc-linux platform support package (should run on most Linux distributions), via the steps described in [the cFE cmake readme](<https://github.com/nasa/cFE/tree/main/cmake/README.md>).  Quick-start is below:
 
 To prep, compile, and run on the host (from cFS directory above) as a normal user (best effort message queue depth and task priorities):
 
@@ -164,19 +164,19 @@ See the [cFE Application Developer's Guide](https://github.com/nasa/cFE/blob/mai
   - Skeleton App: A bare-bones application to which you can add your business logic at <https://github.com/nasa/skeleton_app>
 - Other Interfaces
   - cFS COSMOS Plugin: COSMOS plugin for testing cFS <https://github.com/nasa/cfs-cosmos-plugin>
-  - cFS Command Line Tools: Simple command line utilities to send a command or view telemery on the console <https://github.com/nasa/cfs-commandline-tools>
+  - cFS Command Line Tools: Simple command line utilities to send a command or view telemetry on the console <https://github.com/nasa/cfs-commandline-tools>
   - SIL: Simulink Interface Layer at <https://github.com/nasa/SIL>
   - ECI: External Code Interface at <https://github.com/nasa/ECI>
   - SBN-Client: External code interface to SBN at <https://github.com/nasa/SBN-Client>
 - Other Libraries
   - BPLib: DTN Bundle Protocol library at <https://github.com/nasa/bplib>
   - cFS_IO_LIB: IO library at <https://github.com/nasa/CFS_IO_LIB>
-  - cFS_LIB: at <https://github.com/nasa/cfs_lib>
+  - cFS_LIB: cFS general purpose utility library at <https://github.com/nasa/cfs_lib>
   - EdsLib: CCSDS SOIS Electronic Data Sheet Tool and Library at <https://github.com/nasa/EdsLib>
   - fs_lib: File services library at <https://github.com/nasa/fs_lib>
 - Other Tools
   - CTF: cFS Test Framework at <https://github.com/nasa/CTF>
   - CCDD: Command and Data Dictionary Tool at <https://github.com/nasa/CCDD>
   - Perfutils-java: Java based performance analyzer for cFS at <https://github.com/nasa/perfutils-java>
-  - gen_sch_tbl: Tool to generated SCH app tables at <https://github.com/nasa/gen_sch_tbl>
+  - gen_sch_tbl: Tool to generate SCH app tables at <https://github.com/nasa/gen_sch_tbl>
   - CryptoLib: Software-only CCSDS Space Data Link Security Protocol - Extended Procedures (SDLS-EP) at <https://github.com/nasa/CryptoLib>
