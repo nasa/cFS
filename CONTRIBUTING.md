@@ -185,7 +185,7 @@ Ready to Add Your Code? Follow GitHub's fork-branch-pull request pattern.
 
 3. Create a new branch in your fork to work on your fix. We recommend naming your branch `fix-ISSUE_NUMBER-<FIX_SUMMARY>`.
 
-3. Add commits to your branch. For information on commit messages, review [How to Write a Git Commit Message](https://chris.beams.io/posts/git-commit/) and our [git commit guidelines](#GitCommitGuidelines).
+4. Add commits to your branch. For information on commit messages, review [How to Write a Git Commit Message](https://chris.beams.io/posts/git-commit/) and our [git commit guidelines](#GitCommitGuidelines).
 
 #### <a name='CreatingaPullRequest'></a>Creating a Pull Request
 
@@ -290,7 +290,7 @@ git checkout main && git pull
 ```
 2. Checkout your feature branch:
 ```sh
-git merge feature_branch
+git checkout feature_branch
 ```
 3. Use rebase to open the vi or other editor that lists the commits:
 ```sh
@@ -349,7 +349,7 @@ git push --force
 
 ###### Replace Branch
 
-This method had no chances of inadvertently overwriting other stuff.
+This method has no chances of inadvertently overwriting other stuff.
 
 1. Make a new branch with a new name at the current main:
 ```sh
