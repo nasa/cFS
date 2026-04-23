@@ -31,7 +31,7 @@ If applicable, add references to the software.
 **System observed on:**
  - Hardware
  - OS: [e.g. Linux 4.4]
- - Versions [e.g. cFE 6.6, OSAL 4.2, PSP 1.3 for mcp750, any related apps]
+ - Versions [e.g. cFE 7.0.0, OSAL 4.2, PSP 1.3 for mcp750, any related apps]
 
 **Additional context**
 Add any other context about the problem here.
