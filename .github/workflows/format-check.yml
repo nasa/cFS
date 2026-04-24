@@ -67,7 +67,6 @@ jobs:
 
   check-commit-message:
     name: Check Commit Message
-    needs: check-for-duplicates
     # Only run for pull-requests.
     if: ${{ github.event_name == 'pull_request' && !startsWith(github.head_ref, 'ic-') }}
     runs-on: ubuntu-22.04

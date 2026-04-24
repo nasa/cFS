@@ -1,0 +1,125 @@
+name: Build and Test using multitarget makefile
+
+# Run every time a new commit pushed or for pull requests
+on:
+  workflow_call:
+    inputs:
+      config-name:
+        description: 'configuration to build'
+        type: string
+        required: false
+        default: 'native_eds'
+      run-local-tests:
+        description: 'whether to execute test procedures locally'
+        type: boolean
+        required: false
+        default: false
+      omit-deprecated:
+        description: 'whether to use OMIT_DEPRECATED flag'
+        type: boolean
+        required: false
+        default: false
+      container-image:
+        description: 'container image to use for build'
+        type: string
+        required: false
+        default: 'aetd-dockerlab.gsfc.nasa.gov/gsfc-cfs/github-actions-ci-cd/cfsbuildenv-ubuntu22'
+      check-coverage:
+        description: 'whether to execute gcov locally'
+        type: boolean
+        required: false
+        default: false
+      compression-type:
+        description: 'which compression type to use, xz or gz is supported'
+        type: string
+        required: false
+        default: xz
+
+env:
+  OMIT_DEPRECATED: ${{ inputs.omit-deprecated }}
+
+# Force bash to apply pipefail option so pipeline failures aren't masked
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build-cfs:
+    runs-on: ubuntu-22.04
+    container:
+      image: ${{ inputs.container-image }}
+      # fakeroot runs extremely slow without this limit
+      # See https://github.com/moby/moby/issues/38814
+      options: --ulimit "nofile=1024:1048576"
+
+    steps:
+      - name: Check Environment
+        run: |
+          env
+          echo "WORK_PATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
+
+      - name: Verify Container Contents
+        run: |
+          which git || echo "Git is MISSING!"
+          cat /etc/os-release
+
+      - name: Checkout cFS with submodules
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+          token: ${{ secrets.GH_PAT || github.token }}
+
+      - name: Configure CFS
+        run: make ${{ inputs.config-name }}.prep
+
+      - name: Build CFS
+        run: make ${{ inputs.config-name }}.install
+
+      - name: Configure xz compression
+        if: inputs.compression-type == 'xz'
+        run: |
+          echo "SUFFIX=xz" >> $GITHUB_ENV
+          echo "COMPRESSOR=xz -z -c" >> $GITHUB_ENV
+
+      - name: Configure gz compression
+        if: inputs.compression-type == 'gz'
+        run: |
+          echo "SUFFIX=gz" >> $GITHUB_ENV
+          echo "COMPRESSOR=gzip -c" >> $GITHUB_ENV
+
+      - name: Archive binaries
+        run: |
+          cd $GITHUB_WORKSPACE/build-${{ inputs.config-name }}/exe
+          find -maxdepth 1 -mindepth 1 -type d | while read dir
+          do
+            inst=$(basename ${dir})
+            tar cvf - -C ${inst} . | ${COMPRESSOR} > ${GITHUB_WORKSPACE}/${inst}-bin.tar.${SUFFIX}
+          done
+
+      - name: Build target images
+        run: make IMAGE_TYPE=ext4 ${{ inputs.config-name }}.image
+
+      - name: Archive target images
+        run: |
+          if cd $GITHUB_WORKSPACE/build-${{ inputs.config-name }}/deploy
+          then
+            find -maxdepth 1 -mindepth 1 -type d | while read dir
+            do
+              inst=$(basename ${dir})
+              tar cvf - -C ${inst} . | ${COMPRESSOR} > ${GITHUB_WORKSPACE}/${inst}-target-img.tar.${SUFFIX}
+            done
+          fi
+
+      - name: Upload all artifacts
+        uses: actions/upload-artifact@v4
+        with:
+            name: ${{ inputs.config-name }}-bin
+            path: ./*.tar.${{ inputs.compression-type }}
+
+      - name: Run Local Tests
+        if: ${{ inputs.run-local-tests }}
+        run: make ${{ inputs.config-name }}.runtest
+
+      - name: Generate Coverage Report
+        if: ${{ inputs.check-coverage }}
+        run: make ${{ inputs.config-name }}.lcov
