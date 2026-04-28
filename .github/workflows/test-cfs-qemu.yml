@@ -1,0 +1,206 @@
+name: Build and execute CFS with multiple configurations
+
+# Run on all pull requests, and pushes in dev and main branches
+on:
+  push:
+    branches:
+      - dev
+      - main
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+  workflow_dispatch:
+
+# Force bash to apply pipefail option so pipeline failures aren't masked
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build-docs:
+    strategy:
+      fail-fast: false
+      matrix:
+        config: [ native_std ]
+        doctype: [ detaildesign, usersguide ]
+        include:
+          - doctype: detaildesign
+            path: mission-doc
+          - doctype: usersguide
+            path: cfe-usersguide
+
+    name: Build ${{ matrix.config }}.${{ matrix.doctype }} Documentation
+    runs-on: ubuntu-22.04
+    container: ghcr.io/core-flight-system/cfsbuildenv-doxygen:latest
+    steps:
+      - name: Checkout Bundle
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Prepare ${{ matrix.config }} Build
+        run: make ${{ matrix.config }}.prep
+
+      - name: Build ${{ matrix.doctype }} documentation
+        run: make ${{ matrix.config }}.${{ matrix.doctype }}
+
+      - name: Set environment
+        run: |
+          echo "FULL_WARNING_LOG=build-${{ matrix.config }}/docs/${{ matrix.path }}/${{ matrix.path }}-warnings.log" >> $GITHUB_ENV
+          echo "SCRUBBED_WARNING_LOG=build-${{ matrix.config }}/${{ matrix.path }}-internal-warnings.log" >> $GITHUB_ENV
+          echo "OTHER_WARNING_LOG=build-${{ matrix.config }}/${{ matrix.path }}-other-warnings.log" >> $GITHUB_ENV
+
+
+      # the intent of this is to separate the warnings into those caused by submodule problems vs those caused
+      # by problems in the configuration files within this bundle repo
+      - name: Scrub warnings
+        run: |
+          grep -Ev "^$GITHUB_WORKSPACE/(apps|libs|cfe|osal|psp|tools)" $FULL_WARNING_LOG > $SCRUBBED_WARNING_LOG || /bin/true
+          grep -E "^$GITHUB_WORKSPACE/(apps|libs|cfe|osal|psp|tools)" $FULL_WARNING_LOG > $OTHER_WARNING_LOG || /bin/true
+
+      # warnings reported in submodules are likely a problem in that submodule.
+      # These can be reported for information but do not fail here.
+      - name: Check for submodule warnings
+        run: |
+          if [ -s "${OTHER_WARNING_LOG}" ]
+          then
+            echo '<h2>Doxygen Warnings in other submodules</h2>' >> $GITHUB_STEP_SUMMARY
+            echo '<pre>' >> $GITHUB_STEP_SUMMARY
+            cat "${OTHER_WARNING_LOG}" >> $GITHUB_STEP_SUMMARY
+            echo '</pre>' >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Check for bundle errors
+        run: |
+          if [ -s "${SCRUBBED_WARNING_LOG}" ]
+          then
+            echo '<h2>Doxygen Errors</h2>' >> $GITHUB_STEP_SUMMARY
+            echo '<pre>' >> $GITHUB_STEP_SUMMARY
+            cat "${SCRUBBED_WARNING_LOG}" >> $GITHUB_STEP_SUMMARY
+            echo '</pre>' >> $GITHUB_STEP_SUMMARY
+            /bin/false
+          fi
+
+  build-cfs:
+    strategy:
+      matrix:
+        include:
+          # - config: qemu_yocto_linux
+          #   build-image: 'ghcr.io/core-flight-system/cfsbuildenv-yocto:latest'
+          - config: native_std
+            build-image: 'ghcr.io/core-flight-system/cfsbuildenv-linux:latest'
+          - config: native_eds
+            build-image: 'ghcr.io/core-flight-system/cfsbuildenv-linux:latest'
+          - config: pc686_rtems5
+            build-image: 'ghcr.io/core-flight-system/cfsbuildenv-rtems5:latest'
+          - config: rpi_linux
+            build-image: 'ghcr.io/core-flight-system/cfsbuildenv-arm-linux:latest'
+          - config: gr712_rtems5
+            build-image: 'ghcr.io/core-flight-system/cfsbuildenv-gaisler-sparc-rcc:latest'
+    name: Build CFS with ${{ matrix.config }} configuration
+    uses: nasa/cFS/.github/workflows/build-cfs-multitarget.yml@dev
+    with:
+      config-name: ${{ matrix.config }}
+      container-image: ${{ matrix.build-image }}
+      compression-type: 'gz'
+    secrets: inherit
+#    continue-on-error: ${{ matrix.omit-deprecated }}
+
+  execute-containers:
+    name: Execute CFS containers
+    permissions:
+      contents: read
+      actions: read
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_HOST: github.com
+      GH_REPO: nasa/cFS
+    needs: build-cfs
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        include:
+          - config: native_std
+            healthcheck-regex: 'CFE_ES_Main entering OPERATIONAL state$'
+            exec-image: ghcr.io/core-flight-system/cfsbuildenv-linux:latest
+            cpu1-test-procedure: trad_le
+            cpu2-test-procedure: trad_le
+          - config: native_eds
+            healthcheck-regex: 'CFE_ES_Main entering OPERATIONAL state$'
+            exec-image: ghcr.io/core-flight-system/cfsbuildenv-linux:latest
+            cpu1-test-procedure: eds
+            cpu2-test-procedure: eds
+          # - config: qemu_yocto_linux
+          #   healthcheck-regex: '^Poky (Yocto Project Reference Distro)'
+          #   exec-image: ghcr.io/core-flight-system/cfsexec-qemu:latest
+          #   cpu1-test-procedure: trad_le
+          #   cpu2-test-procedure: trad_be
+          - config: pc686_rtems5
+            healthcheck-regex: 'CFE_ES_Main entering OPERATIONAL state'
+            exec-image: ghcr.io/core-flight-system/cfsexec-qemu:latest
+            cpu1-test-procedure: trad_le
+            cpu2-test-procedure: trad_le
+
+    steps:
+      - name: Download artifact from build
+# This alternate download fetches the artifacts from a different run
+# It is useful to skip the build step and go straight to execution- saving lots of time
+#        run: |
+#          echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
+#          gh run download 58922 -p ${{ matrix.config }}-bin
+#          ls -lR .
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ matrix.config }}-bin
+          path: ${{ matrix.config }}-bin
+
+      - name: Unpack target runtime images
+        run: |
+          ls -lR
+          for tarball in $GITHUB_WORKSPACE/${{ matrix.config }}-bin/*.tar.gz
+          do
+            inst=$(basename ${tarball})
+            echo tarball=${tarball} inst=${inst}
+            inst=${inst%%-*}
+            echo inst=${inst}
+            mkdir -p $GITHUB_WORKSPACE/${inst}
+            gunzip -c ${tarball} | tar xvf - -C $GITHUB_WORKSPACE/${inst}
+          done
+          ls -lR
+
+      - name: Start CPU1 container
+        id: start-cpu1
+        uses: nasa/cFS/actions/start-cfs-container@dev
+        with:
+          binary-dir: ${{ github.workspace }}/cpu1
+          exec-image: ${{ matrix.exec-image }}
+
+      - name: Check CPU1 container
+        id: check-cpu1
+        uses: nasa/cFS/actions/healthcheck-logs@dev
+        with:
+          container-id: ${{ steps.start-cpu1.outputs.container-id }}
+          healthcheck-regex: ${{ matrix.healthcheck-regex }}
+
+      - name: Execute cpu1 test (traditional little endian)
+        if: matrix.cpu1-test-procedure == 'trad_le'
+        run: |
+          ./host/cmd_send --host=${{ steps.check-cpu1.outputs.ip-addr }} --endian=LE --pktid=0x1806 --cmdcode=0
+
+      - name: Execute cpu1 test (traditional big endian)
+        if: matrix.cpu1-test-procedure == 'trad_be'
+        run: |
+          ./host/cmd_send --host=${{ steps.check-cpu1.outputs.ip-addr }} --endian=BE --pktid=0x1806 --cmdcode=0
+
+      - name: Execute test procedure (EDS)
+        if: matrix.cpu1-test-procedure == 'eds'
+        run: |
+          ./host/cmd_send --host=${{ steps.check-cpu1.outputs.ip-addr }} -D CFE_ES/Application/CMD.NoopCmd
+
+      - name: Stop CPU1 Container
+        if: always()
+        uses: nasa/cFS/actions/stop-cfs-container@dev
+        with:
+          container-id: ${{ steps.start-cpu1.outputs.container-id }}
