@@ -11,6 +11,10 @@ on:
       - opened
       - reopened
       - synchronize
+  workflow_run:
+    workflows: ['Update CFS bundle']
+    types:
+      - completed
   workflow_dispatch:
 
 # Force bash to apply pipefail option so pipeline failures aren't masked
