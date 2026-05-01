@@ -1,0 +1,103 @@
+name: Update CFS bundle
+
+# Controls when the action will run.
+on:
+  workflow_dispatch:
+    inputs:
+      base-branch:
+        description: 'The base branch to update'
+        type: string
+        required: false
+        default: ''
+      submodule-branch:
+        description: 'The branch to pull in each submodule'
+        type: string
+        required: false
+        default: ''
+  # Run daily at 1:15 am
+  schedule:
+   - cron: "15 1 * * *"
+
+permissions:
+  issues: write
+  contents: write
+  pull-requests: write
+  actions: write
+
+# TODO: Once "dev" is the default branch, the || 'dev' in here should be removed
+# It is only there temporarily so this will run on dev by default, rather than main.
+env:
+  BASE_BRANCH: ${{ inputs.base-branch || 'dev' || github.event.repository.default_branch }}
+  SUBMODULE_BRANCH: ${{ inputs.submodule-branch || 'dev' || github.event.repository.default_branch }}
+  GH_REPO: ${{ github.repository }}
+  GH_HOST: github.com
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  update-bundle:
+    name: Update CFS bundle
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout bundle
+        uses: actions/checkout@v5
+        with:
+          repository: ${{ github.repository }}
+          submodules: true
+          ref: ${{ env.BASE_BRANCH }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check initial versions
+        run: git submodule
+
+      - name: Fetch matching branches in submodules
+        run: git submodule foreach 'git fetch origin --no-tags refs/heads/${SUBMODULE_BRANCH}:pending-${SUBMODULE_BRANCH} ||:'
+
+      - name: Track branches in submodules
+        run: git submodule foreach 'git checkout pending-${SUBMODULE_BRANCH} ||:'
+
+      - name: Check for changes
+        id: status-check
+        run: |
+            git status
+            if ! git diff --quiet; then
+                echo "Diffs found, integration needed"
+                echo "branch-name=ic-latest-${SUBMODULE_BRANCH}" >> ${GITHUB_OUTPUT}
+            else
+                echo "No differences found, no update needed"
+            fi
+
+      - name: Check for existing pull request
+        run: |
+          gh pr list --base "${BASE_BRANCH}" --head "ic-latest-${SUBMODULE_BRANCH}" --json number,title > ${RUNNER_TEMP}/pull-request.json
+          if [ "$(jq length ${RUNNER_TEMP}/pull-request.json)" -gt 0 ]; then
+            echo "Found existing PR:"
+            cat ${RUNNER_TEMP}/pull-request.json
+          else
+            rm ${RUNNER_TEMP}/pull-request.json
+          fi
+
+      - name: Create integration branch
+        if: steps.status-check.outputs.branch-name != ''
+        run: |
+            git config --global user.email "actions@developer.nasa.gov"
+            git config --global user.name "Github Action"
+            git checkout -b "${{ steps.status-check.outputs.branch-name }}"
+            cat << EOF > ${RUNNER_TEMP}/commit-msg.txt
+            Integration Candidate: $(date +%Y-%m-%d) bundle updates
+
+            Automatically collected bundle updates
+              - submodule source branch: ${SUBMODULE_BRANCH}
+              - bundle branch: to ${BASE_BRANCH}
+            EOF
+            git commit -a -F ${RUNNER_TEMP}/commit-msg.txt
+            git push origin -f "${{ steps.status-check.outputs.branch-name }}"
+
+      - name: Create pull request
+        if: steps.status-check.outputs.branch-name != ''
+        run: |
+            if [ -e ${RUNNER_TEMP}/pull-request.json ]; then
+              echo "Pull request already exists: ${{ github.server_url }}/${GH_REPO}/pull/$(jq '.[0].number' ${RUNNER_TEMP}/pull-request.json)"
+            else
+              gh pr create -B "${BASE_BRANCH}" -H "${{ steps.status-check.outputs.branch-name }}" --title "Latest bundle updates from ${SUBMODULE_BRANCH} branch" --body 'Created by Github action'
+            fi
