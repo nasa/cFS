@@ -56,3 +56,11 @@ set(OSAL_CONFIG_DEBUG_PERMISSIVE_MODE TRUE)
 # However for a flight deployment this may cause undesired delays.
 #
 set(OSAL_CONFIG_UTILITYTASK_PRIORITY 10)
+
+#
+# OSAL_CONFIG_INCLUDE_DNS
+# --------------------------------
+#
+# Includes DNS support in the name to address conversion
+#
+set(OSAL_CONFIG_INCLUDE_DNS TRUE)

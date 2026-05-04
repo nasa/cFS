@@ -28,11 +28,11 @@
 */
 #define SBN_CMD_TOPICID (0xFA)
 
-#define SBN_HK_TLM_TOPICID          (0xFB)
-#define SBN_HKNET_TLM_TOPICID       (0xFC)
-#define SBN_HKPEER_TLM_TOPICID      (0xFD)
-#define SBN_HKMYSUBS_TLM_TOPICID    (0xFE)
-#define SBN_HKPEERSUBS_TLM_TOPICID  (0xFF)
+#define SBN_HK_TLM_TOPICID         (0xFB)
+#define SBN_HKNET_TLM_TOPICID      (0xFC)
+#define SBN_HKPEER_TLM_TOPICID     (0xFD)
+#define SBN_HKMYSUBS_TLM_TOPICID   (0xFE)
+#define SBN_HKPEERSUBS_TLM_TOPICID (0xFF)
 
 /*
 ** Include Files

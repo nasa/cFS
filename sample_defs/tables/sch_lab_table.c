@@ -37,7 +37,7 @@
 #include "ds_msgids.h"
 #include "hk_msgids.h"
 
-#ifndef CFE_EDS_ENABLED
+#ifdef CFS_SBN_ENABLED
 #include "sbn_msgids.h"
 #include "sbn_msgdefs.h"
 #endif
@@ -52,7 +52,7 @@
 */
 
 /* clang-format: off */
-SCH_LAB_ScheduleTable_t SCH_TBL_Structure = 
+SCH_LAB_ScheduleTable_t SCH_TBL_Structure =
 {
     .TickRate = 10,
     .Config   = {
@@ -77,8 +77,9 @@ SCH_LAB_ScheduleTable_t SCH_TBL_Structure =
         {CFE_SB_MSGID_WRAP_VALUE(CS_BACKGROUND_CYCLE_MID), 5,  0}, /* every 0.5 seconds (example of 2 Hz packet) */
         {CFE_SB_MSGID_WRAP_VALUE(MM_SEND_HK_MID),          74, 0}, /* every 7.4 seconds */
         {CFE_SB_MSGID_WRAP_VALUE(HK_SEND_HK_MID),          76, 0}, /* every 7.6 seconds */
-#ifndef CFE_EDS_ENABLED
+#ifdef CFS_SBN_ENABLED
         {CFE_SB_MSGID_WRAP_VALUE(SBN_CMD_MID),             46, SBN_HK_CC}, /* every 4.6 seconds (matching the SB) */
+        {CFE_SB_MSGID_WRAP_VALUE(SBN_CMD_MID),             2, SBN_SCH_WAKEUP_CC}, /* every 0.2 seconds */
 #endif
     }
 };
