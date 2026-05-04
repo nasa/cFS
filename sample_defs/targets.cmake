@@ -101,7 +101,7 @@ LIST(APPEND MISSION_GLOBAL_APPLIST hk)
 
 # Some apps do not have EDS support yet.
 # These should not be included by default when building with EDS.
-if (NOT CFE_EDS_ENABLED)
+if (NOT CFE_EDS_ENABLED AND SIMULATION STREQUAL "native")
     LIST(APPEND MISSION_GLOBAL_APPLIST sbn)
     LIST(APPEND MISSION_GLOBAL_APPLIST sbn_udp)
     LIST(APPEND MISSION_GLOBAL_APPLIST sbn_f_remap)
@@ -118,17 +118,19 @@ endif()
 SET(FT_INSTALL_SUBDIR "host/functional-test")
 
 # Each target board can have its own HW arch selection and set of included apps
-SET(MISSION_CPUNAMES cpu1 cpu2)
+SET(MISSION_CPUNAMES cpu1)
+
+# Skip cpu2 on the pc686_rtems5 configuration, as it becomes a resource drain
+# (the images on this configuration are much larger)
+if (NOT SIMULATION STREQUAL "i686-rtems5")
+    list(APPEND MISSION_CPUNAMES cpu2)
+endif ()
 
 # The "cpu1" is a contrived example of a main processor, running
 # all the CFS apps.  RISCV-64 is selected as the platform
 # to line up with expectations of next-gen flight hardware.
 SET(cpu1_PROCESSORID 1)
-
-# This is the traditional CFE basic framework
 SET(cpu1_APPLIST ci_lab to_lab sch_lab)
-
-SET(cpu1_FILELIST cfe_es_startup.scr)
 SET(cpu1_SYSTEM riscv64-poky-linux)
 
 # The "cpu2" is a contrived example of a helper system,
@@ -137,6 +139,11 @@ SET(cpu1_SYSTEM riscv64-poky-linux)
 # endian processor must work together in the same system.
 SET(cpu2_PROCESSORID 2)
 SET(cpu2_APPLIST ci_lab to_lab sch_lab)
-
-SET(cpu2_FILELIST cfe_es_startup.scr)
 SET(cpu2_SYSTEM mips32r2-poky-linux)
+
+# the EDS build always uses runtime mids, so in this configuration
+# we can save a lot of resources by sharing the same platform config
+if (CFE_EDS_ENABLED)
+   set(cpu1_PLATFORM default)
+   set(cpu2_PLATFORM default)
+endif (CFE_EDS_ENABLED)

@@ -37,14 +37,15 @@ endif(ENABLE_ASAN)
 
 # The stringop/format truncation and overflow warnings tend to produce lots of false positives
 # CFE code is designed to handle/tolerate string truncation so it is generally not a real issue
-if ("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 8.0.0)
-  add_compile_options(
-    -Wno-stringop-overflow
-    -Wno-stringop-truncation
-    -Wno-format-overflow
-    -Wno-format-truncation
-  )
-endif()
+add_compile_options_if_available(C
+  -Wstrict-prototypes      # Warn about missing prototypes
+  -Wwrite-strings          # Warn if not treating string literals as "const"
+  -Wpointer-arith          # Warn about suspicious pointer operations
+  -Wno-format-overflow     # Inhibit printf-style format overflow warnings
+  -Wno-format-truncation   # Inhibit printf-style format truncation warnings
+  -Wno-stringop-overflow   # Inhibit string operation overflow warnings
+  -Wno-stringop-truncation # Inhibit string operation truncation warnings
+)
 
 # Include Global Headers
 include_directories(${MISSION_DEFS}/inc)

@@ -26,21 +26,9 @@
 # and uses the same warning options that are applied at the mission level.
 #
 add_compile_options(
-    -std=c99                    # Target the C99 standard (without gcc extensions)
-    -pedantic                   # Issue all the warnings demanded by strict ISO C
-    -Wall                       # Warn about most questionable operations
-    -Wstrict-prototypes         # Warn about missing prototypes
-    -Wwrite-strings             # Warn if not treating string literals as "const"
-    -Wpointer-arith             # Warn about suspicious pointer operations
-    -Werror                     # Treat warnings as errors (code should be clean)
-    -fstrict-aliasing
+    -std=c99    # Target the C99 standard (without gcc extensions)
+    -pedantic   # Issue all the warnings demanded by strict ISO C
+    -Wall       # Warn about most questionable operations
+    -Werror     # Treat warnings as errors (code should be clean)
 )
 
-if (CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL  8.0.0)
-add_compile_options(
-    -Wno-stringop-overflow
-    -Wno-stringop-truncation
-    -Wno-format-overflow
-    -Wno-format-truncation
-)
-endif()

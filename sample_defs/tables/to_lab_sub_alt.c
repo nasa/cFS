@@ -36,26 +36,10 @@
 #include "to_lab_msgids.h"
 #include "ci_lab_msgids.h"
 
-#include "sample_app_msgids.h"
-#include "cf_msgids.h"
-#include "hs_msgids.h"
-#include "md_msgids.h"
-#include "fm_msgids.h"
-#include "lc_msgids.h"
-#include "cs_msgids.h"
-#include "mm_msgids.h"
-#include "sc_msgids.h"
-#include "ds_msgids.h"
-#include "hk_msgids.h"
-
-#ifdef CFS_SBN_ENABLED
-#include "sbn_msgids.h"
-#endif
-
 /* clang-format: off */
-TO_LAB_Subs_t TO_LAB_Subs =
+TO_LAB_Subs_t TO_LAB_Subs = 
 {
-    .Subs = {
+    .Subs = { 
         /* CFS App Subscriptions */
         {CFE_SB_MSGID_WRAP_VALUE(TO_LAB_HK_TLM_MID),          {0, 0}, 1},
         {CFE_SB_MSGID_WRAP_VALUE(TO_LAB_DATA_TYPES_MID),      {0, 0}, 1},
@@ -74,35 +58,9 @@ TO_LAB_Subs_t TO_LAB_Subs =
         {CFE_SB_MSGID_WRAP_VALUE(CFE_ES_APP_TLM_MID),         {0, 0}, 1},
         {CFE_SB_MSGID_WRAP_VALUE(CFE_ES_MEMSTATS_TLM_MID),    {0, 0}, 1},
 
-        /* Other CFS apps */
-        {CFE_SB_MSGID_WRAP_VALUE(SAMPLE_APP_HK_TLM_MID), {0, 0}, 1},
-        {CFE_SB_MSGID_WRAP_VALUE(CF_HK_TLM_MID),         {0, 0}, 1},
-        {CFE_SB_MSGID_WRAP_VALUE(CF_EOT_TLM_MID),        {0, 0}, 1},
-        {CFE_SB_MSGID_WRAP_VALUE(CF_CH0_TX_MID),        {0, 0}, 5},
-        {CFE_SB_MSGID_WRAP_VALUE(CF_CH1_TX_MID),        {0, 0}, 5},
-        {CFE_SB_MSGID_WRAP_VALUE(MD_HK_TLM_MID),         {0, 0}, 1},
-        {CFE_SB_MSGID_WRAP_VALUE(HS_HK_TLM_MID),         {0, 0}, 1},
-        {CFE_SB_MSGID_WRAP_VALUE(HK_HK_TLM_MID),         {0, 0}, 1},
-        {CFE_SB_MSGID_WRAP_VALUE(MM_HK_TLM_MID),         {0, 0}, 1},
-        {CFE_SB_MSGID_WRAP_VALUE(SC_HK_TLM_MID),         {0, 0}, 1},
-        {CFE_SB_MSGID_WRAP_VALUE(FM_HK_TLM_MID),         {0, 0}, 1},
-        {CFE_SB_MSGID_WRAP_VALUE(FM_FILE_INFO_TLM_MID),  {0, 0}, 1},
-        {CFE_SB_MSGID_WRAP_VALUE(FM_DIR_LIST_TLM_MID),   {0, 0}, 1},
-        {CFE_SB_MSGID_WRAP_VALUE(FM_OPEN_FILES_TLM_MID), {0, 0}, 1},
-        {CFE_SB_MSGID_WRAP_VALUE(FM_MONITOR_TLM_MID),    {0, 0}, 1},
-        {CFE_SB_MSGID_WRAP_VALUE(DS_HK_TLM_MID),         {0, 0}, 1},
-        {CFE_SB_MSGID_WRAP_VALUE(LC_HK_TLM_MID),         {0, 0}, 1},
-        {CFE_SB_MSGID_WRAP_VALUE(CS_HK_TLM_MID),         {0, 0}, 1},
-#ifdef CFS_SBN_ENABLED
-        {CFE_SB_MSGID_WRAP_VALUE(SBN_HK_TLM_MID),         {0, 0}, 1},
-        {CFE_SB_MSGID_WRAP_VALUE(SBN_HKNET_TLM_MID),      {0, 0}, 1},
-        {CFE_SB_MSGID_WRAP_VALUE(SBN_HKPEER_TLM_MID),     {0, 0}, 1},
-        {CFE_SB_MSGID_WRAP_VALUE(SBN_HKMYSUBS_TLM_MID),   {0, 0}, 1},
-        {CFE_SB_MSGID_WRAP_VALUE(SBN_HKPEERSUBS_TLM_MID), {0, 0}, 1},
-#endif
         /* TO_UNUSED entry to mark the end of valid MsgIds */
         {CFE_SB_MSGID_RESERVED, {0, 0}, 0}
     }
 };
 
-CFE_TBL_FILEDEF(TO_LAB_Subs, TO_LAB.Subscriptions, TO Lab Sub Tbl, to_lab_sub.tbl)
+CFE_TBL_FILEDEF(TO_LAB_Subs, TO_LAB.Subscriptions, TO Lab Sub Tbl, to_lab_sub_alt.tbl)

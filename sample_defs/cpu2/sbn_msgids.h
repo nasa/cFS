@@ -24,7 +24,7 @@
 */
 
 #include "global_core_api_base_msgid_values.h" /* defines the base MIDs for each CPU */
-#include "global_sbn_topicids.h" /* defines the base MIDs for each CPU */
+#include "global_sbn_topicids.h"               /* defines the base MIDs for each CPU */
 
 /*
 ** Pragmas
@@ -35,11 +35,11 @@
 */
 #define SBN_CMD_MID (SAMPLE_CPU2_CMD_MID_BASE + SBN_CMD_TOPICID)
 
-#define SBN_HK_TLM_MID          (SAMPLE_CPU2_TLM_MID_BASE + SBN_HK_TLM_TOPICID)
-#define SBN_HKNET_TLM_MID       (SAMPLE_CPU2_TLM_MID_BASE + SBN_HKNET_TLM_TOPICID)
-#define SBN_HKPEER_TLM_MID      (SAMPLE_CPU2_TLM_MID_BASE + SBN_HKPEER_TLM_TOPICID)
-#define SBN_HKMYSUBS_TLM_MID    (SAMPLE_CPU2_TLM_MID_BASE + SBN_HKMYSUBS_TLM_TOPICID)
-#define SBN_HKPEERSUBS_TLM_MID  (SAMPLE_CPU2_TLM_MID_BASE + SBN_HKPEERSUBS_TLM_TOPICID)
+#define SBN_HK_TLM_MID         (SAMPLE_CPU2_TLM_MID_BASE + SBN_HK_TLM_TOPICID)
+#define SBN_HKNET_TLM_MID      (SAMPLE_CPU2_TLM_MID_BASE + SBN_HKNET_TLM_TOPICID)
+#define SBN_HKPEER_TLM_MID     (SAMPLE_CPU2_TLM_MID_BASE + SBN_HKPEER_TLM_TOPICID)
+#define SBN_HKMYSUBS_TLM_MID   (SAMPLE_CPU2_TLM_MID_BASE + SBN_HKMYSUBS_TLM_TOPICID)
+#define SBN_HKPEERSUBS_TLM_MID (SAMPLE_CPU2_TLM_MID_BASE + SBN_HKPEERSUBS_TLM_TOPICID)
 
 /*
 ** Local Structure Declarations

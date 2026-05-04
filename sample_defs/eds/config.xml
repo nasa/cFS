@@ -34,7 +34,7 @@
   <Package name="SC">
     <Define name="NUMBER_OF_ATS" value="2" />
     <!-- this should be a multiple of 8 such that the "RtsStatusBits" is byte-aligned -->
-    <Define name="NUMBER_OF_RTS" value="8" />
+    <Define name="NUMBER_OF_RTS" value="16" />
     <Define name="MAX_ATS_CMDS" value="1000" />
     <Define name="PACKET_MIN_SIZE" value="8" />
     <Define name="PACKET_MAX_SIZE" value="256" />
@@ -89,6 +89,7 @@
     <Define name="MAX_MONITORED_EVENTS" value="16" />
     <Define name="MAX_MSG_ACT_SIZE" value="16" />
     <Define name="MAX_MSG_ACT_TYPES" value="8" />
+    <Define name="BITS_PER_APPMON_ENABLE" value="32" />
   </Package>
 
   <Package name="LC">
@@ -108,38 +109,17 @@
     <Define name="BASE_UDP_PORT" value="1234" />
   </Package>
 
-  <Package name="IOLib">
-    <Define name="PORT_CONFIG_STRING_SIZE" value="64" />
-    <Define name="PORT_NAME_SIZE" value="32" />
-    <Define name="MAX_ADDR_SIZE" value="32" />
-    <Define name="TCP_RECONNECT_DELAY" value="4" />
-  </Package>
-
-  <Package name="CI">
-    <Define name="PORT_CONFIG_STRING_SIZE" value="64" />
-    <Define name="PORT_NAME_SIZE" value="32" />
-    <Define name="MAX_ADDR_LEN" value="20" />
-  </Package>
-
-  <Package name="TO">
-    <Define name="TLM_PORT" value="1235" />
-    <Define name="MAX_SUBSCRIPTIONS" value="32" />
-    <Define name="PORT_CONFIG_STRING_SIZE" value="64" />
-    <Define name="PORT_NAME_SIZE" value="20" />
-    <Define name="MAX_ADDR_LEN" value="20" />
-  </Package>
-
   <Package name="TO_LAB">
     <Define name="TLM_PORT" value="2234" />
-    <Define name="MAX_SUBSCRIPTIONS" value="32" />
+    <Define name="MAX_SUBSCRIPTIONS" value="50" />
   </Package>
 
   <Package name="MD">
     <Define name="SIGNATURE_FIELD_LENGTH" value="32" />
     <Define name="NUM_DWELL_TABLES" value="4" />
     <Define name="DWELL_TABLE_SIZE" value="25" />
-    <Define name="ENFORCE_DWORD_ALIGN" value="1" /> <!-- jphfix -->
-    <Define name="SIGNATURE_OPTION" value="1" /> <!-- jphfix -->
+    <Define name="ENFORCE_DWORD_ALIGN" value="1" />
+    <Define name="SIGNATURE_OPTION" value="1" />
   </Package>
 
   <Package name="CFE_ES" shortDescription="Executive Services">
