@@ -17,6 +17,9 @@ on:
   # Run daily at 1:15 am
   schedule:
    - cron: "15 1 * * *"
+  push:
+    branches:
+    - jph-update-bundle
 
 permissions:
   issues: write

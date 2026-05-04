@@ -6,6 +6,7 @@ on:
     branches:
       - dev
       - main
+      - jph-update-bundle
   pull_request:
     types:
       - opened
@@ -91,8 +92,8 @@ jobs:
     strategy:
       matrix:
         include:
-          # - config: qemu_yocto_linux
-          #   build-image: 'ghcr.io/core-flight-system/cfsbuildenv-yocto:latest'
+          - config: qemu_yocto_linux
+            build-image: 'ghcr.io/core-flight-system/cfsbuildenv-yocto:latest'
           - config: native_std
             build-image: 'ghcr.io/core-flight-system/cfsbuildenv-linux:latest'
           - config: native_eds
@@ -128,24 +129,24 @@ jobs:
         include:
           - config: native_std
             healthcheck-regex: 'CFE_ES_Main entering OPERATIONAL state$'
-            exec-image: ghcr.io/core-flight-system/cfsbuildenv-linux:latest
-            cpu1-test-procedure: trad_le
-            cpu2-test-procedure: trad_le
+            exec-image: ghcr.io/core-flight-system/cfsexec-linux:latest
+            test-procedure: 'trad_le'
+            log-fetch-method: 'direct'
           - config: native_eds
             healthcheck-regex: 'CFE_ES_Main entering OPERATIONAL state$'
-            exec-image: ghcr.io/core-flight-system/cfsbuildenv-linux:latest
-            cpu1-test-procedure: eds
-            cpu2-test-procedure: eds
-          # - config: qemu_yocto_linux
-          #   healthcheck-regex: '^Poky (Yocto Project Reference Distro)'
-          #   exec-image: ghcr.io/core-flight-system/cfsexec-qemu:latest
-          #   cpu1-test-procedure: trad_le
-          #   cpu2-test-procedure: trad_be
+            exec-image: ghcr.io/core-flight-system/cfsexec-linux:latest
+            test-procedure: 'eds'
+            log-fetch-method: 'direct'
+          - config: qemu_yocto_linux
+            healthcheck-regex: '^Poky (Yocto Project Reference Distro)'
+            exec-image: aetd-dockerlab.gsfc.nasa.gov/gsfc-cfs/github-actions-ci-cd/cfsexec-qemu
+            test-procedure: 'trad_be'
+            log-fetch-method: 'ssh'
           - config: pc686_rtems5
             healthcheck-regex: 'CFE_ES_Main entering OPERATIONAL state'
             exec-image: ghcr.io/core-flight-system/cfsexec-qemu:latest
-            cpu1-test-procedure: trad_le
-            cpu2-test-procedure: trad_le
+            test-procedure: 'trad_le'
+            log-fetch-method: 'direct'
 
     steps:
       - name: Download artifact from build
@@ -188,23 +189,111 @@ jobs:
           container-id: ${{ steps.start-cpu1.outputs.container-id }}
           healthcheck-regex: ${{ matrix.healthcheck-regex }}
 
-      - name: Execute cpu1 test (traditional little endian)
-        if: matrix.cpu1-test-procedure == 'trad_le'
+      - name: Setup log retrieval via SSH
+        if: matrix.log-fetch-method == 'ssh'
+        shell: bash
         run: |
-          ./host/cmd_send --host=${{ steps.check-cpu1.outputs.ip-addr }} --endian=LE --pktid=0x1806 --cmdcode=0
+          mkdir -p ~/.ssh
+          chmod 0700 ~/.ssh
+          touch ~/.ssh/known_hosts
+          chmod 0600 ~/.ssh/known_hosts
+          ssh-keyscan -p 2222 ${{ steps.check-cpu1.outputs.ip-addr }} >> ~/.ssh/known_hosts
+          cat ~/.ssh/known_hosts
+          cat > ./fetch_logs.sh << EOF
+          #!/bin/bash
+          ssh -p 2222 root@${{ steps.check-cpu1.outputs.ip-addr }} grep 'user\.notice CFS:' /var/log/messages | sed -e 's/^.*user\.notice CFS: //'
+          EOF
+          chmod +x ./fetch_logs.sh
+          cat ./fetch_logs.sh
 
-      - name: Execute cpu1 test (traditional big endian)
-        if: matrix.cpu1-test-procedure == 'trad_be'
+      - name: Setup direct log retrieval
+        if: matrix.log-fetch-method == 'direct'
+        shell: bash
         run: |
-          ./host/cmd_send --host=${{ steps.check-cpu1.outputs.ip-addr }} --endian=BE --pktid=0x1806 --cmdcode=0
+          cat > ./fetch_logs.sh << EOF
+          #!/bin/bash
+          docker logs "${{ steps.start-cpu1.outputs.container-id }}"
+          EOF
+          chmod +x ./fetch_logs.sh
+          cat ./fetch_logs.sh
 
-      - name: Execute test procedure (EDS)
-        if: matrix.cpu1-test-procedure == 'eds'
+      - name: Setup Environment
+        if: matrix.log-fetch-method != ''
         run: |
-          ./host/cmd_send --host=${{ steps.check-cpu1.outputs.ip-addr }} -D CFE_ES/Application/CMD.NoopCmd
+          TEST_PROCEDURE=${{ matrix.test-procedure }}
+          CMDSEND_ES_MID=${{ matrix.es-mid }}
+          case "${TEST_PROCEDURE%%_*}" in
+            "eds")
+              CMDSEND_ES_MID_DEFAULT="CFE_ES/Application/CMD"
+              CMDSEND_NOOP_CMDCODE="NoopCmd"
+              CMDSEND_ENDIAN="EDS"
+              ;;
+            "trad")
+              CMDSEND_ES_MID_DEFAULT=0x1806
+              CMDSEND_NOOP_CMDCODE="0"
+              CMDSEND_ENDIAN=$(echo "${TEST_PROCEDURE##*_}" | tr '[a-z]' '[A-Z]')
+              ;;
+          esac
+          echo "CMDSEND_ES_MID=${CMDSEND_ES_MID:-$CMDSEND_ES_MID_DEFAULT}" >> $GITHUB_ENV
+          echo "CMDSEND_NOOP_CMDCODE=${CMDSEND_NOOP_CMDCODE:-0}" >> $GITHUB_ENV
+          echo "CMDSEND_ENDIAN=${CMDSEND_ENDIAN:-LE}" >> $GITHUB_ENV
+          echo "CMDSEND_IP_ADDR=${{ steps.check-cpu1.outputs.ip-addr }}" >> $GITHUB_ENV
+
+      - name: Execute cpu1 test
+        if: env.CMDSEND_IP_ADDR != ''
+        run: |
+          ./host/cmd_send --host=${CMDSEND_IP_ADDR} --endian=${CMDSEND_ENDIAN} --pktid=${CMDSEND_ES_MID} --cmdcode=${CMDSEND_NOOP_CMDCODE}
+
+      - name: Wait for log messages
+        if: env.CMDSEND_IP_ADDR != ''
+        shell: bash
+        run: |
+          count=0
+          truncate -s 0 check-logs.txt
+          while [ $count -lt 30 ] && ! grep -q 'CFE_ES 3: No-op command:' check-logs.txt
+          do
+            sleep 2
+            count=$(($count+1))
+            ./fetch_logs.sh > check-logs.txt
+          done
+          echo "Check completed after ${count} iterations"
+
+      - name: Collect logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: 'CFS Log output (${{ matrix.config }})'
+          path: check-logs.txt
+
+      # Note that since other non-CFS items can also log things, this also filters
+      # for the CFS-style timestamp contained in all event and syslog messages from CFE
+      # This should limit the check to errors that are be relevant
+      # The build still has some known issues in a couple apps:
+      #  - the HS system monitor may not initialize depending on platform support
+      #  - SBN does not service the SBNSubPipe well enough, and my get limit/overflow errors
+      # both of these are filtered out here until they can be fixed in the app
+      - name: Check for message in logs
+        if: env.CMDSEND_IP_ADDR != ''
+        shell: bash
+        run: |
+          grep -P '\b\d{4}-\d{3}-\d{2}:\d{2}:\d{2}\.\d+ ' check-logs.txt | \
+            grep -v 'system monitor initialization' | \
+            grep -v 'SBNSubPipe' > cfs-messages.txt
+          grep -i 'warn\|err\|fail' cfs-messages.txt > warnings.txt || /bin/true
+          if [ -s warnings.txt ]
+          then
+            echo "Start up warnings or failures present:"
+            cat warnings.txt
+            /bin/false
+          elif ! grep -q 'CFE_ES 3: No-op command:' cfs-messages.txt
+          then
+            echo "No-op command event missing"
+            cat cfs-messages.txt
+            /bin/false
+          fi
 
       - name: Stop CPU1 Container
-        if: always()
+        if: always() && steps.start-cpu1.outputs.container-id != ''
         uses: nasa/cFS/actions/stop-cfs-container@dev
         with:
           container-id: ${{ steps.start-cpu1.outputs.container-id }}

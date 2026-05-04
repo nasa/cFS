@@ -1,0 +1,62 @@
+name: Build app Workflow
+description: 'Build cFS with application'
+
+inputs:
+  app-name:
+    description: Application name
+    type: string
+    required: false
+    default: ${{ github.event.repository.name }}
+  tag:
+    description: staging directory tag
+    type: string
+    required: false
+    default: ''
+  startup-script:
+    description: startup script to install/override before creating tarball
+    type: string
+    required: false
+    default: ''
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup environment
+      shell: bash
+      run: echo "DESTDIR=$GITHUB_WORKSPACE/staging${{ inputs.tag }}" >> $GITHUB_ENV
+
+    - name: Make install
+      shell: bash
+      run: make -C build${{ inputs.tag }} mission-install
+
+    - name: Create startup link
+      shell: bash
+      run: ln -s core-cpu1 ${DESTDIR}/exe/cpu1/container-start
+
+    - name: Override startup script
+      if: inputs.startup-script != ''
+      shell: bash
+      run: |
+        cp ${GITHUB_WORKSPACE}/${{ inputs.startup-script }} ${DESTDIR}/exe/cpu1/cf/cfe_es_startup.scr
+
+    - name: Create CPU1 tarball
+      shell: bash
+      run: tar Jcv -f ${DESTDIR}/cpu1-bin.tar.xz -C ${DESTDIR}/exe/cpu1 core-cpu1 container-start cf
+
+    - name: Create Other Tarballs
+      shell: bash
+      run: |
+        cd ${DESTDIR}/exe
+        ls -lR .
+        find -maxdepth 1 -mindepth 1 -type d | grep -v cpu | while read dir
+        do
+          inst=$(basename ${dir})
+          echo "Creating ${inst}-bin.tar.xz"
+          tar Jcv -f ${DESTDIR}/${inst}-bin.tar.xz -C ${inst} .
+        done
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+          name: ${{ inputs.app-name }}-bin${{ inputs.tag }}
+          path: ${{ env.DESTDIR }}/*-bin.tar.xz

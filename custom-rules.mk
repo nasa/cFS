@@ -124,11 +124,6 @@ $(QEMU_PC686_RTEMS_DEPLOY_DIR)/cpu1/container-start: QEMU_KERNEL = -kernel rtems
 $(QEMU_PC686_RTEMS_DEPLOY_DIR)/cpu1/container-start: $(QEMU_PC686_RTEMS_DEPLOY_DIR)/cpu1/rtems-cfs.exe
 $(QEMU_PC686_RTEMS_DEPLOY_DIR)/cpu1/container-start: $(QEMU_PC686_RTEMS_DEPLOY_DIR)/cpu1/cfs-cpu1.diskimg
 
-$(QEMU_PC686_RTEMS_DEPLOY_DIR)/cpu2/container-start: CPUNAME = cpu2
-$(QEMU_PC686_RTEMS_DEPLOY_DIR)/cpu2/container-start: QEMU_KERNEL = -kernel rtems-cfs.exe  -append '$(RTEMS5_APPEND_OPTS)'
-$(QEMU_PC686_RTEMS_DEPLOY_DIR)/cpu1/container-start: $(QEMU_PC686_RTEMS_DEPLOY_DIR)/cpu2/rtems-cfs.exe
-$(QEMU_PC686_RTEMS_DEPLOY_DIR)/cpu2/container-start: $(QEMU_PC686_RTEMS_DEPLOY_DIR)/cpu2/cfs-cpu2.diskimg
-
 %/container-start: custom-rules.mk
 	truncate -s 0 "$(@)"
 	echo -n "$(QEMU_HYPERVISOR) " >> "$(@)"
@@ -148,7 +143,6 @@ $(O_pc686_rtems5)/stamp.image: QEMU_HYPERVISOR = qemu-system-i386 -m 128M -no-re
 $(O_pc686_rtems5)/stamp.image: QEMU_NETDEV_TYPE = i82557b
 $(O_pc686_rtems5)/stamp.image: QEMU_DISK_OPTS += -drive id=disk0,file=$(CFS_IMAGE_BASENAME).diskimg,format=raw
 $(O_pc686_rtems5)/stamp.image: $(QEMU_PC686_RTEMS_DEPLOY_DIR)/cpu1/container-start
-$(O_pc686_rtems5)/stamp.image: $(QEMU_PC686_RTEMS_DEPLOY_DIR)/cpu2/container-start
 
 # do not auto-delete these artifacts
 .PRECIOUS: %.ext4 %.qcow2
