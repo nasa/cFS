@@ -96,20 +96,20 @@ jobs:
             tar cvf - -C ${inst} . | ${COMPRESSOR} > ${GITHUB_WORKSPACE}/${inst}-bin.tar.${SUFFIX}
           done
 
-      - name: Build target images
-        run: make IMAGE_TYPE=ext4 ${{ inputs.config-name }}.image
-
-      - name: Archive target images
-        run: |
-          if cd $GITHUB_WORKSPACE/build-${{ inputs.config-name }}/deploy
-          then
-            find -maxdepth 1 -mindepth 1 -type d | while read dir
-            do
-              inst=$(basename ${dir})
-              tar cvf - -C ${inst} . | ${COMPRESSOR} > ${GITHUB_WORKSPACE}/${inst}-target-img.tar.${SUFFIX}
-            done
-          fi
-
+      #- name: Build target images
+      #  run: make IMAGE_TYPE=ext4 ${{ inputs.config-name }}.image
+#
+      #- name: Archive target images
+      #  run: |
+      #    if cd $GITHUB_WORKSPACE/build-${{ inputs.config-name }}/deploy
+      #    then
+      #      find -maxdepth 1 -mindepth 1 -type d | while read dir
+      #      do
+      #        inst=$(basename ${dir})
+      #        tar cvf - -C ${inst} . | ${COMPRESSOR} > ${GITHUB_WORKSPACE}/${inst}-target-img.tar.${SUFFIX}
+      #      done
+      #    fi
+#
       - name: Upload all artifacts
         uses: actions/upload-artifact@v4
         with:

@@ -6,7 +6,6 @@ on:
     branches:
       - dev
       - main
-      - jph-update-bundle
   pull_request:
     types:
       - opened
@@ -113,6 +112,43 @@ jobs:
     secrets: inherit
 #    continue-on-error: ${{ matrix.omit-deprecated }}
 
+  create-image:
+    name: Create Executable Images
+    strategy:
+      matrix:
+        include:
+          - config: qemu_yocto_linux
+            instance: cpu1
+            image: yocto-image-qemuriscv64
+          - config: qemu_yocto_linux
+            instance: cpu2
+            image: yocto-image-qemumips
+          - config: pc686_rtems5
+            instance: cpu1
+    runs-on: ubuntu-22.04
+    container: ghcr.io/core-flight-system/cfsbuildenv-linux:latest
+    steps:
+      - name: Download artifact from build
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ matrix.config }}-bin
+          path: ${{ matrix.config }}-bin
+
+      - name: Build target images
+        run: /bin/false
+
+      #- name: Archive target images
+      #  run: |
+      #    if cd $GITHUB_WORKSPACE/build-${{ inputs.config-name }}/deploy
+      #    then
+      #      find -maxdepth 1 -mindepth 1 -type d | while read dir
+      #      do
+      #        inst=$(basename ${dir})
+      #        tar cvf - -C ${inst} . | ${COMPRESSOR} > ${GITHUB_WORKSPACE}/${inst}-target-img.tar.${SUFFIX}
+      #      done
+      #    fi
+#
+          
   execute-containers:
     name: Execute CFS containers
     permissions:
