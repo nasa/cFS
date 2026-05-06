@@ -14,8 +14,9 @@ on:
 
 jobs:
   codeql:
-    uses: nasa/cFS/.github/workflows/codeql-reusable.yml@main
+    uses: nasa/cFS/.github/workflows/codeql-reusable.yml@dev
     with:
       component-path: cFS
-      make: make -j8
+      prep: make native_std.prep
+      make: make native_std.install
       test: true
