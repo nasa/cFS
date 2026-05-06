@@ -3,7 +3,7 @@
 
 # Basic cross system configuration
 SET(CMAKE_SYSTEM_NAME			Linux)
-SET(CMAKE_SYSTEM_VERSION		5.0.12)
+SET(CMAKE_SYSTEM_VERSION		5.0.17)
 SET(CMAKE_SYSTEM_PROCESSOR		mips)
 SET(POKY_SYSROOT_ID             mips32r2-poky-linux)
 
