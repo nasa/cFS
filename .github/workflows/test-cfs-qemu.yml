@@ -104,7 +104,7 @@ jobs:
           - config: gr712_rtems5
             build-image: 'ghcr.io/core-flight-system/cfsbuildenv-gaisler-sparc-rcc:latest'
     name: Build CFS with ${{ matrix.config }} configuration
-    uses: nasa/cFS/.github/workflows/build-cfs-multitarget.yml@dev
+    uses: ./.github/workflows/build-cfs-multitarget.yml
     with:
       config-name: ${{ matrix.config }}
       container-image: ${{ matrix.build-image }}
