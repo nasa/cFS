@@ -56,7 +56,7 @@ runs:
         done
 
     - name: Upload artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
           name: ${{ inputs.app-name }}-bin${{ inputs.tag }}
           path: ${{ env.DESTDIR }}/*-bin.tar.xz

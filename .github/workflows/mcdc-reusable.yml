@@ -111,7 +111,7 @@ jobs:
       - name: Archive unit test results
         # Archive unit test results if tests ran, even if step failed
         if: ${{ env.TESTS_RAN == 'true' }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: Unit test results
           path: |
@@ -120,7 +120,7 @@ jobs:
       - name: Archive MCDC results
         # Archive MCDC results if tests ran, even if step failed
         if: success() || failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: MCDC results
           path: |
@@ -145,7 +145,7 @@ jobs:
 
       - name: Download latest main branch artifact
         continue-on-error: true
-        uses: dawidd6/action-download-artifact@v2
+        uses: dawidd6/action-download-artifact@v8
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow: mcdc.yml
@@ -155,7 +155,7 @@ jobs:
           path: ./main-branch-results
 
       - name: Downloads PR artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: MCDC results
 
@@ -201,7 +201,7 @@ jobs:
       - name: Archive mcdc comparison
         # Upload if success or failure which supports skipping, unlike always()
         if: success() || failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: MCDC main branch comparison
           path: |

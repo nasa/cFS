@@ -32,7 +32,7 @@ jobs:
           author: false
 
       - name: "Upload changelog"
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: "Changelog"
           path: CHANGELOG.md

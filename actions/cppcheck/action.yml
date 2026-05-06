@@ -72,7 +72,7 @@ runs:
       run: xsltproc cppcheck-xml2text.xslt cppcheck_err.xml | tee $GITHUB_STEP_SUMMARY cppcheck_err.txt
 
     - name: Archive static analysis artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: cppcheck-errors
         path: ./*cppcheck_err.*
