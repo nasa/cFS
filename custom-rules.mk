@@ -1,8 +1,8 @@
 # This converts the staging directory from "make install" into a virtual
 # filesystem that can be mounted in a VM or container
 
-YOCTO_SANDBOX_REPO = https://developer.nasa.gov/cFS/yocto-sandbox
-YOCTO_SANDBOX_TAG  = v0.0.3-testing
+YOCTO_SANDBOX_REPO = ghcr.io/core-flight-system
+YOCTO_SANDBOX_TAG  = latest
 
 PARTED_CMD ?= /usr/sbin/parted
 
@@ -37,12 +37,24 @@ RTEMS5_APPEND_OPTS += --console=/dev/com1
 RTEMS5_APPEND_OPTS += --batch-mode
 
 
-$(QEMU_YOCTO_DEPLOY_DIR)/fetch_yocto_rootfs.cpu1.stamp: SYSTEM_PACKAGE = qemuriscv64-target-bin.tar.xz
-$(QEMU_YOCTO_DEPLOY_DIR)/fetch_yocto_rootfs.cpu2.stamp: SYSTEM_PACKAGE = qemumips-target-bin.tar.xz
+$(QEMU_YOCTO_DEPLOY_DIR)/fetch_yocto_rootfs.cpu1.stamp: $(QEMU_YOCTO_DEPLOY_DIR)/extract_yocto_rootfs.qemuriscv64.stamp
+#SYSTEM_CONTAINER = yocto-image-qemuriscv64
+$(QEMU_YOCTO_DEPLOY_DIR)/fetch_yocto_rootfs.cpu2.stamp: $(QEMU_YOCTO_DEPLOY_DIR)/extract_yocto_rootfs.qemumips.stamp
+#SYSTEM_CONTAINER = yocto-image-qemumips
 
-$(DEPLOY_DIR)/fetch_yocto_rootfs.%.stamp:
-	mkdir -p $(DEPLOY_DIR)/$(CPUNAME)
-	curl -fsL $(YOCTO_SANDBOX_REPO)/releases/download/$(YOCTO_SANDBOX_TAG)/$(SYSTEM_PACKAGE) | tar Jxv -C $(DEPLOY_DIR)/$(CPUNAME) -f -
+$(DEPLOY_DIR)/extract_yocto_rootfs.%.stamp:
+	/bin/bash -x ./create_yocto_rootfs.sh $(DEPLOY_DIR) $(YOCTO_SANDBOX_REPO)/yocto-image-$(*):$(YOCTO_SANDBOX_TAG)
+	touch "$(@)"
+
+$(DEPLOY_DIR)/fetch_yocto_rootfs.cpu1.stamp:
+	cp -Lv -t $(DEPLOY_DIR)/cpu1 $(DEPLOY_DIR)/images/qemuriscv64/core-image-cfecfs-qemuriscv64.rootfs.ext4 
+	cp -Lv -t $(DEPLOY_DIR)/cpu1 $(DEPLOY_DIR)/images/qemuriscv64/fw_jump.elf
+	cp -Lv -t $(DEPLOY_DIR)/cpu1 $(DEPLOY_DIR)/images/qemuriscv64/Image
+	touch "$(@)"
+
+$(DEPLOY_DIR)/fetch_yocto_rootfs.cpu2.stamp:
+	cp -Lv -t $(DEPLOY_DIR)/cpu2 $(DEPLOY_DIR)/images/qemumips/core-image-cfecfs-qemumips.rootfs.ext4
+	cp -Lv -t $(DEPLOY_DIR)/cpu2 $(DEPLOY_DIR)/images/qemumips/vmlinux
 	touch "$(@)"
 
 # generic rule for creating a CFS tarball
@@ -88,14 +100,6 @@ $(DEPLOY_DIR)/fetch_yocto_rootfs.%.stamp:
 	$(PARTED_CMD) -a none -s $(@).tmp -- mkpart primary fat32 63s -1s
 	dd if=$(<) of=$(@).tmp bs=512 seek=63
 	mv -v "$(@).tmp" "$(@)"
-
-# generic rule for creating a disk image from a fat filesystem image
-%.diskimg: %.fat
-	mkdir -p "$(dir $(@))"
-	truncate -s $(IMAGE_SIZE)  $(@)
-	$(PARTED_CMD) -s $(@) -- mklabel msdos
-	$(PARTED_CMD) -a none -s $(@) -- mkpart primary fat32 63s -1s
-	dd if=$(<) of=$(@) bs=512 seek=63
 
 %/rtems-cfs.exe: $(O)/stamp.install
 	mkdir -p "$(dir $(@))"
