@@ -64,7 +64,7 @@ jobs:
           cat /etc/os-release
 
       - name: Checkout cFS with submodules
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: true
           token: ${{ secrets.GH_PAT || github.token }}
