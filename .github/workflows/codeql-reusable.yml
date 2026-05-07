@@ -30,20 +30,20 @@ on:
 
       prep:
         description: 'Make Prep'
-        default: make prep
+        default: 'make native_std.prep'
         required: false
         type: string
 
       setup:
         description: 'Build Prep Commands'
         type: string
-        default: cp ./cfe/cmake/Makefile.sample Makefile && cp -r ./cfe/cmake/sample_defs sample_defs
+        default: ''
         required: false
 
       test:
         description: 'Value for ENABLE_UNIT_TESTS flag'
         type: string
-        default: false
+        default: 'false'
         required: false
 
 # Force bash to apply pipefail option so pipeline failures aren't masked

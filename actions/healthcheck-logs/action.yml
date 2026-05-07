@@ -46,7 +46,7 @@ runs:
         echo "Container IP: $IP_ADDR"
 
     - name: Get SSH key
-      if: inputs.ssh-keyscan == 'true'
+      if: fromJSON(inputs.ssh-keyscan)
       shell: bash
       run: |
         mkdir -p ~/.ssh

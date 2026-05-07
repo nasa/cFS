@@ -16,7 +16,17 @@ inputs:
     description: Options to pass to the cmake command
     type: string
     required: false
-    default: '-DENABLE_UNIT_TESTS=TRUE -DSIMULATION=native -DMISSIONCONFIG=sample -DCMAKE_BUILD_TYPE=debug -DCMAKE_INSTALL_PREFIX=/exe'
+    default: '-DENABLE_UNIT_TESTS=TRUE -DSIMULATION=native -DCMAKE_BUILD_TYPE=debug -DCMAKE_INSTALL_PREFIX=/exe'
+  enable-eds:
+    description: Whether to enable EDS in the test build
+    type: boolean
+    required: false
+    default: false
+  config-name:
+    description: Directory name to use for the initial configuration
+    type: string
+    required: false
+    default: 'sample'
 
 runs:
   using: 'composite'
@@ -30,8 +40,19 @@ runs:
         APP_DEP="${{ inputs.dependency }}"
         echo "APP_DEP_UPPER=$(echo ${APP_DEP##*/} | sed 's/[a-z]/\U&/g')" >> $GITHUB_ENV
         echo "APP_DEP_LOWER=$(echo ${APP_DEP##*/} | sed 's/[A-Z]/\L&/g')" >> $GITHUB_ENV
+        echo "CONFIG_NAME=${{ inputs.config-name }}" >> $GITHUB_ENV
+        echo "STD_BUILDDIR=build" >> $GITHUB_ENV
 
-    - name: Checkout cFE
+    # if EDS is enabled then prepare for two separate build dirs
+    - name: Set up environment variables for EDS
+      if: fromJSON(inputs.enable-eds)
+      shell: bash
+      run: |
+        echo "STD_BUILDDIR=build-std" >> $GITHUB_ENV
+        echo "EDS_BUILDDIR=build-eds" >> $GITHUB_ENV
+        echo "CFE_EDS_ENABLED=true" >> $GITHUB_ENV
+
+    - name: Checkout CFE
       uses: actions/checkout@v6
       with:
         repository: nasa/cFE
@@ -62,26 +83,41 @@ runs:
     - name: Set up basic targets.cmake config
       shell: bash
       run: |
-        cat > ./sample_defs/targets.cmake << EOF
+        cat > ./${CONFIG_NAME}_defs/targets.cmake << EOF
         SET(MISSION_NAME GithubActions)
         SET(SPACECRAFT_ID 0x42)
         SET(MISSION_CPUNAMES cpu1)
         SET(cpu1_PROCESSORID 1)
-        SET(MISSION_GLOBAL_APPLIST)
+        SET(MISSION_GLOBAL_APPLIST ci_lab to_lab)
         EOF
 
     - name: Add Dependencies to targets
       if: inputs.app-name != 'cFS' && inputs.app-name != 'cFE'
       shell: bash
-      run: echo "LIST(APPEND MISSION_GLOBAL_APPLIST $APP_DEP_LOWER $APP_LOWER)" >> ./sample_defs/targets.cmake
+      run: |
+        echo "LIST(APPEND MISSION_GLOBAL_APPLIST $APP_DEP_LOWER $APP_LOWER)" >> ./${CONFIG_NAME}_defs/targets.cmake
+        echo "LIST(REMOVE_DUPLICATES MISSION_GLOBAL_APPLIST)" >> ./${CONFIG_NAME}_defs/targets.cmake
 
     - name: Check targets.cmake
       shell: bash
-      run: cat ./sample_defs/targets.cmake
+      run: cat ./${CONFIG_NAME}_defs/targets.cmake
 
-    - name: Set up build tree
+    # NOTE: Github seems to convert all the inputs to strings, even though it was specified to be a boolean
+    - name: Set up build tree (eds)
+      if: fromJSON(inputs.enable-eds)
       shell: bash
       run: |
-        mkdir -p $GITHUB_WORKSPACE/build
-        echo DESTDIR=$GITHUB_WORKSPACE/build >> $GITHUB_ENV
-        cd $GITHUB_WORKSPACE/build && cmake ${{ inputs.cmake-options }} "$GITHUB_WORKSPACE/cfe"
+        export DESTDIR=$GITHUB_WORKSPACE/${EDS_BUILDDIR}
+        mkdir -p ${DESTDIR}
+        cd ${DESTDIR} && cmake ${{ inputs.cmake-options }} \
+          -DCFE_EDS_ENABLED=ON \
+          -DEDSLIB_PYTHON_BUILD_STANDALONE_MODULE=ON \
+          -DCFE_MISSIONLIB_PYTHON_BUILD_STANDALONE_MODULE=ON \
+          "$GITHUB_WORKSPACE/cfe"
+
+    - name: Set up build tree (std)
+      shell: bash
+      run: |
+        export DESTDIR=$GITHUB_WORKSPACE/${STD_BUILDDIR}
+        mkdir -p ${DESTDIR}
+        cd ${DESTDIR} && cmake ${{ inputs.cmake-options }} "$GITHUB_WORKSPACE/cfe"
