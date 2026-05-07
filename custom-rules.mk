@@ -140,8 +140,9 @@ $(QEMU_PC686_RTEMS_DEPLOY_DIR)/cpu1/container-start: $(QEMU_PC686_RTEMS_DEPLOY_D
 
 $(O_qemu_yocto_linux)/stamp.image: QEMU_DISK_OPTS += -drive id=disk0,file=$(ROOTFS_IMAGE_BASENAME).$(IMAGE_TYPE),format=$(IMAGE_FORMAT)
 $(O_qemu_yocto_linux)/stamp.image: QEMU_DISK_OPTS += -drive id=disk1,file=$(CFS_IMAGE_BASENAME).$(IMAGE_TYPE),format=$(IMAGE_FORMAT)
-$(O_qemu_yocto_linux)/stamp.image: $(QEMU_YOCTO_DEPLOY_DIR)/cpu1/container-start
-$(O_qemu_yocto_linux)/stamp.image: $(QEMU_YOCTO_DEPLOY_DIR)/cpu2/container-start
+# Disabled until the workflow issues can be fixed
+#$(O_qemu_yocto_linux)/stamp.image: $(QEMU_YOCTO_DEPLOY_DIR)/cpu1/container-start
+#$(O_qemu_yocto_linux)/stamp.image: $(QEMU_YOCTO_DEPLOY_DIR)/cpu2/container-start
 
 $(O_pc686_rtems5)/stamp.image: QEMU_HYPERVISOR = qemu-system-i386 -m 128M -no-reboot
 $(O_pc686_rtems5)/stamp.image: QEMU_NETDEV_TYPE = i82557b

@@ -1,15 +1,8 @@
 name: "CodeQL Analysis: cFS-Bundle"
 
+# There are still some bugs with this workflow, so keeping
+# it as manual dispatch for now until they can be fixed.
 on:
-  push:
-    branches:
-      - dev
-      - main
-  pull_request:
-    types:
-      - opened
-      - reopened
-      - synchronize
   workflow_dispatch:
 
 jobs:
