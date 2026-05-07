@@ -105,7 +105,7 @@ jobs:
         run: cat ${GITHUB_WORKSPACE}/generated_cfe_es_startup.scr
 
       - name: Build and upload artifacts (std)
-        uses: nasa/workflows/actions/build-app@dev
+        uses: nasa/cFS/actions/build-app@dev
         with:
           app-name: ${{ inputs.app-name }}
           tag: ${{ fromJSON(inputs.enable-eds) && '-std' || '' }}
@@ -113,7 +113,7 @@ jobs:
 
       - name: Build and upload artifacts (eds)
         if: fromJSON(inputs.enable-eds)
-        uses: nasa/workflows/actions/build-app@dev
+        uses: nasa/cFS/actions/build-app@dev
         with:
           app-name: ${{ inputs.app-name }}
           tag: '-eds'

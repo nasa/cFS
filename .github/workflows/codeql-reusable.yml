@@ -30,7 +30,7 @@ on:
 
       prep:
         description: 'Make Prep'
-        default: 'make native_std.prep'
+        default: make prep
         required: false
         type: string
 
