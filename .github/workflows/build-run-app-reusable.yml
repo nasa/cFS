@@ -25,6 +25,11 @@ on:
         type: string
         required: false
         default: 'AppMain'
+      enable-eds:
+        description: Whether to enable EDS in the test build
+        type: boolean
+        required: false
+        default: false
 
 # Force bash to apply pipefail option so pipeline failures aren't masked
 defaults:
@@ -61,6 +66,7 @@ jobs:
         with:
           app-name: ${{ inputs.app-name }}
           dependency: ${{ inputs.dependency }}
+          enable-eds: ${{ inputs.enable-eds }}
 
       - name: Set up start string for verification
         run: |
@@ -70,58 +76,83 @@ jobs:
             echo "START_STRING=${{ inputs.startup-string }}" >> $GITHUB_ENV
           fi
 
-      - name: Make install
-        run: make -C build mission-install
-
-      - name: Generate Startup Link
-        run: ln -s core-cpu1 ./build/exe/cpu1/container-start
-
-      - name: Replace startup script
+      - name: Create startup script generator
         run: |
-          truncate -s 0 ./build/exe/cpu1/cf/cfe_es_startup.scr
-          if [ "x$APP_DEP_LOWER" != "x" ]
-          then
-            echo "CFE_LIB, $APP_DEP_LOWER, ${APP_DEP_UPPER}_Init, $APP_DEP_UPPER, 0, 0, 0x0, 0;" >> ./build/exe/cpu1/cf/cfe_es_startup.scr
-          fi
-          echo "CFE_APP, $APP_LOWER, ${APP_UPPER}_${{ inputs.app-entrypoint-suffix }}, $APP_UPPER, 80, 16384, 0x0, 0;" >> ./build/exe/cpu1/cf/cfe_es_startup.scr
-          cat ./build/exe/cpu1/cf/cfe_es_startup.scr
+          cat > generate_startup_script.cmake << 'EOF'
+          include ("$ENV{CONFIG_NAME}_defs/targets.cmake")
+          foreach(APP ${MISSION_GLOBAL_APPLIST})
+            if (IS_DIRECTORY "./apps/${APP}" AND NOT "${APP}" STREQUAL "${EXCLUDE}")
+              string (TOUPPER ${APP} APP_UPPER)
+              message("CFE_APP, ${APP}, ${APP_UPPER}_AppMain, ${APP_UPPER}, 80, 16384, 0x0, 0;")
+            endif()
+          endforeach(APP)
+          EOF
+          truncate -s 0 ${GITHUB_WORKSPACE}/generated_cfe_es_startup.scr
 
-      - name: Archive binaries
-        run: |
-          cd $GITHUB_WORKSPACE/build/exe
-          find -maxdepth 1 -mindepth 1 -type d | while read dir
-          do
-            inst=$(basename ${dir})
-            tar Jcv -f $GITHUB_WORKSPACE/${inst}-bin.tar.xz -C ${inst} .
-          done
+      - name: Add dependency to startup script
+        if: ${{ inputs.dependency != '' }}
+        run: echo "CFE_LIB, $APP_DEP_LOWER, ${APP_DEP_UPPER}_Init, $APP_DEP_UPPER, 0, 0, 0x0, 0;" >> ${GITHUB_WORKSPACE}/generated_cfe_es_startup.scr
 
-      - name: Upload all artifacts
-        uses: actions/upload-artifact@v7
+      # Note that cmake messages get output on stderr, not stdout
+      - name: Add other apps to startup script
+        run: cmake -DEXCLUDE=$APP_LOWER -P generate_startup_script.cmake 2>&1 | tee -a ${GITHUB_WORKSPACE}/generated_cfe_es_startup.scr
+
+      - name: Add subject app to startup script
+        run: echo "CFE_APP, $APP_LOWER, ${APP_UPPER}_${{ inputs.app-entrypoint-suffix }}, $APP_UPPER, 80, 16384, 0x0, 0;" >> ${GITHUB_WORKSPACE}/generated_cfe_es_startup.scr
+
+      - name: Check startup script
+        if: always()
+        run: cat ${GITHUB_WORKSPACE}/generated_cfe_es_startup.scr
+
+      - name: Build and upload artifacts (std)
+        uses: nasa/workflows/actions/build-app@dev
         with:
-            name: ${{ inputs.app-name }}-bin
-            path: ./*.tar.xz
+          app-name: ${{ inputs.app-name }}
+          tag: ${{ fromJSON(inputs.enable-eds) && '-std' || '' }}
+          startup-script: generated_cfe_es_startup.scr
+
+      - name: Build and upload artifacts (eds)
+        if: fromJSON(inputs.enable-eds)
+        uses: nasa/workflows/actions/build-app@dev
+        with:
+          app-name: ${{ inputs.app-name }}
+          tag: '-eds'
+          startup-script: generated_cfe_es_startup.scr
 
   run-app:
     needs: build-app
-    name: Run CFE with app, check for startup messages
+    name: Run CFE with app, check for startup messages (${{ matrix.variant }})
     runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: true
+      matrix:
+        variant: [ 'std', 'eds' ]
+        exclude:
+        - variant: ${{ !fromJSON(inputs.enable-eds) && 'eds' }}
 
     steps:
+      - name: Check build tag
+        run:
+          echo "BUILD_TAG=${{ fromJSON(inputs.enable-eds) && format('-{0}', matrix.variant) || '' }}" >> $GITHUB_ENV
+
       - name: Download artifact
         uses: actions/download-artifact@v8
         with:
-          name: ${{ inputs.app-name }}-bin
-          path: ${{ inputs.app-name }}-bin
+          name: ${{ inputs.app-name }}-bin${{ env.BUILD_TAG }}
+          path: ${{ inputs.app-name }}-bin${{ env.BUILD_TAG }}
 
       - name: List Files 1
         run: ls -lR .
 
       - name: Unpack artifacts
         run: |
-          for i in cpu1 host
+          for i in cpu1 host lib
           do
-            mkdir -p "$i"
-            tar Jxv -C "$i" -f "$GITHUB_WORKSPACE/${{ inputs.app-name }}-bin/$i-bin.tar.xz"
+            tarball="$GITHUB_WORKSPACE/${{ inputs.app-name }}-bin${{ env.BUILD_TAG }}/$i-bin.tar.xz"
+            if [ -e "$tarball" ]; then
+              mkdir -p "${{ matrix.variant }}/$i"
+              tar Jxv -C "${{ matrix.variant }}/$i" -f "$tarball"
+            fi
           done
 
       - name: List Files 2
@@ -129,11 +160,20 @@ jobs:
           pwd
           ls -lR .
 
+      - name: Get IP address of host container
+        shell: bash
+        id: query-local-ip-addr
+        run: |
+          IP_ADDR=$(docker inspect "${HOSTNAME}" --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}')
+          echo addr=$IP_ADDR >> $GITHUB_OUTPUT
+          echo Local IP: $IP_ADDR
+
       - name: Start CPU1 container
         id: start-cpu1
         uses: nasa/cFS/actions/start-cfs-container@dev
         with:
-          binary-dir: ${{ github.workspace }}/cpu1
+          binary-dir: ${{ github.workspace }}/${{ matrix.variant }}/cpu1
+          exec-image: ghcr.io/core-flight-system/cfsexec-linux:latest
 
       - name: Check CPU1 container
         id: check-cpu1
@@ -142,18 +182,41 @@ jobs:
           container-id: ${{ steps.start-cpu1.outputs.container-id }}
           healthcheck-regex: 'CFE_ES_Main entering OPERATIONAL state$'
 
-      - name: Shut down CFE
-        if: ${{ steps.check-cpu1.outputs.ip-addr != '' }}
-        working-directory: ./host
+      # For now only run the "aliveness" test -- all apps should have this, and it does not depend
+      # on any externals like tables or other apps
+      - name: Execute Test Script (EDS)
+        if: ${{ matrix.variant == 'eds' && steps.check-cpu1.outputs.ip-addr != '' }}
+        working-directory: ${{ matrix.variant }}/host
+        run: |
+          export LD_LIBRARY_PATH=${GITHUB_WORKSPACE}/${{ matrix.variant }}/lib
+          export PYTHONPATH=${GITHUB_WORKSPACE}/${{ matrix.variant }}/lib/python
+          ./runtest.py --instance-name 'cpu1' \
+            --remote-addr '${{ steps.check-cpu1.outputs.ip-addr }}:1234' \
+            --local-addr '${{ steps.query-local-ip-addr.outputs.addr }}:2234' \
+            --mission-name 'githubactions' \
+            '${{ inputs.app-name }}' 'test_aliveness'
+          sleep 2
+
+      - name: Shut down CFE (STD)
+        if: ${{ matrix.variant == 'std' && steps.check-cpu1.outputs.ip-addr != '' }}
+        working-directory: ${{ matrix.variant }}/host
         run: |
           ./cmd_send -v --host=${{ steps.check-cpu1.outputs.ip-addr }} --endian=LE --pktid=0x1806 --cmdcode=2 --half=0x0002
           sleep 2
 
+      - name: Shut down CFE (EDS)
+        if: ${{ matrix.variant == 'eds' && steps.check-cpu1.outputs.ip-addr != '' }}
+        working-directory: ${{ matrix.variant }}/host
+        run: |
+          ./cmd_send -v --host=${{ steps.check-cpu1.outputs.ip-addr }} --endian=EDS --pktid=CFE_ES/Application/CMD --cmdcode=RestartCmd RestartType=2
+          sleep 2
+
       - name: Capture Logs
         if: ${{ always() && steps.start-cpu1.outputs.container-id != '' }}
-        run: docker logs ${{ steps.start-cpu1.outputs.container-id }} > cFS_startup_cpu1.txt
+        run: docker logs ${{ steps.start-cpu1.outputs.container-id }} > ${{ matrix.variant }}/cFS_startup_cpu1.txt
 
       - name: Stop CPU1 Container
+        #if: ${{ always() && steps.start-cpu1.outputs.container-id != '' }}
         uses: nasa/cFS/actions/stop-cfs-container@dev
         with:
           container-id: ${{ steps.start-cpu1.outputs.container-id }}
@@ -162,25 +225,25 @@ jobs:
         if: success() || failure()
         uses: actions/upload-artifact@v7
         with:
-          name: cFS_startup_log
-          path: cFS_startup_cpu1.txt
+          name: cFS_startup_log${{ env.BUILD_TAG }}
+          path: ${{ matrix.variant }}/cFS_startup_cpu1.txt
 
       - name: Confirm startup string
         run: |
-          if [[ -z $(grep "$START_STRING" cFS_startup_cpu1.txt) ]]; then
+          if [[ -z $(grep "$START_STRING" ${{ matrix.variant }}/cFS_startup_cpu1.txt) ]]; then
             echo "Startup verification string not found in log: $START_STRING"
             echo ""
             echo "Possible related event messages:"
-            grep "/$APP_UPPER " cFS_startup_cpu1.txt
+            grep "/$APP_UPPER " ${{ matrix.variant }}/cFS_startup_cpu1.txt
             exit -1
           fi
 
       - name: Check for cFS Warnings
         if: success() || failure()
         run: |
-          if [[ -n $(grep -i "warn\|err\|fail" cFS_startup_cpu1.txt) ]]; then
+          if [[ -n $(grep -i "warn\|err\|fail" ${{ matrix.variant }}/cFS_startup_cpu1.txt) ]]; then
                   echo "cFS startup warn|err|fail:"
                   echo ""
-                  grep -i 'warn\|err\|fail' cFS_startup_cpu1.txt
+                  grep -i 'warn\|err\|fail' ${{ matrix.variant }}/cFS_startup_cpu1.txt
                   exit -1
           fi
