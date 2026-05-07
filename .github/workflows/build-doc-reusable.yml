@@ -94,7 +94,7 @@ jobs:
           mv build/docs/${{ matrix.target }}/${{ matrix.target }}-warnings.log .
 
       - name: Archive Document Build Logs
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.target }}_doc_build_logs
           path: |
@@ -131,7 +131,7 @@ jobs:
 
       - name: Archive PDF
         if: ${{ inputs.buildpdf == true }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.target }}_pdf
           path: ./deploy/${{ matrix.target }}.pdf

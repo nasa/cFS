@@ -40,7 +40,7 @@ jobs:
     container: ghcr.io/core-flight-system/cfsbuildenv-doxygen:latest
     steps:
       - name: Checkout Bundle
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: true
 
@@ -155,7 +155,7 @@ jobs:
 #          echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
 #          gh run download 58922 -p ${{ matrix.config }}-bin
 #          ls -lR .
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: ${{ matrix.config }}-bin
           path: ${{ matrix.config }}-bin
