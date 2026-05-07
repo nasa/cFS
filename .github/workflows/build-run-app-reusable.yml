@@ -160,14 +160,6 @@ jobs:
           pwd
           ls -lR .
 
-      - name: Get IP address of host container
-        shell: bash
-        id: query-local-ip-addr
-        run: |
-          IP_ADDR=$(docker inspect "${HOSTNAME}" --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}')
-          echo addr=$IP_ADDR >> $GITHUB_OUTPUT
-          echo Local IP: $IP_ADDR
-
       - name: Start CPU1 container
         id: start-cpu1
         uses: nasa/cFS/actions/start-cfs-container@dev
@@ -181,6 +173,23 @@ jobs:
         with:
           container-id: ${{ steps.start-cpu1.outputs.container-id }}
           healthcheck-regex: 'CFE_ES_Main entering OPERATIONAL state$'
+
+      # this looks for something from "hostname -I" that appears to be on the same subnet as the cFS container
+      - name: Get IP address of host container
+        shell: bash
+        id: query-local-ip-addr
+        run: |
+          cont_ip=${{ steps.check-cpu1.outputs.ip-addr }}
+          for ip in $(hostname -I)
+          do
+            first_ip=${first_ip:-${ip}}
+            if [ "${ip%.*}" = "${cont_ip%.*}" ]
+            then
+              local_ip=${ip}
+            fi
+          done
+          echo addr=${local_ip:-${first_ip}} >> $GITHUB_OUTPUT
+          echo Local IP: ${local_ip:-${first_ip}}
 
       # For now only run the "aliveness" test -- all apps should have this, and it does not depend
       # on any externals like tables or other apps
