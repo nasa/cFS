@@ -32,7 +32,7 @@ runs:
         echo "APP_DEP_LOWER=$(echo ${APP_DEP##*/} | sed 's/[A-Z]/\L&/g')" >> $GITHUB_ENV
 
     - name: Checkout cFE
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
         repository: nasa/cFE
         path: ./cfe
@@ -47,7 +47,7 @@ runs:
 
     - name: Checkout Dependency
       if: ${{ inputs.dependency != '' }}
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
         repository: ${{ inputs.dependency }}
         path: ./apps/${{ inputs.dependency }}
@@ -55,7 +55,7 @@ runs:
 
     - name: Checkout App Repo
       if: inputs.app-name != 'cFS' && inputs.app-name != 'cFE'
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
         path: ./apps/${{  env.APP_LOWER  }}
 

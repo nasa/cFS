@@ -64,7 +64,7 @@ jobs:
           cat /etc/os-release
 
       - name: Checkout cFS with submodules
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: true
           token: ${{ secrets.GH_PAT || github.token }}
@@ -111,7 +111,7 @@ jobs:
           fi
 
       - name: Upload all artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
             name: ${{ inputs.config-name }}-bin
             path: ./*.tar.${{ inputs.compression-type }}

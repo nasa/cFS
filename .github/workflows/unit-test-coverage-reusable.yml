@@ -65,7 +65,7 @@ jobs:
           echo "APP_DEP_LOWER=$(echo ${APP_DEP##*/} | sed 's/[A-Z]/\L&/g')" >> $GITHUB_ENV
 
       - name: Checkout CFE
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: nasa/cFE
           path: cfe
@@ -79,13 +79,13 @@ jobs:
           org: nasa
 
       - name: Checkout Repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           path: apps/${{  env.APP_LOWER  }}
 
       - name: Checkout Dependency
         if: ${{ inputs.dependency != '' }}
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: ${{ inputs.dependency }}
           path: apps/${{ inputs.dependency }}
@@ -148,7 +148,7 @@ jobs:
       - name: Archive results
         # Upload if success or failure which supports skipping, unlike always()
         if: success() || failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: Unit test and coverage results
           path: |

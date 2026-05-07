@@ -40,7 +40,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           path: repo
 
@@ -60,7 +60,7 @@ jobs:
       # Otherwise if there was a failure the file should be non-empty
       - name: Archive difference artifacts
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: style_differences
           path: style_differences.txt
