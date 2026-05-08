@@ -98,9 +98,9 @@ jobs:
           app-name: ${{ inputs.app-name }}
           dependency: ${{ inputs.dependency }}
 
-      # For osal cFS bundle build and tools
+      # For osal cFS bundle build, tools, and psp
       - name: Checkout cFS Bundle
-        if: inputs.component-path == 'osal-bundle' || contains(inputs.component-path, 'tools')
+        if: inputs.component-path == 'osal-bundle' || contains(inputs.component-path, 'tools') || inputs.component-path == 'psp'
         uses: actions/checkout@v6
         with:
            submodules: recursive
@@ -177,7 +177,7 @@ jobs:
         with:
           sarif_file: CodeQL-Sarif-${{ matrix.scan-type }}/Codeql-${{ matrix.scan-type }}.sarif
           ref: ${{ github.ref }}
-          sha: ${{ github.event.pull_request.head.sha || github.sha }}
+          sha: ${{ github.sha }}
           checkout_path: ${{ 
             inputs.component-path == 'osal-bundle' && format('{0}/osal', github.workspace) || 
             (contains(inputs.component-path, 'apps') || contains(inputs.component-path, 'tools')) && format('{0}/{1}', github.workspace, inputs.component-path) || 
