@@ -46,6 +46,13 @@ on:
         default: 'false'
         required: false
 
+      dependency:
+        description: Additional module/library that this app depends on
+        type: string
+        required: false
+        default: ''
+
+
 # Force bash to apply pipefail option so pipeline failures aren't masked
 defaults:
   run:
