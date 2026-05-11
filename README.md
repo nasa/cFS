@@ -1,5 +1,4 @@
-[![Build Linux](https://github.com/nasa/cfs/actions/workflows/build-cfs.yml/badge.svg)](https://github.com/nasa/cfs/actions/workflows/build-cfs.yml)
-[![Build RTEMS 5](https://github.com/nasa/cFS/actions/workflows/build-cfs-rtems5.yml/badge.svg)](https://github.com/nasa/cFS/actions/workflows/build-cfs-rtems5.yml)
+[![Build and execute CFS with multiple configurations](https://github.com/nasa/cfs/actions/workflows/test-cfs-qemu.yml/badge.svg)](https://github.com/nasa/cFS/blob/dev/.github/workflows/test-cfs-qemu.yml)
 
 # Core Flight System - BUNDLE
 
@@ -48,12 +47,12 @@ More information is available on the [cFS Website](<https://cfs.gsfc.nasa.gov>).
 
 See [releases](<https://github.com/nasa/cFS/releases>) for release history and associated artifacts related to the cFS BUNDLE.
 
-**v7.0.0 (Draco): OFFICIAL RELEASE**:
+**v7.0.1: OFFICIAL RELEASE**:
 
 - **Note: The cFS bundle structure and build system will be updated in a coming release to include all open source apps and new build commands. An evaluation version of this bundle is available in the [techdev-multitarget-bundle](https://github.com/nasa/cFS/tree/techdev-multitarget-bundle) branch for feedback.**
 - Released under Apache 2.0
-- Includes cFE 7.0.0 (cFE, PSP, framework apps, and framework tools as marked) and OSAL 7.0.0
-- [Release artifacts, including Version Description Document](https://github.com/nasa/cFS/releases/tag/v7.0.0)
+- Includes cFE 7.0.1 (cFE, PSP, framework apps, and framework tools as marked) and OSAL 7.0.1
+- [Release artifacts, including Version Description Document](https://github.com/nasa/cFS/releases/tag/v7.0.1)
 
 Other elements listed in [Related Capability](#related-capability) are released under a variety of licenses as detailed in their respective repositories.
 
@@ -191,7 +190,7 @@ See the [cFE Application Developer's Guide](https://github.com/nasa/cFE/blob/mai
 - Other Ground station software
   - cFS-EDS-GroundStation: Ground station implemented via EDS at <https://github.com/nasa/cFS-EDS-GroundStation>
 - Other Apps
-  - BP: DTN Bundle Protocol application at <https://github.com/nasa/bp>
+  - BPNode: DTN Bundle Protocol application at <https://github.com/nasa/bp>
   - CS: Checksum application at <https://github.com/nasa/CS>
   - CF: CFDP application at <https://github.com/nasa/CF>
   - DS: Data Store application at <https://github.com/nasa/DS>
@@ -220,6 +219,7 @@ See the [cFE Application Developer's Guide](https://github.com/nasa/cFE/blob/mai
 - Other Tools
   - CTF: cFS Test Framework at <https://github.com/nasa/CTF>
   - CCDD: Command and Data Dictionary Tool at <https://github.com/nasa/CCDD>
+  - DTNTools: Python-based suite designed to independently test a BPv7 RFC-9171 implementation at <https://github.com/nasa/dtn-tools>
   - Perfutils-java: Java based performance analyzer for cFS at <https://github.com/nasa/perfutils-java>
   - gen_sch_tbl: Tool to generated SCH app tables at <https://github.com/nasa/gen_sch_tbl>
   - CryptoLib: Software-only CCSDS Space Data Link Security Protocol - Extended Procedures (SDLS-EP) at <https://github.com/nasa/CryptoLib>
