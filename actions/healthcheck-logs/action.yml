@@ -1,0 +1,59 @@
+name: Check QEMU cFS Virtual Machine
+description: 'Checks boot completion and obtains IP address of virtual machine'
+
+inputs:
+  container-id:
+    description: "Docker container ID"
+    required: true
+  healthcheck-regex:
+    description: 'String to grep for to identify successful boot'
+    required: true
+  ssh-keyscan:
+    description: 'Whether to execute ssh-keyscan, enable if VM has an SSH server'
+    required: false
+    default: 'false'
+
+outputs:
+  ip-addr:
+    description: "Docker container IP address"
+    value: ${{ steps.query-ip-addr.outputs.addr }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Check for boot completion
+      shell: bash
+      run: |
+        count=0
+        docker logs "${{ inputs.container-id }}" > ${{ inputs.container-id }}_logs.txt
+        while [ $count -lt 30 ] && ! grep -q '${{ inputs.healthcheck-regex }}' ${{ inputs.container-id }}_logs.txt
+        do
+          sleep 2
+          count=$(($count+1))
+          docker logs "${{ inputs.container-id }}" > ${{ inputs.container-id }}_logs.txt
+        done
+        echo "Boot log after ${count} iterations:"
+        cat ${{ inputs.container-id }}_logs.txt
+        grep -q '${{ inputs.healthcheck-regex }}' ${{ inputs.container-id }}_logs.txt
+
+    - name: Get IP address of container
+      shell: bash
+      id: query-ip-addr
+      run: |
+        IP_ADDR=$(docker inspect "${{ inputs.container-id }}" \
+          --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}')
+        echo "addr=$IP_ADDR" >> $GITHUB_OUTPUT
+        echo "Container IP: $IP_ADDR"
+
+    - name: Get SSH key
+      if: fromJSON(inputs.ssh-keyscan)
+      shell: bash
+      run: |
+        mkdir -p ~/.ssh
+        chmod 0700 ~/.ssh
+        touch ~/.ssh/known_hosts
+        chmod 0600 ~/.ssh/known_hosts
+        IP_ADDR=$(docker inspect "${{ inputs.container-id }}" \
+          --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}')
+        ssh-keyscan -p 2222 "$IP_ADDR" | tee -a ~/.ssh/known_hosts
+        cat ~/.ssh/known_hosts

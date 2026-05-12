@@ -1,13 +1,13 @@
 name: Format Check
 
-# Run on all push and pull requests
 on:
+  workflow_call:
   pull_request:
     types:
       - opened
       - reopened
       - synchronize
-  workflow_call:
+  workflow_dispatch:
 
 # Force bash to apply pipefail option so pipeline failures aren't masked
 defaults:
@@ -36,39 +36,39 @@ jobs:
     if: ${{ needs.check-for-duplicates.outputs.should_skip != 'true' }}
     runs-on: ubuntu-22.04
     timeout-minutes: 15
+    container: ghcr.io/core-flight-system/cfsbuildenv-linux:latest
 
     steps:
-      - name: Install format checker
-        run: |
-          sudo apt-get update && sudo apt-get install clang-format
-
-      - name: Checkout bundle
-        uses: actions/checkout@v4
-        with:
-          repository: nasa/cFS
-
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           path: repo
 
-      - name: Generate format differences
-        run: |
-          cd repo
-          find . -name "*.[ch]" -exec clang-format -i -style=file {} +
-          git diff > $GITHUB_WORKSPACE/style_differences.txt
+      - name: Get style from bundle
+        run: curl -fsL ${{ github.server_url }}/nasa/cFS/raw/refs/heads/dev/.clang-format > $GITHUB_WORKSPACE/clang-format.yml
 
-      - name: Archive Static Analysis Artifacts
-        uses: actions/upload-artifact@v4
+      - name: Check configuration
+        run: clang-format-19 -style=file:$GITHUB_WORKSPACE/clang-format.yml --dump-config
+
+      - name: Execute clang-format
+        run: find ./repo -type f -name "*.[ch]" -print0 | xargs -0 clang-format-19 -style=file:$GITHUB_WORKSPACE/clang-format.yml -i
+
+      - name: Check for differences
+        run: (cd repo && git diff --exit-code HEAD) | tee $GITHUB_WORKSPACE/style_differences.txt
+
+      # If there are no diffs, this will be a 0 byte file and no need to archive it
+      # Otherwise if there was a failure the file should be non-empty
+      - name: Archive difference artifacts
+        if: failure()
+        uses: actions/upload-artifact@v7
         with:
           name: style_differences
           path: style_differences.txt
 
   check-commit-message:
     name: Check Commit Message
-    needs: check-for-duplicates
     # Only run for pull-requests.
-    if: ${{ github.event_name == 'pull_request' }}
+    if: ${{ github.event_name == 'pull_request' && !startsWith(github.head_ref, 'ic-') }}
     runs-on: ubuntu-22.04
     timeout-minutes: 15
     steps:
@@ -77,8 +77,8 @@ jobs:
         uses: gsactions/commit-message-checker@v2
         if: always()
         with:
-          pattern: '^((Fix|HotFix|Part)\s\#[0-9]+,\s[a-zA-Z0-9]+|Merge\spull\srequest\s\#[0-9]+\s[a-zA-Z0-9]+|IC:\s[a-zA-Z0-9]+)'
-          error: 'You need at least one "Fix|HotFix|Part #<issue number>, <short description>" line in the commit message.'
+          pattern: '^((Fix|HotFix|Part|Issue|Ticket)\s(nasa/)?[a-zA-Z]*\#[0-9]+[,:]\s[a-zA-Z0-9]+|Merge\spull\srequest\s\#[0-9]+\s[a-zA-Z0-9]+|IC:\s[a-zA-Z0-9]+)'
+          error: 'You need at least one "Fix|HotFix|Part|Issue|Ticket #<issue number><,|:> <short description>" line in the commit message.'
           excludeDescription: 'true'
           excludeTitle: 'true'
           checkAllCommitMessages: 'true'

@@ -1,21 +1,15 @@
 name: "CodeQL Analysis: cFS-Bundle"
 
+# There are still some bugs with this workflow, so keeping
+# it as manual dispatch for now until they can be fixed.
 on:
-  push:
-    branches:
-      - dev
-      - main
-  pull_request:
-    types:
-      - opened
-      - reopened
-      - synchronize
   workflow_dispatch:
 
 jobs:
   codeql:
-    uses: nasa/cFS/.github/workflows/codeql-reusable.yml@main
+    uses: ./.github/workflows/codeql-reusable.yml
     with:
       component-path: cFS
-      make: make -j8
+      prep: make native_std.prep
+      make: make native_std.install
       test: true

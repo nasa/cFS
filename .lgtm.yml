@@ -17,8 +17,5 @@ extraction:
   cpp:
     index:
       build_command:
-      - "cp cfe/cmake/Makefile.sample Makefile"
-      - "cp -r cfe/cmake/sample_defs sample_defs"
-      - "make OMIT_DEPRECATED=true prep"
-      - "make"
+      - "make native_std.install"
 

@@ -1,0 +1,24 @@
+name: Stop QEMU cFS Virtual Machine
+description: 'Stops a QEMU virtual machine'
+
+inputs:
+  container-id:
+    description: "Docker container ID"
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Stop container
+      if: inputs.container-id != ''
+      shell: bash
+      run: docker stop "${{ inputs.container-id }}"
+
+    - name: Remove container
+      if: inputs.container-id != ''
+      shell: bash
+      run: docker rm "${{ inputs.container-id }}"
+
+    - name: List Containers
+      shell: bash
+      run: docker ps -a

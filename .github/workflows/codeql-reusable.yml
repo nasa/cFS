@@ -11,6 +11,12 @@ on:
         default: cFS
 
       # Optional inputs
+      app-name:
+        description: Application name, if different from repo name
+        type: string
+        required: false
+        default: ${{ github.event.repository.name }}
+
       category:
         description: 'Analysis Category'
         required: false
@@ -31,14 +37,21 @@ on:
       setup:
         description: 'Build Prep Commands'
         type: string
-        default: cp ./cfe/cmake/Makefile.sample Makefile && cp -r ./cfe/cmake/sample_defs sample_defs
+        default: ''
         required: false
 
       test:
         description: 'Value for ENABLE_UNIT_TESTS flag'
         type: string
-        default: false
+        default: 'false'
         required: false
+
+      dependency:
+        description: Additional module/library that this app depends on
+        type: string
+        required: false
+        default: ''
+
 
 # Force bash to apply pipefail option so pipeline failures aren't masked
 defaults:
@@ -48,8 +61,8 @@ defaults:
 env:
   SIMULATION: native
   ENABLE_UNIT_TESTS: ${{inputs.test}}
-  OMIT_DEPRECATED: true
-  BUILDTYPE: release
+  OMIT_DEPRECATED: false
+  BUILDTYPE: debug
   REPO: ${{github.event.repository.name}}
 
 jobs:
@@ -72,6 +85,7 @@ jobs:
     needs: check-for-duplicates
     if: ${{ needs.check-for-duplicates.outputs.should_skip != 'true' }}
     runs-on: ubuntu-22.04
+    container: ghcr.io/core-flight-system/cfsbuildenv-linux:latest
     timeout-minutes: 15
 
     strategy:
@@ -83,40 +97,52 @@ jobs:
       security-events: write
 
     steps:
-      # Setup Bundle directory
-      - name: Setup cFS-Bundle directory (component-path = cFS)
-        if: inputs.component-path == 'cFS'
-        run:
-          echo "BUILD_DIRECTORY=${{github.workspace}}" >> $GITHUB_ENV
+      # For apps
+      - name: Set up app source
+        if: contains(inputs.component-path, 'apps')
+        uses: nasa/cFS/actions/setup-app@dev
+        with:
+          app-name: ${{ inputs.app-name }}
+          dependency: ${{ inputs.dependency }}
 
-      - name: Setup cFS-Bundle directory (component-path != cFS)
-        if: inputs.component-path != 'cFS'
-        run: |
-          cd ..
-          git clone https://github.com/nasa/cFS.git --recurse-submodules
-          cd cFS
-          echo "BUILD_DIRECTORY=$(pwd)" >> $GITHUB_ENV
-          git log -1 --pretty=oneline
-          git submodule
-          rm -r .git
-          rm -rf ${{ inputs.component-path }}
-          ln -s ${{github.workspace}} ${{ inputs.component-path }}
-
-
-      - name: Checkout ${{ github.repository }}
-        uses: actions/checkout@v4
+      # For osal cFS bundle build, tools, and psp
+      - name: Checkout cFS Bundle
+        if: inputs.component-path == 'osal-bundle' || contains(inputs.component-path, 'tools') || inputs.component-path == 'psp'
+        uses: actions/checkout@v6
         with:
            submodules: recursive
+           repository: nasa/cFS
+           ref: dev
 
-        # Setup the build system
-      - name: cFS Build Setup
+      # For cFS bundle, cFE, osal
+      - name: Checkout Current Repo
+        if: "!contains(inputs.component-path, 'apps')"
+        uses: actions/checkout@v6
+        with:
+           submodules: recursive
+           path: ${{ inputs.component-path == 'osal-bundle' && 'osal' || (inputs.component-path != 'cFS' && inputs.component-path != 'osal' && inputs.component-path || '') }}
+
+      # For cFE
+      - name: Set up cFE
+        if: inputs.component-path == 'cfe'
+        uses: nasa/cFE/.github/actions/setup-cfe@dev
+        with:
+          source-dir: .
+          preferred-ref: ${{ github.head_ref }}
+          org: nasa
+
+      # For osal
+      - name: Setup Build
+        if: inputs.component-path == 'osal'
         run: |
           ${{ inputs.setup }}
+
+      - name: Prep Build
+        run: |
           ${{ inputs.prep }}
-        working-directory: ${{env.BUILD_DIRECTORY}}
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
+        uses: github/codeql-action/init@v4
         with:
           languages: cpp
           config-file: nasa/cFS/.github/codeql/codeql-${{matrix.scan-type}}.yml@main
@@ -126,9 +152,8 @@ jobs:
         working-directory: ${{env.BUILD_DIRECTORY}}
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
+        uses: github/codeql-action/analyze@v4
         with:
-          add-snippets: true
           category: ${{matrix.scan-type}}
           upload: false
           output: CodeQL-Sarif-${{ matrix.scan-type }}
@@ -139,7 +164,7 @@ jobs:
           sed -i 's/"name" : "CodeQL"/"name" : "CodeQL-${{ matrix.scan-type }}"/g' CodeQL-Sarif-${{ matrix.scan-type }}/Codeql-${{ matrix.scan-type }}.sarif
 
       - name: filter-sarif
-        uses: zbazztian/filter-sarif@master
+        uses: advanced-security/filter-sarif@v1
         with:
             patterns: |
                 -**/*.md
@@ -149,12 +174,19 @@ jobs:
             output: CodeQL-Sarif-${{ matrix.scan-type }}/Codeql-${{ matrix.scan-type }}.sarif
 
       - name: Archive Sarif
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: CodeQL-Sarif-${{ matrix.scan-type }}
           path: CodeQL-Sarif-${{ matrix.scan-type }}
 
       - name: Upload SARIF
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: CodeQL-Sarif-${{ matrix.scan-type }}/Codeql-${{ matrix.scan-type }}.sarif
+          ref: ${{ github.ref }}
+          sha: ${{ github.sha }}
+          checkout_path: ${{ 
+            inputs.component-path == 'osal-bundle' && format('{0}/osal', github.workspace) || 
+            (contains(inputs.component-path, 'apps') || contains(inputs.component-path, 'tools')) && format('{0}/{1}', github.workspace, inputs.component-path) || 
+            github.workspace 
+            }}

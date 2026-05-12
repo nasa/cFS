@@ -1,0 +1,293 @@
+name: Build and execute CFS with multiple configurations
+
+# Run on all pull requests, and pushes in dev and main branches
+on:
+  push:
+    branches:
+      - dev
+      - main
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+  workflow_run:
+    workflows: ['Update CFS bundle']
+    types:
+      - completed
+  workflow_dispatch:
+
+# Force bash to apply pipefail option so pipeline failures aren't masked
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build-docs:
+    strategy:
+      fail-fast: false
+      matrix:
+        config: [ native_std ]
+        doctype: [ detaildesign, usersguide ]
+        include:
+          - doctype: detaildesign
+            path: mission-doc
+          - doctype: usersguide
+            path: cfe-usersguide
+
+    name: Build ${{ matrix.config }}.${{ matrix.doctype }} Documentation
+    runs-on: ubuntu-22.04
+    container: ghcr.io/core-flight-system/cfsbuildenv-doxygen:latest
+    steps:
+      - name: Checkout Bundle
+        uses: actions/checkout@v6
+        with:
+          submodules: true
+
+      - name: Prepare ${{ matrix.config }} Build
+        run: make ${{ matrix.config }}.prep
+
+      - name: Build ${{ matrix.doctype }} documentation
+        run: make ${{ matrix.config }}.${{ matrix.doctype }}
+
+      - name: Set environment
+        run: |
+          echo "FULL_WARNING_LOG=build-${{ matrix.config }}/docs/${{ matrix.path }}/${{ matrix.path }}-warnings.log" >> $GITHUB_ENV
+          echo "SCRUBBED_WARNING_LOG=build-${{ matrix.config }}/${{ matrix.path }}-internal-warnings.log" >> $GITHUB_ENV
+          echo "OTHER_WARNING_LOG=build-${{ matrix.config }}/${{ matrix.path }}-other-warnings.log" >> $GITHUB_ENV
+
+
+      # the intent of this is to separate the warnings into those caused by submodule problems vs those caused
+      # by problems in the configuration files within this bundle repo
+      - name: Scrub warnings
+        run: |
+          grep -Ev "^$GITHUB_WORKSPACE/(apps|libs|cfe|osal|psp|tools)" $FULL_WARNING_LOG > $SCRUBBED_WARNING_LOG || /bin/true
+          grep -E "^$GITHUB_WORKSPACE/(apps|libs|cfe|osal|psp|tools)" $FULL_WARNING_LOG > $OTHER_WARNING_LOG || /bin/true
+
+      # warnings reported in submodules are likely a problem in that submodule.
+      # These can be reported for information but do not fail here.
+      - name: Check for submodule warnings
+        run: |
+          if [ -s "${OTHER_WARNING_LOG}" ]
+          then
+            echo '<h2>Doxygen Warnings in other submodules</h2>' >> $GITHUB_STEP_SUMMARY
+            echo '<pre>' >> $GITHUB_STEP_SUMMARY
+            cat "${OTHER_WARNING_LOG}" >> $GITHUB_STEP_SUMMARY
+            echo '</pre>' >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Check for bundle errors
+        run: |
+          if [ -s "${SCRUBBED_WARNING_LOG}" ]
+          then
+            echo '<h2>Doxygen Errors</h2>' >> $GITHUB_STEP_SUMMARY
+            echo '<pre>' >> $GITHUB_STEP_SUMMARY
+            cat "${SCRUBBED_WARNING_LOG}" >> $GITHUB_STEP_SUMMARY
+            echo '</pre>' >> $GITHUB_STEP_SUMMARY
+            /bin/false
+          fi
+
+  build-cfs:
+    strategy:
+      matrix:
+        include:
+          - config: qemu_yocto_linux
+            build-image: 'ghcr.io/core-flight-system/cfsbuildenv-yocto:latest'
+          - config: native_std
+            build-image: 'ghcr.io/core-flight-system/cfsbuildenv-linux:latest'
+          - config: native_eds
+            build-image: 'ghcr.io/core-flight-system/cfsbuildenv-linux:latest'
+          - config: pc686_rtems5
+            build-image: 'ghcr.io/core-flight-system/cfsbuildenv-rtems5:latest'
+          - config: rpi_linux
+            build-image: 'ghcr.io/core-flight-system/cfsbuildenv-arm-linux:latest'
+          - config: gr712_rtems5
+            build-image: 'ghcr.io/core-flight-system/cfsbuildenv-gaisler-sparc-rcc:latest'
+    name: Build CFS with ${{ matrix.config }} configuration
+    uses: ./.github/workflows/build-cfs-multitarget.yml
+    with:
+      config-name: ${{ matrix.config }}
+      container-image: ${{ matrix.build-image }}
+      compression-type: 'gz'
+    secrets: inherit
+#    continue-on-error: ${{ matrix.omit-deprecated }}
+
+  execute-containers:
+    name: Execute CFS containers
+    permissions:
+      contents: read
+      actions: read
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_HOST: github.com
+      GH_REPO: nasa/cFS
+    needs: build-cfs
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        include:
+          - config: native_std
+            healthcheck-regex: 'CFE_ES_Main entering OPERATIONAL state$'
+            exec-image: ghcr.io/core-flight-system/cfsexec-linux:latest
+            test-procedure: 'trad_le'
+            log-fetch-method: 'direct'
+          - config: native_eds
+            healthcheck-regex: 'CFE_ES_Main entering OPERATIONAL state$'
+            exec-image: ghcr.io/core-flight-system/cfsexec-linux:latest
+            test-procedure: 'eds'
+            log-fetch-method: 'direct'
+          - config: pc686_rtems5
+            healthcheck-regex: 'CFE_ES_Main entering OPERATIONAL state'
+            exec-image: ghcr.io/core-flight-system/cfsexec-qemu:latest
+            test-procedure: 'trad_le'
+            log-fetch-method: 'direct'
+
+    steps:
+      - name: Download artifact from build
+# This alternate download fetches the artifacts from a different run
+# It is useful to skip the build step and go straight to execution- saving lots of time
+#        run: |
+#          echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
+#          gh run download 58922 -p ${{ matrix.config }}-bin
+#          ls -lR .
+        uses: actions/download-artifact@v8
+        with:
+          name: ${{ matrix.config }}-bin
+          path: ${{ matrix.config }}-bin
+
+      - name: Unpack target runtime images
+        run: |
+          ls -lR
+          for tarball in $GITHUB_WORKSPACE/${{ matrix.config }}-bin/*.tar.gz
+          do
+            inst=$(basename ${tarball})
+            echo tarball=${tarball} inst=${inst}
+            inst=${inst%%-*}
+            echo inst=${inst}
+            mkdir -p $GITHUB_WORKSPACE/${inst}
+            gunzip -c ${tarball} | tar xvf - -C $GITHUB_WORKSPACE/${inst}
+          done
+          ls -lR
+
+      - name: Start CPU1 container
+        id: start-cpu1
+        uses: nasa/cFS/actions/start-cfs-container@dev
+        with:
+          binary-dir: ${{ github.workspace }}/cpu1
+          exec-image: ${{ matrix.exec-image }}
+
+      - name: Check CPU1 container
+        id: check-cpu1
+        uses: nasa/cFS/actions/healthcheck-logs@dev
+        with:
+          container-id: ${{ steps.start-cpu1.outputs.container-id }}
+          healthcheck-regex: ${{ matrix.healthcheck-regex }}
+
+      - name: Setup log retrieval via SSH
+        if: matrix.log-fetch-method == 'ssh'
+        shell: bash
+        run: |
+          mkdir -p ~/.ssh
+          chmod 0700 ~/.ssh
+          touch ~/.ssh/known_hosts
+          chmod 0600 ~/.ssh/known_hosts
+          ssh-keyscan -p 2222 ${{ steps.check-cpu1.outputs.ip-addr }} >> ~/.ssh/known_hosts
+          cat ~/.ssh/known_hosts
+          cat > ./fetch_logs.sh << EOF
+          #!/bin/bash
+          ssh -p 2222 root@${{ steps.check-cpu1.outputs.ip-addr }} grep 'user\.notice CFS:' /var/log/messages | sed -e 's/^.*user\.notice CFS: //'
+          EOF
+          chmod +x ./fetch_logs.sh
+          cat ./fetch_logs.sh
+
+      - name: Setup direct log retrieval
+        if: matrix.log-fetch-method == 'direct'
+        shell: bash
+        run: |
+          cat > ./fetch_logs.sh << EOF
+          #!/bin/bash
+          docker logs "${{ steps.start-cpu1.outputs.container-id }}"
+          EOF
+          chmod +x ./fetch_logs.sh
+          cat ./fetch_logs.sh
+
+      - name: Setup Environment
+        if: matrix.log-fetch-method != ''
+        run: |
+          TEST_PROCEDURE=${{ matrix.test-procedure }}
+          CMDSEND_ES_MID=${{ matrix.es-mid }}
+          case "${TEST_PROCEDURE%%_*}" in
+            "eds")
+              CMDSEND_ES_MID_DEFAULT="CFE_ES/Application/CMD"
+              CMDSEND_NOOP_CMDCODE="NoopCmd"
+              CMDSEND_ENDIAN="EDS"
+              ;;
+            "trad")
+              CMDSEND_ES_MID_DEFAULT=0x1806
+              CMDSEND_NOOP_CMDCODE="0"
+              CMDSEND_ENDIAN=$(echo "${TEST_PROCEDURE##*_}" | tr '[a-z]' '[A-Z]')
+              ;;
+          esac
+          echo "CMDSEND_ES_MID=${CMDSEND_ES_MID:-$CMDSEND_ES_MID_DEFAULT}" >> $GITHUB_ENV
+          echo "CMDSEND_NOOP_CMDCODE=${CMDSEND_NOOP_CMDCODE:-0}" >> $GITHUB_ENV
+          echo "CMDSEND_ENDIAN=${CMDSEND_ENDIAN:-LE}" >> $GITHUB_ENV
+          echo "CMDSEND_IP_ADDR=${{ steps.check-cpu1.outputs.ip-addr }}" >> $GITHUB_ENV
+
+      - name: Execute cpu1 test
+        if: env.CMDSEND_IP_ADDR != ''
+        run: |
+          ./host/cmd_send --host=${CMDSEND_IP_ADDR} --endian=${CMDSEND_ENDIAN} --pktid=${CMDSEND_ES_MID} --cmdcode=${CMDSEND_NOOP_CMDCODE}
+
+      - name: Wait for log messages
+        if: env.CMDSEND_IP_ADDR != ''
+        shell: bash
+        run: |
+          count=0
+          truncate -s 0 check-logs.txt
+          while [ $count -lt 30 ] && ! grep -q 'CFE_ES 3: No-op command:' check-logs.txt
+          do
+            sleep 2
+            count=$(($count+1))
+            ./fetch_logs.sh > check-logs.txt
+          done
+          echo "Check completed after ${count} iterations"
+
+      - name: Collect logs
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: 'CFS Log output (${{ matrix.config }})'
+          path: check-logs.txt
+
+      # Note that since other non-CFS items can also log things, this also filters
+      # for the CFS-style timestamp contained in all event and syslog messages from CFE
+      # This should limit the check to errors that are be relevant
+      # The build still has some known issues in a couple apps:
+      #  - the HS system monitor may not initialize depending on platform support
+      #  - SBN does not service the SBNSubPipe well enough, and my get limit/overflow errors
+      # both of these are filtered out here until they can be fixed in the app
+      - name: Check for message in logs
+        if: env.CMDSEND_IP_ADDR != ''
+        shell: bash
+        run: |
+          grep -P '\b\d{4}-\d{3}-\d{2}:\d{2}:\d{2}\.\d+ ' check-logs.txt | \
+            grep -v 'system monitor initialization' | \
+            grep -v 'SBNSubPipe' > cfs-messages.txt
+          grep -i 'warn\|err\|fail' cfs-messages.txt > warnings.txt || /bin/true
+          if [ -s warnings.txt ]
+          then
+            echo "Start up warnings or failures present:"
+            cat warnings.txt
+            /bin/false
+          elif ! grep -q 'CFE_ES 3: No-op command:' cfs-messages.txt
+          then
+            echo "No-op command event missing"
+            cat cfs-messages.txt
+            /bin/false
+          fi
+
+      - name: Stop CPU1 Container
+        if: always() && steps.start-cpu1.outputs.container-id != ''
+        uses: nasa/cFS/actions/stop-cfs-container@dev
+        with:
+          container-id: ${{ steps.start-cpu1.outputs.container-id }}
