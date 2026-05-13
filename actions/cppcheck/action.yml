@@ -17,7 +17,7 @@ inputs:
   cppcheck-xslt-path:
     description: 'Path to XSLT file for translating cppcheck XML output'
     type: string
-    default: 'nasa/cFS/raw/refs/heads/main/.github/scripts'
+    default: 'nasa/cFS/raw/refs/heads/dev/.github/scripts'
   module-path:
     description: 'Path to subdirectory containing subject source files'
     type: string

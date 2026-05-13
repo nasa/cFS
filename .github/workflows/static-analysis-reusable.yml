@@ -1,0 +1,53 @@
+name: Static Analysis Reusable Workflow
+
+on:
+  workflow_call:
+    inputs:
+      # Optional inputs
+      source-dir:
+        description: Directory containing source files
+        type: string
+        default: 'source'
+      strict-dir-list:
+        description: 'Directory List'
+        type: string
+        default: ''
+      cmake-project-options:
+        description: 'Command line options to pass to CMake'
+        type: string
+        default: ''
+      compile-commands-json:
+        description: 'Reference to compile command JSON file'
+        type: string
+        default: ''
+
+# Force bash to apply pipefail option so pipeline failures aren't masked
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  static-analysis:
+    name: Run Static Analysis
+    runs-on: ubuntu-22.04
+    container: ghcr.io/core-flight-system/cfsbuildenv-linux:latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@v6
+        with:
+          path: source
+
+      # Setup the build system
+      - name: Create build tree      
+        if: ${{ inputs.cmake-project-options != '' }}
+        run: cmake ${{ inputs.cmake-project-options }} -S source -B build
+
+      - name: Run cppcheck
+        uses: nasa/cFS/actions/cppcheck@dev
+        id: run-cppcheck
+        with:
+          source-dir: ${{ inputs.source-dir }}
+          strict-dir-list: ${{ inputs.strict-dir-list }}
+          compile-commands-json: ${{ inputs.compile-commands-json }}
