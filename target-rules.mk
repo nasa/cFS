@@ -63,6 +63,11 @@ export CPUNAME
 %/stamp.image: %/stamp.install
 	touch "$(@)"
 
+# Build the COSMOS gem file.  Be sure to pass in the absolute path for $(O)
+%/stamp.gem: %/stamp.prep
+	$(MAKE) --no-print-directory O=$(abspath $(O)) -C tools/cfs-cosmos-plugin gem
+	touch "$(@)"
+
 # Check which tests exist
 # Extract the list of tests and associated commands from JSON
 %/stamp.checktest:  %/stamp.install
