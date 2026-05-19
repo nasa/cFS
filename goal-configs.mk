@@ -56,7 +56,7 @@
 # The "stamp" target names are associated with a file in the build dir to indicate last run time
 # The "nostamp" target names do not have this, and are always executed
 STAMP_GOAL_NAMES     := prep compile install checktest runtest lcov
-CFS_STAMP_GOAL_NAMES := detaildesign usersguide osalguide image
+CFS_STAMP_GOAL_NAMES := detaildesign usersguide osalguide image gem
 ALL_GOAL_NAMES       := $(STAMP_GOAL_NAMES) $(CFS_STAMP_GOAL_NAMES)
 
 # This file must define CONFIG_NAMES and all other per-config vars
