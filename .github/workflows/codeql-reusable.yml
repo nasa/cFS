@@ -74,7 +74,7 @@ jobs:
       should_skip: ${{ steps.skip_check.outputs.should_skip }}
     steps:
       - id: skip_check
-        uses: fkirc/skip-duplicate-actions@master
+        uses: fkirc/skip-duplicate-actions@04a1aebece824b56e6ad6a401d015479cd1c50b3 # master
         with:
           concurrent_skipping: 'same_content'
           skip_after_successful_duplicate: 'true'
@@ -164,7 +164,7 @@ jobs:
           sed -i 's/"name" : "CodeQL"/"name" : "CodeQL-${{ matrix.scan-type }}"/g' CodeQL-Sarif-${{ matrix.scan-type }}/Codeql-${{ matrix.scan-type }}.sarif
 
       - name: filter-sarif
-        uses: advanced-security/filter-sarif@v1
+        uses: advanced-security/filter-sarif@f3b8118a9349d88f7b1c0c488476411145b6270d # v1
         with:
             patterns: |
                 -**/*.md

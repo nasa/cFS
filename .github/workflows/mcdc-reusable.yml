@@ -33,7 +33,7 @@ jobs:
       should_skip: ${{ steps.skip_check.outputs.should_skip }}
     steps:
       - id: skip_check
-        uses: fkirc/skip-duplicate-actions@master
+        uses: fkirc/skip-duplicate-actions@04a1aebece824b56e6ad6a401d015479cd1c50b3 # master
         with:
           concurrent_skipping: 'same_content'
           skip_after_successful_duplicate: 'false'
@@ -145,7 +145,7 @@ jobs:
 
       - name: Download latest main branch artifact
         continue-on-error: true
-        uses: dawidd6/action-download-artifact@v2
+        uses: dawidd6/action-download-artifact@268677152d06ba59fcec7a7f0b5d961b6ccd7e1e # v2
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow: mcdc.yml
