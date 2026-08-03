@@ -31,6 +31,8 @@ Closes #
 
 ## Areas of Expertise Touched
 
+<!-- Check all that apply so the appropriate Experts can be tagged as reviewers. -->
+<!-- See the expertise tags in the "cFS Dev Team" Teams channel or ask your team lead to help identify experts. -->
 - [ ] ASTRO
 - [ ] CI/CD
 - [ ] COSMOS
@@ -65,10 +67,9 @@ Closes #
 ## Reviewer Checklist
 
 - [ ] Code logic is correct and matches the stated intent
-- [ ] Code is readable, maintainable, and follows project conventions
+- [ ] Code is readable, maintainable, and follows project conventions (ask your lead if you are unsure of where to find these conventions)
 - [ ] `.clang-format` has been applied
 - [ ] Static analysis results reviewed and acceptable
-- [ ] Unit tests are meaningful and adequately cover the changes
 - [ ] **The change has been exercised by the unit tests** (not just that tests pass — the new/changed code paths are actually covered)
 - [ ] **COSMOS test suite was executed against this change** and results reviewed (or confirmed N/A with justification)
 - [ ] **Reviewer has independently verified the change behaves as described** (e.g., by running the tests locally, reviewing CI output in detail, or performing additional ad-hoc testing as warranted)
