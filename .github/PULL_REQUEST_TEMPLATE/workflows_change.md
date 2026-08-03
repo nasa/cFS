@@ -14,6 +14,8 @@ Closes #
 
 ## Areas of Expertise Touched
 
+<!-- Check all that apply so the appropriate Experts can be tagged as reviewers. -->
+<!-- See the expertise tags in the "cFS Dev Team" Teams channel or ask your team lead to help identify experts. -->
 - [ ] ASTRO
 - [ ] CI/CD
 - [ ] COSMOS
