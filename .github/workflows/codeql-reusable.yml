@@ -134,12 +134,16 @@ jobs:
       # For osal
       - name: Setup Build
         if: inputs.component-path == 'osal'
+        env:
+          INPUT_SETUP: ${{ inputs.setup }}
         run: |
-          ${{ inputs.setup }}
+          bash -e -o pipefail -c "$INPUT_SETUP"
 
       - name: Prep Build
+        env:
+          INPUT_PREP: ${{ inputs.prep }}
         run: |
-          ${{ inputs.prep }}
+          bash -e -o pipefail -c "$INPUT_PREP"
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v4
@@ -148,7 +152,9 @@ jobs:
           config-file: nasa/cFS/.github/codeql/codeql-${{matrix.scan-type}}.yml@main
 
       - name: Build
-        run: ${{ inputs.make }}
+        env:
+          INPUT_MAKE: ${{ inputs.make }}
+        run: bash -e -o pipefail -c "$INPUT_MAKE"
         working-directory: ${{env.BUILD_DIRECTORY}}
 
       - name: Perform CodeQL Analysis
@@ -159,9 +165,11 @@ jobs:
           output: CodeQL-Sarif-${{ matrix.scan-type }}
 
       - name: Rename Sarif
+        env:
+          MATRIX_SCAN_TYPE: ${{ matrix.scan-type }}
         run: |
-          mv CodeQL-Sarif-${{ matrix.scan-type }}/cpp.sarif CodeQL-Sarif-${{ matrix.scan-type }}/Codeql-${{ matrix.scan-type }}.sarif
-          sed -i 's/"name" : "CodeQL"/"name" : "CodeQL-${{ matrix.scan-type }}"/g' CodeQL-Sarif-${{ matrix.scan-type }}/Codeql-${{ matrix.scan-type }}.sarif
+          mv "CodeQL-Sarif-${MATRIX_SCAN_TYPE}/cpp.sarif" "CodeQL-Sarif-${MATRIX_SCAN_TYPE}/Codeql-${MATRIX_SCAN_TYPE}.sarif"
+          sed -i "s/\"name\" : \"CodeQL\"/\"name\" : \"CodeQL-${MATRIX_SCAN_TYPE}\"/g" "CodeQL-Sarif-${MATRIX_SCAN_TYPE}/Codeql-${MATRIX_SCAN_TYPE}.sarif"
 
       - name: filter-sarif
         uses: advanced-security/filter-sarif@v1

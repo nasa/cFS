@@ -89,9 +89,11 @@ jobs:
         run: make -C build osal_public_api_headerlist
 
       - name: Build Document
+        env:
+          MATRIX_TARGET: ${{ matrix.target }}
         run: |
-          make -C build ${{ matrix.target }} 2>&1 > ${{ matrix.target }}_stdout.txt | tee ${{ matrix.target }}_stderr.txt
-          mv build/docs/${{ matrix.target }}/${{ matrix.target }}-warnings.log .
+          make -C build "$MATRIX_TARGET" 2>&1 > "${MATRIX_TARGET}_stdout.txt" | tee "${MATRIX_TARGET}_stderr.txt"
+          mv "build/docs/${MATRIX_TARGET}/${MATRIX_TARGET}-warnings.log" .
 
       - name: Archive Document Build Logs
         uses: actions/upload-artifact@v7
@@ -103,31 +105,37 @@ jobs:
             ${{ matrix.target }}-warnings.log
 
       - name: Check For Document Build Errors
+        env:
+          MATRIX_TARGET: ${{ matrix.target }}
         run: |
-          if [[ -s ${{ matrix.target }}_stderr.txt ]]; then
-            cat ${{ matrix.target }}_stderr.txt
+          if [[ -s "${MATRIX_TARGET}_stderr.txt" ]]; then
+            cat "${MATRIX_TARGET}_stderr.txt"
             exit 1
           fi
 
       - name: Check For Document Warnings
+        env:
+          MATRIX_TARGET: ${{ matrix.target }}
         run: |
-          if [[ -s ${{ matrix.target }}-warnings.log ]]; then
-            cat ${{ matrix.target }}-warnings.log
+          if [[ -s "${MATRIX_TARGET}-warnings.log" ]]; then
+            cat "${MATRIX_TARGET}-warnings.log"
             exit 1
           fi
 
       - name: Generate PDF
         if: ${{ inputs.buildpdf == true }}
+        env:
+          MATRIX_TARGET: ${{ matrix.target }}
         run: |
-          if ! make LATEX_CMD="pdflatex -file-line-error -halt-on-error" -C ./build/docs/${{ matrix.target }}/latex > pdflatex.log; then
+          if ! make LATEX_CMD="pdflatex -file-line-error -halt-on-error" -C "./build/docs/${MATRIX_TARGET}/latex" > pdflatex.log; then
             echo "Errors reported, tail of latex output follows"
             tail -100 pdflatex.log
             exit -1
           fi
           mkdir -p deploy
-          mv ./build/docs/${{ matrix.target }}/latex/refman.pdf ./deploy/${{ matrix.target }}.pdf
+          mv "./build/docs/${MATRIX_TARGET}/latex/refman.pdf" "./deploy/${MATRIX_TARGET}.pdf"
           # Could add pandoc and convert to github markdown
-          # pandoc ${{ matrix.target }}.pdf -t gfm
+          # pandoc ${MATRIX_TARGET}.pdf -t gfm
 
       - name: Archive PDF
         if: ${{ inputs.buildpdf == true }}

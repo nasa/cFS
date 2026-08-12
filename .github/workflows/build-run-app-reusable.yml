@@ -69,11 +69,13 @@ jobs:
           enable-eds: ${{ inputs.enable-eds }}
 
       - name: Set up start string for verification
+        env:
+          INPUT_STARTUP_STRING: ${{ inputs.startup-string }}
         run: |
-          if [[ "${{ inputs.startup-string }}" == '' ]]; then
+          if [[ "${INPUT_STARTUP_STRING}" == '' ]]; then
             echo "START_STRING=$APP_UPPER Initialized." >> $GITHUB_ENV
           else
-            echo "START_STRING=${{ inputs.startup-string }}" >> $GITHUB_ENV
+            echo "START_STRING=${INPUT_STARTUP_STRING}" >> $GITHUB_ENV
           fi
 
       - name: Create startup script generator
@@ -98,7 +100,9 @@ jobs:
         run: cmake -DEXCLUDE=$APP_LOWER -P generate_startup_script.cmake 2>&1 | tee -a ${GITHUB_WORKSPACE}/generated_cfe_es_startup.scr
 
       - name: Add subject app to startup script
-        run: echo "CFE_APP, $APP_LOWER, ${APP_UPPER}_${{ inputs.app-entrypoint-suffix }}, $APP_UPPER, 80, 16384, 0x0, 0;" >> ${GITHUB_WORKSPACE}/generated_cfe_es_startup.scr
+        env:
+          INPUT_APP_ENTRYPOINT_SUFFIX: ${{ inputs.app-entrypoint-suffix }}
+        run: echo "CFE_APP, $APP_LOWER, ${APP_UPPER}_${INPUT_APP_ENTRYPOINT_SUFFIX}, $APP_UPPER, 80, 16384, 0x0, 0;" >> ${GITHUB_WORKSPACE}/generated_cfe_es_startup.scr
 
       - name: Check startup script
         if: always()
@@ -145,13 +149,16 @@ jobs:
         run: ls -lR .
 
       - name: Unpack artifacts
+        env:
+          INPUT_APP_NAME: ${{ inputs.app-name }}
+          MATRIX_VARIANT: ${{ matrix.variant }}
         run: |
           for i in cpu1 host lib
           do
-            tarball="$GITHUB_WORKSPACE/${{ inputs.app-name }}-bin${{ env.BUILD_TAG }}/$i-bin.tar.xz"
+            tarball="$GITHUB_WORKSPACE/${INPUT_APP_NAME}-bin${BUILD_TAG}/$i-bin.tar.xz"
             if [ -e "$tarball" ]; then
-              mkdir -p "${{ matrix.variant }}/$i"
-              tar Jxv -C "${{ matrix.variant }}/$i" -f "$tarball"
+              mkdir -p "${MATRIX_VARIANT}/$i"
+              tar Jxv -C "${MATRIX_VARIANT}/$i" -f "$tarball"
             fi
           done
 
@@ -178,8 +185,10 @@ jobs:
       - name: Get IP address of host container
         shell: bash
         id: query-local-ip-addr
+        env:
+          STEP_CHECK_CPU1_IP_ADDR: ${{ steps.check-cpu1.outputs.ip-addr }}
         run: |
-          cont_ip=${{ steps.check-cpu1.outputs.ip-addr }}
+          cont_ip="${STEP_CHECK_CPU1_IP_ADDR}"
           for ip in $(hostname -I)
           do
             first_ip=${first_ip:-${ip}}
@@ -196,33 +205,45 @@ jobs:
       - name: Execute Test Script (EDS)
         if: ${{ matrix.variant == 'eds' && steps.check-cpu1.outputs.ip-addr != '' }}
         working-directory: ${{ matrix.variant }}/host
+        env:
+          MATRIX_VARIANT: ${{ matrix.variant }}
+          STEP_CHECK_CPU1_IP_ADDR: ${{ steps.check-cpu1.outputs.ip-addr }}
+          STEP_QUERY_LOCAL_IP_ADDR_ADDR: ${{ steps.query-local-ip-addr.outputs.addr }}
+          INPUT_APP_NAME: ${{ inputs.app-name }}
         run: |
-          export LD_LIBRARY_PATH=${GITHUB_WORKSPACE}/${{ matrix.variant }}/lib
-          export PYTHONPATH=${GITHUB_WORKSPACE}/${{ matrix.variant }}/lib/python
+          export LD_LIBRARY_PATH=${GITHUB_WORKSPACE}/${MATRIX_VARIANT}/lib
+          export PYTHONPATH=${GITHUB_WORKSPACE}/${MATRIX_VARIANT}/lib/python
           ./runtest.py --instance-name 'cpu1' \
-            --remote-addr '${{ steps.check-cpu1.outputs.ip-addr }}:1234' \
-            --local-addr '${{ steps.query-local-ip-addr.outputs.addr }}:2234' \
+            --remote-addr "${STEP_CHECK_CPU1_IP_ADDR}:1234" \
+            --local-addr "${STEP_QUERY_LOCAL_IP_ADDR_ADDR}:2234" \
             --mission-name 'githubactions' \
-            '${{ inputs.app-name }}' 'test_aliveness'
+            "${INPUT_APP_NAME}" 'test_aliveness'
           sleep 2
 
       - name: Shut down CFE (STD)
         if: ${{ matrix.variant == 'std' && steps.check-cpu1.outputs.ip-addr != '' }}
         working-directory: ${{ matrix.variant }}/host
+        env:
+          STEP_CHECK_CPU1_IP_ADDR: ${{ steps.check-cpu1.outputs.ip-addr }}
         run: |
-          ./cmd_send -v --host=${{ steps.check-cpu1.outputs.ip-addr }} --endian=LE --pktid=0x1806 --cmdcode=2 --half=0x0002
+          ./cmd_send -v --host="${STEP_CHECK_CPU1_IP_ADDR}" --endian=LE --pktid=0x1806 --cmdcode=2 --half=0x0002
           sleep 2
 
       - name: Shut down CFE (EDS)
         if: ${{ matrix.variant == 'eds' && steps.check-cpu1.outputs.ip-addr != '' }}
         working-directory: ${{ matrix.variant }}/host
+        env:
+          STEP_CHECK_CPU1_IP_ADDR: ${{ steps.check-cpu1.outputs.ip-addr }}
         run: |
-          ./cmd_send -v --host=${{ steps.check-cpu1.outputs.ip-addr }} --endian=EDS --pktid=CFE_ES/Application/CMD --cmdcode=RestartCmd RestartType=2
+          ./cmd_send -v --host="${STEP_CHECK_CPU1_IP_ADDR}" --endian=EDS --pktid=CFE_ES/Application/CMD --cmdcode=RestartCmd RestartType=2
           sleep 2
 
       - name: Capture Logs
         if: ${{ always() && steps.start-cpu1.outputs.container-id != '' }}
-        run: docker logs ${{ steps.start-cpu1.outputs.container-id }} > ${{ matrix.variant }}/cFS_startup_cpu1.txt
+        env:
+          STEP_START_CPU1_CONTAINER_ID: ${{ steps.start-cpu1.outputs.container-id }}
+          MATRIX_VARIANT: ${{ matrix.variant }}
+        run: docker logs "$STEP_START_CPU1_CONTAINER_ID" > "${MATRIX_VARIANT}/cFS_startup_cpu1.txt"
 
       - name: Stop CPU1 Container
         #if: ${{ always() && steps.start-cpu1.outputs.container-id != '' }}
@@ -238,21 +259,25 @@ jobs:
           path: ${{ matrix.variant }}/cFS_startup_cpu1.txt
 
       - name: Confirm startup string
+        env:
+          MATRIX_VARIANT: ${{ matrix.variant }}
         run: |
-          if [[ -z $(grep "$START_STRING" ${{ matrix.variant }}/cFS_startup_cpu1.txt) ]]; then
+          if [[ -z $(grep "$START_STRING" "${MATRIX_VARIANT}/cFS_startup_cpu1.txt") ]]; then
             echo "Startup verification string not found in log: $START_STRING"
             echo ""
             echo "Possible related event messages:"
-            grep "/$APP_UPPER " ${{ matrix.variant }}/cFS_startup_cpu1.txt
+            grep "/$APP_UPPER " "${MATRIX_VARIANT}/cFS_startup_cpu1.txt"
             exit -1
           fi
 
       - name: Check for cFS Warnings
         if: success() || failure()
+        env:
+          MATRIX_VARIANT: ${{ matrix.variant }}
         run: |
-          if [[ -n $(grep -i "warn\|err\|fail" ${{ matrix.variant }}/cFS_startup_cpu1.txt) ]]; then
+          if [[ -n $(grep -i "warn\|err\|fail" "${MATRIX_VARIANT}/cFS_startup_cpu1.txt") ]]; then
                   echo "cFS startup warn|err|fail:"
                   echo ""
-                  grep -i 'warn\|err\|fail' ${{ matrix.variant }}/cFS_startup_cpu1.txt
+                  grep -i 'warn\|err\|fail' "${MATRIX_VARIANT}/cFS_startup_cpu1.txt"
                   exit -1
           fi
