@@ -91,7 +91,17 @@ jobs:
       - name: Build Document
         run: |
           make -C build ${{ matrix.target }} 2>&1 > ${{ matrix.target }}_stdout.txt | tee ${{ matrix.target }}_stderr.txt
-          mv build/docs/${{ matrix.target }}/${{ matrix.target }}-warnings.log .
+
+      - name: Filter warnings
+        env:
+          WORKFLOW_REF: ${{ github.workflow_ref }}
+          APP_NAME: ${{ inputs.app-name }}
+          IN_FILE: ./build/docs/${{ matrix.target }}/${{ matrix.target }}-warnings.log
+          OUT_FILE: ./${{ matrix.target }}-warnings.log
+        run: |
+          app_path=$(grep -A1 "^${APP_NAME}_MISSION_DIR" build/mission_vars.cache | tail -1 || echo .)
+          echo "filtering warnings by app_path=${app_path}"
+          grep "^${app_path}" "${IN_FILE}" | tee "${OUT_FILE}" || /bin/true
 
       - name: Archive Document Build Logs
         uses: actions/upload-artifact@v7
