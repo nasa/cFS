@@ -23,24 +23,30 @@ runs:
   steps:
     - name: Check for boot completion
       shell: bash
+      env:
+        INPUT_CONTAINER_ID: ${{ inputs.container-id }}
+        INPUT_HEALTHCHECK_REGEX: ${{ inputs.healthcheck-regex }}
       run: |
         count=0
-        docker logs "${{ inputs.container-id }}" > ${{ inputs.container-id }}_logs.txt
-        while [ $count -lt 30 ] && ! grep -q '${{ inputs.healthcheck-regex }}' ${{ inputs.container-id }}_logs.txt
+        LOG_FILE="${INPUT_CONTAINER_ID}_logs.txt"
+        docker logs "$INPUT_CONTAINER_ID" > "$LOG_FILE"
+        while [ $count -lt 30 ] && ! grep -q -- "$INPUT_HEALTHCHECK_REGEX" "$LOG_FILE"
         do
           sleep 2
           count=$(($count+1))
-          docker logs "${{ inputs.container-id }}" > ${{ inputs.container-id }}_logs.txt
+          docker logs "$INPUT_CONTAINER_ID" > "$LOG_FILE"
         done
         echo "Boot log after ${count} iterations:"
-        cat ${{ inputs.container-id }}_logs.txt
-        grep -q '${{ inputs.healthcheck-regex }}' ${{ inputs.container-id }}_logs.txt
+        cat "$LOG_FILE"
+        grep -q -- "$INPUT_HEALTHCHECK_REGEX" "$LOG_FILE"
 
     - name: Get IP address of container
       shell: bash
       id: query-ip-addr
+      env:
+        INPUT_CONTAINER_ID: ${{ inputs.container-id }}
       run: |
-        IP_ADDR=$(docker inspect "${{ inputs.container-id }}" \
+        IP_ADDR=$(docker inspect "${INPUT_CONTAINER_ID}" \
           --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}')
         echo "addr=$IP_ADDR" >> $GITHUB_OUTPUT
         echo "Container IP: $IP_ADDR"
@@ -48,12 +54,14 @@ runs:
     - name: Get SSH key
       if: fromJSON(inputs.ssh-keyscan)
       shell: bash
+      env:
+        INPUT_CONTAINER_ID: ${{ inputs.container-id }}
       run: |
         mkdir -p ~/.ssh
         chmod 0700 ~/.ssh
         touch ~/.ssh/known_hosts
         chmod 0600 ~/.ssh/known_hosts
-        IP_ADDR=$(docker inspect "${{ inputs.container-id }}" \
+        IP_ADDR=$(docker inspect "${INPUT_CONTAINER_ID}" \
           --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}')
         ssh-keyscan -p 2222 "$IP_ADDR" | tee -a ~/.ssh/known_hosts
         cat ~/.ssh/known_hosts

@@ -64,7 +64,7 @@ jobs:
           echo "BUILD_SUBDIR=build/native/default_cpu1/apps/$APP_LOWER" >> $GITHUB_ENV
 
       - name: Fetch MCDC Check Script
-        run: wget -nv -O mcdc-analyze.sh ${{ github.server_url }}/nasa/cFS/raw/refs/heads/dev/.github/scripts/mcdc-analyze.sh
+        run: wget -nv -O mcdc-analyze.sh "${GITHUB_SERVER_URL}/nasa/cFS/raw/refs/heads/dev/.github/scripts/mcdc-analyze.sh"
 
       - name: Include conditional coverage flags
         run: |

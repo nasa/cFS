@@ -45,16 +45,24 @@ jobs:
           submodules: true
 
       - name: Prepare ${{ matrix.config }} Build
-        run: make ${{ matrix.config }}.prep
+        env:
+          MATRIX_CONFIG: ${{ matrix.config }}
+        run: make "${MATRIX_CONFIG}.prep"
 
       - name: Build ${{ matrix.doctype }} documentation
-        run: make ${{ matrix.config }}.${{ matrix.doctype }}
+        env:
+          MATRIX_CONFIG: ${{ matrix.config }}
+          MATRIX_DOCTYPE: ${{ matrix.doctype }}
+        run: make "${MATRIX_CONFIG}.${MATRIX_DOCTYPE}"
 
       - name: Set environment
+        env:
+          MATRIX_CONFIG: ${{ matrix.config }}
+          MATRIX_PATH: ${{ matrix.path }}
         run: |
-          echo "FULL_WARNING_LOG=build-${{ matrix.config }}/docs/${{ matrix.path }}/${{ matrix.path }}-warnings.log" >> $GITHUB_ENV
-          echo "SCRUBBED_WARNING_LOG=build-${{ matrix.config }}/${{ matrix.path }}-internal-warnings.log" >> $GITHUB_ENV
-          echo "OTHER_WARNING_LOG=build-${{ matrix.config }}/${{ matrix.path }}-other-warnings.log" >> $GITHUB_ENV
+          echo "FULL_WARNING_LOG=build-${MATRIX_CONFIG}/docs/${MATRIX_PATH}/${MATRIX_PATH}-warnings.log" >> $GITHUB_ENV
+          echo "SCRUBBED_WARNING_LOG=build-${MATRIX_CONFIG}/${MATRIX_PATH}-internal-warnings.log" >> $GITHUB_ENV
+          echo "OTHER_WARNING_LOG=build-${MATRIX_CONFIG}/${MATRIX_PATH}-other-warnings.log" >> $GITHUB_ENV
 
 
       # the intent of this is to separate the warnings into those caused by submodule problems vs those caused
@@ -156,9 +164,11 @@ jobs:
           path: ${{ matrix.config }}-bin
 
       - name: Unpack target runtime images
+        env:
+          MATRIX_CONFIG: ${{ matrix.config }}
         run: |
           ls -lR
-          for tarball in $GITHUB_WORKSPACE/${{ matrix.config }}-bin/*.tar.gz
+          for tarball in $GITHUB_WORKSPACE/${MATRIX_CONFIG}-bin/*.tar.gz
           do
             inst=$(basename ${tarball})
             echo tarball=${tarball} inst=${inst}
@@ -186,16 +196,18 @@ jobs:
       - name: Setup log retrieval via SSH
         if: matrix.log-fetch-method == 'ssh'
         shell: bash
+        env:
+          STEP_CHECK_CPU1_IP_ADDR: ${{ steps.check-cpu1.outputs.ip-addr }}
         run: |
           mkdir -p ~/.ssh
           chmod 0700 ~/.ssh
           touch ~/.ssh/known_hosts
           chmod 0600 ~/.ssh/known_hosts
-          ssh-keyscan -p 2222 ${{ steps.check-cpu1.outputs.ip-addr }} >> ~/.ssh/known_hosts
+          ssh-keyscan -p 2222 "$STEP_CHECK_CPU1_IP_ADDR" >> ~/.ssh/known_hosts
           cat ~/.ssh/known_hosts
           cat > ./fetch_logs.sh << EOF
           #!/bin/bash
-          ssh -p 2222 root@${{ steps.check-cpu1.outputs.ip-addr }} grep 'user\.notice CFS:' /var/log/messages | sed -e 's/^.*user\.notice CFS: //'
+          ssh -p 2222 "root@${STEP_CHECK_CPU1_IP_ADDR}" grep 'user\.notice CFS:' /var/log/messages | sed -e 's/^.*user\.notice CFS: //'
           EOF
           chmod +x ./fetch_logs.sh
           cat ./fetch_logs.sh
@@ -203,19 +215,25 @@ jobs:
       - name: Setup direct log retrieval
         if: matrix.log-fetch-method == 'direct'
         shell: bash
+        env:
+          STEP_START_CPU1_CONTAINER_ID: ${{ steps.start-cpu1.outputs.container-id }}
         run: |
           cat > ./fetch_logs.sh << EOF
           #!/bin/bash
-          docker logs "${{ steps.start-cpu1.outputs.container-id }}"
+          docker logs "${STEP_START_CPU1_CONTAINER_ID}"
           EOF
           chmod +x ./fetch_logs.sh
           cat ./fetch_logs.sh
 
       - name: Setup Environment
         if: matrix.log-fetch-method != ''
+        env:
+          MATRIX_TEST_PROCEDURE: ${{ matrix.test-procedure }}
+          MATRIX_ES_MID: ${{ matrix.es-mid }}
+          STEP_CHECK_CPU1_IP_ADDR: ${{ steps.check-cpu1.outputs.ip-addr }}
         run: |
-          TEST_PROCEDURE=${{ matrix.test-procedure }}
-          CMDSEND_ES_MID=${{ matrix.es-mid }}
+          TEST_PROCEDURE=${MATRIX_TEST_PROCEDURE}
+          CMDSEND_ES_MID=${MATRIX_ES_MID}
           case "${TEST_PROCEDURE%%_*}" in
             "eds")
               CMDSEND_ES_MID_DEFAULT="CFE_ES/Application/CMD"
@@ -231,7 +249,7 @@ jobs:
           echo "CMDSEND_ES_MID=${CMDSEND_ES_MID:-$CMDSEND_ES_MID_DEFAULT}" >> $GITHUB_ENV
           echo "CMDSEND_NOOP_CMDCODE=${CMDSEND_NOOP_CMDCODE:-0}" >> $GITHUB_ENV
           echo "CMDSEND_ENDIAN=${CMDSEND_ENDIAN:-LE}" >> $GITHUB_ENV
-          echo "CMDSEND_IP_ADDR=${{ steps.check-cpu1.outputs.ip-addr }}" >> $GITHUB_ENV
+          echo "CMDSEND_IP_ADDR=${STEP_CHECK_CPU1_IP_ADDR}" >> $GITHUB_ENV
 
       - name: Execute cpu1 test
         if: env.CMDSEND_IP_ADDR != ''
