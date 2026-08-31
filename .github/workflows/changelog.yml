@@ -18,7 +18,7 @@ jobs:
       - uses: actions/checkout@v6
 
       - name: Run Changelog
-        uses: heinrichreimer/github-changelog-generator-action@v2.1.1
+        uses: heinrichreimer/github-changelog-generator-action@04f64206d10b4f9c882da8157ffc3dfa6ce66b3e # v2.1.1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           issuesLabel: "### Closed issues"
