@@ -117,8 +117,15 @@ jobs:
             path: ./*.tar.${{ inputs.compression-type }}
 
       - name: Run Local Tests
-        if: ${{ inputs.run-local-tests }}
+        if: fromJSON(inputs.run-local-tests)
         run: make ${{ inputs.config-name }}.runtest
+
+      - name: Upload Local Test Logs
+        if: failure() && fromJSON(inputs.run-local-tests)
+        uses: actions/upload-artifact@v7
+        with:
+            name: ${{ inputs.config-name }}-testlogs
+            path: ./build-${{ inputs.config-name }}/test-results/
 
       - name: Generate Coverage Report
         if: ${{ inputs.check-coverage }}
