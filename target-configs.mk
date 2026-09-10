@@ -66,7 +66,7 @@ PREP_OPTS_native_eds += -DEDSLIB_PYTHON_BUILD_STANDALONE_MODULE=ON
 PREP_OPTS_native_eds += -DCFE_MISSIONLIB_PYTHON_BUILD_STANDALONE_MODULE=ON
 PREP_OPTS_native_eds += -DMISSIONCONFIG=sample
 PREP_OPTS_native_eds += -DCMAKE_BUILD_TYPE=debug
-PLATFORM_native_eds  =  default_cpu1
+PLATFORM_native_eds  =  default
 
 ##############
 # RTEMS builds
