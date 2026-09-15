@@ -45,7 +45,7 @@ jobs:
           path: repo
 
       - name: Get style from bundle
-        run: curl -fsL ${{ github.server_url }}/nasa/cFS/raw/refs/heads/dev/.clang-format > $GITHUB_WORKSPACE/clang-format.yml
+        run: curl -fsL "${GITHUB_SERVER_URL}/nasa/cFS/raw/refs/heads/dev/.clang-format" > "$GITHUB_WORKSPACE/clang-format.yml"
 
       - name: Check configuration
         run: clang-format-19 -style=file:$GITHUB_WORKSPACE/clang-format.yml --dump-config

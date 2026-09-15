@@ -70,10 +70,14 @@ jobs:
           token: ${{ secrets.GH_PAT || github.token }}
 
       - name: Configure CFS
-        run: make ${{ inputs.config-name }}.prep
+        env:
+          INPUT_CONFIG_NAME: ${{ inputs.config-name }}
+        run: make "${INPUT_CONFIG_NAME}.prep"
 
       - name: Build CFS
-        run: make ${{ inputs.config-name }}.install
+        env:
+          INPUT_CONFIG_NAME: ${{ inputs.config-name }}
+        run: make "${INPUT_CONFIG_NAME}.install"
 
       - name: Configure xz compression
         if: inputs.compression-type == 'xz'
@@ -88,8 +92,10 @@ jobs:
           echo "COMPRESSOR=gzip -c" >> $GITHUB_ENV
 
       - name: Archive binaries
+        env:
+          INPUT_CONFIG_NAME: ${{ inputs.config-name }}
         run: |
-          cd $GITHUB_WORKSPACE/build-${{ inputs.config-name }}/exe
+          cd "$GITHUB_WORKSPACE/build-${INPUT_CONFIG_NAME}/exe"
           find -maxdepth 1 -mindepth 1 -type d | while read dir
           do
             inst=$(basename ${dir})
@@ -97,11 +103,15 @@ jobs:
           done
 
       - name: Build target images
-        run: make IMAGE_TYPE=ext4 ${{ inputs.config-name }}.image
+        env:
+          INPUT_CONFIG_NAME: ${{ inputs.config-name }}
+        run: make IMAGE_TYPE=ext4 "${INPUT_CONFIG_NAME}.image"
 
       - name: Archive target images
+        env:
+          INPUT_CONFIG_NAME: ${{ inputs.config-name }}
         run: |
-          if cd $GITHUB_WORKSPACE/build-${{ inputs.config-name }}/deploy
+          if cd "$GITHUB_WORKSPACE/build-${INPUT_CONFIG_NAME}/deploy"
           then
             find -maxdepth 1 -mindepth 1 -type d | while read dir
             do
@@ -118,8 +128,12 @@ jobs:
 
       - name: Run Local Tests
         if: ${{ inputs.run-local-tests }}
-        run: make ${{ inputs.config-name }}.runtest
+        env:
+          INPUT_CONFIG_NAME: ${{ inputs.config-name }}
+        run: make "${INPUT_CONFIG_NAME}.runtest"
 
       - name: Generate Coverage Report
         if: ${{ inputs.check-coverage }}
-        run: make ${{ inputs.config-name }}.lcov
+        env:
+          INPUT_CONFIG_NAME: ${{ inputs.config-name }}
+        run: make "${INPUT_CONFIG_NAME}.lcov"

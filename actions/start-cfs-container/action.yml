@@ -20,17 +20,22 @@ runs:
   steps:
     - name: Pull CFS container
       shell: bash
-      run: docker pull ${{ inputs.exec-image }}
+      env:
+        INPUT_EXEC_IMAGE: ${{ inputs.exec-image }}
+      run: docker pull "$INPUT_EXEC_IMAGE"
 
     - name: Start cFS execution container
       shell: bash
       id: start-container
+      env:
+        INPUT_BINARY_DIR: ${{ inputs.binary-dir }}
+        INPUT_EXEC_IMAGE: ${{ inputs.exec-image }}
       run: |
         DOCKER_ID=$(docker run -d \
-          -v ${{ inputs.binary-dir }}:${{ inputs.binary-dir }} \
+          -v "${INPUT_BINARY_DIR}:${INPUT_BINARY_DIR}" \
           --sysctl fs.mqueue.msg_max=64 \
-          -w ${{ inputs.binary-dir }} \
-          ${{ inputs.exec-image }} \
+          -w "$INPUT_BINARY_DIR" \
+          "$INPUT_EXEC_IMAGE" \
           ./container-start)
         echo "id=$DOCKER_ID" >> $GITHUB_OUTPUT
         echo "Started Container: $DOCKER_ID"

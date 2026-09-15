@@ -57,10 +57,13 @@ jobs:
     steps:
       - name: Set up environment variables
         # Apps typically use lowercase targets and uppercase names, this logic is fragile but works
+        env:
+          INPUT_APP_NAME: ${{ inputs.app-name }}
+          INPUT_DEPENDENCY: ${{ inputs.dependency }}
         run: |
-          echo "APP_UPPER=$(echo ${{ inputs.app-name }} | sed 's/[a-z]/\U&/g')" >> $GITHUB_ENV
-          echo "APP_LOWER=$(echo ${{ inputs.app-name }} | sed 's/[A-Z]/\L&/g')" >> $GITHUB_ENV
-          APP_DEP="${{ inputs.dependency }}"
+          echo "APP_UPPER=$(echo "$INPUT_APP_NAME" | sed 's/[a-z]/\U&/g')" >> $GITHUB_ENV
+          echo "APP_LOWER=$(echo "$INPUT_APP_NAME" | sed 's/[A-Z]/\L&/g')" >> $GITHUB_ENV
+          APP_DEP="${INPUT_DEPENDENCY}"
           echo "APP_DEP_UPPER=$(echo ${APP_DEP##*/} | sed 's/[a-z]/\U&/g')" >> $GITHUB_ENV
           echo "APP_DEP_LOWER=$(echo ${APP_DEP##*/} | sed 's/[A-Z]/\L&/g')" >> $GITHUB_ENV
 
@@ -131,17 +134,20 @@ jobs:
           genhtml coverage_total.info --branch-coverage --output-directory lcov | tee lcov_out.txt
 
       - name: Confirm minimum coverage
+        env:
+          INPUT_MAX_MISSED_BRANCHES: ${{ inputs.max-missed-branches }}
+          INPUT_MAX_MISSED_LINES: ${{ inputs.max-missed-lines }}
         run: |
           branch_nums=$(grep -A 3 "Overall coverage rate" lcov_out.txt | grep branches | grep -oP "[0-9]+[0-9]*")
           line_nums=$(grep -A 3 "Overall coverage rate" lcov_out.txt | grep lines | grep -oP "[0-9]+[0-9]*")
 
           branch_diff=$(echo $branch_nums | awk '{ print $4 - $3 }')
           line_diff=$(echo $line_nums | awk '{ print $4 - $3 }')
-          if [ $branch_diff -gt ${{ inputs.max-missed-branches }} ] || [ $line_diff -gt ${{ inputs.max-missed-lines }} ]
+          if [ $branch_diff -gt ${INPUT_MAX_MISSED_BRANCHES} ] || [ $line_diff -gt ${INPUT_MAX_MISSED_LINES} ]
           then
             grep -A 3 "Overall coverage rate" lcov_out.txt
-            echo "$branch_diff branches missed, ${{ inputs.max-missed-branches }} allowed"
-            echo "$line_diff lines missed, ${{ inputs.max-missed-lines }} allowed"
+            echo "$branch_diff branches missed, ${INPUT_MAX_MISSED_BRANCHES} allowed"
+            echo "$line_diff lines missed, ${INPUT_MAX_MISSED_LINES} allowed"
             exit -1
           fi
 
