@@ -43,7 +43,7 @@ jobs:
     needs: checks-for-duplicates
     if: needs.checks-for-duplicates.outputs.should_skip != 'true' || contains(github.ref, 'dev') || github.event_name == 'pull_request'
     name: Build and Run MCDC
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     container: ghcr.io/core-flight-system/cfsbuildenv-mcdc:latest
 
     steps:
@@ -133,7 +133,7 @@ jobs:
     needs: mcdc
     if: always() && (github.event_name == 'pull_request' ) && needs.mcdc.result != 'skipped'
     name: Generate MCDC Comparison Summary
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout MCDC Script
