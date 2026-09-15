@@ -36,7 +36,7 @@ jobs:
             path: cfe-usersguide
 
     name: Build ${{ matrix.config }}.${{ matrix.doctype }} Documentation
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     container: ghcr.io/core-flight-system/cfsbuildenv-doxygen:latest
     steps:
       - name: Checkout Bundle
@@ -122,7 +122,7 @@ jobs:
       GH_HOST: github.com
       GH_REPO: nasa/cFS
     needs: build-cfs
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         include:

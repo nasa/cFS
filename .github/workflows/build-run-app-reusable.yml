@@ -56,7 +56,7 @@ jobs:
     needs: checks-for-duplicates
     if: ${{ needs.checks-for-duplicates.outputs.should_skip != 'true' || contains(github.ref, 'main')  || contains(github.ref, 'dev') }}
     name: Build CFE with app
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     container: ghcr.io/core-flight-system/cfsbuildenv-linux:latest
 
     steps:
@@ -122,7 +122,7 @@ jobs:
   run-app:
     needs: build-app
     name: Run CFE with app, check for startup messages (${{ matrix.variant }})
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: true
       matrix:

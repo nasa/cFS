@@ -45,7 +45,7 @@ defaults:
 
 jobs:
   build-cfs:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     container:
       image: ${{ inputs.container-image }}
       # fakeroot runs extremely slow without this limit

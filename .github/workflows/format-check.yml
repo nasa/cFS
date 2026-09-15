@@ -34,7 +34,7 @@ jobs:
     #Continue if check-for-duplicates found no duplicates. Always runs for pull-requests.
     needs: check-for-duplicates
     if: ${{ needs.check-for-duplicates.outputs.should_skip != 'true' }}
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     timeout-minutes: 15
     container: ghcr.io/core-flight-system/cfsbuildenv-linux:latest
 
@@ -69,7 +69,7 @@ jobs:
     name: Check Commit Message
     # Only run for pull-requests.
     if: ${{ github.event_name == 'pull_request' && !startsWith(github.head_ref, 'ic-') }}
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
       # Check each commit message associated with the pull-request against the pattern.
