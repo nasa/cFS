@@ -15,25 +15,8 @@ defaults:
     shell: bash
 
 jobs:
-  #Checks for duplicate actions. Skips push actions if there is a matching or duplicate pull-request action.
-  check-for-duplicates:
-    runs-on: ubuntu-latest
-    # Map a step output to a job output
-    outputs:
-      should_skip: ${{ steps.skip_check.outputs.should_skip }}
-    steps:
-      - id: skip_check
-        uses: fkirc/skip-duplicate-actions@master
-        with:
-          concurrent_skipping: 'same_content'
-          skip_after_successful_duplicate: 'true'
-          do_not_skip: '["pull_request", "workflow_dispatch", "schedule"]'
-
   format-checker:
     name: Run format check
-    #Continue if check-for-duplicates found no duplicates. Always runs for pull-requests.
-    needs: check-for-duplicates
-    if: ${{ needs.check-for-duplicates.outputs.should_skip != 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     container: ghcr.io/core-flight-system/cfsbuildenv-linux:latest
@@ -74,7 +57,7 @@ jobs:
     steps:
       # Check each commit message associated with the pull-request against the pattern.
       - name: Check each commit message
-        uses: gsactions/commit-message-checker@v2
+        uses: core-flight-system/commit-message-checker@main
         if: always()
         with:
           pattern: '^((Fix|HotFix|Part|Issue|Ticket)\s(nasa/)?[a-zA-Z]*\#[0-9]+[,:]\s[a-zA-Z0-9]+|Merge\spull\srequest\s\#[0-9]+\s[a-zA-Z0-9]+|IC:\s[a-zA-Z0-9]+)'
