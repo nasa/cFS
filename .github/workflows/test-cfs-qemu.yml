@@ -109,6 +109,8 @@ jobs:
       config-name: ${{ matrix.config }}
       container-image: ${{ matrix.build-image }}
       compression-type: 'gz'
+      run-local-tests: ${{ startsWith(matrix.config, 'native_') }}
+      check-coverage: ${{ startsWith(matrix.config, 'native_') }}
     secrets: inherit
 #    continue-on-error: ${{ matrix.omit-deprecated }}
 
