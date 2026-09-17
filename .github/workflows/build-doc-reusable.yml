@@ -58,7 +58,7 @@ jobs:
       - name: Get cache if supplied
         id: cache-src-bld
         if: ${{ inputs.cache-key != '' }}
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ${{ env.WORK_PATH }}/
           key: ${{ inputs.cache-key }}
