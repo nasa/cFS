@@ -15,13 +15,13 @@ jobs:
     name: Add issue or pull request to project
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/add-to-project@v1.0.2
+      - uses: actions/add-to-project@v2
         with:
           project-url: ${{ inputs.project-url }}
           github-token: ${{ secrets.ADD_TO_PROJECT_PAT }}
 
       - name: Add pull request to current sprint as to do
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         if: ${{ github.event_name == 'pull_request_target' && github.event.pull_request.draft == false }}
         env:
           PROJECT_URL: ${{ inputs.project-url }}
@@ -217,7 +217,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Remove draft PR from sprint iteration
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         env:
           PROJECT_URL: ${{ inputs.project-url }}
         with:

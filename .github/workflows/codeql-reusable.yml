@@ -66,24 +66,7 @@ env:
   REPO: ${{github.event.repository.name}}
 
 jobs:
-  #Checks for duplicate actions. Skips push actions if there is a matching or duplicate pull-request action.
-  check-for-duplicates:
-    runs-on: ubuntu-latest
-    # Map a step output to a job output
-    outputs:
-      should_skip: ${{ steps.skip_check.outputs.should_skip }}
-    steps:
-      - id: skip_check
-        uses: fkirc/skip-duplicate-actions@master
-        with:
-          concurrent_skipping: 'same_content'
-          skip_after_successful_duplicate: 'true'
-          do_not_skip: '["pull_request", "workflow_dispatch", "schedule"]'
-
   Analysis:
-    #Continue if check-for-duplicates found no duplicates. Always runs for pull-requests.
-    needs: check-for-duplicates
-    if: ${{ needs.check-for-duplicates.outputs.should_skip != 'true' }}
     runs-on: ubuntu-latest
     container: ghcr.io/core-flight-system/cfsbuildenv-linux:latest
     timeout-minutes: 15
@@ -185,8 +168,8 @@ jobs:
           sarif_file: CodeQL-Sarif-${{ matrix.scan-type }}/Codeql-${{ matrix.scan-type }}.sarif
           ref: ${{ github.ref }}
           sha: ${{ github.sha }}
-          checkout_path: ${{ 
-            inputs.component-path == 'osal-bundle' && format('{0}/osal', github.workspace) || 
-            (contains(inputs.component-path, 'apps') || contains(inputs.component-path, 'tools')) && format('{0}/{1}', github.workspace, inputs.component-path) || 
-            github.workspace 
+          checkout_path: ${{
+            inputs.component-path == 'osal-bundle' && format('{0}/osal', github.workspace) ||
+            (contains(inputs.component-path, 'apps') || contains(inputs.component-path, 'tools')) && format('{0}/{1}', github.workspace, inputs.component-path) ||
+            github.workspace
             }}
