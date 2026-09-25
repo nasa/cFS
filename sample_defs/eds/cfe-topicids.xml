@@ -96,8 +96,6 @@
     <Define name="CI_LAB_READ_UPLINK_TOPICID"     value="${CFE_MISSION/TELECOMMAND_BASE_TOPICID} + 134"/>
     <Define name="CI_READ_UPLINK_TOPICID"         value="${CFE_MISSION/TELECOMMAND_BASE_TOPICID} + 134"/>
     <Define name="SAMPLE_APP_WAKEUP_TOPICID"      value="${CFE_MISSION/TELECOMMAND_BASE_TOPICID} + 135"/>
-    <Define name="MM_CMD_TOPICID"                 value="${CFE_MISSION/TELECOMMAND_BASE_TOPICID} + 136"/>
-    <Define name="MM_SEND_HK_TOPICID"             value="${CFE_MISSION/TELECOMMAND_BASE_TOPICID} + 137"/>
     <Define name="FM_CMD_TOPICID"                 value="${CFE_MISSION/TELECOMMAND_BASE_TOPICID} + 140"/>
     <Define name="FM_SEND_HK_TOPICID"             value="${CFE_MISSION/TELECOMMAND_BASE_TOPICID} + 141"/>
     <Define name="MD_CMD_TOPICID"                 value="${CFE_MISSION/TELECOMMAND_BASE_TOPICID} + 144"/>
@@ -149,7 +147,6 @@
     <Define name="SAMPLE_APP_HK_TLM_TOPICID"     value="${CFE_MISSION/TELEMETRY_BASE_TOPICID} + 131"/>
     <Define name="CI_HK_TLM_TOPICID"             value="${CFE_MISSION/TELEMETRY_BASE_TOPICID} + 132"/>
     <Define name="CI_LAB_HK_TLM_TOPICID"         value="${CFE_MISSION/TELEMETRY_BASE_TOPICID} + 132"/>
-    <Define name="MM_HK_TLM_TOPICID"             value="${CFE_MISSION/TELEMETRY_BASE_TOPICID} + 135"/>
     <Define name="FM_HK_TLM_TOPICID"             value="${CFE_MISSION/TELEMETRY_BASE_TOPICID} + 138"/>
     <Define name="FM_FILE_INFO_TLM_TOPICID"      value="${CFE_MISSION/TELEMETRY_BASE_TOPICID} + 139"/>
     <Define name="FM_DIR_LIST_TLM_TOPICID"       value="${CFE_MISSION/TELEMETRY_BASE_TOPICID} + 140"/>

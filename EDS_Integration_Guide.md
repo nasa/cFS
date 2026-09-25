@@ -1255,7 +1255,7 @@ __**Optional files:**__
     #include "ym_eds_dispatcher.h"
     #include "ym_eds_dictionary.h"
     ```
-3. Create a lookup table for MM command codes by referencing ym_cmds.h
+3. Create a lookup table for YM command codes by referencing ym_cmds.h
     ``` C
     /* === C code in ym_cmds.h for module YM === */
 
