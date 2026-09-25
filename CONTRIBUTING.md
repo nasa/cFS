@@ -146,7 +146,6 @@ For issues related to continuous testing workflows or multi-component "epics" st
 - [HS](https://github.com/nasa/HS/issues)
 - [LC](https://github.com/nasa/LC/issues)
 - [MD](https://github.com/nasa/MD/issues)
-- [MM](https://github.com/nasa/MM/issues)
 - [SC](https://github.com/nasa/SC/issues)
 - [SCH](https://github.com/nasa/SCH/issues)
 
@@ -169,7 +168,7 @@ For contributions to the cFS-Framework repositories: [cFE](https://github.com/na
 
 ##### <a name='cFS-AppsCLA'></a>cFS-Apps CLA
 
-For contributions to the cFS Apps repositories [BP](https://github.com/nasa/bp), [CF](https://github.com/nasa/cf), [CS](https://github.com/nasa/cs), [DS](https://github.com/nasa/ds), [FM](https://github.com/nasa/fm), [HK](https://github.com/nasa/HK/), [HS](https://github.com/nasa/HS/), [LC](https://github.com/nasa/LC/), [MD](https://github.com/nasa/MD/), [MM](https://github.com/nasa/MM/), [SC](https://github.com/nasa/SC), [SCH](https://github.com/nasa/SCH)
+For contributions to the cFS Apps repositories [BP](https://github.com/nasa/bp), [CF](https://github.com/nasa/cf), [CS](https://github.com/nasa/cs), [DS](https://github.com/nasa/ds), [FM](https://github.com/nasa/fm), [HK](https://github.com/nasa/HK/), [HS](https://github.com/nasa/HS/), [LC](https://github.com/nasa/LC/), [MD](https://github.com/nasa/MD/), [SC](https://github.com/nasa/SC), [SCH](https://github.com/nasa/SCH)
 
 - [cFS-Apps Corporate CLA](cFS_Apps_Corporate_CLA.pdf)
 

@@ -199,7 +199,6 @@ See the [cFE Application Developer's Guide](https://github.com/nasa/cFE/blob/mai
   - HS: Health and Safety application at <https://github.com/nasa/HS>
   - LC: Limit Checker application at <https://github.com/nasa/LC>
   - MD: Memory Dwell application at <https://github.com/nasa/MD>
-  - MM: Memory Manager application at <https://github.com/nasa/MM>
   - SBN: Software Bus Network application at <https://github.com/nasa/SBN>
   - SC: Stored Commands application at <https://github.com/nasa/SC>
   - SCA: Stored Command Absolute application at <https://github.com/nasa/SCA>

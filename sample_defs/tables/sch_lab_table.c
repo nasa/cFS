@@ -32,7 +32,6 @@
 #include "fm_msgids.h"
 #include "lc_msgids.h"
 #include "cs_msgids.h"
-#include "mm_msgids.h"
 #include "sc_msgids.h"
 #include "ds_msgids.h"
 #include "hk_msgids.h"
@@ -75,7 +74,6 @@ SCH_LAB_ScheduleTable_t SCH_TBL_Structure =
         {CFE_SB_MSGID_WRAP_VALUE(LC_SEND_HK_MID),          70, 0}, /* every 7.0 seconds */
         {CFE_SB_MSGID_WRAP_VALUE(CS_SEND_HK_MID),          72, 0}, /* every 7.1 seconds */
         {CFE_SB_MSGID_WRAP_VALUE(CS_BACKGROUND_CYCLE_MID), 5,  0}, /* every 0.5 seconds (example of 2 Hz packet) */
-        {CFE_SB_MSGID_WRAP_VALUE(MM_SEND_HK_MID),          74, 0}, /* every 7.4 seconds */
         {CFE_SB_MSGID_WRAP_VALUE(HK_SEND_HK_MID),          76, 0}, /* every 7.6 seconds */
 #ifdef CFS_SBN_ENABLED
         {CFE_SB_MSGID_WRAP_VALUE(SBN_CMD_MID),             46, SBN_HK_CC}, /* every 4.6 seconds (matching the SB) */

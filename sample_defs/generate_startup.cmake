@@ -12,7 +12,7 @@ function (generate_cfs_startup_script CFS_INSTALL_DIR)
     )
 
     # the rest of the apps can vary by config
-    set(CFS_APP_STARTUP_ORDER lc cf ds fm hk hs mm sc md cs sbn)
+    set(CFS_APP_STARTUP_ORDER lc cf ds fm hk hs sc md cs sbn)
     foreach(APP ${CFS_APP_STARTUP_ORDER})
         list(FIND ARGN ${APP} SHOULD_START)
         if (SHOULD_START GREATER -1)
