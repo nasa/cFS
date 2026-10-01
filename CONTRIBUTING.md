@@ -31,6 +31,7 @@ So you'd like to contribute to cFS? Below are some guidelines for contributors t
     - [View Workflow Results](#view-workflow-results)
     - [Configure Workflows](#configure-workflows)
     - [cFS Workflows](#cfs-workflows)
+    - [Updating Coverage Thresholds](#updating-coverage-thresholds)
   - [Git Commit Guidelines](#git-commit-guidelines)
     - [Working with git commits](#working-with-git-commits)
 
@@ -261,6 +262,15 @@ or
 #### <a name='cFSWorkflows'></a>cFS Workflows
 
 The cFS testing workflows are found in [.github/workflows](.github/workflows) you can read a summary in the [that directory's README](.github/workflows/README.md).
+
+#### <a name='UpdatingCoverageThresholds'></a>Updating Coverage Thresholds
+
+When adding or improving unit tests that increase code coverage, contributors should update the minimum coverage checks in the corresponding GitHub Actions workflow:
+
+- For apps utilizing the cFS reusable workflow (`.github/workflows/unit-test-coverage-reusable.yml`), update the `max-missed-branches` and `max-missed-lines` input thresholds to match or exceed the newly achieved coverage.
+- For repositories with dedicated coverage workflows (e.g., `code-coverage.yml`), update the `missed_branches` and `missed_lines` enforcement variables.
+
+This practice locks in code coverage gains and prevents future coverage regressions. For an example, refer to [cFE PR #2081](https://github.com/nasa/cFE/pull/2081).
 
 ### <a name='GitCommitGuidelines'></a>Git Commit Guidelines
 
