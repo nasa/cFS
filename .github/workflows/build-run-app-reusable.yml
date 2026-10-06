@@ -110,6 +110,9 @@ jobs:
     needs: build-app
     name: Run CFE with app, check for startup messages (${{ matrix.variant }})
     runs-on: ubuntu-latest
+    env:
+      INPUT_APP_NAME: ${{ inputs.app-name }}
+      MATRIX_VARIANT: ${{ matrix.variant }}
     strategy:
       fail-fast: true
       matrix:
@@ -134,9 +137,6 @@ jobs:
         run: ls -lR .
 
       - name: Unpack artifacts
-        env:
-          INPUT_APP_NAME: ${{ inputs.app-name }}
-          MATRIX_VARIANT: ${{ matrix.variant }}
         run: |
           for i in cpu1 host lib
           do
@@ -191,10 +191,8 @@ jobs:
         if: ${{ matrix.variant == 'eds' && steps.check-cpu1.outputs.ip-addr != '' }}
         working-directory: ${{ matrix.variant }}/host
         env:
-          MATRIX_VARIANT: ${{ matrix.variant }}
           STEP_CHECK_CPU1_IP_ADDR: ${{ steps.check-cpu1.outputs.ip-addr }}
           STEP_QUERY_LOCAL_IP_ADDR_ADDR: ${{ steps.query-local-ip-addr.outputs.addr }}
-          INPUT_APP_NAME: ${{ inputs.app-name }}
         run: |
           export LD_LIBRARY_PATH=${GITHUB_WORKSPACE}/${MATRIX_VARIANT}/lib
           export PYTHONPATH=${GITHUB_WORKSPACE}/${MATRIX_VARIANT}/lib/python
@@ -227,7 +225,6 @@ jobs:
         if: ${{ always() && steps.start-cpu1.outputs.container-id != '' }}
         env:
           STEP_START_CPU1_CONTAINER_ID: ${{ steps.start-cpu1.outputs.container-id }}
-          MATRIX_VARIANT: ${{ matrix.variant }}
         run: docker logs "$STEP_START_CPU1_CONTAINER_ID" > "${MATRIX_VARIANT}/cFS_startup_cpu1.txt"
 
       - name: Stop CPU1 Container
@@ -244,8 +241,6 @@ jobs:
           path: ${{ matrix.variant }}/cFS_startup_cpu1.txt
 
       - name: Confirm startup string
-        env:
-          MATRIX_VARIANT: ${{ matrix.variant }}
         run: |
           if [[ -z $(grep "$START_STRING" "${MATRIX_VARIANT}/cFS_startup_cpu1.txt") ]]; then
             echo "Startup verification string not found in log: $START_STRING"
@@ -257,8 +252,6 @@ jobs:
 
       - name: Check for cFS Warnings
         if: success() || failure()
-        env:
-          MATRIX_VARIANT: ${{ matrix.variant }}
         run: |
           if [[ -n $(grep -i "warn\|err\|fail" "${MATRIX_VARIANT}/cFS_startup_cpu1.txt") ]]; then
                   echo "cFS startup warn|err|fail:"

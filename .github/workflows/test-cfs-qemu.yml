@@ -38,6 +38,8 @@ jobs:
     name: Build ${{ matrix.config }}.${{ matrix.doctype }} Documentation
     runs-on: ubuntu-latest
     container: ghcr.io/core-flight-system/cfsbuildenv-doxygen:latest
+    env:
+      MATRIX_CONFIG: ${{ matrix.config }}
     steps:
       - name: Checkout Bundle
         uses: actions/checkout@v6
@@ -45,19 +47,15 @@ jobs:
           submodules: true
 
       - name: Prepare ${{ matrix.config }} Build
-        env:
-          MATRIX_CONFIG: ${{ matrix.config }}
         run: make "${MATRIX_CONFIG}.prep"
 
       - name: Build ${{ matrix.doctype }} documentation
         env:
-          MATRIX_CONFIG: ${{ matrix.config }}
           MATRIX_DOCTYPE: ${{ matrix.doctype }}
         run: make "${MATRIX_CONFIG}.${MATRIX_DOCTYPE}"
 
       - name: Set environment
         env:
-          MATRIX_CONFIG: ${{ matrix.config }}
           MATRIX_PATH: ${{ matrix.path }}
         run: |
           echo "FULL_WARNING_LOG=build-${MATRIX_CONFIG}/docs/${MATRIX_PATH}/${MATRIX_PATH}-warnings.log" >> $GITHUB_ENV
