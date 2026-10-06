@@ -72,10 +72,10 @@ jobs:
           token: ${{ secrets.GH_PAT || github.token }}
 
       - name: Configure CFS
-        run: make "${INPUT_CONFIG_NAME}.prep"
+        run: make "$INPUT_CONFIG_NAME.prep"
 
       - name: Build CFS
-        run: make "${INPUT_CONFIG_NAME}.install"
+        run: make "$INPUT_CONFIG_NAME.install"
 
       - name: Configure xz compression
         if: inputs.compression-type == 'xz'
@@ -91,7 +91,7 @@ jobs:
 
       - name: Archive binaries
         run: |
-          cd "$GITHUB_WORKSPACE/build-${INPUT_CONFIG_NAME}/exe"
+          cd "$GITHUB_WORKSPACE/build-$INPUT_CONFIG_NAME/exe"
           find -maxdepth 1 -mindepth 1 -type d | while read dir
           do
             inst=$(basename ${dir})
@@ -99,11 +99,11 @@ jobs:
           done
 
       - name: Build target images
-        run: make IMAGE_TYPE=ext4 "${INPUT_CONFIG_NAME}.image"
+        run: make IMAGE_TYPE=ext4 "$INPUT_CONFIG_NAME.image"
 
       - name: Archive target images
         run: |
-          if cd "$GITHUB_WORKSPACE/build-${INPUT_CONFIG_NAME}/deploy"
+          if cd "$GITHUB_WORKSPACE/build-$INPUT_CONFIG_NAME/deploy"
           then
             find -maxdepth 1 -mindepth 1 -type d | while read dir
             do
@@ -120,7 +120,7 @@ jobs:
 
       - name: Run Local Tests
         if: fromJSON(inputs.run-local-tests)
-        run: make "${INPUT_CONFIG_NAME}.runtest"
+        run: make "$INPUT_CONFIG_NAME.runtest"
 
       - name: Upload Local Test Logs
         if: failure() && fromJSON(inputs.run-local-tests)
@@ -131,4 +131,4 @@ jobs:
 
       - name: Generate Coverage Report
         if: ${{ inputs.check-coverage }}
-        run: make "${INPUT_CONFIG_NAME}.lcov"
+        run: make "$INPUT_CONFIG_NAME.lcov"
