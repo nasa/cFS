@@ -4,44 +4,133 @@ on:
   workflow_call:
     inputs:
       project-url:
-        description: 'URL of the GitHub project to add items to'
+        description: 'URL of the GitHub project to add items to (Default for Team members)'
         required: false
         type: string
         # Default project is NASA cFS Development
         default: 'https://github.com/orgs/nasa/projects/72'
 
 jobs:
-  add-to-project:
-    name: Add issue or pull request to project
+  check-team-membership:
+    name: Determine Target Project(s)
     runs-on: ubuntu-latest
+    outputs:
+      target_project_urls: ${{ steps.check.outputs.target_project_urls }}
+      is_team_member: ${{ steps.check.outputs.is_team_member }}
+    steps:
+      - name: Check Team Membership and Set Project(s)
+        id: check
+        uses: actions/github-script@v9
+        env:
+          DEFAULT_PROJECT_URL: ${{ inputs.project-url }}
+        with:
+          github-token: ${{ secrets.ADD_TO_PROJECT_PAT }}
+          script: |
+            const org = context.repo.owner;
+            const team_slug = 'cfs';
+            const payload = context.payload;
+
+            // Determine the author of the issue or PR
+            let username = null;
+            if (payload.issue) {
+              username = payload.issue.user.login;
+            } else if (payload.pull_request) {
+              username = payload.pull_request.user.login;
+            } else {
+              username = context.actor;
+            }
+
+            console.log(`Checking if ${username} is in ${org}/${team_slug}`);
+
+            let isMember = false;
+            try {
+              const response = await github.rest.teams.getMembershipForUserInOrg({
+                org: org,
+                team_slug: team_slug,
+                username: username,
+              });
+
+              if (response.status === 200 && response.data.state === 'active') {
+                isMember = true;
+              }
+            } catch (error) {
+              if (error.status === 404) {
+                console.log(`User ${username} is not a member of team ${team_slug}.`);
+              } else {
+                console.log(`API Error checking team membership: ${error.message}`);
+              }
+            }
+
+            // Initialize array with the default project
+            let targetUrls = [process.env.DEFAULT_PROJECT_URL];
+
+            if (isMember) {
+              console.log(`Author is on the team. Routing to default project: ${targetUrls[0]}`);
+            } else {
+              // If not on the team, add the cFS Community Tracker project (74) to the array
+              const externalUrl = process.env.DEFAULT_PROJECT_URL.replace(/\/projects\/\d+/, '/projects/74');
+              targetUrls.push(externalUrl);
+              console.log(`Author is NOT on the team. Routing to projects: ${targetUrls.join(', ')}`);
+            }
+
+            // Output as a JSON array string for the matrix strategy
+            core.setOutput('target_project_urls', JSON.stringify(targetUrls));
+            core.setOutput('is_team_member', isMember);
+
+  add-to-project:
+    needs: check-team-membership
+    name: Add item to project(s)
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false # If one project fails, continue trying the other
+      matrix:
+        project_url: ${{ fromJSON(needs.check-team-membership.outputs.target_project_urls) }}
     steps:
       - uses: actions/add-to-project@v2
         with:
-          project-url: ${{ inputs.project-url }}
+          # Use the current URL from the matrix
+          project-url: ${{ matrix.project_url }}
           github-token: ${{ secrets.ADD_TO_PROJECT_PAT }}
 
-      - name: Add pull request to current sprint as to do
+      - name: Configure Project Fields (Sprint & Status)
         uses: actions/github-script@v9
-        if: ${{ github.event_name == 'pull_request_target' && github.event.pull_request.draft == false }}
+        if: ${{ github.event_name == 'issues' || (github.event_name == 'pull_request_target' && github.event.pull_request.draft == false) }}
         env:
-          PROJECT_URL: ${{ inputs.project-url }}
+          PROJECT_URL: ${{ matrix.project_url }}
+          DEFAULT_PROJECT_URL: ${{ inputs.project-url }}
+          IS_TEAM_MEMBER: ${{ needs.check-team-membership.outputs.is_team_member }}
         with:
           github-token: ${{ secrets.ADD_TO_PROJECT_PAT }}
           script: |
             const projectUrl = process.env.PROJECT_URL;
-            const pr = context.payload.pull_request;
-            const prId = pr.node_id;
+            const defaultProjectUrl = process.env.DEFAULT_PROJECT_URL;
+            const isTeamMember = process.env.IS_TEAM_MEMBER === 'true';
+            const isIssue = context.eventName === 'issues';
 
-            // Extract organization and project number from URL
-            // Format: https://developer.nasa.gov/orgs/{org}/projects/{number}
+            let contentId;
+            if (isIssue) {
+              contentId = context.payload.issue.node_id;
+              console.log(`Configuring fields for Issue #${context.payload.issue.number}`);
+            } else {
+              contentId = context.payload.pull_request.node_id;
+              console.log(`Configuring fields for PR #${context.payload.pull_request.number}`);
+            }
+
+            // Extract organization and project number from URLs
             const urlMatch = projectUrl.match(/orgs\/([^\/]+)\/projects\/(\d+)/);
-            if (!urlMatch) {
-              core.setFailed(`Invalid project URL format: ${projectUrl}`);
+            const defaultMatch = defaultProjectUrl.match(/orgs\/([^\/]+)\/projects\/(\d+)/);
+
+            if (!urlMatch || !defaultMatch) {
+              core.setFailed(`Invalid project URL format.`);
               return;
             }
 
             const orgName = urlMatch[1];
             const projectNumber = parseInt(urlMatch[2]);
+            const defaultProjectNumber = parseInt(defaultMatch[2]);
+
+            const isDefaultProject = (projectNumber === defaultProjectNumber);
+            const isTrackerProject = (!isDefaultProject);
 
             // Get project ID and field configurations dynamically
             const projectData = await github.graphql(`
@@ -98,119 +187,164 @@ jobs:
             const sprintField = project.sprintField;
             const statusField = project.statusField;
 
-            if (!sprintField) {
-              core.setFailed(`Sprint field not found in project`);
-              return;
-            }
-
-            if (!statusField) {
-              core.setFailed(`Status field not found in project`);
-              return;
-            }
-
-            // Find the Todo option in Status field
-            const todoOption = statusField.options.find(opt => opt.name === 'Todo');
-            if (!todoOption) {
-              core.setFailed(`Todo option not found in Status field`);
-              return;
-            }
-
-            // Combine active and completed iterations
-            const allIterations = [
-              ...(sprintField.configuration.iterations || []),
-              ...(sprintField.configuration.completedIterations || [])
-            ];
-
-            if (allIterations.length === 0) {
-              core.setFailed('No iterations found in Sprint field');
-              return;
-            }
-
-            // Find current iteration
-            const today = new Date();
-            const currentIteration = allIterations.find(iter => {
-              const start = new Date(iter.startDate);
-              const end = new Date(start);
-              end.setDate(start.getDate() + iter.duration);
-              return today >= start && today <= end;
-            });
-
-            if (!currentIteration) {
-              core.setFailed("No current iteration found.");
-              return;
-            }
-
-            // Add PR to the project
-            const addItem = await github.graphql(`
-              mutation($projectId: ID!, $contentId: ID!) {
-                addProjectV2ItemById(input: {
-                  projectId: $projectId,
-                  contentId: $contentId
-                }) {
-                  item {
-                    id
+            // Query the item that was just added by the actions/add-to-project@v2 action
+            const itemQuery = await github.graphql(`
+              query($contentId: ID!) {
+                node(id: $contentId) {
+                  ... on PullRequest {
+                    projectItems(first: 50) {
+                      nodes {
+                        id
+                        project {
+                          id
+                        }
+                      }
+                    }
+                  }
+                  ... on Issue {
+                    projectItems(first: 50) {
+                      nodes {
+                        id
+                        project {
+                          id
+                        }
+                      }
+                    }
                   }
                 }
               }
             `, {
-              projectId,
-              contentId: prId
+              contentId: contentId
             });
 
-            const itemId = addItem.addProjectV2ItemById.item.id;
+            const projectItems = itemQuery.node.projectItems.nodes;
+            const targetItem = projectItems.find(item => item.project.id === projectId);
 
-            console.log(`PR added to project with item ID: ${itemId}`);
+            if (!targetItem) {
+              core.setFailed(`Could not find the item in project ${projectNumber} after adding it.`);
+              return;
+            }
 
-            // Set iteration field to current iteration
-            await github.graphql(`
-              mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $iterationId: String!) {
-                updateProjectV2ItemFieldValue(input: {
-                  projectId: $projectId,
-                  itemId: $itemId,
-                  fieldId: $fieldId,
-                  value: {
-                    iterationId: $iterationId
-                  }
-                }) {
-                  projectV2Item {
-                    id
+            const itemId = targetItem.id;
+            console.log(`Successfully found item in project. Item ID: ${itemId}`);
+
+            let targetStatus = null;
+            let shouldAssignSprint = false;
+
+            if (isIssue && !isTeamMember) {
+              // Created issues by non-cFS team members ->
+              // Add to default project with no status or sprint. Add to Tracker project with status "Triage".
+              if (isTrackerProject) targetStatus = 'Triage';
+            }
+            else if (isIssue && isTeamMember) {
+              // Created issues by cFS team members ->
+              // Add issue to only default project with no status or sprint.
+            }
+            else if (!isIssue && !isTeamMember) {
+              // Created PRs by non-cFS team members ->
+              // Add PR to default project as To Do, no sprint. Add PR to Tracker project as "Triage".
+              if (isDefaultProject) targetStatus = 'Todo';
+              if (isTrackerProject) targetStatus = 'Triage';
+            }
+            else if (!isIssue && isTeamMember) {
+              // Created PRs by cFS team members ->
+              // Add PR to only default project in current sprint with status of "Todo".
+              if (isDefaultProject) {
+                targetStatus = 'Todo';
+                shouldAssignSprint = true;
+              }
+            }
+
+            if (targetStatus) {
+              if (!statusField) {
+                core.setFailed(`Status field not found in project`);
+                return;
+              }
+              const statusOption = statusField.options.find(opt => opt.name === targetStatus);
+              if (!statusOption) {
+                core.setFailed(`"${targetStatus}" option not found in Status field`);
+                return;
+              }
+
+              await github.graphql(`
+                mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $optionId: String!) {
+                  updateProjectV2ItemFieldValue(input: {
+                    projectId: $projectId,
+                    itemId: $itemId,
+                    fieldId: $fieldId,
+                    value: {
+                      singleSelectOptionId: $optionId
+                    }
+                  }) {
+                    projectV2Item {
+                      id
+                    }
                   }
                 }
+              `, {
+                projectId,
+                itemId,
+                fieldId: statusField.id,
+                optionId: statusOption.id
+              });
+              console.log(`Set item status to ${targetStatus}`);
+            } else {
+              console.log(`Rule matched: NO status assignment for this item in Project ${projectNumber}.`);
+            }
+
+            if (shouldAssignSprint && sprintField) {
+              const allIterations = [
+                ...(sprintField.configuration.iterations || []),
+                ...(sprintField.configuration.completedIterations || [])
+              ];
+
+              if (allIterations.length === 0) {
+                console.log('No iterations found in Sprint field.');
+                return;
               }
-            `, {
-              projectId,
-              itemId,
-              fieldId: sprintField.id,
-              iterationId: currentIteration.id
-            });
 
-            console.log(`Set PR to iteration: ${currentIteration.title}`);
+              // Find current iteration
+              const today = new Date();
+              const currentIteration = allIterations.find(iter => {
+                const start = new Date(iter.startDate);
+                const end = new Date(start);
+                end.setDate(start.getDate() + iter.duration);
+                return today >= start && today <= end;
+              });
 
-            // Set status to "Todo"
-            await github.graphql(`
-              mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $optionId: String!) {
-                updateProjectV2ItemFieldValue(input: {
-                  projectId: $projectId,
-                  itemId: $itemId,
-                  fieldId: $fieldId,
-                  value: {
-                    singleSelectOptionId: $optionId
-                  }
-                }) {
-                  projectV2Item {
-                    id
+              if (!currentIteration) {
+                console.log("No current iteration found. Skipping sprint assignment.");
+                return;
+              }
+
+              // Set iteration field to current iteration
+              await github.graphql(`
+                mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $iterationId: String!) {
+                  updateProjectV2ItemFieldValue(input: {
+                    projectId: $projectId,
+                    itemId: $itemId,
+                    fieldId: $fieldId,
+                    value: {
+                      iterationId: $iterationId
+                    }
+                  }) {
+                    projectV2Item {
+                      id
+                    }
                   }
                 }
-              }
-            `, {
-              projectId,
-              itemId,
-              fieldId: statusField.id,
-              optionId: todoOption.id
-            });
+              `, {
+                projectId,
+                itemId,
+                fieldId: sprintField.id,
+                iterationId: currentIteration.id
+              });
+              console.log(`Set item to sprint iteration: ${currentIteration.title}`);
+            } else {
+              console.log("Rule matched: NO sprint assignment for this item.");
+            }
 
-            console.log("Set PR status to Todo");
-
+  # PRs moved to draft by non-cFS members OR cFS members -> Remove from default project sprint.
   remove-draft-pr-from-sprint:
     if: ${{ github.event_name == 'pull_request_target' && github.event.action == 'converted_to_draft' }}
     name: Remove draft PR from current sprint
@@ -264,6 +398,13 @@ jobs:
             }
 
             const projectId = projectData.organization.projectV2.id;
+
+            // Safety check in case the Sprint field was deleted from default project
+            if (!projectData.organization.projectV2.sprintField) {
+              console.log("No sprint field found in project. Nothing to remove.");
+              return;
+            }
+
             const iterationFieldId = projectData.organization.projectV2.sprintField.id;
 
             try {
@@ -348,7 +489,7 @@ jobs:
               );
 
               if (!iterationField || !iterationField.iterationId) {
-                console.log(`PR #${pr.number} is not assigned to any sprint iteration`);
+                console.log(`PR #${pr.number} is not assigned to any sprint iteration.`);
                 return;
               }
 
