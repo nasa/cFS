@@ -46,6 +46,8 @@ defaults:
 jobs:
   build-cfs:
     runs-on: ubuntu-latest
+    env:
+      INPUT_CONFIG_NAME: ${{ inputs.config-name }}
     container:
       image: ${{ inputs.container-image }}
       # fakeroot runs extremely slow without this limit
@@ -70,10 +72,10 @@ jobs:
           token: ${{ secrets.GH_PAT || github.token }}
 
       - name: Configure CFS
-        run: make ${{ inputs.config-name }}.prep
+        run: make "$INPUT_CONFIG_NAME".prep
 
       - name: Build CFS
-        run: make ${{ inputs.config-name }}.install
+        run: make "$INPUT_CONFIG_NAME".install
 
       - name: Configure xz compression
         if: inputs.compression-type == 'xz'
@@ -89,7 +91,7 @@ jobs:
 
       - name: Archive binaries
         run: |
-          cd $GITHUB_WORKSPACE/build-${{ inputs.config-name }}/exe
+          cd "$GITHUB_WORKSPACE/build-$INPUT_CONFIG_NAME/exe"
           find -maxdepth 1 -mindepth 1 -type d | while read dir
           do
             inst=$(basename ${dir})
@@ -97,11 +99,11 @@ jobs:
           done
 
       - name: Build target images
-        run: make IMAGE_TYPE=ext4 ${{ inputs.config-name }}.image
+        run: make IMAGE_TYPE=ext4 "$INPUT_CONFIG_NAME".image
 
       - name: Archive target images
         run: |
-          if cd $GITHUB_WORKSPACE/build-${{ inputs.config-name }}/deploy
+          if cd "$GITHUB_WORKSPACE/build-$INPUT_CONFIG_NAME/deploy"
           then
             find -maxdepth 1 -mindepth 1 -type d | while read dir
             do
@@ -118,7 +120,7 @@ jobs:
 
       - name: Run Local Tests
         if: fromJSON(inputs.run-local-tests)
-        run: make ${{ inputs.config-name }}.runtest
+        run: make "$INPUT_CONFIG_NAME".runtest
 
       - name: Upload Local Test Logs
         if: failure() && fromJSON(inputs.run-local-tests)
@@ -129,4 +131,4 @@ jobs:
 
       - name: Generate Coverage Report
         if: ${{ inputs.check-coverage }}
-        run: make ${{ inputs.config-name }}.lcov
+        run: make "$INPUT_CONFIG_NAME".lcov
