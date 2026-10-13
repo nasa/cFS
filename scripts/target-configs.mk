@@ -6,7 +6,8 @@
 # It is moved to a separate file to isolate this from the other logic
 #
 # This should reside in the same top-level directory as the main Makefile
-#
+
+THIS_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
 # The config names is a complete list of configurations to build
 CONFIG_NAMES :=
@@ -15,7 +16,7 @@ CONFIG_NAMES :=
 # Being in this list means the standard set of CFS options are applied
 NONCFS_CONFIG_NAMES :=
 
-FOUND_MAKEFILES := $(wildcard scripts/configs/*.mk)
+FOUND_MAKEFILES := $(wildcard $(THIS_DIR)/configs/*.mk)
 
 SORTED_MAKEFILES := $(sort $(FOUND_MAKEFILES))
 

@@ -21,8 +21,10 @@
 # defined configurations.
 #
 
+TOP_LEVEL_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+
 # This file must define all the possible make goals
-include goal-configs.mk
+include $(TOP_LEVEL_DIR)/scripts/goal-configs.mk
 
 # For all targets the O var should be set to the per-config build dir
 $(ALL_TARGETS):   CFG = $(basename $(@))
@@ -61,7 +63,7 @@ $(DISTCLEAN_TARGETS):
 # always run regardless of the stampfile.
 $(STAMP_TARGETS):
 	rm -f "$(STAMPFILE)"
-	env $(ENV_OPTS_$(CFG)) $(MAKE) --no-print-directory -f $(CURDIR)/target-rules.mk \
+	env $(ENV_OPTS_$(CFG)) $(MAKE) --no-print-directory -f $(TOP_LEVEL_DIR)/scripts/target-rules.mk \
 		CFG=$(CFG) GOAL=$(@) STAMPFILE=$(STAMPFILE) all
 	@echo "$(@) successfully completed"
 
@@ -74,7 +76,7 @@ $(CLEAN_TARGETS):
 $(CLEANTEST_TARGETS):
 	$(MAKE) --no-print-directory -f $(CFG)-test.mk O="$(O)" clean_lcov
 	rm -rf "$(O)"/test-results "$(O)"/stamp.*
-	env $(ENV_OPTS_$(CFG)) $(MAKE) --no-print-directory -f $(CURDIR)/target-rules.mk \
+	env $(ENV_OPTS_$(CFG)) $(MAKE) --no-print-directory -f $(THIS_DIR)/scripts/target-rules.mk \
 		CFG=$(CFG) GOAL=$(CFG).runtest STAMPFILE=$(O)/stamp.runtest all
 
 # also define targets which builds all configs (except world, which has custom rule)
