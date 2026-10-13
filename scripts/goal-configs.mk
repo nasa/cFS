@@ -53,6 +53,8 @@
 #      the "make test" target above.
 #
 
+THIS_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+
 # The "stamp" target names are associated with a file in the build dir to indicate last run time
 # The "nostamp" target names do not have this, and are always executed
 STAMP_GOAL_NAMES     := prep compile install checktest runtest lcov
@@ -60,7 +62,7 @@ CFS_STAMP_GOAL_NAMES := detaildesign usersguide osalguide image gem
 ALL_GOAL_NAMES       := $(STAMP_GOAL_NAMES) $(CFS_STAMP_GOAL_NAMES)
 
 # This file must define CONFIG_NAMES and all other per-config vars
-include target-configs.mk
+include $(THIS_DIR)/target-configs.mk
 
 # The actual buildable targets are a combination of CONFIG.NAME (e.g. native.install)
 STAMP_TARGETS   := $(foreach CFG,$(CONFIG_NAMES),$(addprefix $(CFG).,$(STAMP_GOAL_NAMES)))

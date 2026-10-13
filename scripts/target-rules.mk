@@ -6,7 +6,9 @@
 # It should not be invoked directly, it is invoked from the main Makefile
 #
 
-include goal-configs.mk
+THIS_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+
+include $(THIS_DIR)/goal-configs.mk
 
 O               ?= $(O_$(CFG))
 ARCH            ?= $(ARCH_$(CFG))
@@ -85,7 +87,7 @@ export CPUNAME
 	jq -r '.[] | if .command then "$(O)/test-results/" + .name + ".log: " + .command else empty end' "$(O)/test-list.json" >> "$(O)/test-deps.mk.tmp"
 	jq -r '.[] | "TEST_OUTPUT_FILES += $(O)/test-results/" + .name + ".log"' "$(O)/test-list.json" >> "$(O)/test-deps.mk.tmp"
 	mv -v "$(O)/test-deps.mk.tmp" "$(O)/test-deps.mk"
-	$(MAKE) --no-print-directory -f $(CURDIR)/$(CFG)-test.mk all_tests
+	$(MAKE) --no-print-directory -f $(THIS_DIR)/$(CFG)-test.mk all_tests
 	touch "$(@)"
 
 # A generic pattern rule to invoke a sub-make for running coverage analysis
@@ -127,4 +129,4 @@ all: $(GOAL)
 $(GOAL): $(STAMPFILE)
 
 # Any additional customization for certain targets can go here
-include custom-rules.mk
+include $(THIS_DIR)/custom-rules.mk
