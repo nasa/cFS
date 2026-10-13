@@ -1,0 +1,11 @@
+CONFIG_NAMES         += native_eds
+O_native_eds          = build-native_eds
+ARCH_native_eds       = native
+PREP_OPTS_native_eds += -DENABLE_UNIT_TESTS=TRUE
+PREP_OPTS_native_eds += -DSIMULATION=$(ARCH)
+PREP_OPTS_native_eds += -DCFE_EDS_ENABLED=ON
+PREP_OPTS_native_eds += -DEDSLIB_PYTHON_BUILD_STANDALONE_MODULE=ON
+PREP_OPTS_native_eds += -DCFE_MISSIONLIB_PYTHON_BUILD_STANDALONE_MODULE=ON
+PREP_OPTS_native_eds += -DMISSIONCONFIG=sample
+PREP_OPTS_native_eds += -DCMAKE_BUILD_TYPE=debug
+PLATFORM_native_eds   = default

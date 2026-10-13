@@ -1,0 +1,9 @@
+CONFIG_NAMES         += native_std
+O_native_std          = build-native_std
+ARCH_native_std       = native
+PREP_OPTS_native_std += -DENABLE_UNIT_TESTS=TRUE
+PREP_OPTS_native_std += -DSIMULATION=$(ARCH)
+PREP_OPTS_native_std += -DCFE_EDS_ENABLED=OFF
+PREP_OPTS_native_std += -DMISSIONCONFIG=sample
+PREP_OPTS_native_std += -DCMAKE_BUILD_TYPE=debug
+PLATFORM_native_std   = default_cpu1
