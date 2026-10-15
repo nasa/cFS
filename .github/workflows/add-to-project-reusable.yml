@@ -67,13 +67,16 @@ jobs:
             if (isMember) {
               console.log(`Author is on the team. Routing to default project: ${targetUrls[0]}`);
             } else {
-              // If not on the team, add the cFS Community Tracker project (74) to the array
-              const externalUrl = process.env.DEFAULT_PROJECT_URL.replace(/\/projects\/\d+/, '/projects/74');
+              // If not on the team, also add the cFS Community Tracker (project 74)
+              const externalUrl = process.env.DEFAULT_PROJECT_URL.replace(
+                /\/projects\/\d+/,
+                '/projects/74'
+              );
               targetUrls.push(externalUrl);
               console.log(`Author is NOT on the team. Routing to projects: ${targetUrls.join(', ')}`);
             }
 
-            // Output as a JSON array string for the matrix strategy
+            // Output JSON array for the matrix strategy
             core.setOutput('target_project_urls', JSON.stringify(targetUrls));
             core.setOutput('is_team_member', isMember);
 
@@ -82,13 +85,12 @@ jobs:
     name: Add item to project(s)
     runs-on: ubuntu-latest
     strategy:
-      fail-fast: false # If one project fails, continue trying the other
+      fail-fast: false
       matrix:
         project_url: ${{ fromJSON(needs.check-team-membership.outputs.target_project_urls) }}
     steps:
       - uses: actions/add-to-project@v2
         with:
-          # Use the current URL from the matrix
           project-url: ${{ matrix.project_url }}
           github-token: ${{ secrets.ADD_TO_PROJECT_PAT }}
 
@@ -117,62 +119,86 @@ jobs:
             }
 
             // Extract organization and project number from URLs
-            const urlMatch = projectUrl.match(/orgs\/([^\/]+)\/projects\/(\d+)/);
-            const defaultMatch = defaultProjectUrl.match(/orgs\/([^\/]+)\/projects\/(\d+)/);
+            const urlMatch = projectUrl.match(/orgs\/([^/]+)\/projects\/(\d+)/);
+            const defaultMatch = defaultProjectUrl.match(/orgs\/([^/]+)\/projects\/(\d+)/);
 
             if (!urlMatch || !defaultMatch) {
-              core.setFailed(`Invalid project URL format.`);
+              core.setFailed('Invalid project URL format.');
               return;
             }
 
             const orgName = urlMatch[1];
-            const projectNumber = parseInt(urlMatch[2]);
-            const defaultProjectNumber = parseInt(defaultMatch[2]);
+            const projectNumber = parseInt(urlMatch[2], 10);
+            const defaultProjectNumber = parseInt(defaultMatch[2], 10);
 
-            const isDefaultProject = (projectNumber === defaultProjectNumber);
-            const isTrackerProject = (!isDefaultProject);
+            const isDefaultProject = projectNumber === defaultProjectNumber;
+            const isTrackerProject = !isDefaultProject;
 
-            // Get project ID and field configurations dynamically
-            const projectData = await github.graphql(`
-              query($org: String!, $number: Int!) {
-                organization(login: $org) {
-                  projectV2(number: $number) {
-                    id
-                    title
-                    sprintField: field(name: "Sprint") {
-                      ... on ProjectV2IterationField {
+            // Only request the Sprint field for the default project.
+            // Project 74 (Community Tracker) does not have a Sprint field.
+            const projectQuery = isDefaultProject
+              ? `
+                  query($org: String!, $number: Int!) {
+                    organization(login: $org) {
+                      projectV2(number: $number) {
                         id
-                        name
-                        configuration {
-                          iterations {
+                        title
+                        sprintField: field(name: "Sprint") {
+                          ... on ProjectV2IterationField {
                             id
-                            title
-                            startDate
-                            duration
-                          }
-                          completedIterations {
-                            id
-                            title
-                            startDate
-                            duration
+                            name
+                            configuration {
+                              iterations {
+                                id
+                                title
+                                startDate
+                                duration
+                              }
+                              completedIterations {
+                                id
+                                title
+                                startDate
+                                duration
+                              }
+                            }
                           }
                         }
-                      }
-                    }
-                    statusField: field(name: "Status") {
-                      ... on ProjectV2SingleSelectField {
-                        id
-                        name
-                        options {
-                          id
-                          name
+                        statusField: field(name: "Status") {
+                          ... on ProjectV2SingleSelectField {
+                            id
+                            name
+                            options {
+                              id
+                              name
+                            }
+                          }
                         }
                       }
                     }
                   }
-                }
-              }
-            `, {
+                `
+              : `
+                  query($org: String!, $number: Int!) {
+                    organization(login: $org) {
+                      projectV2(number: $number) {
+                        id
+                        title
+                        statusField: field(name: "Status") {
+                          ... on ProjectV2SingleSelectField {
+                            id
+                            name
+                            options {
+                              id
+                              name
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                `;
+
+            const projectData = await github.graphql(projectQuery, {
               org: orgName,
               number: projectNumber
             });
@@ -184,41 +210,56 @@ jobs:
 
             const project = projectData.organization.projectV2;
             const projectId = project.id;
-            const sprintField = project.sprintField;
+            const sprintField = isDefaultProject ? project.sprintField : null;
             const statusField = project.statusField;
 
-            // Query the item that was just added by the actions/add-to-project@v2 action
-            const itemQuery = await github.graphql(`
-              query($contentId: ID!) {
-                node(id: $contentId) {
-                  ... on PullRequest {
-                    projectItems(first: 50) {
-                      nodes {
-                        id
-                        project {
+            // Find the issue or PR in the target project.
+            // Retry briefly because add-to-project may not be immediately visible.
+            let targetItem = null;
+            const maxAttempts = 5;
+
+            for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+              const itemQuery = await github.graphql(`
+                query($contentId: ID!) {
+                  node(id: $contentId) {
+                    ... on PullRequest {
+                      projectItems(first: 100) {
+                        nodes {
                           id
+                          project {
+                            id
+                          }
                         }
                       }
                     }
-                  }
-                  ... on Issue {
-                    projectItems(first: 50) {
-                      nodes {
-                        id
-                        project {
+                    ... on Issue {
+                      projectItems(first: 100) {
+                        nodes {
                           id
+                          project {
+                            id
+                          }
                         }
                       }
                     }
                   }
                 }
-              }
-            `, {
-              contentId: contentId
-            });
+              `, {
+                contentId
+              });
 
-            const projectItems = itemQuery.node.projectItems.nodes;
-            const targetItem = projectItems.find(item => item.project.id === projectId);
+              const projectItems = itemQuery.node?.projectItems?.nodes || [];
+              targetItem = projectItems.find(item => item.project.id === projectId);
+
+              if (targetItem) {
+                break;
+              }
+
+              if (attempt < maxAttempts) {
+                console.log(`Project item not visible yet (attempt ${attempt}/${maxAttempts}). Retrying...`);
+                await new Promise(resolve => setTimeout(resolve, 2000));
+              }
+            }
 
             if (!targetItem) {
               core.setFailed(`Could not find the item in project ${projectNumber} after adding it.`);
@@ -226,43 +267,46 @@ jobs:
             }
 
             const itemId = targetItem.id;
-            console.log(`Successfully found item in project. Item ID: ${itemId}`);
+            console.log(`Successfully found item in project ${projectNumber}. Item ID: ${itemId}`);
 
             let targetStatus = null;
             let shouldAssignSprint = false;
 
             if (isIssue && !isTeamMember) {
-              // Created issues by non-cFS team members ->
-              // Add to default project with no status or sprint. Add to Tracker project with status "Triage".
+              // Non-team issues:
+              // Default project: no status or sprint.
+              // Tracker project: Triage.
               if (isTrackerProject) targetStatus = 'Triage';
-            }
-            else if (isIssue && isTeamMember) {
-              // Created issues by cFS team members ->
-              // Add issue to only default project with no status or sprint.
-            }
-            else if (!isIssue && !isTeamMember) {
-              // Created PRs by non-cFS team members ->
-              // Add PR to default project as To Do, no sprint. Add PR to Tracker project as "Triage".
+            } else if (isIssue && isTeamMember) {
+              // Team issues: default project, no status or sprint.
+            } else if (!isIssue && !isTeamMember) {
+              // Non-team ready PRs:
+              // Default project: Todo, no sprint.
+              // Tracker project: Triage, no sprint.
               if (isDefaultProject) targetStatus = 'Todo';
               if (isTrackerProject) targetStatus = 'Triage';
-            }
-            else if (!isIssue && isTeamMember) {
-              // Created PRs by cFS team members ->
-              // Add PR to only default project in current sprint with status of "Todo".
+            } else if (!isIssue && isTeamMember) {
+              // Team ready PRs:
+              // Default project: Todo and current sprint.
               if (isDefaultProject) {
                 targetStatus = 'Todo';
                 shouldAssignSprint = true;
               }
             }
 
+            // Set Status when required.
             if (targetStatus) {
               if (!statusField) {
-                core.setFailed(`Status field not found in project`);
+                core.setFailed(`Status field not found in project ${projectNumber}`);
                 return;
               }
-              const statusOption = statusField.options.find(opt => opt.name === targetStatus);
+
+              const statusOption = statusField.options.find(
+                option => option.name.toLowerCase() === targetStatus.toLowerCase()
+              );
+
               if (!statusOption) {
-                core.setFailed(`"${targetStatus}" option not found in Status field`);
+                core.setFailed(`"${targetStatus}" option not found in Status field for project ${projectNumber}`);
                 return;
               }
 
@@ -287,12 +331,14 @@ jobs:
                 fieldId: statusField.id,
                 optionId: statusOption.id
               });
-              console.log(`Set item status to ${targetStatus}`);
+
+              console.log(`Set item status to ${targetStatus} in project ${projectNumber}`);
             } else {
-              console.log(`Rule matched: NO status assignment for this item in Project ${projectNumber}.`);
+              console.log(`No status assignment for this item in project ${projectNumber}.`);
             }
 
-            if (shouldAssignSprint && sprintField) {
+            // Only the default project supports sprint assignment.
+            if (isDefaultProject && shouldAssignSprint && sprintField) {
               const allIterations = [
                 ...(sprintField.configuration.iterations || []),
                 ...(sprintField.configuration.completedIterations || [])
@@ -303,21 +349,20 @@ jobs:
                 return;
               }
 
-              // Find current iteration
               const today = new Date();
-              const currentIteration = allIterations.find(iter => {
-                const start = new Date(iter.startDate);
+              const currentIteration = allIterations.find(iteration => {
+                const start = new Date(`${iteration.startDate}T00:00:00Z`);
                 const end = new Date(start);
-                end.setDate(start.getDate() + iter.duration);
-                return today >= start && today <= end;
+                end.setUTCDate(end.getUTCDate() + iteration.duration);
+
+                return today >= start && today < end;
               });
 
               if (!currentIteration) {
-                console.log("No current iteration found. Skipping sprint assignment.");
+                console.log('No current iteration found. Skipping sprint assignment.');
                 return;
               }
 
-              // Set iteration field to current iteration
               await github.graphql(`
                 mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $iterationId: String!) {
                   updateProjectV2ItemFieldValue(input: {
@@ -339,12 +384,14 @@ jobs:
                 fieldId: sprintField.id,
                 iterationId: currentIteration.id
               });
+
               console.log(`Set item to sprint iteration: ${currentIteration.title}`);
             } else {
-              console.log("Rule matched: NO sprint assignment for this item.");
+              console.log(`No sprint assignment for this item in project ${projectNumber}.`);
             }
 
-  # PRs moved to draft by non-cFS members OR cFS members -> Remove from default project sprint.
+  # PRs moved to draft by non-cFS members OR cFS members:
+  # Remove from the default project's sprint only.
   remove-draft-pr-from-sprint:
     if: ${{ github.event_name == 'pull_request_target' && github.event.action == 'converted_to_draft' }}
     name: Remove draft PR from current sprint
@@ -361,19 +408,17 @@ jobs:
             const pr = context.payload.pull_request;
             const prNodeId = pr.node_id;
 
-            console.log(`PR #${pr.number} is now draft, checking if it needs to be removed from sprint`);
+            console.log(`PR #${pr.number} is now draft. Checking the default project sprint.`);
 
-            // Extract organization and project number from URL
-            const urlMatch = projectUrl.match(/orgs\/([^\/]+)\/projects\/(\d+)/);
+            const urlMatch = projectUrl.match(/orgs\/([^/]+)\/projects\/(\d+)/);
             if (!urlMatch) {
               core.setFailed(`Invalid project URL format: ${projectUrl}`);
               return;
             }
 
             const orgName = urlMatch[1];
-            const projectNumber = parseInt(urlMatch[2]);
+            const projectNumber = parseInt(urlMatch[2], 10);
 
-            // Get project ID and Sprint field ID
             const projectData = await github.graphql(`
               query($org: String!, $number: Int!) {
                 organization(login: $org) {
@@ -397,18 +442,18 @@ jobs:
               return;
             }
 
-            const projectId = projectData.organization.projectV2.id;
+            const project = projectData.organization.projectV2;
+            const projectId = project.id;
 
-            // Safety check in case the Sprint field was deleted from default project
-            if (!projectData.organization.projectV2.sprintField) {
-              console.log("No sprint field found in project. Nothing to remove.");
+            // Safety check if the Sprint field was deleted.
+            if (!project.sprintField) {
+              console.log('No Sprint field found in the default project. Nothing to remove.');
               return;
             }
 
-            const iterationFieldId = projectData.organization.projectV2.sprintField.id;
+            const iterationFieldId = project.sprintField.id;
 
             try {
-              // Find the PR in the project
               let hasNextPage = true;
               let cursor = null;
               let foundPrItem = null;
@@ -437,7 +482,7 @@ jobs:
                                 }
                               }
                             }
-                            fieldValues(first: 20) {
+                            fieldValues(first: 50) {
                               nodes {
                                 ... on ProjectV2ItemFieldIterationValue {
                                   field {
@@ -463,14 +508,12 @@ jobs:
                 const items = result.node.items.nodes;
                 console.log(`Checking batch of ${items.length} items for PR #${pr.number}`);
 
-                // Look for the PR
                 foundPrItem = items.find(item =>
-                  item.content &&
-                  item.content.id === prNodeId
+                  item.content && item.content.id === prNodeId
                 );
 
                 if (foundPrItem) {
-                  console.log(`Found PR #${pr.number} in project items`);
+                  console.log(`Found PR #${pr.number} in project items.`);
                   break;
                 }
 
@@ -479,23 +522,21 @@ jobs:
               }
 
               if (!foundPrItem) {
-                console.log(`PR #${pr.number} not found in project items - nothing to update`);
+                console.log(`PR #${pr.number} not found in default project. Nothing to update.`);
                 return;
               }
 
-              // Check if PR is assigned to an iteration
               const iterationField = foundPrItem.fieldValues.nodes.find(
                 value => value.field && value.field.id === iterationFieldId
               );
 
               if (!iterationField || !iterationField.iterationId) {
-                console.log(`PR #${pr.number} is not assigned to any sprint iteration.`);
+                console.log(`PR #${pr.number} is not assigned to a sprint iteration.`);
                 return;
               }
 
-              console.log(`PR #${pr.number} is currently assigned to iteration: ${iterationField.title}`);
+              console.log(`PR #${pr.number} is assigned to iteration: ${iterationField.title}`);
 
-              // Clear the iteration field (set to null)
               await github.graphql(`
                 mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!) {
                   clearProjectV2ItemFieldValue(input: {
@@ -515,8 +556,6 @@ jobs:
               });
 
               console.log(`Successfully removed PR #${pr.number} from sprint iteration: ${iterationField.title}`);
-
             } catch (error) {
-              console.log(`Error removing PR from sprint:`, error.message);
-              console.log(`Details:`, JSON.stringify(error, null, 2));
+              core.setFailed(`Error removing PR from sprint: ${error.message}`);
             }
