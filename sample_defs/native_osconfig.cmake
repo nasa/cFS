@@ -64,3 +64,21 @@ set(OSAL_CONFIG_UTILITYTASK_PRIORITY 10)
 # Includes DNS support in the name to address conversion
 #
 set(OSAL_CONFIG_INCLUDE_DNS TRUE)
+
+#
+# OSAL_CONFIG_MAX_CPUS
+# --------------------------------
+#
+#  Defines the maximum number of CPU cores that the OSAL can manage and interact with.
+#  This parameter dictates the sizing of internal OSAL data structures, sets the bounds 
+#  for CPU-specific API checks, and determines the required bit width for operations 
+#  like setting and getting Task Affinity masks.
+#
+#  This should be set to the highest number of logical CPU cores available on your 
+#  target platform (or the maximum expected across all platforms in a multi-target 
+#  mission) to ensure masks and arrays are sized correctly without wasting memory.
+#
+# Limits:
+#   Must be an integer greater than 0. 
+#
+set(OSAL_CONFIG_MAX_CPUS 64)

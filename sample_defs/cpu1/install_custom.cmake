@@ -12,7 +12,6 @@ set(APP_INCLUDE_TABLE_LIST
     $<TARGET_PROPERTY:hs,INCLUDE_DIRECTORIES>
     $<TARGET_PROPERTY:cf,INCLUDE_DIRECTORIES>
     $<TARGET_PROPERTY:md,INCLUDE_DIRECTORIES>
-    $<TARGET_PROPERTY:mm,INCLUDE_DIRECTORIES>
     $<TARGET_PROPERTY:cs,INCLUDE_DIRECTORIES>
     $<TARGET_PROPERTY:fm,INCLUDE_DIRECTORIES>
     $<TARGET_PROPERTY:lc,INCLUDE_DIRECTORIES>
@@ -41,6 +40,8 @@ add_cfe_tables(sample_app sample_app_alt1.c)
 add_cfe_tables(to_lab to_lab_sub_alt.c)
 add_cfe_tables(to_lab to_lab_sub_bad.c)
 add_cfe_tables(lc lc_def_adt-test.c)
+add_cfe_tables(sc sc_ats2_test.c)
+add_cfe_tables(sc sc_append_test.c)
 
 # This executes the startup script generator
 install(SCRIPT ${MISSION_DEFS}/generate_startup.cmake)

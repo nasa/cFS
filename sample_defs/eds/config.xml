@@ -43,10 +43,6 @@
     <Define name="RTS_BUFF_SIZE" value="150" />
   </Package>
 
-  <Package name="MM">
-    <Define name="MAX_UNINTERRUPTIBLE_DATA" value="200" />
-  </Package>
-
   <Package name="CF" shortDescription="CF configurable items">
     <Define name="NUM_CHANNELS" value="2" />
     <Define name="NAK_MAX_SEGMENTS" value="58" />

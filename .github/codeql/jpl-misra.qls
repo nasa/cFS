@@ -15,8 +15,8 @@
       # JPL Rules
       - /cpp/jpl-c/*/
 # Exclude queries with too many results
-- exclude: 
-    id: 
+- exclude:
+    id:
       # JPL 14
       - cpp/jpl-c/checking-return-values
       # JPL 15
@@ -26,6 +26,15 @@
       # JPL 24
       - cpp/jpl-c/multiple-stmts-per-line
       - cpp/jpl-c/multiple-var-decls-per-line
+      # CFS allows function pointer typedefs
+      - cpp/jpl-c/hidden-pointer-indirection-typedef
+      # CFS coding standard does not have an assertion requirement
+      - cpp/jpl-c/use-of-assertions-density
+      # CFS coding standard does not have a specific line limit
+      - cpp/jpl-c/function-size-limits
+      # CFS uses limited preprocessor macros and conditional compilation
+      - cpp/jpl-c/preprocessor-use-undisciplined
+      - cpp/jpl-c/preprocessor-use-ifdef
       # Excluded since cFS use unions judiciously
       # MISRA Rule 9-5-1
       - cpp/jsf/av-rule-153

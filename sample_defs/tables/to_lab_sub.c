@@ -43,7 +43,6 @@
 #include "fm_msgids.h"
 #include "lc_msgids.h"
 #include "cs_msgids.h"
-#include "mm_msgids.h"
 #include "sc_msgids.h"
 #include "ds_msgids.h"
 #include "hk_msgids.h"
@@ -83,7 +82,6 @@ TO_LAB_Subs_t TO_LAB_Subs =
         {CFE_SB_MSGID_WRAP_VALUE(MD_HK_TLM_MID),         {0, 0}, 1},
         {CFE_SB_MSGID_WRAP_VALUE(HS_HK_TLM_MID),         {0, 0}, 1},
         {CFE_SB_MSGID_WRAP_VALUE(HK_HK_TLM_MID),         {0, 0}, 1},
-        {CFE_SB_MSGID_WRAP_VALUE(MM_HK_TLM_MID),         {0, 0}, 1},
         {CFE_SB_MSGID_WRAP_VALUE(SC_HK_TLM_MID),         {0, 0}, 1},
         {CFE_SB_MSGID_WRAP_VALUE(FM_HK_TLM_MID),         {0, 0}, 1},
         {CFE_SB_MSGID_WRAP_VALUE(FM_FILE_INFO_TLM_MID),  {0, 0}, 1},

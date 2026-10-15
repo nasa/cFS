@@ -1,0 +1,58 @@
+name: Static Analysis Reusable Workflow
+
+on:
+  workflow_call:
+    inputs:
+      # Optional inputs
+      source-dir:
+        description: Directory containing source files
+        type: string
+        default: 'source'
+      strict-dir-list:
+        description: 'Directory List'
+        type: string
+        default: ''
+      cmake-project-options:
+        description: 'Command line options to pass to CMake'
+        type: string
+        default: ''
+      compile-commands-json:
+        description: 'Reference to compile command JSON file'
+        type: string
+        default: ''
+
+# Force bash to apply pipefail option so pipeline failures aren't masked
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  static-analysis:
+    name: Run Static Analysis
+    runs-on: ubuntu-latest
+    container: ghcr.io/core-flight-system/cfsbuildenv-linux:latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@v6
+        with:
+          path: source
+
+      # Setup the build system
+      - name: Create build tree
+        if: ${{ inputs.compile-commands-json == '' && inputs.cmake-project-options != '' }}
+        id: run-cmake
+        env:
+          CMAKE_OPTIONS: ${{ inputs.cmake-project-options }}
+        run: |
+          cmake ${CMAKE_OPTIONS} -DCMAKE_EXPORT_COMPILE_COMMANDS=TRUE -S source -B build
+          echo "compile-commands-json=${GITHUB_WORKSPACE}/build/compile_commands.json" >> ${GITHUB_OUTPUT}
+
+      - name: Run cppcheck
+        uses: nasa/cFS/actions/cppcheck@dev
+        id: run-cppcheck
+        with:
+          source-dir: ${{ inputs.source-dir }}
+          strict-dir-list: ${{ inputs.strict-dir-list }}
+          compile-commands-json: ${{ inputs.compile-commands-json || steps.run-cmake.outputs.compile-commands-json }}

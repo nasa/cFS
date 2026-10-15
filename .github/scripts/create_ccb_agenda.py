@@ -5,7 +5,7 @@ import time
 import os
 
 # extract pull request data from GitHub
-repos = ['cFS', 'cFE', 'osal', 'psp', 'sch_lab', 'ci_lab', 'to_lab', 'sample_app', 'sample_lib', 'elf2cfetbl', 'tblcrctool','cFS-GroundSystem', 'CF', 'CS', 'DS','FM', 'HK', 'HS', 'LC', 'MD', 'MM', 'SC']
+repos = ['cFS', 'cFE', 'osal', 'psp', 'sch_lab', 'ci_lab', 'to_lab', 'sample_app', 'sample_lib', 'elf2cfetbl', 'tblcrctool','cFS-GroundSystem', 'CF', 'CS', 'DS','FM', 'HK', 'HS', 'LC', 'MD', 'SC']
 
 for repo in repos:
     subprocess.Popen('gh pr list --repo nasa/' + str(repo) + ' --search "draft:false" --json number,author,title,url,additions,deletions,labels | jq -c ' + '\'reduce range(0, length) as $index (.; (.[$index].author=.[$index].author.login | .[$index].number=(.[$index].number|"\'' + str(repo) + '\' PR #\(.)") )) | .[]\' ' + '>> temp.json', shell=True)

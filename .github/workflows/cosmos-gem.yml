@@ -1,0 +1,100 @@
+name: Build COSMOS gem
+
+# Run on all pull requests, and pushes in dev and main branches
+on:
+  push:
+    branches:
+      - dev
+      - main
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+  workflow_dispatch:
+
+# Force bash to apply pipefail option so pipeline failures aren't masked
+defaults:
+  run:
+    shell: bash
+
+env:
+  COSMOS_VERSION: '6.10.5'
+  CFS_CONFIG: native_std
+  GH_HOST: github.com
+  GH_REPO: ${{ github.repository }}
+
+jobs:
+  stage-gem:
+    name: 'Set up CFS source'
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/core-flight-system/cfsbuildenv-linux
+    outputs:
+      version: ${{ steps.get-version.outputs.version }}
+      suffix: ${{ steps.get-version.outputs.suffix }}
+    steps:
+      - name: Checkout Bundle
+        uses: actions/checkout@v6
+        with:
+          submodules: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Determine plugin version
+        id: get-version
+        run: |
+          git config --global --add safe.directory "${GITHUB_WORKSPACE}"
+          git fetch --tags --unshallow --recurse-submodules=no origin
+          echo "version=$(git describe --tags --abbrev=0 --match "v[0-9].[0-9].[0-9]" | tr -d v)" >> ${GITHUB_OUTPUT}
+          echo "suffix=g$(git rev-parse --short HEAD)" >> ${GITHUB_OUTPUT}
+
+      - name: Prepare ${{ env.CFS_CONFIG }} Build
+        run: make ${CFS_CONFIG}.prep
+
+      - name: Stage gem contents
+        run: make ${CFS_CONFIG}.gem
+
+      - name: Upload gem contents
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ env.CFS_CONFIG }}-gem-source
+          path: build-${{ env.CFS_CONFIG }}/cosmos/plugin/*
+
+
+  build-gem:
+    name: 'Build gem binary'
+    needs: stage-gem
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 'Download artifact'
+        uses: actions/download-artifact@v8
+        with:
+          name: ${{ env.CFS_CONFIG }}-gem-source
+          path: build-${{ env.CFS_CONFIG }}
+
+      ## Note this does not use actions/checkout because this is a public repo
+      - name: Check out COSMOS
+        uses: actions/checkout@v6
+        with:
+          repository: 'OpenC3/cosmos-project'
+          ref: 'v${{ env.COSMOS_VERSION }}'
+          path: ./cosmos-project
+
+      - name: Build GEM
+        working-directory: ${{ github.workspace }}/cosmos-project
+        env:
+          GEM_SOURCE_DIR: ${{ github.workspace }}/build-${{ env.CFS_CONFIG }}
+          PLUGIN_VERSION: ${{ needs.stage-gem.outputs.version }}.${{ needs.stage-gem.outputs.suffix }}
+        run: >
+          docker compose run --rm --no-deps
+          -v ${GEM_SOURCE_DIR}:/openc3/local:z
+          --user $(id -u):$(id -g)
+          -w /openc3/local
+          openc3-cosmos-cmd-tlm-api ruby /openc3/bin/openc3cli rake build VERSION=${PLUGIN_VERSION}
+
+      - name: Upload gem binary
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ env.CFS_CONFIG }}-gem-binary
+          path: ./build-${{ env.CFS_CONFIG }}/*.gem

@@ -2,13 +2,27 @@
 
 ## Reporting a Vulnerability
 
-For general cFS vulnerabilities, please [open a cFS framework issue](https://github.com/nasa/cfs/issues/new/choose). Please use the "Bug Report" template and provide as much information as possible. Apply appropriate labels for each report.  
+### Security Vulnerabilities
 
-For security related vulnerabilities, follow the general cFS vulnerabilities instructions and tag the issue with the "security" label.
+**For security-related vulnerabilities, please report them through NASA's official Vulnerability Disclosure Program (VDP):**
 
-## Security Reports
+Submit your report via the Bugcrowd portal: https://bugcrowd.com/engagements/nasa-vdp
 
-To submit sensitive security reports or findings, [contact the cFS Product Team](README.md#contact-the-cfs-product-team).
+The VDP is the preferred channel for all security vulnerability disclosures. This ensures your report is handled appropriately by NASA's security team.
+
+**When reporting a security vulnerability, please include:**
+
+- **Full steps to reproduce the vulnerability** in the complete cFS bundle environment
+- The specific cFS version or commit hash you tested against
+- Any configuration files or modifications made to the default setup
+- Expected vs. actual behavior
+- Potential security impact
+
+**Important:** Vulnerabilities must be reproducible in the **complete cFS bundle** as it is intended to be deployed. Reports based on individual applications tested in isolation with custom harnesses or modified environments that do not reflect actual cFS bundle behavior may not be accepted. The cFS applications are designed to work together as an integrated system, and testing must reflect this architecture.
+
+### General Bugs and Issues
+
+For non-security bugs and general issues, please [open a cFS framework issue](https://github.com/nasa/cfs/issues/new/choose). Please use the "Bug Report" template and provide as much information as possible. Apply appropriate labels for each report.
 
 ## Testing
 
@@ -36,7 +50,7 @@ For more information about Cppcheck, visit http://cppcheck.sourceforge.net/.
 
 CodeSonar results are not available to the public.
 
-CodeSonar is typically ran on a “once per release” sort of schedule.  
+CodeSonar is typically ran on a "once per release" sort of schedule.  
 
 For more information about CodeSonar, visit https://codesecure.com/our-products/codesonar.
 

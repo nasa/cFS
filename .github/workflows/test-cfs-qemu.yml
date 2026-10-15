@@ -36,7 +36,7 @@ jobs:
             path: cfe-usersguide
 
     name: Build ${{ matrix.config }}.${{ matrix.doctype }} Documentation
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     container: ghcr.io/core-flight-system/cfsbuildenv-doxygen:latest
     steps:
       - name: Checkout Bundle
@@ -109,6 +109,8 @@ jobs:
       config-name: ${{ matrix.config }}
       container-image: ${{ matrix.build-image }}
       compression-type: 'gz'
+      run-local-tests: ${{ startsWith(matrix.config, 'native_') }}
+      check-coverage: ${{ startsWith(matrix.config, 'native_') }}
     secrets: inherit
 #    continue-on-error: ${{ matrix.omit-deprecated }}
 
@@ -122,7 +124,7 @@ jobs:
       GH_HOST: github.com
       GH_REPO: nasa/cFS
     needs: build-cfs
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         include:

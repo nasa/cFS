@@ -44,26 +44,9 @@ defaults:
     shell: bash
 
 jobs:
-  # Checks for duplicate actions. Skips push actions if there is a matching or
-  # duplicate pull-request action.
-  checks-for-duplicates:
-    runs-on: ubuntu-latest
-    # Map a step output to a job output
-    outputs:
-      should_skip: ${{ steps.skip_check.outputs.should_skip }}
-    steps:
-      - id: skip_check
-        uses: fkirc/skip-duplicate-actions@master
-        with:
-          concurrent_skipping: 'same_content'
-          skip_after_successful_duplicate: 'true'
-          do_not_skip: '["pull_request", "workflow_dispatch", "schedule"]'
-
   build-doc:
-    needs: checks-for-duplicates
-    if: ${{ needs.checks-for-duplicates.outputs.should_skip != 'true' || contains(github.ref, 'main') || contains(github.ref, 'dev') }}
     name: Build Documentation
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     container: ghcr.io/core-flight-system/cfsbuildenv-doxygen:latest
 
     strategy:
@@ -75,7 +58,7 @@ jobs:
       - name: Get cache if supplied
         id: cache-src-bld
         if: ${{ inputs.cache-key != '' }}
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ${{ env.WORK_PATH }}/
           key: ${{ inputs.cache-key }}
@@ -91,7 +74,17 @@ jobs:
       - name: Build Document
         run: |
           make -C build ${{ matrix.target }} 2>&1 > ${{ matrix.target }}_stdout.txt | tee ${{ matrix.target }}_stderr.txt
-          mv build/docs/${{ matrix.target }}/${{ matrix.target }}-warnings.log .
+
+      - name: Filter warnings
+        env:
+          WORKFLOW_REF: ${{ github.workflow_ref }}
+          APP_NAME: ${{ inputs.app-name }}
+          IN_FILE: ./build/docs/${{ matrix.target }}/${{ matrix.target }}-warnings.log
+          OUT_FILE: ./${{ matrix.target }}-warnings.log
+        run: |
+          app_path=$(grep -A1 "^${APP_NAME}_MISSION_DIR" build/mission_vars.cache | tail -1 || echo .)
+          echo "filtering warnings by app_path=${app_path}"
+          grep "^${app_path}" "${IN_FILE}" | tee "${OUT_FILE}" || /bin/true
 
       - name: Archive Document Build Logs
         uses: actions/upload-artifact@v7
