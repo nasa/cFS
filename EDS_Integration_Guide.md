@@ -2252,7 +2252,7 @@ Common issues when integrating EDS-enabled modules and their solutions:
 | Issue | Possible Cause | Solution |
 |-------|---------------|----------|
 | Missing EDS-generated header files | Incorrect path in `mission_build.cmake` or `arch_build.cmake` | Verify file paths and ensure `generate_configfile_set()` is called with the correct file list |
-| Linker errors with undefined EDS symbols | Missing EDS library linkage | Add `CFE_EDS_ENABLED_BUILD` flag and ensure proper library linking in `CMakeLists.txt` |
+| Linker errors with undefined EDS symbols | Missing EDS library linkage | Add `CFE_EDS_ENABLED` flag and ensure proper library linking in `CMakeLists.txt` |
 | `ym_eds_dispatch.c` compilation errors | Incompatible EDS definitions | Verify EDS XML syntax and ensure it matches the implementation in the dispatch file |
 
 ### Runtime Issues
