@@ -232,7 +232,7 @@
       </LongDescription>
     </Define>
 
-    <Define name="ES_MAX_APPLICATIONS" value="16">
+    <Define name="ES_MAX_APPLICATIONS" value="32">
       <LongDescription>
         \cfeescfg Mission Max Apps in a message
 
