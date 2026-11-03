@@ -60,9 +60,30 @@ jobs:
         uses: core-flight-system/commit-message-checker@main
         if: always()
         with:
-          pattern: '^((Fix|HotFix|Part|Issue|Ticket)\s(nasa/)?[a-zA-Z]*\#[0-9]+[,:]\s[a-zA-Z0-9]+|Merge\spull\srequest\s\#[0-9]+\s[a-zA-Z0-9]+|IC:\s[a-zA-Z0-9]+)'
-          error: 'You need at least one "Fix|HotFix|Part|Issue|Ticket #<issue number><,|:> <short description>" line in the commit message.'
+          pattern: '^(For|HotFix|Part|Issue|Ticket)\s(nasa/)?[a-zA-Z0-9_-]*\#[0-9]+[,:]\s[a-zA-Z0-9]+'
+          error: 'You need at least one "For|HotFix|Part|Issue|Ticket #<issue number><,|:> <short description>" line in the commit message.'
           excludeDescription: 'true'
           excludeTitle: 'true'
           checkAllCommitMessages: 'true'
+          accessToken: ${{ secrets.GITHUB_TOKEN }}
+
+  check-issue-refs:
+    name: Check Issue References
+    # Only run for pull-requests.
+    if: ${{ github.event_name == 'pull_request' && !startsWith(github.head_ref, 'ic-') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      # Check each commit message associated with the pull-request against the pattern.
+      - name: Check each commit message
+        uses: core-flight-system/commit-message-checker@main
+        if: always()
+        with:
+          pattern: '^(Fix|Close|Resolve)[esd]* +(?!nasa/[A-Za-z0-9_-]+)#'
+          flags: 'mi'
+          error: 'All Fix/Close/Resolve refs must be qualified with a specific NASA repo'
+          excludeDescription: 'true'
+          excludeTitle: 'true'
+          checkAllCommitMessages: 'true'
+          invert: 'true'
           accessToken: ${{ secrets.GITHUB_TOKEN }}
