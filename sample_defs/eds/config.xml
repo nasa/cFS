@@ -118,6 +118,17 @@
     <Define name="SIGNATURE_OPTION" value="1" />
   </Package>
 
+  <Package name="SBN">
+    <Define name="MOD_STATUS_MSG_SZ" value="128" />
+    <Define name="MAX_SUBS_PER_PEER" value="256" />
+    <Define name="MAX_MOD_NAME_LEN" value="16" />
+    <Define name="MAX_MOD_CNT" value="8" />
+    <Define name="MAX_PEER_CNT" value="16" />
+    <Define name="MAX_FILTERS_PER_PEER" value="8" />
+    <Define name="ADDR_SZ" value="48" />
+    <Define name="IDENT_LEN" value="48" />
+  </Package>
+
   <Package name="CFE_ES" shortDescription="Executive Services">
     <!-- Placeholder, currently no options yet -->
   </Package>
@@ -564,7 +575,7 @@
     </Define>
 
 
-    <Define name="CORE_API_MAX_FILE_LEN" value="20">
+    <Define name="CORE_API_MAX_FILE_LEN" value="32">
     <LongDescription>
       \cfemissioncfg cFE Maximum length for filenames within data exchange structures
 
@@ -620,7 +631,7 @@
       </LongDescription>
     </Define>
 
-    <Define name="CORE_API_MAX_API_LEN" value="20">
+    <Define name="CORE_API_MAX_API_LEN" value="32">
       <LongDescription>
         \cfemissioncfg cFE Maximum length for API names within data exchange structures
 
