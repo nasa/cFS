@@ -123,6 +123,8 @@
     <Define name="CF_CH1_RX_TOPICID"              value="${CFE_MISSION/TELECOMMAND_BASE_TOPICID} + 183"/>
     <Define name="DS_CMD_TOPICID"                 value="${CFE_MISSION/TELECOMMAND_BASE_TOPICID} + 187"/>
     <Define name="DS_SEND_HK_TOPICID"             value="${CFE_MISSION/TELECOMMAND_BASE_TOPICID} + 188"/>
+    <Define name="SBN_CMD_TOPICID"                value="${CFE_MISSION/TELECOMMAND_BASE_TOPICID} + 189" />
+
 
     <Define name="ES_HK_TLM_TOPICID"             value="${CFE_MISSION/TELEMETRY_BASE_TOPICID} + 000"/>
     <Define name="EVS_HK_TLM_TOPICID"            value="${CFE_MISSION/TELEMETRY_BASE_TOPICID} + 001"/>
@@ -170,6 +172,11 @@
     <Define name="DS_HK_TLM_TOPICID"             value="${CFE_MISSION/TELEMETRY_BASE_TOPICID} + 184"/>
     <Define name="DS_DIAG_TLM_TOPICID"           value="${CFE_MISSION/TELEMETRY_BASE_TOPICID} + 185"/>
     <Define name="DS_COMP_TLM_TOPICID"           value="${CFE_MISSION/TELEMETRY_BASE_TOPICID} + 186"/>
+    <Define name="SBN_HK_TLM_TOPICID"            value="${CFE_MISSION/TELEMETRY_BASE_TOPICID} + 187"/>
+    <Define name="SBN_HK_NET_TLM_TOPICID"        value="${CFE_MISSION/TELEMETRY_BASE_TOPICID} + 188"/>
+    <Define name="SBN_HK_PEER_TLM_TOPICID"       value="${CFE_MISSION/TELEMETRY_BASE_TOPICID} + 189"/>
+    <Define name="SBN_HK_MYSUBS_TLM_TOPICID"     value="${CFE_MISSION/TELEMETRY_BASE_TOPICID} + 190"/>
+    <Define name="SBN_HK_PEERSUBS_TLM_TOPICID"   value="${CFE_MISSION/TELEMETRY_BASE_TOPICID} + 191"/>
 
   </Package>
 </DesignParameters>

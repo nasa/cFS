@@ -98,13 +98,8 @@ LIST(APPEND MISSION_GLOBAL_APPLIST sc)
 LIST(APPEND MISSION_GLOBAL_APPLIST ds)
 LIST(APPEND MISSION_GLOBAL_APPLIST hk)
 
-# Some apps do not have EDS support yet.
-# These should not be included by default when building with EDS.
-if (NOT CFE_EDS_ENABLED AND SIMULATION STREQUAL "native")
-    LIST(APPEND MISSION_GLOBAL_APPLIST sbn)
-    LIST(APPEND MISSION_GLOBAL_APPLIST sbn_udp)
-    LIST(APPEND MISSION_GLOBAL_APPLIST sbn_f_remap)
-endif()
+LIST(APPEND MISSION_GLOBAL_APPLIST sbn)
+SET(MISSION_SBN_MODULELIST sbn_udp sbn_f_remap)
 
 # The "MISSION_GLOBAL_STATIC_APPLIST" is similar to MISSION_GLOBAL_APPLIST
 # but the apps are statically linked.
