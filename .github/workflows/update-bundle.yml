@@ -79,10 +79,12 @@ jobs:
 
       - name: Create integration branch
         if: steps.status-check.outputs.branch-name != ''
+        env:
+          STEP_STATUS_CHECK_BRANCH_NAME: ${{ steps.status-check.outputs.branch-name }}
         run: |
             git config --global user.email "actions@developer.nasa.gov"
             git config --global user.name "Github Action"
-            git checkout -b "${{ steps.status-check.outputs.branch-name }}"
+            git checkout -b "${STEP_STATUS_CHECK_BRANCH_NAME}"
             cat << EOF > ${RUNNER_TEMP}/commit-msg.txt
             Integration Candidate: $(date +%Y-%m-%d) bundle updates
 
@@ -91,13 +93,15 @@ jobs:
               - bundle branch: to ${BASE_BRANCH}
             EOF
             git commit -a -F ${RUNNER_TEMP}/commit-msg.txt
-            git push origin -f "${{ steps.status-check.outputs.branch-name }}"
+            git push origin -f "${STEP_STATUS_CHECK_BRANCH_NAME}"
 
       - name: Create pull request
         if: steps.status-check.outputs.branch-name != ''
+        env:
+          STEP_STATUS_CHECK_BRANCH_NAME: ${{ steps.status-check.outputs.branch-name }}
         run: |
             if [ -e ${RUNNER_TEMP}/pull-request.json ]; then
-              echo "Pull request already exists: ${{ github.server_url }}/${GH_REPO}/pull/$(jq '.[0].number' ${RUNNER_TEMP}/pull-request.json)"
+              echo "Pull request already exists: ${GITHUB_SERVER_URL}/${GH_REPO}/pull/$(jq '.[0].number' ${RUNNER_TEMP}/pull-request.json)"
             else
-              gh pr create -B "${BASE_BRANCH}" -H "${{ steps.status-check.outputs.branch-name }}" --title "Latest bundle updates from ${SUBMODULE_BRANCH} branch" --body 'Created by Github action'
+              gh pr create -B "${BASE_BRANCH}" -H "${STEP_STATUS_CHECK_BRANCH_NAME}" --title "Latest bundle updates from ${SUBMODULE_BRANCH} branch" --body 'Created by Github action'
             fi

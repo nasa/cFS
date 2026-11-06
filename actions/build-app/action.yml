@@ -23,11 +23,15 @@ runs:
   steps:
     - name: Setup environment
       shell: bash
-      run: echo "DESTDIR=$GITHUB_WORKSPACE/staging${{ inputs.tag }}" >> $GITHUB_ENV
+      env:
+        INPUT_TAG: ${{ inputs.tag }}
+      run: echo "DESTDIR=${GITHUB_WORKSPACE}/staging${INPUT_TAG}" >> "$GITHUB_ENV"
 
     - name: Make install
       shell: bash
-      run: make -C build${{ inputs.tag }} mission-install
+      env:
+        INPUT_TAG: ${{ inputs.tag }}
+      run: make -C "build${INPUT_TAG}" mission-install
 
     - name: Create startup link
       shell: bash
@@ -36,8 +40,10 @@ runs:
     - name: Override startup script
       if: inputs.startup-script != ''
       shell: bash
+      env:
+        INPUT_STARTUP_SCRIPT: ${{ inputs.startup-script }}
       run: |
-        cp ${GITHUB_WORKSPACE}/${{ inputs.startup-script }} ${DESTDIR}/exe/cpu1/cf/cfe_es_startup.scr
+        cp "${GITHUB_WORKSPACE}/${INPUT_STARTUP_SCRIPT}" "${DESTDIR}/exe/cpu1/cf/cfe_es_startup.scr"
 
     - name: Create CPU1 tarball
       shell: bash
