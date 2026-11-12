@@ -12,12 +12,16 @@ runs:
     - name: Stop container
       if: inputs.container-id != ''
       shell: bash
-      run: docker stop "${{ inputs.container-id }}"
+      env:
+        INPUT_CONTAINER_ID: ${{ inputs.container-id }}
+      run: docker stop "${INPUT_CONTAINER_ID}"
 
     - name: Remove container
       if: inputs.container-id != ''
       shell: bash
-      run: docker rm "${{ inputs.container-id }}"
+      env:
+        INPUT_CONTAINER_ID: ${{ inputs.container-id }}
+      run: docker rm "${INPUT_CONTAINER_ID}"
 
     - name: List Containers
       shell: bash
