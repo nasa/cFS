@@ -28,17 +28,21 @@ runs:
   steps:
     - name: Fetch conversion XSLT
       shell: bash
+      env:
+        INPUT_CPPCHECK_XSLT_PATH: ${{ inputs.cppcheck-xslt-path }}
       run: |
-        wget -O cppcheck-xml2text.xslt ${{ github.server_url }}/${{ inputs.cppcheck-xslt-path }}/cppcheck-xml2text.xslt
-        wget -O cppcheck-merge.xslt ${{ github.server_url }}/${{ inputs.cppcheck-xslt-path }}/cppcheck-merge.xslt
+        wget -O cppcheck-xml2text.xslt "${GITHUB_SERVER_URL}/${INPUT_CPPCHECK_XSLT_PATH}/cppcheck-xml2text.xslt"
+        wget -O cppcheck-merge.xslt "${GITHUB_SERVER_URL}/${INPUT_CPPCHECK_XSLT_PATH}/cppcheck-merge.xslt"
 
       # If source dirs are specified, just pass them through.  This will examine all .c files in the repo,
       # but it will not see the macro definitions, and thus may not correctly interpret macro usage.
     - name: Source Directory Setup
       if: ${{ inputs.source-dir != '' }}
       shell: bash
+      env:
+        INPUT_SOURCE_DIR: ${{ inputs.source-dir }}
       run: |
-        echo CPPCHECK_OPTS=${{ inputs.source-dir }} >> $GITHUB_ENV
+        echo "CPPCHECK_OPTS=${INPUT_SOURCE_DIR}" >> "$GITHUB_ENV"
 
       # Get the list of files by setting up a build with CMAKE_EXPORT_COMPILE_COMMANDS=ON and
       # referencing the compile_commands.json file produced by the tool.  This will capture the
@@ -46,10 +50,13 @@ runs:
     - name: Compile Commands Setup
       if: ${{ inputs.compile-commands-json != '' }}
       shell: bash
+      env:
+        INPUT_MODULE_PATH: ${{ inputs.module-path }}
+        INPUT_COMPILE_COMMANDS_JSON: ${{ inputs.compile-commands-json }}
       run: |
-        MODULE_PATH=$(realpath $GITHUB_WORKSPACE/${{ inputs.module-path }})
+        MODULE_PATH=$(realpath "$GITHUB_WORKSPACE/${INPUT_MODULE_PATH}")
         echo filtering on $MODULE_PATH
-        jq '[.[] | if (.file | startswith("'$MODULE_PATH'")) then . else empty end]' ${{ inputs.compile-commands-json }} > local-cppcheck-compile-commands.json
+        jq '[.[] | if (.file | startswith("'$MODULE_PATH'")) then . else empty end]' "${INPUT_COMPILE_COMMANDS_JSON}" > local-cppcheck-compile-commands.json
         echo CPPCHECK_OPTS=--project=local-cppcheck-compile-commands.json >> $GITHUB_ENV
 
     - name: Run general cppcheck
@@ -62,9 +69,11 @@ runs:
     - name: Run Strict cppcheck
       if: ${{ inputs.strict-dir-list !='' }}
       shell: bash
+      env:
+        INPUT_STRICT_DIR_LIST: ${{ inputs.strict-dir-list }}
       run: |
         mv cppcheck_err.xml general_cppcheck_err.xml
-        cppcheck --force --inline-suppr --std=c99 --language=c --enable=warning,performance,portability,style --suppress=variableScope --inconclusive --xml ${{ inputs.strict-dir-list }} 2> strict_cppcheck_err.xml
+        cppcheck --force --inline-suppr --std=c99 --language=c --enable=warning,performance,portability,style --suppress=variableScope --inconclusive --xml ${INPUT_STRICT_DIR_LIST} 2> strict_cppcheck_err.xml
         xsltproc --stringparam merge_file strict_cppcheck_err.xml cppcheck-merge.xslt general_cppcheck_err.xml > cppcheck_err.xml
 
     - name: Convert cppcheck results to Markdown

@@ -34,13 +34,17 @@ runs:
     - name: Set up environment variables
       # Apps typically use lowercase targets and uppercase names, this logic is fragile but works
       shell: bash
+      env:
+        INPUT_APP_NAME: ${{ inputs.app-name }}
+        INPUT_DEPENDENCY: ${{ inputs.dependency }}
+        INPUT_CONFIG_NAME: ${{ inputs.config-name }}
       run: |
-        echo "APP_UPPER=$(echo ${{ inputs.app-name }} | sed 's/[a-z]/\U&/g')" >> $GITHUB_ENV
-        echo "APP_LOWER=$(echo ${{ inputs.app-name }} | sed 's/[A-Z]/\L&/g')" >> $GITHUB_ENV
-        APP_DEP="${{ inputs.dependency }}"
+        echo "APP_UPPER=$(echo "$INPUT_APP_NAME" | sed 's/[a-z]/\U&/g')" >> $GITHUB_ENV
+        echo "APP_LOWER=$(echo "$INPUT_APP_NAME" | sed 's/[A-Z]/\L&/g')" >> $GITHUB_ENV
+        APP_DEP="$INPUT_DEPENDENCY"
         echo "APP_DEP_UPPER=$(echo ${APP_DEP##*/} | sed 's/[a-z]/\U&/g')" >> $GITHUB_ENV
         echo "APP_DEP_LOWER=$(echo ${APP_DEP##*/} | sed 's/[A-Z]/\L&/g')" >> $GITHUB_ENV
-        echo "CONFIG_NAME=${{ inputs.config-name }}" >> $GITHUB_ENV
+        echo "CONFIG_NAME=${INPUT_CONFIG_NAME}" >> "$GITHUB_ENV"
         echo "STD_BUILDDIR=build" >> $GITHUB_ENV
 
     # if EDS is enabled then prepare for two separate build dirs
@@ -106,10 +110,12 @@ runs:
     - name: Set up build tree (eds)
       if: fromJSON(inputs.enable-eds)
       shell: bash
+      env:
+        INPUT_CMAKE_OPTIONS: ${{ inputs.cmake-options }}
       run: |
         export DESTDIR=$GITHUB_WORKSPACE/${EDS_BUILDDIR}
         mkdir -p ${DESTDIR}
-        cd ${DESTDIR} && cmake ${{ inputs.cmake-options }} \
+        cd ${DESTDIR} && cmake ${INPUT_CMAKE_OPTIONS} \
           -DCFE_EDS_ENABLED=ON \
           -DEDSLIB_PYTHON_BUILD_STANDALONE_MODULE=ON \
           -DCFE_MISSIONLIB_PYTHON_BUILD_STANDALONE_MODULE=ON \
@@ -117,7 +123,9 @@ runs:
 
     - name: Set up build tree (std)
       shell: bash
+      env:
+        INPUT_CMAKE_OPTIONS: ${{ inputs.cmake-options }}
       run: |
         export DESTDIR=$GITHUB_WORKSPACE/${STD_BUILDDIR}
         mkdir -p ${DESTDIR}
-        cd ${DESTDIR} && cmake ${{ inputs.cmake-options }} "$GITHUB_WORKSPACE/cfe"
+        cd ${DESTDIR} && cmake ${INPUT_CMAKE_OPTIONS} "$GITHUB_WORKSPACE/cfe"
