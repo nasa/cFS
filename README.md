@@ -4,7 +4,7 @@
 
 The Core Flight System (cFS) is a generic flight software architecture framework used on flagship spacecraft, human spacecraft, cubesats, and Raspberry Pi. This repository is a bundle containing submodules that make up the cFS framework. **Note the "lab" apps are demos intended as examples only, and enable this bundle to build, execute, receive commands, and send telemetry. This is not a flight distribution, which is typically made up of the cFE, OSAL, PSP, and a selection of flight apps that correspond to specific mission requirements. It should not be flown as is.**
 
-**This bundle has not been fully verified** as an operational system, and is provided as a starting point as opposed an end product. Testing of this bundle consists of building, executing, sending setup commands and verifying receipt of telemetry. Unit testing is also run, but extensive analysis is not performed. All verification and validation per mission requirements is the responsibility of the mission (although attempts are made in the cFS Framework to provide a testing framework to facilitate the process).
+**This bundle has not been fully verified** as an operational system, and is provided as a starting point as opposed to an end product. Testing of this bundle consists of building, executing, sending setup commands and verifying receipt of telemetry. Unit testing is also run, but extensive analysis is not performed. All verification and validation per mission requirements is the responsibility of the mission (although attempts are made in the cFS Framework to provide a testing framework to facilitate the process).
 
 The cFS Framework is a core subset of cFS, with an extensive ecosystem of applications and tools available throughout the community.
 
@@ -34,11 +34,10 @@ More information is available on the [cFS Website](<https://cfs.gsfc.nasa.gov>).
 
 - [References](#references-documentation)
 - [Release Notes](#release-notes)
-- [Open Source Roadmap](#open-source-roadmap)
-- [Upcoming Release](#upcoming-release)
+- [Upcoming Releases](#upcoming-releases)
 - [Getting Help](#getting-help)
 - [Setup](#setup)
-- [Build and Run](#build-and-run)
+- [Build and Run Quick Start](#build-and-run-quick-start)
 - [Related Capability](#related-capability)
 
 ## References Documentation
@@ -92,7 +91,7 @@ You can email the cFS Product Team at [cfs-program@lists.nasa.gov](<mailto:cfs-p
 
 ## Setup
 
-Ensure the following software are installed: Make, CMake, GCC, and Git. To setup the cFS BUNDLE directly from the latest set of interoperable repositories:
+Ensure the following software is installed: Make, CMake, GCC, and Git. To set up the cFS BUNDLE directly from the latest set of interoperable repositories:
 
     git clone https://github.com/nasa/cFS.git
     cd cFS
@@ -117,7 +116,7 @@ In order to boot CFE, the default linux PSP requires that the working directory 
     cd build-native_std/exe/cpu1/
     ./core-cpu1
 
-Should see startup messages, and CFE_ES_Main entering OPERATIONAL state. Note the code must be executed from the build/exe/cpu1 directory to find the startup script and shared objects.
+Should see startup messages, and CFE_ES_Main entering OPERATIONAL state. Note the code must be executed from the build-native_std/exe/cpu1 directory to find the startup script and shared objects.
 
 ### Other Build configurations
 
@@ -128,7 +127,7 @@ The following configurations are defined, which build for the native machine and
  - `native_std`: the traditional Linux development build, targets the local machine architecture (native), debugging enabled, includes unit tests
  - `native_eds`: like native_std but enables EDS. This is the reference configuration for EDS development and testing.
  - `osal`: compiles OSAL in a standalone manner, creates a library that can be linked into any application
- - `edslib`: complies EdsLib in a standalone manner, creates a library that can be linked into any application
+ - `edslib`: compiles EdsLib in a standalone manner, creates a library that can be linked into any application
 
 The following configurations utilize cross compilers and require that the respective toolchain is installed on the host (instructions provided separately where relevant)
 
@@ -199,7 +198,7 @@ See the [cFE Application Developer's Guide](https://github.com/nasa/cFE/blob/mai
   - BPNode: DTN Bundle Protocol application at <https://github.com/nasa/bp>
   - CS: Checksum application at <https://github.com/nasa/CS>
   - CF: CFDP application at <https://github.com/nasa/CF>
-  - DS: Data Store application at <https://github.com/nasa/DS>
+  - DS: Data Storage application at <https://github.com/nasa/DS>
   - FM: File Manager application at <https://github.com/nasa/FM>
   - HK: Housekeeping application at <https://github.com/nasa/HK>
   - HS: Health and Safety application at <https://github.com/nasa/HS>
