@@ -1,0 +1,88 @@
+name: Snapshot CFS bundle
+
+# Controls when the action will run.
+on:
+  workflow_dispatch:
+    inputs:
+      base-branch:
+        description: 'The base branch to merge into (main)'
+        type: string
+        required: false
+        default: ''
+      ic-branch:
+        description: 'The temporary integration branch to create (ic)'
+        type: string
+        required: false
+        default: ''
+      dev-branch:
+        description: 'The branch to pull in (dev)'
+        type: string
+        required: false
+        default: ''
+      pr-label:
+        description: 'The label(s) to apply to the generated PR'
+        type: string
+        required: false
+        default: 'continuous-integration'
+
+permissions:
+  issues: write
+  contents: write
+  pull-requests: write
+  actions: write
+
+env:
+  BASE_BRANCH: ${{ inputs.base-branch || 'main' }}
+  DEV_BRANCH: ${{ inputs.dev-branch || github.event.repository.default_branch }}
+  PR_LABEL: ${{ inputs.pr-label }}
+  GH_REPO: ${{ github.repository }}
+  GH_HOST: github.com
+  GH_TOKEN: ${{ secrets.GH_PAT || github.token }}
+
+jobs:
+  snapshot-submodules:
+    name: Snapshot CFS submodules
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Determine IC branch
+        env:
+          IC_BRANCH_IN: ${{ inputs.ic-branch }}
+        run: |
+          DATE_TAG=$(date +%Y%m%d)
+          if [ -z "${IC_BRANCH_IN}" ]
+          then
+            IC_BRANCH=ic-${DATE_TAG}
+          else
+            IC_BRANCH=${IC_BRANCH_IN}
+          fi
+          echo "IC_BRANCH=${IC_BRANCH}" >> ${GITHUB_ENV}
+          echo "DATE_TAG=${DATE_TAG}" >> ${GITHUB_ENV}
+
+      - name: Checkout bundle
+        uses: actions/checkout@v6
+        with:
+          repository: ${{ github.repository }}
+          submodules: false
+          ref: ${{ env.BASE_BRANCH }}
+          token: ${{ env.GH_TOKEN }}
+
+      - name: Trigger snapshot workflow in all submodules
+        run: |
+          sed -e 's/\s*//g' .gitmodules | awk -e 'BEGIN { FS="="; } $1 == "url" { print $2 }' | while read url
+          do
+            GH_REPO=${url##*${GH_HOST}/}
+            GH_REPO=${GH_REPO%.git}
+            echo GH_REPO=${GH_REPO}
+            gh workflow run snapshot-module.yml -R "${GH_REPO}" --ref "${DEV_BRANCH}" -f "ic-branch=${IC_BRANCH}" -f "base-branch=${BASE_BRANCH}" -f "dev-branch=${DEV_BRANCH}" -f "pr-label=${PR_LABEL}"
+          done
+
+      # Kick off the update bundle workflow.  This needs to have all the workflows in the previous step
+      # done before this will work.  If this fails due to a missing branch because a workflow had not
+      # completed yet, it can be easily re-run via the GUI.
+      - name: Trigger update workflow in bundle
+        env:
+          GH_REPO: ${{ github.repository }}
+        run: |
+          echo "Delay while submodule workflows complete" && sleep 60
+          gh workflow run update-bundle.yml -R "${GH_REPO}" --ref "${DEV_BRANCH}" -f "base-branch=${BASE_BRANCH}" -f "submodule-branch=${IC_BRANCH}"

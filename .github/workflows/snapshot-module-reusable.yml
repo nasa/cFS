@@ -1,0 +1,119 @@
+name: Snapshot CFS bundle
+
+# Controls when the action will run.
+on:
+  workflow_call:
+    inputs:
+      base-branch:
+        description: 'The base branch to merge into (main)'
+        type: string
+        required: false
+        default: ''
+      ic-branch:
+        description: 'The temporary integration branch to create (ic)'
+        type: string
+        required: false
+        default: ''
+      dev-branch:
+        description: 'The branch to pull in (dev)'
+        type: string
+        required: false
+        default: ''
+      pr-label:
+        description: 'The label(s) to apply to the generated PR'
+        type: string
+        required: false
+        default: ''
+
+permissions:
+  issues: write
+  contents: write
+  pull-requests: write
+  actions: write
+
+env:
+  BASE_BRANCH: ${{ inputs.base-branch || 'main' }}
+  DEV_BRANCH: ${{ inputs.dev-branch || github.event.repository.default_branch }}
+  PR_LABEL: ${{ inputs.pr-label }}
+  GH_REPO: ${{ github.repository }}
+  GH_HOST: github.com
+  GH_TOKEN: ${{ secrets.GH_PAT || github.token }}
+
+jobs:
+  snapshot-module:
+    name: Snapshot CFS submodule
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Determine IC branch
+        env:
+          IC_BRANCH_IN: ${{ inputs.ic-branch }}
+        run: |
+          DATE_TAG=$(date +%Y%m%d)
+          if [ -z "${IC_BRANCH_IN}" ]
+          then
+            IC_BRANCH=ic-${DATE_TAG}
+          else
+            IC_BRANCH=${IC_BRANCH_IN}
+          fi
+          echo "IC_BRANCH=${IC_BRANCH}" >> ${GITHUB_ENV}
+          echo "DATE_TAG=${DATE_TAG}" >> ${GITHUB_ENV}
+
+      - name: Checkout Source
+        uses: actions/checkout@v6
+        with:
+          repository: ${{ github.repository }}
+          submodules: false
+          ref: ${{ env.BASE_BRANCH }}
+          token: ${{ env.GH_TOKEN }}
+
+      - name: Fetch dev branch
+        run: git fetch origin --no-tags --unshallow refs/heads/${BASE_BRANCH}:ref-${BASE_BRANCH} refs/heads/${DEV_BRANCH}:${DEV_BRANCH}
+
+      - name: Create integration branch
+        run: git checkout -b ${IC_BRANCH} ref-${BASE_BRANCH}
+
+      - name: Set up git user info
+        run: |
+          git config --global user.email "actions@${GH_HOST}"
+          git config --global user.name "Github Action"
+
+      - name: Merge dev branch into integration candidate
+        run: |
+          cat << EOF > ${RUNNER_TEMP}/commit-msg.txt
+          IC: $(date +%Y-%m-%d) development snapshot
+
+          Automatically generated code snapshot
+            - development branch: ${DEV_BRANCH}
+            - target branch: ${BASE_BRANCH}
+          EOF
+          # Most of the time this should be a FF merge, but not
+          # doing as FF so we can put a snapshot commit msg on it
+          # There must not be conflicts, if there are, then this cannot be done automatically.
+          git merge --no-ff -F ${RUNNER_TEMP}/commit-msg.txt ${DEV_BRANCH}
+
+      - name: Push IC branch
+        run: |
+          # Do not force-push direct to the base branch
+          if [ "${IC_BRANCH}" == "${BASE_BRANCH}" ]
+          then
+            FORCE_FLAG=""
+          else
+            FORCE_FLAG="+"
+          fi
+          git push origin "${FORCE_FLAG}${IC_BRANCH}"
+
+      - name: Create PR
+        if: env.IC_BRANCH != env.BASE_BRANCH
+        env:
+          PR_LABEL_IN: ${{ inputs.pr-label }}
+          GH_REPO: ${{ github.repository }}
+          GH_ACTOR: ${{ github.actor }}
+        run: |
+          if [ -z "${PR_LABEL_IN}" ]
+          then
+            LABEL_OPTS=""
+          else
+            LABEL_OPTS="-l ${PR_LABEL_IN}"
+          fi
+          gh pr create -R "${GH_REPO}" -a "${GH_ACTOR}" -B "${BASE_BRANCH}" -H "${IC_BRANCH}" --title "${DATE_TAG} development snapshot" ${LABEL_OPTS} -F "${RUNNER_TEMP}/commit-msg.txt"
